@@ -10,7 +10,7 @@
 #   x
 # }
 
-new_spark_tbl <- function(sdf) {
+new_spark_tbl <- function(sdf, ...) {
   if (class(sdf) != "SparkDataFrame") {
     stop("Incoming object of class ", class(sdf),
          "must be of class 'SparkDataFrame'")
@@ -19,7 +19,7 @@ new_spark_tbl <- function(sdf) {
                        class = c("spark_tbl", "list"),
                        DataFrame = sdf)
   names(spk_tbl) <- names(sdf)
-  spk_tbl
+  tibble:::update_tibble_attrs(spk_tbl, ...)
 }
 
 # Let's create a helper generic
@@ -28,9 +28,9 @@ spark_tbl <- function(x, ...) {
 }
 
 # create a method for data.frame (in memory) objects
-spark_tbl.data.frame <- function(.df) {
+spark_tbl.data.frame <- function(.df, ...) {
   df <- SparkR::createDataFrame(.df)
-  new_spark_tbl(df)
+  new_spark_tbl(df, ...)
 }
 
 is.spark_tbl <- function(x) {
@@ -45,8 +45,12 @@ print.spark_tbl <- function(x) {
                  function(l) {
                    paste0(paste(l, collapse = " <"), ">")
                  })
+  cat("A ", class(x)[1], ": ?? x ", length(cols), "\n", sep = "")
+  if (!is.null(attr(x, "groups"))) {
+    cat("Groups: ", paste0(attr(x, "groups"), collapse = ", "), "\n", sep = "")
+  }
   s <- paste(cols, collapse = ", ")
-  cat(paste(class(x)[1], "[", s, "]\n", sep = ""))
+  cat(paste("[", s, "]\n", sep = ""))
 }
 
 # in case we do want to see results, let's give a display
@@ -81,17 +85,5 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
     vars <- dplyr:::deparse_names(vars)
   }
 
-  browser()
-
-
-  tibble:::update_tibble_attrs(x, ...)
-  #grouped_df_impl(data, unname(vars), drop)
-}
-
-grouped_spark_tbl <- function(sdf) {
-
-  new_spark_tbl
-
-  new("GroupedData", sgd)
-
+  new_spark_tbl(attr(data, "DataFrame"), groups = vars)
 }

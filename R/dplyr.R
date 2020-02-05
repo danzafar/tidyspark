@@ -75,22 +75,85 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 # diving into the group-by summarise implementation, Spark actually has a
 # special data type for grouped data. Summarise (agg) only works on grouped
 # data. So in addition to the syntax, we need to do grouping in a dplyr way
-# do looks like dplyr also has it's own class for grouped data
+# so looks like dplyr also has it's own class for grouped data
+
+# updates:
+# the strategy is to virtually group the data by adding an attribute in
+# dplyr with the grouping vars which can be used in a print function, then
+# actually call groupBy in spark as part of the summarise function. The
+# corresponding function in spark, agg, takes a special object of type
+# GroupedData. We don't want to pass that thing around, just get it when we
+# need it.
 
 # group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
                                .drop = group_by_drop_default(.data)) {
 
-  groups <- group_by_prepare(.data, ..., add = add)
+  groups <- dplyr:::group_by_prepare(.data, ..., add = add)
+  grouped_spark_tbl(.data, groups$group_names)
 
+}
+
+# actually group it in spark
+group_data <- function(.data) {
+
+  tbl_groups <- attr(.data, "groups")
+
+  if (is.null(tbl_groups)) stop("Incoming spark_tbl must be grouped")
   sdf <- attr(.data, "DataFrame")
-  jcol <- lapply(groups$group_names, function(x) sdf[[x]]@jc)
+  jcol <- lapply(tbl_groups, function(x) sdf[[x]]@jc)
   sgd <- SparkR:::callJMethod(sdf@sdf, "groupBy", jcol)
   SparkR:::groupedData(sgd)
 }
 
+
 # summarise
+#' Title
+#'
+#' @param .data
+#' @param ...
+#'
+#' @return
+#' @importFrom rlang enquos
+#' @importFrom SparkR groupBy callJMethod
+#' @export
 summarise.spark_tbl <- function(.data, ...) {
-  dots <- enquos(..., .named = TRUE)
-  summarise_impl(.data, dots, environment(), caller_env())
+  dots <- rlang::enquos(..., .named = TRUE)
+
+  sdf <- attr(.data, "DataFrame")
+  tbl_groups <- attr(.data, "groups")
+
+  sgd <- if (is.null(tbl_groups)) {
+    SparkR::groupBy(sdf)
+    } else group_data(.data)
+
+  agg <- list()
+  orig_df_cols <- setNames(lapply(names(sdf), function(x) sdf[[x]]), names(sdf))
+  for (i in seq_along(dots)) {
+    name <- names(dots)[[i]]
+    dot <- dots[[i]]
+
+    new_df_cols <- lapply(names(agg), function(x) agg[[x]])
+    updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
+    agg[[name]] <- rlang::eval_tidy(dot, updated_cols)
+  }
+
+  for (n in names(agg)) {
+    if (n != "") {
+      agg[[n]] <- SparkR::alias(agg[[n]], n)
+    }
+  }
+
+  jcols <- setNames(lapply(seq_along(agg), function(x) agg[[i]]@jc), names(agg))
+
+  sdf <- SparkR:::callJMethod(sgd@sgd, "agg", jcols[[1]], jcols[-1])
+
+  new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
+
+# p %>%
+#   dplyr::group_by(Species) %>%
+#   dplyr::summarise(Sepal_new = sum(Sepal_Width)) %>%
+#   collect
+
+
