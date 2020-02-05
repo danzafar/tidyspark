@@ -28,12 +28,19 @@ spark_tbl <- function(x, ...) {
 }
 
 # create a method for data.frame (in memory) objects
+# sparklyr also supports the ability to copy large data to disk
+# and then read it back in, which supports larger files
 spark_tbl.data.frame <- function(.df, ...) {
   df <- if (all(dim(.df) == c(0, 0))) {
     spark <- SparkR:::getSparkSession()
     sdf <- SparkR:::callJMethod(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
-  } else df <- SparkR::createDataFrame(.df)
+  } else if (object.size(.df) <= 100000){
+    SparkR::createDataFrame(.df)
+  } else {
+    stop("Hold up, Dan is working on conversion for data frames
+         larger than 100kb, meanwhile, play with `spark_tbl(iris)` 👍")
+  }
 
   new_spark_tbl(df, ...)
 }
