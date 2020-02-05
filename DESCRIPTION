@@ -1,11 +1,10 @@
-Package: tidySparkR
+Package: tidy_spark
 Type: Package
-Title: What the Package Does (Title Case)
+Title: A Tidy Interface to Spark
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: S Daniel Zafar
+Maintainer: S Daniel Zafar <dan.zafar@databricks.com>
+Description: Provides a familiar dplyr, tidy implementation for Spark
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
