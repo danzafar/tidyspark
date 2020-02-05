@@ -1,4 +1,4 @@
-sparklyr: tidy interface for Apache Spark
+tidyspark: tidy interface for Apache Spark
 ================
 
 ## Installation
