@@ -100,3 +100,31 @@ and it is not needed in subsequent code. For more information on connecting to r
 Spark clusters you can use the `master` argument for `spark_session`. Refer to 
 [this page](https://spark.apache.org/docs/latest/submitting-applications.html#master-urls)
 for more information.
+
+## Using dplyr
+
+Following `sparklyr`'s readme, we can now use all of the available dplyr verbs against the tables
+within the cluster.
+
+We’ll start by copying some datasets from R into the Spark cluster (note
+that you may need to install the nycflights13 and Lahman packages in
+order to execute this code):
+
+``` r
+install.packages(c("nycflights13", "Lahman"))
+```
+
+``` r
+spark_session()
+library(dplyr)
+iris_tbl <- spark_tbl(iris)
+flights_tbl <- spark_tbl(nycflights13::flights)
+batting_tbl <- spark_tbl(Lahman::Batting)
+```
+
+To start with here’s a simple filtering example:
+
+``` r
+# filter by departure delay and print the first few records
+flights_tbl %>% filter(dep_delay == 2)
+```
