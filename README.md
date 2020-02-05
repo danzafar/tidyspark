@@ -42,7 +42,7 @@ uses a backend similar to `dbconnect`. With `sparkyr`, dplyr commands are transl
 syntax and that is passed to SparkSQL. While this solves the syntax problem, it also
 creates another layer of complexity which is prone to error. Thus, Spark experts complain of bug 
 and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows 
-more efficent execution plans. This eventually leads to the question, "choose 1: syntax or functionality".
+more efficent execution plans. This eventually leads to the question, "choose one: syntax or functionality?".
 
 `tidyspark` represents a "best of both worlds" approach. The goal of `tidyspark` is to provide a
 tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. This ensures that
