@@ -37,10 +37,11 @@ library(SparkR)
 drop(join(left, right, left$name == right$name, "left_outer"), left$name)
 ```
 
-Many R users, accustomed to a tidy API seek refuge in RStudio's `sparklyr` which
+Many R users, accustomed to a tidy API, seek refuge in RStudio's `sparklyr` which
 uses a backend similar to `dbconnect`. With `sparkyr`, dplyr commands are translated into SQL
-syntax and that is passed to SparkSQL. While this solves the syntax problem, it also
-creates another layer of complexity which is prone to error. Thus, Spark experts complain of bug 
+syntax and that is passed to SparkSQL. `sparklyr` is based on the RDD API and centers around the
+Spark Context, though the RDD API will be deprecated with Spark 3.0.0. While this solves the syntax 
+problem, it also creates another layer of complexity. As such, Spark experts complain of bug 
 and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows 
 more efficent execution plans. This eventually leads to the question, "choose one: syntax or functionality?".
 
