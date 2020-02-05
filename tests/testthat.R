@@ -1,4 +1,8 @@
 library(testthat)
-library(tidySparkR)
+library(tidyspark)
 
-test_check("tidySparkR")
+spark_session()
+
+test_check("tidyspark")
+
+spark_session_stop()

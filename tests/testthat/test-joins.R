@@ -2,8 +2,6 @@
 library(testthat)
 library(dplyr)
 
-SparkR::sparkR.session()
-
 iris <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
@@ -131,8 +129,4 @@ test_that("joins matches NAs by default", {
   expect_equal(nrow(inner_join(df1, df2, by = "x") %>% collect), 1)
   expect_equal(nrow(semi_join(df1, df2, by = "x") %>% collect), 1)
 })
-
-
-SparkR::sparkR.session.stop()
-
 

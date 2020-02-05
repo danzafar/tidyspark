@@ -1,10 +1,10 @@
-Package: tidy_spark
+Package: tidyspark
 Type: Package
 Title: A Tidy Interface to Spark
 Version: 0.1.0
 Author: S Daniel Zafar
 Maintainer: S Daniel Zafar <dan.zafar@databricks.com>
-Description: Provides a familiar dplyr, tidy implementation for Spark
+Description: Provides a familiar interface for Spark, following tidyverse syntax
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

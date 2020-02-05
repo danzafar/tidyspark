@@ -2,7 +2,6 @@
 library(testthat)
 library(dplyr)
 
-SparkR::sparkR.session()
 iris <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
@@ -73,5 +72,3 @@ test_that("Mutate with mutiple args works", {
   )
 })
 
-
-SparkR::sparkR.session.stop()

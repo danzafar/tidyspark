@@ -1,7 +1,6 @@
 library(testthat)
 library(dplyr)
 
-SparkR::sparkR.session()
 iris <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
@@ -43,4 +42,3 @@ test_that("other tidy filters work", {
                  filter_all(any_vars(. == 3.4)))
 })
 
-SparkR::sparkR.session.stop()

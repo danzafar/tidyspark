@@ -88,8 +88,11 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 # group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
                                .drop = group_by_drop_default(.data)) {
-
   groups <- dplyr:::group_by_prepare(.data, ..., add = add)
+  valid <- groups$group_names %in% tbl_vars(.data)
+  if (!all(valid)) {
+    stop("Column '", groups$group_names[!valid][1], "' is unknown")
+  }
   grouped_spark_tbl(.data, groups$group_names)
 
 }
@@ -129,6 +132,7 @@ summarise.spark_tbl <- function(.data, ...) {
 
   agg <- list()
   orig_df_cols <- setNames(lapply(names(sdf), function(x) sdf[[x]]), names(sdf))
+
   for (i in seq_along(dots)) {
     name <- names(dots)[[i]]
     dot <- dots[[i]]
@@ -138,22 +142,20 @@ summarise.spark_tbl <- function(.data, ...) {
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols)
   }
 
-  for (n in names(agg)) {
-    if (n != "") {
-      agg[[n]] <- SparkR::alias(agg[[n]], n)
+  for (i in names(agg)) {
+    if (i != "") {
+      # if (is.numeric(agg[[i]])) {
+      #   agg[[i]] <- SparkR::as.DataFrame(setNames(data.frame(x = agg[[i]]), i))[[1]]
+      # }
+      agg[[i]] <- SparkR::alias(agg[[i]], i)
     }
   }
 
-  jcols <- setNames(lapply(seq_along(agg), function(x) agg[[i]]@jc), names(agg))
+  jcols <- setNames(lapply(seq_along(agg), function(x) agg[[x]]@jc), names(agg))
 
   sdf <- SparkR:::callJMethod(sgd@sgd, "agg", jcols[[1]], jcols[-1])
 
   new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
-
-# p %>%
-#   dplyr::group_by(Species) %>%
-#   dplyr::summarise(Sepal_new = sum(Sepal_Width)) %>%
-#   collect
 
 

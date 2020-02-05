@@ -29,7 +29,12 @@ spark_tbl <- function(x, ...) {
 
 # create a method for data.frame (in memory) objects
 spark_tbl.data.frame <- function(.df, ...) {
-  df <- SparkR::createDataFrame(.df)
+  df <- if (all(dim(.df) == c(0, 0))) {
+    spark <- SparkR:::getSparkSession()
+    sdf <- SparkR:::callJMethod(spark, "emptyDataFrame")
+    new("SparkDataFrame", sdf, F)
+  } else df <- SparkR::createDataFrame(.df)
+
   new_spark_tbl(df, ...)
 }
 
