@@ -1,5 +1,70 @@
-tidyspark: tidy interface for Apache Spark
+tidyspark: tidy interface for Apache SparkR
 ================
+
+## Motivation
+With the advent of the `tidyverse`, R coders expect a clean, tidy,
+and standardized API for interacting with packages. Unfortunetely Apache SparkR's
+interface contains numererous namespace conflicts with dplyr:
+
+```
+> library(SparkR)
+
+Attaching package: ‘SparkR’
+
+The following objects are masked from ‘package:dplyr’:
+
+    arrange, between, coalesce, collect, contains, count, cume_dist,
+    dense_rank, desc, distinct, explain, expr, filter, first, group_by,
+    intersect, lag, last, lead, mutate, n, n_distinct, ntile,
+    percent_rank, rename, row_number, sample_frac, select, slice, sql,
+    summarize, union
+
+The following objects are masked from ‘package:stats’:
+
+    cov, filter, lag, na.omit, predict, sd, var, window
+
+The following objects are masked from ‘package:base’:
+
+    as.data.frame, colnames, colnames<-, drop, endsWith, intersect,
+    rank, rbind, sample, startsWith, subset, summary, transform, union
+```
+
+and can be clunky:
+
+```
+# Prevent duplicated columns when joining two dataframes
+library(SparkR)
+drop(join(left, right, left$name == right$name), left$name)
+```
+
+Many R users, accustomed to a tidy API seek refuge in RStudio's `sparklyr` which
+uses a backend similar to `dbconnect`. With `sparkyr`, dplyr commands are translated into SQL
+syntax and that is passed to SparkSQL. While this solves the syntax problem, it also
+creates another layer of complexity which is prone to error. Thus, Spark experts complain of bug 
+and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows 
+more efficent execution plans. This eventually leads to the question, "choose 1: syntax or functionality".
+
+`tidyspark` represents a "best of both worlds" approach. The goal of `tidyspark` is to provide a
+tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. This ensures that
+R users get the funcationality of `SparkR` with the syntax of `sparklyr`.
+
+## Status
+This library is nacent (first code written Jan 23, 2020). The primary focus is to bring Spark's DataFrame API into dplyr methods, while preserving as many ancillary functions (such as `n_distinct`, `n()`, `length`, etc.) as possible. So far, the following `dplyr` verbs are supported:
+
+- `select`/`rename`
+- `mutate`
+- `filter`
+- all joins except `cross_joins`
+- `summarise`
+- `group_by(...) %>% summarise(...)`
+
+The following workflows are still being developed
+- `group_by(...) %>% mutate(...)`
+- `group_by(...) %>% filter(...)`
+- `gather`/`spread` (`pivot_wider`/`pivot_longer` in `dplyr` 1.0.0)
+- `nest`
+
+At this time, the package should be considered a proof-of-concept.
 
 ## Installation
 
