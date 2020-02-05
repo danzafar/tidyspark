@@ -34,7 +34,7 @@ and can be clunky:
 ```
 # Prevent duplicated columns when joining two dataframes
 library(SparkR)
-drop(join(left, right, left$name == right$name), left$name)
+drop(join(left, right, left$name == right$name, "left_outer"), left$name)
 ```
 
 Many R users, accustomed to a tidy API seek refuge in RStudio's `sparklyr` which
