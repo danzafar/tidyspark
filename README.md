@@ -74,7 +74,7 @@ Github as follows:
 
 ``` r
 install.packages("SparkR")
-devtools::install_github("tidyspark")
+devtools::install_github("danzafar/tidyspark")
 ```
 
 You should also install a local version of Spark for development
