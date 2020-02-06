@@ -31,16 +31,27 @@ spark_tbl <- function(x, ...) {
 # sparklyr also supports the ability to copy large data to disk
 # and then read it back in, which supports larger files
 spark_tbl.data.frame <- function(.df, ...) {
+
+  # sanitize the incoming table names, SparkR does it...raucously
+  new_names <- names(.df)
+  regex <- list(`^\\s*|\\s*$` = "", `[\\s.]+` = "_",
+                `[^\\w_]` = "", `^(\\W)` = "V\\1")
+  nm <- names(regex)
+  for (i in seq_along(regex)) {
+    new_names <- gsub(nm[[i]], regex[[i]], new_names, perl = TRUE)
+    }
+  names(.df) <- make.unique(new_names, sep = "_")
+
+  # convert the data frame
   df <- if (all(dim(.df) == c(0, 0))) {
     spark <- SparkR:::getSparkSession()
     sdf <- SparkR:::callJMethod(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
   } else if (object.size(.df) <= 100000){
     SparkR::createDataFrame(.df)
-  } else {
-    stop("Hold up, Dan is working on conversion for data frames
-         larger than 100kb, meanwhile, play with `spark_tbl(iris)` 👍")
-  }
+  } else serialize_csv(.df)    # I lose the timestamps........................
+    # stop("Hold up, Dan is working on conversion for data frames
+    #      larger than 100kb, meanwhile, play with `spark_tbl(iris)` 👍")
 
   new_spark_tbl(df, ...)
 }
