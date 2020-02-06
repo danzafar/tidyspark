@@ -129,3 +129,32 @@ To start with here’s a simple filtering example:
 # filter by departure delay and print the first few records
 flights_tbl %>% filter(dep_delay == 2)
 ```
+Unlike `sparklyr`, this only returns the schema of the resulting `DataFrame`, not a sample of
+the data. This approach avoids time-consuming spark jobs set off by accidental `print`s.
+
+    A spark_tbl: ?? x 19
+    [year <int>, month <int>, day <int>, dep_time <int>, sched_dep_time <int>, dep_delay <double>, arr_time <int>, sched_arr_time <int>, arr_delay <double>, carrier <string>, flight <int>, tailnum <string>, origin <string>, dest <string>, air_time <double>, distance <double>, hour <double>, minute <double>, time_hour <timestamp>]
+    
+To display data, use the `display` or `glimpse` commands:
+``` r
+# filter by departure delay and print the first few records
+flights_tbl %>% filter(dep_delay == 2) %>% display
+```
+
+    # A tibble: 10 x 19
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier flight tailnum
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>     <dbl> <chr>    <int> <chr>  
+     1  2013     1     1      517            515         2      830            819        11 UA        1545 N14228 
+     2  2013     1     1      542            540         2      923            850        33 AA        1141 N619AA 
+     3  2013     1     1      702            700         2     1058           1014        44 B6         671 N779JB 
+     4  2013     1     1      715            713         2      911            850        21 UA         544 N841UA 
+     5  2013     1     1      752            750         2     1025           1029        -4 UA         477 N511UA 
+     6  2013     1     1      917            915         2     1206           1211        -5 B6          41 N568JB 
+     7  2013     1     1      932            930         2     1219           1225        -6 VX         251 N641VA 
+     8  2013     1     1     1028           1026         2     1350           1339        11 UA        1004 N76508 
+     9  2013     1     1     1042           1040         2     1325           1326        -1 B6          31 N529JB 
+    10  2013     1     1     1231           1229         2     1523           1529        -6 UA         428 N402UA 
+    # … with 7 more variables: origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>,
+    #   time_hour <dttm>
+    # … with ?? more rows
+    
