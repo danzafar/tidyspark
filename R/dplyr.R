@@ -28,6 +28,7 @@ mutate.spark_tbl <- function(.data, ...) {
 }
 
 # select
+#' @export
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
   sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
@@ -36,6 +37,7 @@ select.spark_tbl <- function(.data, ...) {
 }
 
 # rename
+#' @export
 rename.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
   sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
@@ -44,10 +46,10 @@ rename.spark_tbl <- function(.data, ...) {
 }
 
 # filter
+#' @export
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
-  require(rlang)
 
-  dots <- enquos(...)
+  dots <- rlang::enquos(...)
   if (any(rlang::have_name(dots))) {
     bad <- dots[rlang::have_name(dots)]
     dplyr:::bad_eq_ops(bad, "must not be named, do you need `==`?")
@@ -60,7 +62,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   sdf <- attr(.data, "DataFrame")
   df_cols <- lapply(names(sdf), function(x) sdf[[x]])
   # letting tidy eval do it's magic, still don't understand how it works.
-  rows <- eval_tidy(quo, setNames(df_cols, names(sdf)))
+  rows <- rlang::eval_tidy(quo, setNames(df_cols, names(sdf)))
 
   out <- SparkR::filter(sdf, rows)
 
@@ -86,6 +88,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 # need it.
 
 # group_by
+#' @export
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
                                .drop = group_by_drop_default(.data)) {
   groups <- dplyr:::group_by_prepare(.data, ..., add = add)
@@ -98,7 +101,8 @@ group_by.spark_tbl <- function(.data, ..., add = FALSE,
 }
 
 # actually group it in spark
-group_data <- function(.data) {
+#' @export
+group_spark_data <- function(.data) {
 
   tbl_groups <- attr(.data, "groups")
 
@@ -128,7 +132,7 @@ summarise.spark_tbl <- function(.data, ...) {
 
   sgd <- if (is.null(tbl_groups)) {
     SparkR::groupBy(sdf)
-    } else group_data(.data)
+    } else group_spark_data(.data)
 
   agg <- list()
   orig_df_cols <- setNames(lapply(names(sdf), function(x) sdf[[x]]), names(sdf))
@@ -158,4 +162,10 @@ summarise.spark_tbl <- function(.data, ...) {
   new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
 
+# How can we avoid a namespace conflict?
+# n <- function() {
+#   jc <- callJStatic("org.apache.spark.sql.functions", "count",
+#                     x@jc)
+#   column(jc)
+# }
 

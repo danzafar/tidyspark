@@ -49,7 +49,8 @@ spark_tbl.data.frame <- function(.df, ...) {
     new("SparkDataFrame", sdf, F)
   } else if (object.size(.df) <= 100000){
     SparkR::createDataFrame(.df)
-  } else serialize_csv(.df)    # I lose the timestamps........................
+  } else persist_read_csv(.df)
+
     # stop("Hold up, Dan is working on conversion for data frames
     #      larger than 100kb, meanwhile, play with `spark_tbl(iris)` 👍")
 
@@ -85,6 +86,17 @@ display <- function(x, n = NULL) {
 
   print(as_tibble(SparkR::take(attr(x, "DataFrame"), rows)))
   cat("# … with ?? more rows")
+
+}
+
+# a glimpse
+glimpse.spark_tbl <- function(x, n = NULL) {
+
+  rows <- if (is.null(n)) {
+    getOption("tibble.print_min", getOption("dplyr.print_min", 10))
+  } else n
+
+  tibble:::glimpse.tbl(as_tibble(SparkR::take(attr(x, "DataFrame"), rows)))
 
 }
 

@@ -30,26 +30,18 @@ spark_read_csv <- function(x = NULL, ...) {
 #   invoke(hive_context(sc), "createDataFrame", rdd, structType)
 # }
 
-serialize_csv <- function(df) {
-  df <- as.data.frame(lapply(df, function(e) {
-    if (inherits(e, "POSIXt") || inherits(e, "Date"))
-      sapply(e, function(t) {
-        class(t) <- NULL
-        t
-      })
-    else e
-  }), optional = TRUE)
+
+
+persist_read_csv <- function(df) {
   hash <- digest::digest(df, algo = "sha256")
   filename <- paste("spark_serialize_", hash, ".csv", sep = "")
   tempfile <- file.path(tempdir(), filename)
   if (!file.exists(tempfile)) {
-    write.table(df, tempfile, sep = ",", col.names = T,
+    write.table(df, tempfile, sep = ",", col.names = F,
                 row.names = FALSE, quote = FALSE)
   }
-  sample <- SparkR::createDataFrame(head(df, 100))
+  sample <- SparkR::createDataFrame(head(df, 1L))
   SparkR::read.df(tempfile, "csv", SparkR::schema(sample))
 }
 
-# if (spark_version(sc) < "2.0.0")
-#   invoke(df, "registerTempTable", name)
-# else invoke(df, "createOrReplaceTempView", name)
+
