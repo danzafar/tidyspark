@@ -357,3 +357,14 @@
 20/02/08 15:23:59 INFO ContextCleaner: Cleaned accumulator 36
 20/02/08 15:23:59 INFO ContextCleaner: Cleaned accumulator 35
 20/02/08 15:23:59 INFO ContextCleaner: Cleaned accumulator 33
+20/02/08 15:46:57 INFO SparkContext: Invoking stop() from shutdown hook
+20/02/08 15:46:57 INFO SparkUI: Stopped Spark web UI at http://localhost:4040
+20/02/08 15:46:57 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+20/02/08 15:46:57 INFO MemoryStore: MemoryStore cleared
+20/02/08 15:46:57 INFO BlockManager: BlockManager stopped
+20/02/08 15:46:57 INFO BlockManagerMaster: BlockManagerMaster stopped
+20/02/08 15:46:57 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+20/02/08 15:46:57 INFO SparkContext: Successfully stopped SparkContext
+20/02/08 15:46:57 INFO ShutdownHookManager: Shutdown hook called
+20/02/08 15:46:57 INFO ShutdownHookManager: Deleting directory /private/var/folders/ng/lwsgjtj52wx9kxct335y7_3h0000gq/T/spark-88f9f895-e5f2-4fe2-a30b-094f6789db11
+20/02/08 15:46:57 INFO ShutdownHookManager: Deleting directory /private/var/folders/ng/lwsgjtj52wx9kxct335y7_3h0000gq/T/spark-b4937e7c-8f5a-4605-a4fe-944afebad37b
