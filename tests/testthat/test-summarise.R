@@ -75,17 +75,26 @@ test_that("preserved class, but not attributes", {
   expect_equal(attr(out, "res"), NULL)
 })
 
+# passed
 test_that("works with  unquoted values", {
   df <- spark_tbl(tibble(g = c(1, 1, 2, 2, 2), x = 1:5))
-  expect_equal(summarise(df, out = !!1), tibble(out = 1))
-  expect_equal(summarise(df, out = !!quo(1)), tibble(out = 1))
-  expect_equal(summarise(df, out = !!(1:2)), tibble(out = 1:2))
+  expect_equal(summarise(df, out = !!1) %>% collect,
+               tibble(out = 1))
+  expect_equal(summarise(df, out = !!quo(1)) %>% collect,
+               tibble(out = 1))
 })
 
+# passed
+test_that("summarize numerics cannot be length > 1", {
+  df <- spark_tbl(tibble(g = c(1, 1, 2, 2, 2), x = 1:5))
+  expect_error(summarise(df, out = !!(1:2)) %>% collect)
+})
+
+# not implementing, set to expect error
 test_that("formulas are evaluated in the right environment (#3019)", {
-  out <- mtcars %>% summarise(fn = list(rlang::as_function(~ list(~foo, environment()))))
-  out <- out$fn[[1]]()
-  expect_identical(environment(out[[1]]), out[[2]])
+  out <- expect_error(
+    spark_tbl(mtcars) %>%
+      summarise(fn = list(rlang::as_function(~ list(~foo, environment())))))
 })
 
 # grouping ----------------------------------------------------------------

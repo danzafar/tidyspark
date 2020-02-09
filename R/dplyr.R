@@ -148,9 +148,14 @@ summarise.spark_tbl <- function(.data, ...) {
 
   for (i in names(agg)) {
     if (i != "") {
-      # if (is.numeric(agg[[i]])) {
-      #   agg[[i]] <- SparkR::as.DataFrame(setNames(data.frame(x = agg[[i]]), i))[[1]]
-      # }
+      if (is.numeric(agg[[i]])) {
+        if (length(agg[[i]]) != 1) {
+          stop("Column '", i,"' must be length 1 (a summary value), not ",
+               length(agg[[1]]))
+          }
+        jc <- SparkR:::callJMethod(SparkR::lit(agg[i])@jc, "getItem", 0L)
+        agg[[i]] <- new("Column", jc)
+      }
       agg[[i]] <- SparkR::alias(agg[[i]], i)
     }
   }
