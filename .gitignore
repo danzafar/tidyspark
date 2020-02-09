@@ -5,4 +5,4 @@
 .DS_Store
 derby.log
 metastore_db
-logs
+logs/*
