@@ -117,7 +117,6 @@ install.packages(c("nycflights13", "Lahman"))
 
 ``` r
 spark_session()
-library(dplyr)
 iris_tbl <- spark_tbl(iris)
 flights_tbl <- spark_tbl(nycflights13::flights)
 batting_tbl <- spark_tbl(Lahman::Batting)
@@ -174,3 +173,29 @@ ggplot(delay, aes(dist, delay)) +
 ```
 
     ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+    
+## Using SQL
+
+It’s also possible to execute SQL queries directly against tables within
+a Spark cluster. In order to operate on a Spark table, it must be registered
+in the hive metastore as either a table or a temporary view. Unlike `sparklyr`, 
+temporary views are not created by default. To register a temporary view in the 
+hive metastore and run a SQL query on it:
+
+``` r
+iris_tbl %>% register_temp_view("iris")
+iris_preview <- sql("SELECT * FROM iris LIMIT 10")
+iris_preview %>% collect
+```
+
+    ##    Sepal_Length Sepal_Width Petal_Length Petal_Width Species
+    ## 1           5.1         3.5          1.4         0.2  setosa
+    ## 2           4.9         3.0          1.4         0.2  setosa
+    ## 3           4.7         3.2          1.3         0.2  setosa
+    ## 4           4.6         3.1          1.5         0.2  setosa
+    ## 5           5.0         3.6          1.4         0.2  setosa
+    ## 6           5.4         3.9          1.7         0.4  setosa
+    ## 7           4.6         3.4          1.4         0.3  setosa
+    ## 8           5.0         3.4          1.5         0.2  setosa
+    ## 9           4.4         2.9          1.4         0.2  setosa
+    ## 10          4.9         3.1          1.5         0.1  setosa
