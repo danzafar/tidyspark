@@ -57,6 +57,11 @@ spark_tbl.data.frame <- function(.df, ...) {
 }
 
 #' @export
+spark_tbl.SparkDataFrame <- function(.df, ...) {
+  new_spark_tbl(.df, ...)
+}
+
+#' @export
 is.spark_tbl <- function(x) {
   inherits(x, "spark_tbl")
 }
