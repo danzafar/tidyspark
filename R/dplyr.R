@@ -1,10 +1,5 @@
-
-# SparkR::sparkR.session()
-# # SparkR::sparkR.session.stop()
-#
-# iris_spk <- spark_tbl(iris)
-
 #' @export
+#' @importFrom dplyr tbl_vars
 tbl_vars.spark_tbl <- function(x) {
   names(x)
 }

@@ -1,7 +1,7 @@
 Package: tidyspark
 Type: Package
 Title: A Tidy Interface to Spark
-Version: 0.1.0
+Version: 0.0.0
 Author: S Daniel Zafar
 Maintainer: S Daniel Zafar <dan.zafar@databricks.com>
 Description: Provides a familiar interface for Spark, following tidyverse syntax

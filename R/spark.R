@@ -1,10 +1,7 @@
 
 #' The Spark Session
 #'
-#' @return
 #' @export
-#'
-#' @examples
 spark_session <- function() {
   SparkR:::sparkR.session()
 }
