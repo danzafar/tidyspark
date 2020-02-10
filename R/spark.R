@@ -11,3 +11,13 @@ spark_session_reset <- function() {
   SparkR:::sparkR.session.stop()
   SparkR:::sparkR.session()
 }
+
+sql <- function(expr, ...) {
+  sdf <- SparkR::sql(expr, ...)
+  new_spark_tbl(sdf)
+  }
+
+register_temp_view <- function(sdf, name) {
+  sdf <- attr(sdf, "DataFrame")
+  SparkR::createOrReplaceTempView(sdf, name)
+  }
