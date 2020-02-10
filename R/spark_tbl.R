@@ -51,9 +51,6 @@ spark_tbl.data.frame <- function(.df, ...) {
     SparkR::createDataFrame(.df)
   } else persist_read_csv(.df)
 
-    # stop("Hold up, Dan is working on conversion for data frames
-    #      larger than 100kb, meanwhile, play with `spark_tbl(iris)` 👍")
-
   new_spark_tbl(df, ...)
 }
 

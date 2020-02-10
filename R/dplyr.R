@@ -166,11 +166,3 @@ summarise.spark_tbl <- function(.data, ...) {
 
   new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
-
-# How can we avoid a namespace conflict?
-# n <- function() {
-#   jc <- callJStatic("org.apache.spark.sql.functions", "count",
-#                     x@jc)
-#   column(jc)
-# }
-

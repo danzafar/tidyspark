@@ -50,6 +50,11 @@ test_that("can use freshly create variables (#138)", {
 #   )
 # })
 
+# test n()
+spark_tbl(iris) %>%
+  group_by(Species) %>%
+  summarise(n = dplyr::n())
+
 # p3
 test_that("no expressions yields grouping data", {
   df <- spark_tbl(tibble(x = 1:2, y = 1:2))

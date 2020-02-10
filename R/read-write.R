@@ -37,7 +37,7 @@ persist_read_csv <- function(df) {
   filename <- paste("spark_serialize_", hash, ".csv", sep = "")
   tempfile <- file.path(tempdir(), filename)
   if (!file.exists(tempfile)) {
-    write.table(df, tempfile, sep = ",", col.names = F,
+    write.table(df, tempfile, sep = ",", col.names = F, # switch to \031 soon
                 row.names = FALSE, quote = FALSE)
   }
   sample <- SparkR::createDataFrame(head(df, 1L))
