@@ -1,15 +1,5 @@
 # create a low-level constructor for an new S3 class called "spark_tbl"
 # following tidy guidelines here https://adv-r.hadley.nz/s3.html#constructors
-
-# # scalable way to add groups, modelled after tibble:::update_tibble_arrs
-# update_spark_tbl_attrs <- function (x, ...) {
-#   attribs <- list(...)
-#   if (has_length(attribs)) {
-#     attributes(x)[names(attribs)] <- attribs
-#   }
-#   x
-# }
-
 new_spark_tbl <- function(sdf, ...) {
   if (class(sdf) != "SparkDataFrame") {
     stop("Incoming object of class ", class(sdf),
@@ -22,7 +12,18 @@ new_spark_tbl <- function(sdf, ...) {
   tibble:::update_tibble_attrs(spk_tbl, ...)
 }
 
-# Let's create a helper generic
+#' Create a \code{spark_tbl}
+#'
+#' @param x object coercible to \code{spark_tbl}
+#' @param ...
+#'
+#' @return an object of class \code{spark_tbl}
+#' @export
+#'
+#' @examples
+#' spark_tbl(iris)
+#' spark_tbl(tibble(x = 1:10, y = 10:1))
+#' spark_tbl(SparkR::as.DataFrame(iris))
 spark_tbl <- function(x, ...) {
   UseMethod("spark_tbl")
 }
@@ -54,6 +55,7 @@ spark_tbl.data.frame <- function(.df, ...) {
   new_spark_tbl(df, ...)
 }
 
+#' @export
 is.spark_tbl <- function(x) {
   inherits(x, "spark_tbl")
 }
@@ -74,7 +76,18 @@ print.spark_tbl <- function(x) {
   cat(paste("[", s, "]\n", sep = ""))
 }
 
-# in case we do want to see results, let's give a display
+#' Display a sample of a \code{spark_tbl}
+#'
+#' @param x a \code{spark_tbl}
+#' @param n numeric, the number of rows to collect
+#'
+#' @return a \code{spark_tbl}, invisibly
+#' @export
+#'
+#' @examples
+#'
+#' spark_tbl(iris) %>% display
+#' spark_tbl(mtcars) %>% display(15)
 display <- function(x, n = NULL) {
 
   rows <- if (is.null(n)) {
@@ -84,9 +97,11 @@ display <- function(x, n = NULL) {
   print(as_tibble(SparkR::take(attr(x, "DataFrame"), rows)))
   cat("# … with ?? more rows")
 
+  invisible(x)
+
 }
 
-# a glimpse
+#' @export
 glimpse.spark_tbl <- function(x, n = NULL) {
 
   rows <- if (is.null(n)) {
@@ -97,7 +112,7 @@ glimpse.spark_tbl <- function(x, n = NULL) {
 
 }
 
-# collect
+#' @export
 collect.spark_tbl <- function(x) {
   as_tibble(SparkR::collect(attr(x, "DataFrame")))
 }
@@ -108,6 +123,7 @@ collect.spark_tbl <- function(x) {
 # print the intermediate object. GroupedData is no good for a print method
 # of course, it won't work just like dplyr because the grouping strucuture
 # will be more high-level, see 'attributes(group_by(iris, Species))'
+#' @export
 grouped_spark_tbl <- function (data, vars, drop = FALSE) {
   assertthat::assert_that(is.spark_tbl(data),
               (is.list(vars) && all(sapply(vars, is.name))) ||

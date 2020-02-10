@@ -113,16 +113,6 @@ group_spark_data <- function(.data) {
   SparkR:::groupedData(sgd)
 }
 
-
-# summarise
-#' Title
-#'
-#' @param .data
-#' @param ...
-#'
-#' @return
-#' @importFrom rlang enquos
-#' @importFrom SparkR groupBy callJMethod
 #' @export
 summarise.spark_tbl <- function(.data, ...) {
   dots <- rlang::enquos(..., .named = TRUE)
