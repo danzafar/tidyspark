@@ -10,6 +10,7 @@ tbl_vars.spark_tbl <- function(x) {
 }
 
 #' @export
+#' @importFrom dplyr mutate
 mutate.spark_tbl <- function(.data, ...) {
   require(rlang)
   dots <- enquos(...)
@@ -29,6 +30,7 @@ mutate.spark_tbl <- function(.data, ...) {
 
 # select
 #' @export
+#' @importFrom dplyr select
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
   sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
@@ -38,6 +40,7 @@ select.spark_tbl <- function(.data, ...) {
 
 # rename
 #' @export
+#' @importFrom dplyr rename
 rename.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
   sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
@@ -47,6 +50,7 @@ rename.spark_tbl <- function(.data, ...) {
 
 # filter
 #' @export
+#' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
   dots <- rlang::enquos(...)
@@ -89,6 +93,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
 # group_by
 #' @export
+#' @importFrom dplyr group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
                                .drop = group_by_drop_default(.data)) {
   groups <- dplyr:::group_by_prepare(.data, ..., add = add)
@@ -114,6 +119,7 @@ group_spark_data <- function(.data) {
 }
 
 #' @export
+#' @importFrom dplyr summarise
 summarise.spark_tbl <- function(.data, ...) {
   dots <- rlang::enquos(..., .named = TRUE)
 

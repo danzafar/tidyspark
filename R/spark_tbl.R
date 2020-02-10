@@ -102,6 +102,7 @@ display <- function(x, n = NULL) {
 }
 
 #' @export
+#' @importFrom dplyr glimpse
 glimpse.spark_tbl <- function(x, n = NULL) {
 
   rows <- if (is.null(n)) {
@@ -113,6 +114,7 @@ glimpse.spark_tbl <- function(x, n = NULL) {
 }
 
 #' @export
+#' @importFrom dplyr collect
 collect.spark_tbl <- function(x) {
   as_tibble(SparkR::collect(attr(x, "DataFrame")))
 }
