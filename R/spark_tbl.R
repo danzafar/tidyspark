@@ -69,6 +69,7 @@ is.spark_tbl <- function(x) {
 # let's give it a print statement, pretty similar to
 # getMethod("show","SparkDataFrame") from SparkR
 # I want to avoid printing rows, it's just spark to avoid collects
+#' @export
 print.spark_tbl <- function(x) {
   cols <- lapply(SparkR::dtypes(attr(x, "DataFrame")),
                  function(l) {
