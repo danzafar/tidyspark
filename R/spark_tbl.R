@@ -31,6 +31,7 @@ spark_tbl <- function(x, ...) {
 # create a method for data.frame (in memory) objects
 # sparklyr also supports the ability to copy large data to disk
 # and then read it back in, which supports larger files
+#' @export
 spark_tbl.data.frame <- function(.df, ...) {
 
   # sanitize the incoming table names, SparkR does it...raucously
