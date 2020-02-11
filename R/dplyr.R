@@ -153,3 +153,25 @@ summarise.spark_tbl <- function(.data, ...) {
 
   new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
+
+#' @export
+#' @importFrom dplyr arrange
+arrange.spark_tbl <- function(.data, ..., by_partition = F) {
+  dots <- enquos(...)
+  sdf <- attr(.data, "DataFrame")
+
+  df_cols <- lapply(names(sdf), function(x) sdf[[x]])
+  jcols <- lapply(dots, function(col) {
+    rlang::eval_tidy(col, setNames(df_cols, names(sdf)))@jc
+    })
+
+  if (by_partition) {
+    sdf <- SparkR:::callJMethod(sdf@sdf, "sortWithinPartitions",
+                       jcols)
+  }
+  else {
+    sdf <- SparkR:::callJMethod(sdf@sdf, "sort", jcols)
+  }
+
+  new_spark_tbl(new("SparkDataFrame", sdf, F))
+}
