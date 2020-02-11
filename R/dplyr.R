@@ -5,25 +5,6 @@ tbl_vars.spark_tbl <- function(x) {
 }
 
 #' @export
-#' @importFrom dplyr mutate
-mutate.spark_tbl <- function(.data, ...) {
-  require(rlang)
-  dots <- enquos(...)
-
-  sdf <- attr(.data, "DataFrame")
-
-  for (i in seq_along(dots)) {
-    name <- names(dots)[[i]]
-    dot <- dots[[i]]
-
-    df_cols <- lapply(names(sdf), function(x) sdf[[x]])
-    sdf[[name]] <- eval_tidy(dot, setNames(df_cols, names(sdf)))
-  }
-
-  new_spark_tbl(sdf)
-}
-
-#' @export
 #' @importFrom dplyr select
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
@@ -42,6 +23,35 @@ rename.spark_tbl <- function(.data, ...) {
 }
 
 #' @export
+#' @importFrom dplyr mutate
+mutate.spark_tbl <- function(.data, ...) {
+  require(rlang)
+  dots <- enquos(...)
+
+  sdf <- attr(.data, "DataFrame")
+
+  for (i in seq_along(dots)) {
+    name <- names(dots)[[i]]
+    dot <- dots[[i]]
+
+    df_cols <- lapply(names(sdf), function(x) sdf[[x]])
+    eval <- eval_tidy(dot, setNames(df_cols, names(sdf)))
+    if (!is.null(attr(.data, "groups"))) {
+
+      groups <- attr(.data, "groups")
+      group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+      window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                     "partitionBy", group_jcols)
+
+      eval <- new("Column", SparkR:::callJMethod(eval@jc, "over", window))
+    }
+    sdf[[name]] <- eval
+  }
+
+  new_spark_tbl(sdf)
+}
+
+#' @export
 #' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
@@ -55,18 +65,20 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   }
   quo <- dplyr:::all_exprs(!!!dots, .vectorised = TRUE)
 
-  sdf <- attr(.data, "DataFrame")
-  df_cols <- lapply(names(sdf), function(x) sdf[[x]])
-  # letting tidy eval do it's magic, still don't understand how it works.
-  rows <- rlang::eval_tidy(quo, setNames(df_cols, names(sdf)))
+  if (is.null(attr(.data, "groups"))) {
+    sdf <- attr(.data, "DataFrame")
+    df_cols <- lapply(names(sdf), function(x) sdf[[x]])
+    rows <- rlang::eval_tidy(quo, setNames(df_cols, names(sdf)))
+    out <- SparkR::filter(sdf, rows)
+  } else {
+    stop("Window functions not yet supported in tidyspark")
 
-  out <- SparkR::filter(sdf, rows)
+    # # recalcualte groups
+    # if (!.preserve) {
+    #   attr(out, "groups") <- regroup(attr(out, "groups"), environment())
+    # }
+  }
 
-  # need to get back to this one ...
-
-  # if (!.preserve && is_grouped_df(.data)) {
-  #   attr(out, "groups") <- regroup(attr(out, "groups"), environment())
-  # }
   new_spark_tbl(out)
 }
 
@@ -96,8 +108,6 @@ group_by.spark_tbl <- function(.data, ..., add = FALSE,
 
 }
 
-# actually group it in spark
-#' @export
 group_spark_data <- function(.data) {
 
   tbl_groups <- attr(.data, "groups")
