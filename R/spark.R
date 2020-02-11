@@ -18,7 +18,7 @@ spark_session_reset <- function() {
 }
 
 #' @export
-sql <- function(expr, ...) {
+spark_sql <- function(expr, ...) {
   sdf <- SparkR::sql(expr, ...)
   new_spark_tbl(sdf)
   }

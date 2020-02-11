@@ -4,7 +4,7 @@
 #   invisible()
 # }
 
-require(dplyr, exclude = c("sql", "n"))
+library(dplyr, exclude = c("n"))
 
 # .onLoad <- function(...) {
 #   register_s3_method("pillar", "pillar_shaft", "hms")
