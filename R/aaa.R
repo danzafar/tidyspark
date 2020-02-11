@@ -1,7 +1,10 @@
 .onAttach <- function(...) {
   library(dplyr)
+
   invisible()
-  }
+}
+
+require(dplyr)
 
 # .onLoad <- function(...) {
 #   register_s3_method("pillar", "pillar_shaft", "hms")
