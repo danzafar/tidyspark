@@ -1,10 +1,10 @@
-# .onAttach <- function(...) {
-#   library(dplyr)
-#
-#   invisible()
-# }
+.onAttach <- function(...) {
+  library(dplyr, exclude = c("n"))
 
-library(dplyr, exclude = c("n"))
+  invisible()
+}
+
+# library(dplyr, exclude = c("n"))
 
 # .onLoad <- function(...) {
 #   register_s3_method("pillar", "pillar_shaft", "hms")
