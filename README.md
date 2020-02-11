@@ -187,7 +187,7 @@ hive metastore and run a SQL query on it:
 
 ``` r
 iris_tbl %>% register_temp_view("iris")
-iris_preview <- sql("SELECT * FROM iris LIMIT 10")
+iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 iris_preview %>% collect
 ```
 
