@@ -117,7 +117,6 @@ install.packages(c("nycflights13", "Lahman"))
 ```
 
 ``` r
-library(dplyr)
 library(tidyspark)
 spark_session()
 iris_tbl <- spark_tbl(iris)
