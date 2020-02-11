@@ -1,5 +1,6 @@
-.onload <- function(...) {
+.onAttach <- function(...) {
   library(dplyr)
+  invisible()
   }
 
 # .onLoad <- function(...) {

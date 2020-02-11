@@ -22,9 +22,9 @@ setMethod("is.nan", signature(x = "Column"),
             SparkR:::column(SparkR:::callJMethod(x@jc, "isNaN"))
           })
 
-other_functions <- c("like", "rlike", "getField", "getItem", "contains", "desc", "asc")
+other_functions <- c("like", "rlike", "getField", "getItem", "contains", "desc", "asc", "mean")
 
-#' @export
 for (.f in other_functions) {
   assign(.f, getFromNamespace(.f, "SparkR"))
 }
+
