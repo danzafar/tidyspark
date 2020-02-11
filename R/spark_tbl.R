@@ -69,6 +69,7 @@ is.spark_tbl <- function(x) {
 # let's give it a print statement, pretty similar to
 # getMethod("show","SparkDataFrame") from SparkR
 # I want to avoid printing rows, it's just spark to avoid collects
+
 #' @export
 print.spark_tbl <- function(x) {
   cols <- lapply(SparkR::dtypes(attr(x, "DataFrame")),
@@ -132,6 +133,7 @@ collect.spark_tbl <- function(x) {
 # print the intermediate object. GroupedData is no good for a print method
 # of course, it won't work just like dplyr because the grouping strucuture
 # will be more high-level, see 'attributes(group_by(iris, Species))'
+
 #' @export
 grouped_spark_tbl <- function (data, vars, drop = FALSE) {
   assertthat::assert_that(is.spark_tbl(data),

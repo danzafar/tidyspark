@@ -23,7 +23,6 @@ mutate.spark_tbl <- function(.data, ...) {
   new_spark_tbl(sdf)
 }
 
-# select
 #' @export
 #' @importFrom dplyr select
 select.spark_tbl <- function(.data, ...) {
@@ -33,7 +32,6 @@ select.spark_tbl <- function(.data, ...) {
   new_spark_tbl(sdf)
 }
 
-# rename
 #' @export
 #' @importFrom dplyr rename
 rename.spark_tbl <- function(.data, ...) {
@@ -43,7 +41,6 @@ rename.spark_tbl <- function(.data, ...) {
   new_spark_tbl(sdf)
 }
 
-# filter
 #' @export
 #' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
@@ -86,7 +83,6 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 # GroupedData. We don't want to pass that thing around, just get it when we
 # need it.
 
-# group_by
 #' @export
 #' @importFrom dplyr group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
