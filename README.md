@@ -62,6 +62,7 @@ This library is nacent (first code written Jan 23, 2020). The primary focus is t
 The following workflows are still being developed
 - `group_by(...) %>% mutate(...)`
 - `group_by(...) %>% filter(...)`
+- `arrange`
 - `gather`/`spread` (`pivot_wider`/`pivot_longer` in `dplyr` 1.0.0)
 - `nest`
 
@@ -116,6 +117,8 @@ install.packages(c("nycflights13", "Lahman"))
 ```
 
 ``` r
+library(dplyr)
+library(tidyspark)
 spark_session()
 iris_tbl <- spark_tbl(iris)
 flights_tbl <- spark_tbl(nycflights13::flights)
