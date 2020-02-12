@@ -63,7 +63,7 @@ This library is nacent (first code written Jan 23, 2020). The primary focus is t
 
 The following workflows are still being developed
 - `group_by(...) %>% filter(...)`
-- `gather`/`spread` (`pivot_wider`/`pivot_longer` in `dplyr` 1.0.0)
+- `gather`/`spread` (or `pivot_wider`/`pivot_longer`)
 - `nest`
 
 At this time, the package should be considered a proof-of-concept.
