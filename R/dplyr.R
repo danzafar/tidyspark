@@ -25,8 +25,7 @@ rename.spark_tbl <- function(.data, ...) {
 #' @export
 #' @importFrom dplyr mutate
 mutate.spark_tbl <- function(.data, ...) {
-  require(rlang)
-  dots <- enquos(...)
+  dots <- rlang:::enquos(...)
 
   sdf <- attr(.data, "DataFrame")
 
@@ -35,8 +34,15 @@ mutate.spark_tbl <- function(.data, ...) {
     dot <- dots[[i]]
 
     df_cols <- lapply(names(sdf), function(x) sdf[[x]])
-    eval <- eval_tidy(dot, setNames(df_cols, names(sdf)))
-    if (!is.null(attr(.data, "groups"))) {
+    eval <- rlang:::eval_tidy(dot, setNames(df_cols, names(sdf)))
+
+    is_agg_expr <- function(col) {
+      expr <- SparkR:::callJMethod(col@jc, "expr")
+      name <- SparkR:::getClassName.jobj(expr)
+      grepl("expressions\\.aggregate", name)
+    }
+
+    if (is_agg_expr(eval)) {
 
       groups <- attr(.data, "groups")
       group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
@@ -106,6 +112,12 @@ group_by.spark_tbl <- function(.data, ..., add = FALSE,
   }
   grouped_spark_tbl(.data, groups$group_names)
 
+}
+
+#' @export
+#' @importFrom dplyr ungroup
+ungroup.spark_tbl <- function(.data, ...) {
+  new_spark_tbl(attr(.data, "DataFrame"))
 }
 
 group_spark_data <- function(.data) {

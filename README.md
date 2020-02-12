@@ -58,10 +58,10 @@ This library is nacent (first code written Jan 23, 2020). The primary focus is t
 - all joins except `cross_joins`
 - `summarise`
 - `group_by(...) %>% summarise(...)`
+- `group_by(...) %>% mutate(...)`
 - `arrange`
 
 The following workflows are still being developed
-- `group_by(...) %>% mutate(...)`
 - `group_by(...) %>% filter(...)`
 - `gather`/`spread` (`pivot_wider`/`pivot_longer` in `dplyr` 1.0.0)
 - `nest`
