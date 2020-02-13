@@ -26,14 +26,15 @@
 #   if (pkg %in% loadedNamespaces()) {
 #     registerS3method(generic, class, fun, envir = asNamespace(pkg))
 make_exprs <- function(x) {
-  dots <- enquo(x)
+
   # extracts the predicate infix or prefix
-  pred_func <- rlang::call_fn(dots)
+  pred_func <- rlang::call_fn(x)
   # extracts the arguments to the function (should be the comaprisons eg in
   # `x == y`, this  return list(x,y))
-  args <- rlang::call_args(dots)
+  args <- rlang::call_args(x)
 
   return(list(predicate_fx = pred_func,
               predicate_args = args))
 
 }
+
