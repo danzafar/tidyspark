@@ -25,3 +25,11 @@
 #
 #   if (pkg %in% loadedNamespaces()) {
 #     registerS3method(generic, class, fun, envir = asNamespace(pkg))
+make_exprs <- function(x) {
+  dots <- enquo(x)
+
+  split_dots <- strsplit(deparse(dots), " ")
+
+  lapply( split_dots[split_dots != "=="], rlang::parse_expr)
+
+}

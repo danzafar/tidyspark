@@ -39,3 +39,5 @@ setMethod("mean", signature(x = "Column"),
 #' @export
 setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
+#' #' @export
+#' setMethod("is.logical", signature(x = "Column"), function(x) x)
