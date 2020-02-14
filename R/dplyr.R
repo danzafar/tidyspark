@@ -1,18 +1,38 @@
-
-# SparkR::sparkR.session()
-# # SparkR::sparkR.session.stop()
-#
-# iris_spk <- spark_tbl(iris)
-
 #' @export
+#' @importFrom dplyr tbl_vars
 tbl_vars.spark_tbl <- function(x) {
   names(x)
 }
 
 #' @export
+#' @importFrom dplyr select
+select.spark_tbl <- function(.data, ...) {
+  vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
+  sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
+    setNames(names(vars))
+  new_spark_tbl(sdf)
+}
+
+#' @export
+#' @importFrom dplyr rename
+rename.spark_tbl <- function(.data, ...) {
+  vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
+  sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
+    setNames(names(vars))
+  new_spark_tbl(sdf)
+}
+
+# check to see if a column expression is aggregating
+is_agg_expr <- function(col) {
+  if (class(col) == "Column") col <- SparkR:::callJMethod(col@jc, "expr")
+  name <- SparkR:::getClassName.jobj(col)
+  grepl("expressions\\.aggregate", name)
+}
+
+#' @export
+#' @importFrom dplyr mutate
 mutate.spark_tbl <- function(.data, ...) {
-  require(rlang)
-  dots <- enquos(...)
+  dots <- rlang:::enquos(...)
 
   sdf <- attr(.data, "DataFrame")
 
@@ -21,33 +41,29 @@ mutate.spark_tbl <- function(.data, ...) {
     dot <- dots[[i]]
 
     df_cols <- lapply(names(sdf), function(x) sdf[[x]])
-    sdf[[name]] <- eval_tidy(dot, setNames(df_cols, names(sdf)))
+    eval <- rlang:::eval_tidy(dot, setNames(df_cols, names(sdf)))
+
+    if (is_agg_expr(eval)) {
+
+      groups <- attr(.data, "groups")
+      group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+      window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                     "partitionBy", group_jcols)
+
+      eval <- new("Column", SparkR:::callJMethod(eval@jc, "over", window))
+    }
+    sdf[[name]] <- eval
   }
 
+  # consider recalculating groups
   new_spark_tbl(sdf)
 }
 
-# select
-select.spark_tbl <- function(.data, ...) {
-  vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
-  sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
-    setNames(names(vars))
-  new_spark_tbl(sdf)
-}
-
-# rename
-rename.spark_tbl <- function(.data, ...) {
-  vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
-  sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
-    setNames(names(vars))
-  new_spark_tbl(sdf)
-}
-
-# filter
+#' @export
+#' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
-  require(rlang)
 
-  dots <- enquos(...)
+  dots <- rlang::enquos(...)
   if (any(rlang::have_name(dots))) {
     bad <- dots[rlang::have_name(dots)]
     dplyr:::bad_eq_ops(bad, "must not be named, do you need `==`?")
@@ -55,20 +71,83 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   else if (rlang::is_empty(dots)) {
     return(.data)
   }
-  quo <- dplyr:::all_exprs(!!!dots, .vectorised = TRUE)
 
   sdf <- attr(.data, "DataFrame")
   df_cols <- lapply(names(sdf), function(x) sdf[[x]])
-  # letting tidy eval do it's magic, still don't understand how it works.
-  rows <- eval_tidy(quo, setNames(df_cols, names(sdf)))
+  names(df_cols) <- names(sdf)
 
-  out <- SparkR::filter(sdf, rows)
+  conds <- list()
+  .to_drop <- character()
+  for (i in seq_along(dots)) {
+    # here we produce the spark columns using the tidy data mask
+    cond <- rlang::eval_tidy(dots[[i]], df_cols)
+    # now we convert the resulting java object into an expression, which
+    # contains useful data on the types
+    and_expr <- SparkR:::callJMethod(cond@jc, "expr")
+    # we can get the left and right side of the condition, which we can then
+    # test for whether it's an aggregate expression or not
+    left <- SparkR:::callJMethod(and_expr, "left")
+    right <- SparkR:::callJMethod(and_expr, "right")
 
-  # need to get back to this one ...
+    if (is_agg_expr(left) | is_agg_expr(right)) {
+      # now, here's the tricky part. If either left or right are aggregate
+      # expressions, we need to apply the incoming window (group by) to them
+      # otherwise we will get an error.
 
-  # if (!.preserve && is_grouped_df(.data)) {
-  #   attr(out, "groups") <- regroup(attr(out, "groups"), environment())
-  # }
+      # generate a window, since we will need it
+      groups <- attr(.data, "groups")
+      group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+      window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                     "partitionBy", group_jcols)
+
+      # we extract both sides, turn them into quosures that we can do eval_tidy
+      # on separately.
+      pred_func <- rlang::call_fn(dots[[i]])
+      args <- rlang::call_args(dots[[i]])
+      dot_env <- rlang::quo_get_env(dots[[i]])
+      quos <- rlang::as_quosures(args, env = dot_env)
+      left_col <- rlang::eval_tidy(quos[[1]], df_cols)
+      right_col <- rlang::eval_tidy(quos[[2]], df_cols)
+
+      # apply the window to the aggregated clause, create a new column for it
+      if (is_agg_expr(left)) {
+        left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
+        left_wndw_col <- new("Column", left_wndw)
+        sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+                                       paste0("left_col", i),
+                                       left_wndw_col@jc)
+        sdf <- new("SparkDataFrame", sdf_jc, F)
+        left_col <- sdf[[paste0("left_col", i)]]
+        .to_drop <- c(.to_drop, paste0("left_col", i))
+      }
+      if (is_agg_expr(right)) {
+        right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
+        right_wndw_col <- new("Column", right_wndw)
+        sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+                                       paste0("right_col", i),
+                                       right_wndw_col@jc)
+        sdf <- new("SparkDataFrame", sdf_jc, F)
+        right_col <- sdf[[paste0("right_col", i)]]
+        .to_drop <- c(.to_drop, paste0("right_col", i))
+      }
+
+      # merge left and right
+      cond <- pred_func(left_col, right_col)
+    }
+
+    conds[[i]] <- cond
+
+  }
+
+  # so this almost works. the problem I'm getting is that I need to generate a
+  # new column with the aggregate function and add that into the DF instead of
+  # just putting it all into the filter. Filter can't do that much at once.
+  # It is not allowed to use window functions inside WHERE and HAVING clauses;
+  condition <- Reduce("&", conds)
+  sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
+  sdf_out <- SparkR:::callJMethod(sdf_filt, "drop", .to_drop)
+  out <- new("SparkDataFrame", sdf_out, F)
+
   new_spark_tbl(out)
 }
 
@@ -85,7 +164,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 # GroupedData. We don't want to pass that thing around, just get it when we
 # need it.
 
-# group_by
+#' @export
+#' @importFrom dplyr group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
                                .drop = group_by_drop_default(.data)) {
   groups <- dplyr:::group_by_prepare(.data, ..., add = add)
@@ -97,8 +177,13 @@ group_by.spark_tbl <- function(.data, ..., add = FALSE,
 
 }
 
-# actually group it in spark
-group_data <- function(.data) {
+#' @export
+#' @importFrom dplyr ungroup
+ungroup.spark_tbl <- function(.data, ...) {
+  new_spark_tbl(attr(.data, "DataFrame"))
+}
+
+group_spark_data <- function(.data) {
 
   tbl_groups <- attr(.data, "groups")
 
@@ -109,17 +194,8 @@ group_data <- function(.data) {
   SparkR:::groupedData(sgd)
 }
 
-
-# summarise
-#' Title
-#'
-#' @param .data
-#' @param ...
-#'
-#' @return
-#' @importFrom rlang enquos
-#' @importFrom SparkR groupBy callJMethod
 #' @export
+#' @importFrom dplyr summarise
 summarise.spark_tbl <- function(.data, ...) {
   dots <- rlang::enquos(..., .named = TRUE)
 
@@ -128,7 +204,7 @@ summarise.spark_tbl <- function(.data, ...) {
 
   sgd <- if (is.null(tbl_groups)) {
     SparkR::groupBy(sdf)
-    } else group_data(.data)
+    } else group_spark_data(.data)
 
   agg <- list()
   orig_df_cols <- setNames(lapply(names(sdf), function(x) sdf[[x]]), names(sdf))
@@ -144,9 +220,14 @@ summarise.spark_tbl <- function(.data, ...) {
 
   for (i in names(agg)) {
     if (i != "") {
-      # if (is.numeric(agg[[i]])) {
-      #   agg[[i]] <- SparkR::as.DataFrame(setNames(data.frame(x = agg[[i]]), i))[[1]]
-      # }
+      if (is.numeric(agg[[i]])) {
+        if (length(agg[[i]]) != 1) {
+          stop("Column '", i,"' must be length 1 (a summary value), not ",
+               length(agg[[1]]))
+          }
+        jc <- SparkR:::callJMethod(SparkR::lit(agg[i])@jc, "getItem", 0L)
+        agg[[i]] <- new("Column", jc)
+      }
       agg[[i]] <- SparkR::alias(agg[[i]], i)
     }
   }
@@ -158,4 +239,24 @@ summarise.spark_tbl <- function(.data, ...) {
   new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
 
+#' @export
+#' @importFrom dplyr arrange
+arrange.spark_tbl <- function(.data, ..., by_partition = F) {
+  dots <- enquos(...)
+  sdf <- attr(.data, "DataFrame")
 
+  df_cols <- lapply(names(sdf), function(x) sdf[[x]])
+  jcols <- lapply(dots, function(col) {
+    rlang::eval_tidy(col, setNames(df_cols, names(sdf)))@jc
+    })
+
+  if (by_partition) {
+    sdf <- SparkR:::callJMethod(sdf@sdf, "sortWithinPartitions",
+                       jcols)
+  }
+  else {
+    sdf <- SparkR:::callJMethod(sdf@sdf, "sort", jcols)
+  }
+
+  new_spark_tbl(new("SparkDataFrame", sdf, F))
+}

@@ -1,6 +1,10 @@
 
+#' @export
+#' @importFrom dplyr same_src
 same_src.spark_tbl <- function (x, y) all(class(x) == class(y))
 
+#' @export
+#' @importFrom dplyr auto_copy
 auto_copy.spark_tbl <- function(x, y, copy = FALSE) {
   if (copy) spark_tbl(y)
   else y
@@ -44,6 +48,8 @@ join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
 
 }
 
+#' @export
+#' @importFrom dplyr inner_join
 inner_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
                                   copy = FALSE, suffix = c("_x", "_y"),
                                   na_matches = pkgconfig::get_config("dplyr::na_matches")) {
@@ -52,6 +58,8 @@ inner_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 }
 
+#' @export
+#' @importFrom dplyr left_join
 left_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
                                  copy = FALSE, suffix = c("_x", "_y"),
                                  na_matches = pkgconfig::get_config("dplyr::na_matches")) {
@@ -60,6 +68,8 @@ left_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 }
 
+#' @export
+#' @importFrom dplyr right_join
 right_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
                                   copy = FALSE, suffix = c("_x", "_y"),
                                   na_matches = pkgconfig::get_config("dplyr::na_matches")) {
@@ -68,6 +78,8 @@ right_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 }
 
+#' @export
+#' @importFrom dplyr full_join
 full_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
                                  copy = FALSE, suffix = c("_x", "_y"),
                                  na_matches = pkgconfig::get_config("dplyr::na_matches")) {
@@ -76,6 +88,8 @@ full_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 }
 
+#' @export
+#' @importFrom dplyr semi_join
 semi_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
                                  copy = FALSE, suffix = c("_x", "_y"),
                                  na_matches = pkgconfig::get_config("dplyr::na_matches")) {
@@ -84,6 +98,8 @@ semi_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 }
 
+#' @export
+#' @importFrom dplyr anti_join
 anti_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
                                  copy = FALSE, suffix = c("_x", "_y"),
                                  na_matches = pkgconfig::get_config("dplyr::na_matches")) {
@@ -91,25 +107,3 @@ anti_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
   join_spark_tbl(x, y, by, on_nulls, copy, suffix, na_matches, "leftanti")
 
 }
-
-
-
-# # test area
-# library(dplyr)
-#
-# SparkR::sparkR.session()
-#
-# data("iris")
-# iris <- iris %>%
-#   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
-#   mutate(Species = levels(Species)[Species])
-# iris_spk <- spark_tbl(iris)
-#
-# lookup <- tibble(Species1 = unique(iris$Species),
-#                  val = c("foo", "bar", "ralph"))
-#
-# lookup_spk <- spark_tbl(lookup)
-#
-# iris_spk %>%
-#   inner_join(lookup_spk, lookup_spk, by = c("Species" = "Species1")) %>%
-#   collect

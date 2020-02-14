@@ -1,15 +1,5 @@
 # create a low-level constructor for an new S3 class called "spark_tbl"
 # following tidy guidelines here https://adv-r.hadley.nz/s3.html#constructors
-
-# # scalable way to add groups, modelled after tibble:::update_tibble_arrs
-# update_spark_tbl_attrs <- function (x, ...) {
-#   attribs <- list(...)
-#   if (has_length(attribs)) {
-#     attributes(x)[names(attribs)] <- attribs
-#   }
-#   x
-# }
-
 new_spark_tbl <- function(sdf, ...) {
   if (class(sdf) != "SparkDataFrame") {
     stop("Incoming object of class ", class(sdf),
@@ -22,7 +12,18 @@ new_spark_tbl <- function(sdf, ...) {
   tibble:::update_tibble_attrs(spk_tbl, ...)
 }
 
-# Let's create a helper generic
+#' Create a \code{spark_tbl}
+#'
+#' @param x object coercible to \code{spark_tbl}
+#' @param ...
+#'
+#' @return an object of class \code{spark_tbl}
+#' @export
+#'
+#' @examples
+#' spark_tbl(iris)
+#' spark_tbl(tibble(x = 1:10, y = 10:1))
+#' spark_tbl(SparkR::as.DataFrame(iris))
 spark_tbl <- function(x, ...) {
   UseMethod("spark_tbl")
 }
@@ -30,21 +31,37 @@ spark_tbl <- function(x, ...) {
 # create a method for data.frame (in memory) objects
 # sparklyr also supports the ability to copy large data to disk
 # and then read it back in, which supports larger files
+#' @export
 spark_tbl.data.frame <- function(.df, ...) {
+
+  # sanitize the incoming table names, SparkR does it...raucously
+  new_names <- names(.df)
+  regex <- list(`^\\s*|\\s*$` = "", `[\\s.]+` = "_",
+                `[^\\w_]` = "", `^(\\W)` = "V\\1")
+  nm <- names(regex)
+  for (i in seq_along(regex)) {
+    new_names <- gsub(nm[[i]], regex[[i]], new_names, perl = TRUE)
+    }
+  names(.df) <- make.unique(new_names, sep = "_")
+
+  # convert the data frame
   df <- if (all(dim(.df) == c(0, 0))) {
     spark <- SparkR:::getSparkSession()
     sdf <- SparkR:::callJMethod(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
   } else if (object.size(.df) <= 100000){
     SparkR::createDataFrame(.df)
-  } else {
-    stop("Hold up, Dan is working on conversion for data frames
-         larger than 100kb, meanwhile, play with `spark_tbl(iris)` 👍")
-  }
+  } else persist_read_csv(.df)
 
   new_spark_tbl(df, ...)
 }
 
+#' @export
+spark_tbl.SparkDataFrame <- function(.df, ...) {
+  new_spark_tbl(.df, ...)
+}
+
+#' @export
 is.spark_tbl <- function(x) {
   inherits(x, "spark_tbl")
 }
@@ -52,6 +69,8 @@ is.spark_tbl <- function(x) {
 # let's give it a print statement, pretty similar to
 # getMethod("show","SparkDataFrame") from SparkR
 # I want to avoid printing rows, it's just spark to avoid collects
+
+#' @export
 print.spark_tbl <- function(x) {
   cols <- lapply(SparkR::dtypes(attr(x, "DataFrame")),
                  function(l) {
@@ -65,7 +84,18 @@ print.spark_tbl <- function(x) {
   cat(paste("[", s, "]\n", sep = ""))
 }
 
-# in case we do want to see results, let's give a display
+#' Display a sample of a \code{spark_tbl}
+#'
+#' @param x a \code{spark_tbl}
+#' @param n numeric, the number of rows to collect
+#'
+#' @return a \code{spark_tbl}, invisibly
+#' @export
+#'
+#' @examples
+#'
+#' spark_tbl(iris) %>% display
+#' spark_tbl(mtcars) %>% display(15)
 display <- function(x, n = NULL) {
 
   rows <- if (is.null(n)) {
@@ -75,9 +105,24 @@ display <- function(x, n = NULL) {
   print(as_tibble(SparkR::take(attr(x, "DataFrame"), rows)))
   cat("# … with ?? more rows")
 
+  invisible(x)
+
 }
 
-# collect
+#' @export
+#' @importFrom dplyr glimpse
+glimpse.spark_tbl <- function(x, n = NULL) {
+
+  rows <- if (is.null(n)) {
+    getOption("tibble.print_min", getOption("dplyr.print_min", 10))
+  } else n
+
+  tibble:::glimpse.tbl(as_tibble(SparkR::take(attr(x, "DataFrame"), rows)))
+
+}
+
+#' @export
+#' @importFrom dplyr collect
 collect.spark_tbl <- function(x) {
   as_tibble(SparkR::collect(attr(x, "DataFrame")))
 }
@@ -88,6 +133,8 @@ collect.spark_tbl <- function(x) {
 # print the intermediate object. GroupedData is no good for a print method
 # of course, it won't work just like dplyr because the grouping strucuture
 # will be more high-level, see 'attributes(group_by(iris, Species))'
+
+#' @export
 grouped_spark_tbl <- function (data, vars, drop = FALSE) {
   assertthat::assert_that(is.spark_tbl(data),
               (is.list(vars) && all(sapply(vars, is.name))) ||
