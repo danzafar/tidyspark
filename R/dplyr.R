@@ -29,6 +29,40 @@ is_agg_expr <- function(col) {
   grepl("expressions\\.aggregate", name)
 }
 
+
+
+# pivots
+
+#' @export
+#' @importFrom dplyr select
+piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
+  browser()
+  # these become the new col names
+  group_var <- enquo(names_from)
+  # these are currently aggregated but maybe not
+  vals_var <-  enquo(values_from)
+  id_var   <-  enquo(id_cols) # this is how the data are id'd
+
+
+  if (is.null(id_cols)) {
+    stop("Have't figured this out yet")
+  } else {
+
+  sgd <-
+   sum(SparkR::pivot(
+      group_spark_data(
+        group_by(.data, !!id_var)),
+      rlang::as_name(group_var)),
+      rlang::as_name(vals_var)
+   )
+  }
+
+  new_spark_tbl(sgd)
+
+}
+
+
+
 #' @export
 #' @importFrom dplyr mutate
 mutate.spark_tbl <- function(.data, ...) {
