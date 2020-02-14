@@ -77,6 +77,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   names(df_cols) <- names(sdf)
 
   conds <- list()
+  .to_drop <- character()
   for (i in seq_along(dots)) {
     # here we produce the spark columns using the tidy data mask
     cond <- rlang::eval_tidy(dots[[i]], df_cols)
@@ -108,14 +109,26 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       left_col <- rlang::eval_tidy(quos[[1]], df_cols)
       right_col <- rlang::eval_tidy(quos[[2]], df_cols)
 
-      # apply the window to the aggregated clause
+      # apply the window to the aggregated clause, create a new column for it
       if (is_agg_expr(left)) {
         left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
-        left_col <- new("Column", left_wndw)
+        left_wndw_col <- new("Column", left_wndw)
+        sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+                                       paste0("left_col", i),
+                                       left_wndw_col@jc)
+        sdf <- new("SparkDataFrame", sdf_jc, F)
+        left_col <- sdf[[paste0("left_col", i)]]
+        .to_drop <- c(.to_drop, paste0("left_col", i))
       }
       if (is_agg_expr(right)) {
         right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
-        right_col <- new("Column", right_wndw)
+        right_wndw_col <- new("Column", right_wndw)
+        sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+                                       paste0("right_col", i),
+                                       right_wndw_col@jc)
+        sdf <- new("SparkDataFrame", sdf_jc, F)
+        right_col <- sdf[[paste0("right_col", i)]]
+        .to_drop <- c(.to_drop, paste0("right_col", i))
       }
 
       # merge left and right
@@ -130,10 +143,10 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   # new column with the aggregate function and add that into the DF instead of
   # just putting it all into the filter. Filter can't do that much at once.
   # It is not allowed to use window functions inside WHERE and HAVING clauses;
-  browser()
   condition <- Reduce("&", conds)
   sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
-  out <- new("SparkDataFrame", sdf_filt, F)
+  sdf_out <- SparkR:::callJMethod(sdf_filt, "drop", .to_drop)
+  out <- new("SparkDataFrame", sdf_out, F)
 
   new_spark_tbl(out)
 }
