@@ -45,19 +45,22 @@ piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
 
 
   if (is.null(id_cols)) {
-    stop("Have't figured this out yet")
+    # this aggreagates and drops everything else
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        SparkR::groupBy(attr(.data, "DataFrame")),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
+      )
   } else {
-
-  sgd <-
-   sum(SparkR::pivot(
-      group_spark_data(
-        group_by(.data, !!id_var)),
-      rlang::as_name(group_var)),
-      rlang::as_name(vals_var)
-   )
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        group_spark_data(group_by(.data, !!id_var)),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
   }
 
-  new_spark_tbl(sgd)
+  new_spark_tbl(sgd_in)
 
 }
 
