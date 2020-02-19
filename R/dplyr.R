@@ -145,8 +145,10 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   # It is not allowed to use window functions inside WHERE and HAVING clauses;
   condition <- Reduce("&", conds)
   sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
-  sdf_out <- SparkR:::callJMethod(sdf_filt, "drop", .to_drop)
-  out <- new("SparkDataFrame", sdf_out, F)
+  if (length(.to_drop) > 0) {
+    sdf_filt <- SparkR:::callJMethod(sdf_filt, "drop", .to_drop)
+  }
+  out <- new("SparkDataFrame", sdf_filt, F)
 
   new_spark_tbl(out)
 }

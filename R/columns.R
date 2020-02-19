@@ -10,6 +10,12 @@ n <- function() {
   }
 }
 
+other_functions <- c("like", "rlike", "getField", "getItem", "contains", "asc")
+
+for (.f in other_functions) {
+  assign(.f, getFromNamespace(.f, "SparkR"))
+}
+
 #' @export
 setMethod("is.na", signature(x = "Column"),
           function(x) {
@@ -21,12 +27,6 @@ setMethod("is.nan", signature(x = "Column"),
           function(x) {
             SparkR:::column(SparkR:::callJMethod(x@jc, "isNaN"))
           })
-
-other_functions <- c("like", "rlike", "getField", "getItem", "contains", "asc")
-
-for (.f in other_functions) {
-  assign(.f, getFromNamespace(.f, "SparkR"))
-}
 
 #' @export
 setMethod("mean", signature(x = "Column"),
@@ -41,3 +41,4 @@ setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
 #' #' @export
 #' setMethod("is.logical", signature(x = "Column"), function(x) x)
+
