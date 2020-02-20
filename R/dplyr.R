@@ -79,63 +79,144 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   conds <- list()
   .to_drop <- character()
   for (i in seq_along(dots)) {
-    # here we produce the spark columns using the tidy data mask
-    cond <- rlang::eval_tidy(dots[[i]], df_cols)
-    # now we convert the resulting java object into an expression, which
-    # contains useful data on the types
-    and_expr <- SparkR:::callJMethod(cond@jc, "expr")
-    # we can get the left and right side of the condition, which we can then
-    # test for whether it's an aggregate expression or not
-    left <- SparkR:::callJMethod(and_expr, "left")
-    right <- SparkR:::callJMethod(and_expr, "right")
 
-    if (is_agg_expr(left) | is_agg_expr(right)) {
-      # now, here's the tricky part. If either left or right are aggregate
-      # expressions, we need to apply the incoming window (group by) to them
-      # otherwise we will get an error.
+    fix_dot <- function(dot) {
+      op <- rlang::call_fn(dot)
+      args <- rlang::call_args(dot)
+      if (identical(op, `&`) | identical(op, `&&`)) {
+        paste(fix_dot(args[[1]]), "&", fix_dot(args[[2]]))
+      } else if (identical(op, `|`) | identical(op, `||`)) {
+        paste(fix_dot(args[[1]]), "|", fix_dot(args[[2]]))
+      } else {
+        cond <- rlang::eval_tidy(dot, df_cols)
+        and_expr <- SparkR:::callJMethod(cond@jc, "expr")
+        left <- SparkR:::callJMethod(and_expr, "left")
+        right <- SparkR:::callJMethod(and_expr, "right")
+        if (is_agg_expr(left) | is_agg_expr(right)) {
 
-      # generate a window, since we will need it
-      groups <- attr(.data, "groups")
-      group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
-      window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
-                                     "partitionBy", group_jcols)
+          # we extract both sides, turn them into quosures that we can do eval_tidy
+          # on separately.
+          pred_func <- rlang::call_fn(dot)
+          args <- rlang::call_args(dot)
+          dot_env <- rlang::quo_get_env(dots[[i]])
+          quos <- rlang::as_quosures(args, env = dot_env)
+          left_col <- rlang::eval_tidy(quos[[1]], df_cols)
+          right_col <- rlang::eval_tidy(quos[[2]], df_cols)
 
-      # we extract both sides, turn them into quosures that we can do eval_tidy
-      # on separately.
-      pred_func <- rlang::call_fn(dots[[i]])
-      args <- rlang::call_args(dots[[i]])
-      dot_env <- rlang::quo_get_env(dots[[i]])
-      quos <- rlang::as_quosures(args, env = dot_env)
-      left_col <- rlang::eval_tidy(quos[[1]], df_cols)
-      right_col <- rlang::eval_tidy(quos[[2]], df_cols)
+          # Now we need to replace the agg quosure with a virtual column
+          # to be created later
+          if (is_agg_expr(left)) {
+            left_virt <- paste0("agg_col", j)
+            j <<- j + 1
 
-      # apply the window to the aggregated clause, create a new column for it
-      if (is_agg_expr(left)) {
-        left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
-        left_wndw_col <- new("Column", left_wndw)
-        sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
-                                       paste0("left_col", i),
-                                       left_wndw_col@jc)
-        sdf <- new("SparkDataFrame", sdf_jc, F)
-        left_col <- sdf[[paste0("left_col", i)]]
-        .to_drop <- c(.to_drop, paste0("left_col", i))
+            # generate a window, since we will need it
+            groups <- attr(.data, "groups")
+            group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+            window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                           "partitionBy", group_jcols)
+
+            left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
+            left_wndw_col <- new("Column", left_wndw)
+            sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+                                           left_virt,
+                                           left_wndw_col@jc)
+            sdf <<- new("SparkDataFrame", sdf_jc, F)
+            left_col <- sdf[[left_virt]]
+            .to_drop <<- c(.to_drop, left_virt)
+          }
+          if (is_agg_expr(right)) {
+            right_virt <- paste0("agg_col", j)
+            j <<- j + 1
+
+            # generate a window, since we will need it
+            groups <- attr(.data, "groups")
+            group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+            window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                           "partitionBy", group_jcols)
+
+            right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
+            right_wndw_col <- new("Column", right_wndw)
+            sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+                                           right_virt,
+                                           right_wndw_col@jc)
+            sdf <<- new("SparkDataFrame", sdf_jc, F)
+            right_col <- sdf[[right_virt]]
+            .to_drop <<- c(.to_drop, right_virt)
+          }
+          cond <- pred_func(left_col, right_col)
+          SparkR:::callJMethod(cond@jc, "toString")
+        } else deparse(dot)
+
       }
-      if (is_agg_expr(right)) {
-        right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
-        right_wndw_col <- new("Column", right_wndw)
-        sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
-                                       paste0("right_col", i),
-                                       right_wndw_col@jc)
-        sdf <- new("SparkDataFrame", sdf_jc, F)
-        right_col <- sdf[[paste0("right_col", i)]]
-        .to_drop <- c(.to_drop, paste0("right_col", i))
-      }
-
-      # merge left and right
-      cond <- pred_func(left_col, right_col)
     }
 
+    .to_drop <- character()
+    j <- 0
+    dot_env <- rlang::quo_get_env(dots[[i]])
+    quo_sub <- rlang::parse_quo(fix_dot(dots[[i]]), env = dot_env)
+
+    df_cols_update <- lapply(names(sdf), function(x) sdf[[x]])
+    names(df_cols_update) <- names(sdf)
+    cond <- rlang::eval_tidy(quo_sub, df_cols_update)
     conds[[i]] <- cond
+
+
+    # # here we produce the spark columns using the tidy data mask
+    # # now we convert the resulting java object into an expression, which
+    # # contains useful data on the types
+    # and_expr <- SparkR:::callJMethod(cond@jc, "expr")
+    # # we can get the left and right side of the condition, which we can then
+    # # test for whether it's an aggregate expression or not
+    # left <- SparkR:::callJMethod(and_expr, "left")
+    # right <- SparkR:::callJMethod(and_expr, "right")
+    #
+    # if (is_agg_expr(left) | is_agg_expr(right)) {
+    #   # now, here's the tricky part. If either left or right are aggregate
+    #   # expressions, we need to apply the incoming window (group by) to them
+    #   # otherwise we will get an error.
+    #
+    #   # generate a window, since we will need it
+    #   groups <- attr(.data, "groups")
+    #   group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+    #   window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+    #                                  "partitionBy", group_jcols)
+    #
+    #   # we extract both sides, turn them into quosures that we can do eval_tidy
+    #   # on separately.
+    #   pred_func <- rlang::call_fn(dots[[i]])
+    #   args <- rlang::call_args(dots[[i]])
+    #   dot_env <- rlang::quo_get_env(dots[[i]])
+    #   quos <- rlang::as_quosures(args, env = dot_env)
+    #   left_col <- rlang::eval_tidy(quos[[1]], df_cols)
+    #   right_col <- rlang::eval_tidy(quos[[2]], df_cols)
+    #
+    #   # apply the window to the aggregated clause, create a new column for it
+    #   if (is_agg_expr(left)) {
+    #     left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
+    #     left_wndw_col <- new("Column", left_wndw)
+    #     sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+    #                                    paste0("left_col", i),
+    #                                    left_wndw_col@jc)
+    #     sdf <- new("SparkDataFrame", sdf_jc, F)
+    #     left_col <- sdf[[paste0("left_col", i)]]
+    #     .to_drop <- c(.to_drop, paste0("left_col", i))
+    #   }
+    #   if (is_agg_expr(right)) {
+    #     right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
+    #     right_wndw_col <- new("Column", right_wndw)
+    #     sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+    #                                    paste0("right_col", i),
+    #                                    right_wndw_col@jc)
+    #     sdf <- new("SparkDataFrame", sdf_jc, F)
+    #     right_col <- sdf[[paste0("right_col", i)]]
+    #     .to_drop <- c(.to_drop, paste0("right_col", i))
+    #   }
+    #
+    #   # merge left and right
+    #   cond <- pred_func(left_col, right_col)
+    # }
+    #
+    # conds[[i]] <- cond
 
   }
 
@@ -206,7 +287,7 @@ summarise.spark_tbl <- function(.data, ...) {
 
   sgd <- if (is.null(tbl_groups)) {
     SparkR::groupBy(sdf)
-    } else group_spark_data(.data)
+  } else group_spark_data(.data)
 
   agg <- list()
   orig_df_cols <- setNames(lapply(names(sdf), function(x) sdf[[x]]), names(sdf))
@@ -226,7 +307,7 @@ summarise.spark_tbl <- function(.data, ...) {
         if (length(agg[[i]]) != 1) {
           stop("Column '", i,"' must be length 1 (a summary value), not ",
                length(agg[[1]]))
-          }
+        }
         jc <- SparkR:::callJMethod(SparkR::lit(agg[i])@jc, "getItem", 0L)
         agg[[i]] <- new("Column", jc)
       }
@@ -250,11 +331,11 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
   df_cols <- lapply(names(sdf), function(x) sdf[[x]])
   jcols <- lapply(dots, function(col) {
     rlang::eval_tidy(col, setNames(df_cols, names(sdf)))@jc
-    })
+  })
 
   if (by_partition) {
     sdf <- SparkR:::callJMethod(sdf@sdf, "sortWithinPartitions",
-                       jcols)
+                                jcols)
   }
   else {
     sdf <- SparkR:::callJMethod(sdf@sdf, "sort", jcols)
