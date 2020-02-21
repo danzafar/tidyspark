@@ -63,6 +63,7 @@ mutate.spark_tbl <- function(.data, ...) {
 #' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
+  # copied from dplyr
   dots <- rlang::enquos(...)
   if (any(rlang::have_name(dots))) {
     bad <- dots[rlang::have_name(dots)]
@@ -72,13 +73,46 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     return(.data)
   }
 
+  # get the SparkDataFrame and cols needed for eval_tidy
   sdf <- attr(.data, "DataFrame")
   df_cols <- lapply(names(sdf), function(x) sdf[[x]])
   names(df_cols) <- names(sdf)
 
+  # get a list for columns
   conds <- list()
-  .to_drop <- character()
+  # make a separate environment we can pass around the recursive function
+  .counter_env <- new.env()
+  .counter_env$to_drop <- character()
+  .counter_env$sdf <- sdf
+  .counter_env$j <- 0
   for (i in seq_along(dots)) {
+
+    # This is the most complicated part of tidyspark so far. In order to break up
+    # complicated expressions like:
+    # max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2 | ...
+    # I use a recursive function to parse through and convert all of the aggregate
+    # terms into new columns. Then I replace that aggregate term into the new term
+    # and run the filter with it.
+    sub_agg_column <- function(col, env) {
+      virt <- paste0("agg_col", env$j)
+      env$j <- env$j + 1
+
+      # generate a window, since we will need it
+      groups <- attr(.data, "groups")
+      group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
+      window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                     "partitionBy", group_jcols)
+
+      # apply the window
+      wndw <- SparkR:::callJMethod(col@jc, "over", window)
+      wndw_col <- new("Column", wndw)
+      sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
+                                     virt,
+                                     wndw_col@jc)
+      env$sdf <- new("SparkDataFrame", sdf_jc, F)
+      env$to_drop <- c(env$to_drop, virt)
+      env$sdf[[virt]]
+    }
 
     fix_dot <- function(dot, env) {
       op <- rlang::call_fn(dot)
@@ -92,8 +126,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
         and_expr <- SparkR:::callJMethod(cond@jc, "expr")
         left <- SparkR:::callJMethod(and_expr, "left")
         right <- SparkR:::callJMethod(and_expr, "right")
-        if (is_agg_expr(left) | is_agg_expr(right)) {
 
+        if (is_agg_expr(left) | is_agg_expr(right)) {
           # we extract both sides, turn them into quosures that we can do eval_tidy
           # on separately.
           pred_func <- rlang::call_fn(dot)
@@ -104,45 +138,9 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
           right_col <- rlang::eval_tidy(quos[[2]], df_cols)
 
           # Now we need to replace the agg quosure with a virtual column
-          # to be created later
-          if (is_agg_expr(left)) {
-            left_virt <- paste0("agg_col", env$j)
-            env$j <- env$j + 1
-
-            # generate a window, since we will need it
-            groups <- attr(.data, "groups")
-            group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
-            window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
-                                           "partitionBy", group_jcols)
-
-            left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
-            left_wndw_col <- new("Column", left_wndw)
-            sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
-                                           left_virt,
-                                           left_wndw_col@jc)
-            env$sdf <- new("SparkDataFrame", sdf_jc, F)
-            left_col <- env$sdf[[left_virt]]
-            env$to_drop <- c(env$to_drop, left_virt)
-          }
-          if (is_agg_expr(right)) {
-            right_virt <- paste0("agg_col", env$j)
-            env$j <- env$j + 1
-
-            # generate a window, since we will need it
-            groups <- attr(.data, "groups")
-            group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
-            window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
-                                           "partitionBy", group_jcols)
-
-            right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
-            right_wndw_col <- new("Column", right_wndw)
-            sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
-                                           right_virt,
-                                           right_wndw_col@jc)
-            env$sdf <- new("SparkDataFrame", sdf_jc, F)
-            right_col <- env$sdf[[right_virt]]
-            env$to_drop <- c(env$to_drop, right_virt)
-          }
+          # consider putting this into a function
+          if (is_agg_expr(left)) left_col <- sub_agg_column(left_col, env)
+          if (is_agg_expr(right)) right_col <- sub_agg_column(right_col, env)
           cond <- pred_func(left_col, right_col)
           SparkR:::callJMethod(cond@jc, "toString")
         } else deparse(dot)
@@ -153,10 +151,6 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     # because we are working with a recursive function I'm going to create a
     # separate environemnt to keep all the counter vars in and just pass that along
     # every time the recursive function is called
-    .counter_env <- new.env()
-    .counter_env$to_drop <- character()
-    .counter_env$j <- 0
-    .counter_env$sdf <- sdf
     dot_env <- rlang::quo_get_env(dots[[i]])
     quo_sub <- rlang::parse_quo(fix_dot(dots[[i]], .counter_env), env = dot_env)
     sdf <- .counter_env$sdf
@@ -167,69 +161,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     conds[[i]] <- cond
 
 
-    # # here we produce the spark columns using the tidy data mask
-    # # now we convert the resulting java object into an expression, which
-    # # contains useful data on the types
-    # and_expr <- SparkR:::callJMethod(cond@jc, "expr")
-    # # we can get the left and right side of the condition, which we can then
-    # # test for whether it's an aggregate expression or not
-    # left <- SparkR:::callJMethod(and_expr, "left")
-    # right <- SparkR:::callJMethod(and_expr, "right")
-    #
-    # if (is_agg_expr(left) | is_agg_expr(right)) {
-    #   # now, here's the tricky part. If either left or right are aggregate
-    #   # expressions, we need to apply the incoming window (group by) to them
-    #   # otherwise we will get an error.
-    #
-    #   # generate a window, since we will need it
-    #   groups <- attr(.data, "groups")
-    #   group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
-    #   window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
-    #                                  "partitionBy", group_jcols)
-    #
-    #   # we extract both sides, turn them into quosures that we can do eval_tidy
-    #   # on separately.
-    #   pred_func <- rlang::call_fn(dots[[i]])
-    #   args <- rlang::call_args(dots[[i]])
-    #   dot_env <- rlang::quo_get_env(dots[[i]])
-    #   quos <- rlang::as_quosures(args, env = dot_env)
-    #   left_col <- rlang::eval_tidy(quos[[1]], df_cols)
-    #   right_col <- rlang::eval_tidy(quos[[2]], df_cols)
-    #
-    #   # apply the window to the aggregated clause, create a new column for it
-    #   if (is_agg_expr(left)) {
-    #     left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
-    #     left_wndw_col <- new("Column", left_wndw)
-    #     sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
-    #                                    paste0("left_col", i),
-    #                                    left_wndw_col@jc)
-    #     sdf <- new("SparkDataFrame", sdf_jc, F)
-    #     left_col <- sdf[[paste0("left_col", i)]]
-    #     .to_drop <- c(.to_drop, paste0("left_col", i))
-    #   }
-    #   if (is_agg_expr(right)) {
-    #     right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
-    #     right_wndw_col <- new("Column", right_wndw)
-    #     sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
-    #                                    paste0("right_col", i),
-    #                                    right_wndw_col@jc)
-    #     sdf <- new("SparkDataFrame", sdf_jc, F)
-    #     right_col <- sdf[[paste0("right_col", i)]]
-    #     .to_drop <- c(.to_drop, paste0("right_col", i))
-    #   }
-    #
-    #   # merge left and right
-    #   cond <- pred_func(left_col, right_col)
-    # }
-    #
-    # conds[[i]] <- cond
-
   }
 
-  # so this almost works. the problem I'm getting is that I need to generate a
-  # new column with the aggregate function and add that into the DF instead of
-  # just putting it all into the filter. Filter can't do that much at once.
-  # It is not allowed to use window functions inside WHERE and HAVING clauses;
   condition <- Reduce("&", conds)
   sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
   to_drop <- as.list(.counter_env$to_drop)
