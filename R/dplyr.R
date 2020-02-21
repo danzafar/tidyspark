@@ -80,13 +80,13 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   .to_drop <- character()
   for (i in seq_along(dots)) {
 
-    fix_dot <- function(dot) {
+    fix_dot <- function(dot, env) {
       op <- rlang::call_fn(dot)
       args <- rlang::call_args(dot)
       if (identical(op, `&`) | identical(op, `&&`)) {
-        paste(fix_dot(args[[1]]), "&", fix_dot(args[[2]]))
+        paste(fix_dot(args[[1]], env), "&", fix_dot(args[[2]], env))
       } else if (identical(op, `|`) | identical(op, `||`)) {
-        paste(fix_dot(args[[1]]), "|", fix_dot(args[[2]]))
+        paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
       } else {
         cond <- rlang::eval_tidy(dot, df_cols)
         and_expr <- SparkR:::callJMethod(cond@jc, "expr")
@@ -106,8 +106,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
           # Now we need to replace the agg quosure with a virtual column
           # to be created later
           if (is_agg_expr(left)) {
-            left_virt <- paste0("agg_col", j)
-            j <<- j + 1
+            left_virt <- paste0("agg_col", env$j)
+            env$j <- env$j + 1
 
             # generate a window, since we will need it
             groups <- attr(.data, "groups")
@@ -122,11 +122,11 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
                                            left_wndw_col@jc)
             sdf <<- new("SparkDataFrame", sdf_jc, F)
             left_col <- sdf[[left_virt]]
-            .to_drop <<- c(.to_drop, left_virt)
+            env$to_drop <- c(env$to_drop, left_virt)
           }
           if (is_agg_expr(right)) {
-            right_virt <- paste0("agg_col", j)
-            j <<- j + 1
+            right_virt <- paste0("agg_col", env$j)
+            env$j <- env$j + 1
 
             # generate a window, since we will need it
             groups <- attr(.data, "groups")
@@ -141,7 +141,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
                                            right_wndw_col@jc)
             sdf <<- new("SparkDataFrame", sdf_jc, F)
             right_col <- sdf[[right_virt]]
-            .to_drop <<- c(.to_drop, right_virt)
+            env$to_drop <- c(env$to_drop, right_virt)
           }
           cond <- pred_func(left_col, right_col)
           SparkR:::callJMethod(cond@jc, "toString")
@@ -150,10 +150,11 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       }
     }
 
-    .to_drop <- character()
-    j <- 0
+    .counter_env <- new.env()
+    .counter_env$to_drop <- character()
+    .counter_env$j <- 0
     dot_env <- rlang::quo_get_env(dots[[i]])
-    quo_sub <- rlang::parse_quo(fix_dot(dots[[i]]), env = dot_env)
+    quo_sub <- rlang::parse_quo(fix_dot(dots[[i]], .counter_env), env = dot_env)
 
     df_cols_update <- lapply(names(sdf), function(x) sdf[[x]])
     names(df_cols_update) <- names(sdf)
