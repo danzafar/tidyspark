@@ -111,17 +111,17 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
             # generate a window, since we will need it
             groups <- attr(.data, "groups")
-            group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+            group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
             window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
                                            "partitionBy", group_jcols)
 
             left_wndw <- SparkR:::callJMethod(left_col@jc, "over", window)
             left_wndw_col <- new("Column", left_wndw)
-            sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+            sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
                                            left_virt,
                                            left_wndw_col@jc)
-            sdf <<- new("SparkDataFrame", sdf_jc, F)
-            left_col <- sdf[[left_virt]]
+            env$sdf <- new("SparkDataFrame", sdf_jc, F)
+            left_col <- env$sdf[[left_virt]]
             env$to_drop <- c(env$to_drop, left_virt)
           }
           if (is_agg_expr(right)) {
@@ -130,17 +130,17 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
             # generate a window, since we will need it
             groups <- attr(.data, "groups")
-            group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+            group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
             window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
                                            "partitionBy", group_jcols)
 
             right_wndw <- SparkR:::callJMethod(right_col@jc, "over", window)
             right_wndw_col <- new("Column", right_wndw)
-            sdf_jc <- SparkR:::callJMethod(sdf@sdf, "withColumn",
+            sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
                                            right_virt,
                                            right_wndw_col@jc)
-            sdf <<- new("SparkDataFrame", sdf_jc, F)
-            right_col <- sdf[[right_virt]]
+            env$sdf <- new("SparkDataFrame", sdf_jc, F)
+            right_col <- env$sdf[[right_virt]]
             env$to_drop <- c(env$to_drop, right_virt)
           }
           cond <- pred_func(left_col, right_col)
@@ -150,11 +150,16 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       }
     }
 
+    # because we are working with a recursive function I'm going to create a
+    # separate environemnt to keep all the counter vars in and just pass that along
+    # every time the recursive function is called
     .counter_env <- new.env()
     .counter_env$to_drop <- character()
     .counter_env$j <- 0
+    .counter_env$sdf <- sdf
     dot_env <- rlang::quo_get_env(dots[[i]])
     quo_sub <- rlang::parse_quo(fix_dot(dots[[i]], .counter_env), env = dot_env)
+    sdf <- .counter_env$sdf
 
     df_cols_update <- lapply(names(sdf), function(x) sdf[[x]])
     names(df_cols_update) <- names(sdf)
@@ -227,8 +232,9 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   # It is not allowed to use window functions inside WHERE and HAVING clauses;
   condition <- Reduce("&", conds)
   sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
-  if (length(.to_drop) > 0) {
-    sdf_filt <- SparkR:::callJMethod(sdf_filt, "drop", .to_drop)
+  to_drop <- as.list(.counter_env$to_drop)
+  if (length(to_drop) > 0) {
+    sdf_filt <- SparkR:::callJMethod(sdf_filt, "drop", to_drop)
   }
   out <- new("SparkDataFrame", sdf_filt, F)
 
