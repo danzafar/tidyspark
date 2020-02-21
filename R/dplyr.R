@@ -31,41 +31,6 @@ is_agg_expr <- function(col) {
 
 
 
-# pivots
-
-#' @export
-#' @importFrom dplyr select
-piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
-  browser()
-  # these become the new col names
-  group_var <- enquo(names_from)
-  # these are currently aggregated but maybe not
-  vals_var <-  enquo(values_from)
-  id_var   <-  enquo(id_cols) # this is how the data are id'd
-
-
-  if (is.null(id_cols)) {
-    # this aggreagates and drops everything else
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        SparkR::groupBy(attr(.data, "DataFrame")),
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
-      )
-  } else {
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        group_spark_data(group_by(.data, !!id_var)),
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
-  }
-
-  new_spark_tbl(sgd_in)
-
-}
-
-
-
 #' @export
 #' @importFrom dplyr mutate
 mutate.spark_tbl <- function(.data, ...) {
@@ -299,3 +264,38 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 
   new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
+
+# pivots
+
+#' @export
+#' @importFrom dplyr select
+piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
+  warning("piv_wider is under active development")
+  # these become the new col names
+  group_var <- enquo(names_from)
+  # these are currently aggregated but maybe not
+  vals_var <-  enquo(values_from)
+  id_var   <-  enquo(id_cols) # this is how the data are id'd
+
+
+  if (is.null(id_cols)) {
+    # this aggreagates and drops everything else
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        SparkR::groupBy(attr(.data, "DataFrame")),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
+      )
+  } else {
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        group_spark_data(group_by(.data, !!id_var)),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
+
+  }
+
+  new_spark_tbl(sgd_in)
+
+}
+
