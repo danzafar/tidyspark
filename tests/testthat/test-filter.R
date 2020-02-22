@@ -1,6 +1,6 @@
 library(testthat)
 library(dplyr)
-
+tidyspark::spark_session()
 iris <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
@@ -42,3 +42,11 @@ test_that("other tidy filters work", {
                  filter_all(any_vars(. == 3.4)))
 })
 
+test_that("big boolean statements work") {
+  expect_success(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      filter(max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2) %>%
+      collect()
+    )
+}
