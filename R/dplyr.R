@@ -24,6 +24,7 @@ rename.spark_tbl <- function(.data, ...) {
 
 # check to see if a column expression is aggregating
 is_agg_expr <- function(col) {
+  if (class(col) == "character" | class(col) == "numeric") return(F)
   if (class(col) == "Column") col <- SparkR:::callJMethod(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.aggregate", name)
@@ -80,6 +81,73 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   df_cols <- lapply(names(sdf), function(x) sdf[[x]])
   names(df_cols) <- names(sdf)
 
+  # This is the most complicated part of tidyspark so far. In order to break up
+  # complicated expressions like:
+  # max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2 | ...
+  # I use a recursive function to parse through and convert all of the aggregate
+  # terms into new columns. Then I replace that aggregate term into the new term
+  # and run the filter with it.
+  sub_agg_column <- function(col, env) {
+    # incoming env is expected to have namespace for
+    # j, sdf, and to_drop
+    virt <- paste0("agg_col", env$j)
+    env$j <- env$j + 1
+
+    # generate a window, since we will need it
+    groups <- attr(.data, "groups")
+    group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
+    window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                   "partitionBy", group_jcols)
+
+    # apply the window
+    wndw <- SparkR:::callJMethod(col@jc, "over", window)
+    wndw_col <- new("Column", wndw)
+    sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
+                                   virt,
+                                   wndw_col@jc)
+    env$sdf <- new("SparkDataFrame", sdf_jc, F)
+    env$to_drop <- c(env$to_drop, virt)
+    env$sdf[[virt]]
+  }
+
+  fix_dot <- function(dot, env) {
+    # incoming env is expected to have namespace for
+    # j, sdf, and to_drop
+    op <- rlang::call_fn(dot)
+    args <- rlang::call_args(dot)
+    if (identical(op, `&`) | identical(op, `&&`)) {
+      paste(fix_dot(args[[1]], env), "&", fix_dot(args[[2]], env))
+    } else if (identical(op, `|`) | identical(op, `||`)) {
+      paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
+    } else if (identical(op, `(`)) {
+      paste("(", fix_dot(args[[1]], env), ")")
+    } else {
+      cond <- rlang::eval_tidy(dot, df_cols)
+      and_expr <- SparkR:::callJMethod(cond@jc, "expr")
+      left <- SparkR:::callJMethod(and_expr, "left")
+      right <- SparkR:::callJMethod(and_expr, "right")
+
+      if (is_agg_expr(left) | is_agg_expr(right)) {
+        # we extract both sides, turn them into quosures that we can do eval_tidy
+        # on separately.
+        pred_func <- rlang::call_fn(dot)
+        args <- rlang::call_args(dot)
+        dot_env <- rlang::quo_get_env(dots[[i]])
+        quos <- rlang::as_quosures(args, env = dot_env)
+        left_col <- rlang::eval_tidy(quos[[1]], df_cols)
+        right_col <- rlang::eval_tidy(quos[[2]], df_cols)
+
+        # Now we need to replace the agg quosure with a virtual column
+        # consider putting this into a function
+        if (is_agg_expr(left)) left_col <- sub_agg_column(left_col, env)
+        if (is_agg_expr(right)) right_col <- sub_agg_column(right_col, env)
+        cond <- pred_func(left_col, right_col)
+        SparkR:::callJMethod(cond@jc, "toString")
+      } else rlang::quo_text(dot)
+
+    }
+  }
+
   # get a list for columns
   conds <- list()
   # make a separate environment we can pass around the recursive function
@@ -88,74 +156,6 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   .counter_env$sdf <- sdf
   .counter_env$j <- 0
   for (i in seq_along(dots)) {
-
-    # This is the most complicated part of tidyspark so far. In order to break up
-    # complicated expressions like:
-    # max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2 | ...
-    # I use a recursive function to parse through and convert all of the aggregate
-    # terms into new columns. Then I replace that aggregate term into the new term
-    # and run the filter with it.
-    sub_agg_column <- function(col, env) {
-      # incoming env is expected to have namespace for
-      # j, sdf, and to_drop
-      virt <- paste0("agg_col", env$j)
-      env$j <- env$j + 1
-
-      # generate a window, since we will need it
-      groups <- attr(.data, "groups")
-      group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
-      window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
-                                     "partitionBy", group_jcols)
-
-      # apply the window
-      wndw <- SparkR:::callJMethod(col@jc, "over", window)
-      wndw_col <- new("Column", wndw)
-      sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
-                                     virt,
-                                     wndw_col@jc)
-      env$sdf <- new("SparkDataFrame", sdf_jc, F)
-      env$to_drop <- c(env$to_drop, virt)
-      env$sdf[[virt]]
-    }
-
-    fix_dot <- function(dot, env) {
-      # incoming env is expected to have namespace for
-      # j, sdf, and to_drop
-      op <- rlang::call_fn(dot)
-      args <- rlang::call_args(dot)
-      if (identical(op, `&`) | identical(op, `&&`)) {
-        paste(fix_dot(args[[1]], env), "&", fix_dot(args[[2]], env))
-      } else if (identical(op, `|`) | identical(op, `||`)) {
-        paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
-      } else if (identical(op, `(`)) {
-        paste("(", fix_dot(args[[1]], env), ")")
-      } else {
-        cond <- rlang::eval_tidy(dot, df_cols)
-        and_expr <- SparkR:::callJMethod(cond@jc, "expr")
-        left <- SparkR:::callJMethod(and_expr, "left")
-        right <- SparkR:::callJMethod(and_expr, "right")
-
-        if (is_agg_expr(left) | is_agg_expr(right)) {
-          # we extract both sides, turn them into quosures that we can do eval_tidy
-          # on separately.
-          pred_func <- rlang::call_fn(dot)
-          args <- rlang::call_args(dot)
-          dot_env <- rlang::quo_get_env(dots[[i]])
-          quos <- rlang::as_quosures(args, env = dot_env)
-          left_col <- rlang::eval_tidy(quos[[1]], df_cols)
-          right_col <- rlang::eval_tidy(quos[[2]], df_cols)
-
-          # Now we need to replace the agg quosure with a virtual column
-          # consider putting this into a function
-          if (is_agg_expr(left)) left_col <- sub_agg_column(left_col, env)
-          if (is_agg_expr(right)) right_col <- sub_agg_column(right_col, env)
-          cond <- pred_func(left_col, right_col)
-          SparkR:::callJMethod(cond@jc, "toString")
-        } else deparse(dot)
-
-      }
-    }
-
     # because we are working with a recursive function I'm going to create a
     # separate environemnt to keep all the counter vars in and just pass that along
     # every time the recursive function is called
