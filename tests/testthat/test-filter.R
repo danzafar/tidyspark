@@ -1,6 +1,6 @@
 library(testthat)
 library(dplyr)
-
+tidyspark::spark_session()
 iris <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
@@ -42,3 +42,30 @@ test_that("other tidy filters work", {
                  filter_all(any_vars(. == 3.4)))
 })
 
+test_that("big boolean statements work") {
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      filter(Sepal_Length > 5 & Petal_Width < 1.5 | Petal_Length > 6) %>%
+      collect(),
+    iris %>%
+      setNames(sub("\\.", "_", names(.))) %>%
+      mutate(Species = levels(Species)[Species]) %>%
+      group_by(Species) %>%
+      filter(Sepal_Length > 5 & Petal_Width < 1.5 | Petal_Length > 6)
+    )
+}
+
+test_that("big aggregate boolean statements work") {
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      filter(max(Sepal_Length) > 5 & Petal_Width < 1.5 | max(Petal_Length) > 6) %>%
+      collect(),
+    iris %>%
+      setNames(sub("\\.", "_", names(.))) %>%
+      mutate(Species = levels(Species)[Species]) %>%
+      group_by(Species) %>%
+      filter(max(Sepal_Length) > 5 & Petal_Width < 1.5 | max(Petal_Length) > 6)
+    )
+}
