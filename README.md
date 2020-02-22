@@ -59,10 +59,10 @@ This library is nacent (first code written Jan 23, 2020). The primary focus is t
 - `summarise`
 - `group_by(...) %>% summarise(...)`
 - `group_by(...) %>% mutate(...)`
+- `group_by(...) %>% filter(...)`
 - `arrange`
 
 The following workflows are still being developed
-- `group_by(...) %>% filter(...)`
 - `gather`/`spread` (or `pivot_wider`/`pivot_longer`)
 - `nest`
 
