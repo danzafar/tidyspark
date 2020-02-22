@@ -94,6 +94,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     # terms into new columns. Then I replace that aggregate term into the new term
     # and run the filter with it.
     sub_agg_column <- function(col, env) {
+      # incoming env is expected to have namespace for
+      # j, sdf, and to_drop
       virt <- paste0("agg_col", env$j)
       env$j <- env$j + 1
 
@@ -115,12 +117,16 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     }
 
     fix_dot <- function(dot, env) {
+      # incoming env is expected to have namespace for
+      # j, sdf, and to_drop
       op <- rlang::call_fn(dot)
       args <- rlang::call_args(dot)
       if (identical(op, `&`) | identical(op, `&&`)) {
         paste(fix_dot(args[[1]], env), "&", fix_dot(args[[2]], env))
       } else if (identical(op, `|`) | identical(op, `||`)) {
         paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
+      } else if (identical(op, `(`)) {
+        paste("(", fix_dot(args[[1]], env), ")")
       } else {
         cond <- rlang::eval_tidy(dot, df_cols)
         and_expr <- SparkR:::callJMethod(cond@jc, "expr")
