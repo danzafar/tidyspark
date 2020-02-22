@@ -46,13 +46,13 @@ test_that("big boolean statements work") {
   expect_equal(
     spark_tbl(iris) %>%
       group_by(Species) %>%
-      filter(max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2) %>%
+      filter(Sepal_Length > 5 & Petal_Width < 1.5 | Petal_Length > 6) %>%
       collect(),
     iris %>%
       setNames(sub("\\.", "_", names(.))) %>%
       mutate(Species = levels(Species)[Species]) %>%
       group_by(Species) %>%
-      filter(Sepal_Length > 3 & Petal_Width < 4 | max(Petal_Width) > 2)
+      filter(Sepal_Length > 5 & Petal_Width < 1.5 | Petal_Length > 6)
     )
 }
 
@@ -60,12 +60,12 @@ test_that("big aggregate boolean statements work") {
   expect_equal(
     spark_tbl(iris) %>%
       group_by(Species) %>%
-      filter(max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2) %>%
+      filter(max(Sepal_Length) > 5 & Petal_Width < 1.5 | max(Petal_Length) > 6) %>%
       collect(),
     iris %>%
       setNames(sub("\\.", "_", names(.))) %>%
       mutate(Species = levels(Species)[Species]) %>%
       group_by(Species) %>%
-      filter(max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2)
+      filter(max(Sepal_Length) > 5 & Petal_Width < 1.5 | max(Petal_Length) > 6)
     )
 }
