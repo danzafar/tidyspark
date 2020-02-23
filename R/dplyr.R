@@ -87,6 +87,9 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   # I use a recursive function to parse through and convert all of the aggregate
   # terms into new columns. Then I replace that aggregate term into the new term
   # and run the filter with it.
+
+  # this function replaces an aggregating expression with an actual sdf column
+  # name that is generated with `withColumn`
   sub_agg_column <- function(col, env) {
     # incoming env is expected to have namespace for
     # j, sdf, and to_drop
@@ -110,6 +113,11 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     env$sdf[[virt]]
   }
 
+  # this recursive function is needed to parse through abiguously large
+  # conditional expressions like a > b & (b < c | f == g) | g < a & a > e
+  # setting rules on order of operations doesn't make sense, instead we
+  # simply leverage the rlang::call_fn command to get the most outer funciton
+  # then step into each arg of that outer function with rlang::call_args
   fix_dot <- function(dot, env) {
     # incoming env is expected to have namespace for
     # j, sdf, and to_drop

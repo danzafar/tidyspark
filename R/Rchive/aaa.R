@@ -1,5 +1,5 @@
 .onAttach <- function(...) {
-  library(dplyr, exclude = c("n"))
+  library(dplyr)#, exclude = c("n"))
 
   invisible()
 }
