@@ -55,12 +55,13 @@ This library is nacent (first code written Jan 23, 2020). The primary focus is t
 - `select`/`rename`
 - `mutate`
 - `filter`
-- all joins except `cross_joins`
+- assorted joins
 - `summarise`
 - `group_by(...) %>% summarise(...)`
 - `group_by(...) %>% mutate(...)`
 - `group_by(...) %>% filter(...)`
 - `arrange`
+- `count`, `tally`, and `n`
 
 The following workflows are still being developed
 - `gather`/`spread` (or `pivot_wider`/`pivot_longer`)
