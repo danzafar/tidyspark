@@ -129,6 +129,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
     } else if (identical(op, `(`)) {
       paste("(", fix_dot(args[[1]], env), ")")
+    } else if (length(rlang::call_args(dot)) == 1) {
+      rlang::quo_text(dot)
     } else {
       cond <- rlang::eval_tidy(dot, df_cols)
       and_expr <- SparkR:::callJMethod(cond@jc, "expr")
