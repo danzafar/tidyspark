@@ -64,6 +64,7 @@ This library is nacent (first code written Jan 23, 2020). The primary focus is t
 - `count`, `tally`, and `n`
 
 The following workflows are still being developed
+- rank functions
 - `gather`/`spread` (or `pivot_wider`/`pivot_longer`)
 - `nest`
 
