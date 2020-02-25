@@ -10,11 +10,16 @@
 #'           })
 #'
 #' #' @export
-#' setMethod("rank", signature(x = "Column"),
+#' setMethod("rank", signature(x = "Column", ties.method = "first", na.last = "keep"),
 #'           function(x) {
-#'
 #'             jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "rank")
 #'             new("column", jc)
+#'           })
+#'
+#' #' @export
+#' setMethod("min_rank", signature(x = "Column"),
+#'           function(x) {
+#'             stop("min_rank is not possible in Spark (or sparklyr), use 'rank'")
 #'           })
 #'
 #' #' @export
@@ -23,5 +28,3 @@
 #'             jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "dense_rank")
 #'             new("column", jc)
 #'           })
-
-
