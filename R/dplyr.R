@@ -30,6 +30,68 @@ is_agg_expr <- function(col) {
   grepl("expressions\\.aggregate", name)
 }
 
+# pivots
+
+#' @export
+piv_wider <- function(data, id_cols = NULL, names_from, values_from) {
+  # these become the new col names
+  group_var <- enquo(names_from)
+  # these are currently aggregated but maybe not
+  vals_var <-  enquo(values_from)
+  id_var   <-  enquo(id_cols) # this is how the data are id'd
+
+
+  if (is.null(id_cols)) {
+    # this aggreagates and drops everything else
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        SparkR::groupBy(attr(.data, "DataFrame")),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
+      )
+  } else {
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        group_spark_data(group_by(.data, !!id_var)),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
+  }
+
+  new_spark_tbl(sgd_in)
+
+}
+
+
+#' @export
+piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
+  #idk I copied from tidyr
+  cols <- unname(tidyselect::vars_select(unique(names(data)),
+                                         !!enquo(cols)))
+
+  # names not being pivoted long
+  non_pivot_cols <- names(data)[!(names(data) %in% cols)]
+  stack_fn_arg1 <- length(cols)
+  cols_str <- shQuote(cols)
+  stack_fn_arg2 <- c()
+
+  for (i in 1:length(cols)) {
+    arg <- paste(cols_str[i], cols[i], sep = ", ")
+
+    stack_fn_arg2 <- c(stack_fn_arg2, arg)
+  }
+
+  stack_query <- paste0("stack(", stack_fn_arg1, ", ",
+                        paste(stack_fn_arg2, collapse = ", "),
+                        ") as (", names_to, ", ", values_to, ")")
+
+  expr_list <- c(stack_query, non_pivot_cols)
+  sdf <- attr(data, "DataFrame")
+  sdf_jc <- SparkR:::callJMethod(sdf@sdf, "selectExpr", as.list(expr_list))
+  sdf_out <- new("SparkDataFrame", sdf_jc, F)
+  new_spark_tbl(sdf_out)
+
+}
+
 #' @export
 #' @importFrom dplyr mutate
 mutate.spark_tbl <- function(.data, ...) {
@@ -299,3 +361,38 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 
   new_spark_tbl(new("SparkDataFrame", sdf, F))
 }
+
+# pivots
+
+#' @export
+#' @importFrom dplyr select
+piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
+  warning("piv_wider is under active development")
+  # these become the new col names
+  group_var <- enquo(names_from)
+  # these are currently aggregated but maybe not
+  vals_var <-  enquo(values_from)
+  id_var   <-  enquo(id_cols) # this is how the data are id'd
+
+
+  if (is.null(id_cols)) {
+    # this aggreagates and drops everything else
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        SparkR::groupBy(attr(.data, "DataFrame")),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
+      )
+  } else {
+    sgd_in <-
+      SparkR::agg(SparkR::pivot(
+        group_spark_data(group_by(.data, !!id_var)),
+        rlang::as_name(group_var)),
+        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
+
+  }
+
+  new_spark_tbl(sgd_in)
+
+}
+
