@@ -65,43 +65,31 @@ piv_wider <- function(data, id_cols = NULL, names_from, values_from) {
 
 #' @export
 piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
-  # these become the new col names
-  group_var <- enquo(names_to)
-  # these are currently aggregated but maybe not
-  vals_var <-  enquo(values_to)
   #idk I copied from tidyr
   cols <- unname(tidyselect::vars_select(unique(names(data)),
                                          !!enquo(cols)))
 
   # names not being pivoted long
   non_pivot_cols <- names(data)[!(names(data) %in% cols)]
-
   stack_fn_arg1 <- length(cols)
-
   cols_str <- shQuote(cols)
-
   stack_fn_arg2 <- c()
 
-  browser()
   for (i in 1:length(cols)) {
     arg <- paste(cols_str[i], cols[i], sep = ", ")
 
     stack_fn_arg2 <- c(stack_fn_arg2, arg)
   }
 
-
-
-
   stack_query <- paste0("stack(", stack_fn_arg1, ", ",
                         paste(stack_fn_arg2, collapse = ", "),
                         ") as (", names_to, ", ", values_to, ")")
 
+  expr_list <- c(stack_query, non_pivot_cols)
   sdf <- attr(data, "DataFrame")
-  sdf_1 <- SparkR::selectExpr(sdf,
-                              non_pivot_cols,
-                              stack_query)
-
-  new_spark_tbl(sdf_1)
+  sdf_jc <- SparkR:::callJMethod(sdf@sdf, "selectExpr", as.list(expr_list))
+  sdf_out <- new("SparkDataFrame", sdf_jc, F)
+  new_spark_tbl(sdf_out)
 
 }
 
