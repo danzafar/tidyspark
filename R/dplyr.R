@@ -30,6 +30,14 @@ is_agg_expr <- function(col) {
   grepl("expressions\\.aggregate", name)
 }
 
+# check to see if a column expression is aggregating
+is_wndw_expr <- function(col) {
+  if (class(col) == "character" | class(col) == "numeric") return(F)
+  if (class(col) == "Column") col <- SparkR:::callJMethod(col@jc, "expr")
+  name <- SparkR:::getClassName.jobj(col)
+  grepl("expressions\\.WindowExpression", name)
+}
+
 #' @export
 #' @importFrom dplyr mutate
 mutate.spark_tbl <- function(.data, ...) {
@@ -111,6 +119,99 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     env$sdf[[virt]]
   }
 
+  # here is what needs to happen in Spark
+  # val out = df_asProfile.
+  #       .withColumn("id", monotonically_increasing_id())
+  #       .withColumn("col_wndw_1", rank.over(Window.orderBy($"personid")))
+  #       .orderBy($"id")
+  #       .drop("id")
+  # or
+  # val wndw = rank.over(Window.orderBy($"personid").partitionBy($"name"))
+  # val out = df_asProfile.withColumn("col_wndw_1", wndw)
+  sub_wndw_column <- function(col, env) {
+    # incoming env is expected to have namespace for
+    # j, sdf, and to_drop
+    virt <- paste0("wndw_col", env$j)
+    env$j <- env$j + 1
+
+    # lets do a little hacking to break up the incoming window col
+    func_spec <- SparkR:::callJMethod(
+      SparkR:::callJMethod(col@jc, "expr"),
+      "children")
+
+    # get the function the window should be over
+    # same as `expr(func_spec.head.toString)`
+    func <- SparkR:::callJStatic(
+      "org.apache.spark.sql.functions", "expr",
+      SparkR:::callJMethod(
+        SparkR:::callJMethod(
+          func_spec,
+          "head"),
+        "toString"))
+
+    # reconstruct the window spec
+    # same as `func_spec.tail.head.children.head.toString`
+    # or `func_spec(2)(1).toString`
+    wndw_str <- SparkR:::callJMethod(
+      SparkR:::callJMethod(
+        SparkR:::callJMethod(
+          SparkR:::callJMethod(
+            SparkR:::callJMethod(
+              func_spec,
+              "tail"),
+            "head"),
+          "children"),
+        "head"),
+      "toString")
+
+    # here is the less-robust part. We need to extract the column name
+    # from the expression string which looks a little something like this:
+    # "-H#150 ASC NULLS FIRST", see the # makes it tough. Two ways to handle:
+
+    # # probably more robust, just use regex to remove the reference #
+    # # so "-H#150 ASC NULLS FIRST" becomes "-H ASC NULLS FIRST"
+    # # but results in error
+    # # `cannot resolve '`-H ASC NULLS FIRST`' given input columns: [R, G,
+    # #                   yearID, playerID, AB, teamID, H]`
+    # col_obj <- new("Column", SparkR:::callJStatic(
+    #   "org.apache.spark.sql.functions", "col",
+    #   sub("(.*)(#[0-9]*) (.*)", "\\1 \\3", wndw_str)
+    #   ))
+
+    # grab the column name with regex and add the connonical desc applying
+    # conditionally
+    col_string <- sub("(-)?(.*)#.*", "\\2", wndw_str)
+    col_obj <- new("Column", SparkR:::callJStatic(
+      "org.apache.spark.sql.functions", "col", col_string
+    ))
+
+    descending <- sub("(-)?(.*)#.*", "\\1", wndw_str)
+    if (descending == "-") col_obj <- desc(col_obj)
+
+    # apply the column
+    wndw_ordr <- SparkR:::callJStatic(
+      "org.apache.spark.sql.expressions.Window",
+      "orderBy", list(col_obj@jc)
+    )
+
+    # add in the partitionBy based on grouping
+    groups <- attr(.data, "groups")
+    group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
+    window <- SparkR:::callJMethod(wndw_ordr, "partitionBy", group_jcols)
+
+    # apply the window over the function
+    wndw_col <- new("Column", SparkR:::callJMethod(func, "over", window))
+
+    # add the windowed column
+    sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
+                                   virt,
+                                   wndw_col@jc)
+    env$sdf <- new("SparkDataFrame", sdf_jc, F)
+
+    env$to_drop <- c(env$to_drop, virt)
+    env$sdf[[virt]]
+  }
+
   # this recursive function is needed to parse through abiguously large
   # conditional expressions like a > b & (b < c | f == g) | g < a & a > e
   # setting rules on order of operations doesn't make sense, instead we
@@ -149,6 +250,20 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
         # consider putting this into a function
         if (is_agg_expr(left)) left_col <- sub_agg_column(left_col, env)
         if (is_agg_expr(right)) right_col <- sub_agg_column(right_col, env)
+        cond <- pred_func(left_col, right_col)
+        SparkR:::callJMethod(cond@jc, "toString")
+      } else if (is_wndw_expr(left) | is_wndw_expr(right)) {
+
+        pred_func <- rlang::call_fn(dot)
+        args <- rlang::call_args(dot)
+        dot_env <- rlang::quo_get_env(dots[[i]])
+        quos <- rlang::as_quosures(args, env = dot_env)
+        left_col <- rlang::eval_tidy(quos[[1]], df_cols)
+        right_col <- rlang::eval_tidy(quos[[2]], df_cols)
+
+        if (is_wndw_expr(left)) left_col <- sub_wndw_column(left_col, env)
+        if (is_wndw_expr(right)) right_col <- sub_wndw_column(right_col, env)
+
         cond <- pred_func(left_col, right_col)
         SparkR:::callJMethod(cond@jc, "toString")
       } else rlang::quo_text(dot)

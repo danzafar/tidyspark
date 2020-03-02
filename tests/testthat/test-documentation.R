@@ -36,3 +36,22 @@ test_that("group_by, summarise, filter on flights_tbl", {
                  mutate(Species = levels(Species)[Species]) %>%
                  head(10))
 })
+
+test_that("window function", {
+  batting_tbl <- spark_tbl(Lahman::Batting)
+
+  expect_equal(batting_tbl %>%
+                 select(playerID, yearID, teamID, G, AB:H) %>%
+                 arrange(playerID, yearID, teamID) %>%
+                 group_by(playerID) %>%
+                 filter(rank(desc(H)) <= 2 & H > 0) %>%
+                 collect %>%
+                 arrange(playerID, yearID, teamID),
+               Lahman::Batting %>%
+                 select(playerID, yearID, teamID, G, AB:H) %>%
+                 arrange(playerID, yearID, teamID) %>%
+                 group_by(playerID) %>%
+                 filter(rank(desc(H)) <= 2 & H > 0) %>%
+                 mutate(teamID = levels(teamID)[teamID]))
+})
+
