@@ -176,7 +176,22 @@ ggplot(delay, aes(dist, delay)) +
   scale_size_area(max_size = 2)
 ```
 
-    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+### Window Functions
+
+dplyr [window functions](https://CRAN.R-project.org/package=dplyr) are also supported, for example:
+
+```{r dplyr-window}
+batting_tbl %>%
+  select(playerID, yearID, teamID, G, AB:H) %>%
+  arrange(playerID, yearID, teamID) %>%
+  group_by(playerID) %>%
+  filter(rank(desc(H)) <= 2 & H > 0)
+```
+
+One significant difference between `tidyspark` and `sparklyr` is that `tidyspark` opts out of some of the minor yet computationally expensive operations that must be undergone to match dplyr exactly. For instance, looking at the above expression using basic `dplyr`, we would expect the results to be arranged by `playerID`, `yearID`, and `teamID`. In Spark, those kinds of global sorts are very expensive and would require more computation after the grouped rank occurred. `tidyspark` opts out of doing that by default, though the user can still choose to sort if preferred by adding an `arrange` afterward.
+
+Another difference is the grouping. in `dplyr` we would expect the results to still be grouped by `playerID` since there are multiple rows with the same `playerID`. Similar to the above, calculating the groups would require more expensive operations that would not be useful a majority of the time, so `tidyspark` requires that you re-group manually if doing subsequent grouped window functions.
+    
     
 ## Using SQL
 
