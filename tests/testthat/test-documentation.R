@@ -44,14 +44,14 @@ test_that("window function", {
                  select(playerID, yearID, teamID, G, AB:H) %>%
                  arrange(playerID, yearID, teamID) %>%
                  group_by(playerID) %>%
-                 filter(rank(desc(H)) <= 2 & H > 0) %>%
+                 filter(min_rank(desc(H)) <= 2 & H > 0) %>%
                  collect %>%
                  arrange(playerID, yearID, teamID),
                Lahman::Batting %>%
                  select(playerID, yearID, teamID, G, AB:H) %>%
                  arrange(playerID, yearID, teamID) %>%
                  group_by(playerID) %>%
-                 filter(rank(desc(H)) <= 2 & H > 0) %>%
+                 filter(rank(desc(H), na.last = 'keep', ties.method = 'min') <= 2 & H > 0) %>%
                  mutate(teamID = levels(teamID)[teamID]))
 })
 
