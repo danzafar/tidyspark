@@ -1,5 +1,3 @@
-library(testthat)
-library(dplyr)
 iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])

@@ -3,27 +3,31 @@
 
 # avoid namespace conflicts
 
+#' #' @rdname column_window_functions
+#' #' @name NULL
+#' setGeneric("row_number", function(x = "missing") { standardGeneric("row_number") })
+#'
+#' #' @export
+#' setMethod("row_number", signature(x = "missing"),
+#'           function(x) {
+#'             jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "row_number")
+#'             new("Column", jc)
+#'           })
+
 #' @rdname column_window_functions
-#' @name NULL
-setGeneric("row_number", function(x = "missing") { standardGeneric("row_number") })
-
 #' @export
-setMethod("row_number", signature(x = "missing"),
-          function(x) {
-            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "row_number")
-            new("Column", jc)
-          })
-
-rank <- function(x, ...)
-{
+rank <- function(x, ...) {
   UseMethod("rank")
 }
 
 rank.Column <- function(x, ...) {
+  quos <- enquos(...)
+  if (!(rlang::quo_name(quos$ties.method) %in% c("NULL", "min")) |
+      !(rlang::quo_name(quos$na.last) %in% c("NULL", "keep"))) {
+    stop("Spark only supports `na.last = 'keep', ties.method = 'min'")
+  }
   wndw <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
                                            "orderBy", list(x@jc))
-  # row_num <- SparkR:::callJStatic("org.apache.spark.sql.functions", "row_number")
-  # wndw_ordr <- SparkR:::callJMethod(wndw, "orderBy", list(row_num))
   jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "rank")
   new("Column", SparkR:::callJMethod(jc, "over", wndw))
 }
@@ -32,52 +36,52 @@ rank.default <- function(x, ...) {
   base::rank(x, ...)
 }
 
+#' @rdname column_window_functions
+#' @export
+dense_rank <- function(x, ...) {
+  UseMethod("dense_rank")
+}
 
+dense_rank.Column <- function(x, ...) {
+  wndw <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                           "orderBy", list(x@jc))
+  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "dense_rank")
+  new("Column", SparkR:::callJMethod(jc, "over", wndw))
+}
+
+dense_rank.default <- function(x, ...) {
+  dplyr::dense_rank(x, ...)
+}
+
+#' @rdname column_window_functions
+#' @export
+min_rank <- function(x, ...) {
+  UseMethod("min_rank")
+}
+
+min_rank.Column <- function(x, ...) {
+  wndw <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+                                           "orderBy", list(x@jc))
+  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "rank")
+  new("Column", SparkR:::callJMethod(jc, "over", wndw))
+}
+
+min_rank.default <- function(x, ...) {
+  dplyr::min_rank(x, ...)
+}
+
+# this syntax is good, but need to figure out why it's now working
 #' #' @rdname column_window_functions
-#' #' @name NULL
-#' setGeneric("rank", function(x, ...) { standardGeneric("rank") })
-#'
-#' setMethod("rank",
-#'           signature(x = "missing"),
-#'           function() {
-#'             jc <- callJStatic("org.apache.spark.sql.functions", "rank")
-#'             column(jc)
-#'           })
-#'
-#' #' @rdname column_window_functions
-#' #' @aliases rank,ANY-method
-#' setMethod("rank",
-#'           signature(x = "ANY"),
-#'           function(x, ...) {
-#'             base::rank(x, ...)
-#'           })
-#'
 #' #' @export
-#' setMethod("rank", signature(x = "Column"),
-#'           function(x) {
-#'             # , ties.method = "first", na.last = "keep"
-#'             jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "rank")
-#'             new("column", jc)
-#'           })
-
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("min_rank", function(x = "missing") { standardGeneric("min_rank") })
-
-#' @export
-setMethod("min_rank", signature(x = "Column"),
-          function(x) {
-            stop("min_rank is not possible in Spark (or sparklyr), use 'rank'")
-          })
-
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("dense_rank", function(x = "missing") { standardGeneric("dense_rank") })
-
-#' @export
-setMethod("dense_rank", signature(x = "Column"),
-          function(x) {
-            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "dense_rank")
-            new("column", jc)
-          })
+#' percent_rank <- function(x, ...) {
+#'   UseMethod("percent_rank")
+#' }
+#'
+#' percent_rank.Column <- function(x, ...) {
+#'   (min_rank(x) - 1)/(sum(!is.na(x)) - 1)
+#' }
+#'
+#' percent_rank.default <- function(x, ...) {
+#'   dplyr::percent_rank(x, ...)
+#' }
 
