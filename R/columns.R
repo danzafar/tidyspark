@@ -1,4 +1,4 @@
-other_functions <- c("like", "rlike", "getField", "getItem", "contains", "asc")
+other_functions <- c("like", "rlike", "getField", "getItem", "asc") #, "contains"
 
 for (.f in other_functions) {
   assign(.f, getFromNamespace(.f, "SparkR"))
@@ -27,6 +27,20 @@ setMethod("mean", signature(x = "Column"),
 #' @export
 setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
-#' #' @export
-#' setMethod("is.logical", signature(x = "Column"), function(x) x)
+#' @export
+is.logical.Column <- function(x) {
+  x
+}
+
+#' @export
+unique.Column <- function(x) {
+  stop("Cannot call `unique` on spark Column, try calling `distinct`
+       on the spark_tbl")
+}
+
+#' @export
+sort.Column <- function(x) {
+  stop("Cannot call `sort` on spark Column, try calling `arrange`
+       on the spark_tbl or `sort_array` on the Column")
+}
 
