@@ -84,7 +84,7 @@ print.spark_tbl <- function(x) {
   cat(paste("[", s, "]\n", sep = ""))
 }
 
-#' show a sample of a \code{spark_tbl}
+#' Show a sample of a \code{spark_tbl}
 #'
 #' @param x a \code{spark_tbl}
 #' @param n numeric, the number of rows to collect

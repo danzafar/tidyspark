@@ -1,6 +1,6 @@
 
 library(dplyr)
-flights_tbl <- spark_tbl(nycflights13::flights)
+# flights_tbl <- spark_tbl(nycflights13::flights)
 # batting_tbl <- spark_tbl(Lahman::Batting)
 
 test_that("simple filter", {
