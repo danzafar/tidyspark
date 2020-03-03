@@ -84,7 +84,7 @@ print.spark_tbl <- function(x) {
   cat(paste("[", s, "]\n", sep = ""))
 }
 
-#' Display a sample of a \code{spark_tbl}
+#' show a sample of a \code{spark_tbl}
 #'
 #' @param x a \code{spark_tbl}
 #' @param n numeric, the number of rows to collect
@@ -94,9 +94,9 @@ print.spark_tbl <- function(x) {
 #'
 #' @examples
 #'
-#' spark_tbl(iris) %>% display
-#' spark_tbl(mtcars) %>% display(15)
-display <- function(x, n = NULL) {
+#' spark_tbl(iris) %>% show
+#' spark_tbl(mtcars) %>% show(15)
+show <- function(x, n = NULL) {
 
   rows <- if (is.null(n)) {
     getOption("tibble.print_min", getOption("dplyr.print_min", 10))

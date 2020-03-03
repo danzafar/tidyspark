@@ -138,10 +138,10 @@ the data. This approach avoids time-consuming spark jobs set off by accidental `
     A spark_tbl: ?? x 19
     [year <int>, month <int>, day <int>, dep_time <int>, sched_dep_time <int>, dep_delay <double>, arr_time <int>, sched_arr_time <int>, arr_delay <double>, carrier <string>, flight <int>, tailnum <string>, origin <string>, dest <string>, air_time <double>, distance <double>, hour <double>, minute <double>, time_hour <timestamp>]
     
-To display data, use the `display` or `glimpse` commands:
+To display data, use the `show` or `glimpse` commands:
 ``` r
 # filter by departure delay and print the first few records
-flights_tbl %>% filter(dep_delay == 2) %>% display
+flights_tbl %>% filter(dep_delay == 2) %>% show
 ```
 
     # A tibble: 10 x 19
