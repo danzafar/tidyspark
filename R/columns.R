@@ -7,13 +7,13 @@ for (.f in other_functions) {
 #' @export
 setMethod("is.na", signature(x = "Column"),
           function(x) {
-            SparkR:::column(SparkR:::callJMethod(x@jc, "isNull"))
+            new("Column", SparkR:::callJMethod(x@jc, "isNull"))
           })
 
 #' @export
 setMethod("is.nan", signature(x = "Column"),
           function(x) {
-            SparkR:::column(SparkR:::callJMethod(x@jc, "isNaN"))
+            new("Column", SparkR:::callJMethod(x@jc, "isNaN"))
           })
 
 #' @export
@@ -21,7 +21,7 @@ setMethod("mean", signature(x = "Column"),
           function(x) {
             jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "mean",
                               x@jc)
-            SparkR:::column(jc)
+            new("Column", jc)
           })
 
 #' @export
@@ -44,3 +44,67 @@ sort.Column <- function(x) {
        on the spark_tbl or `sort_array` on the Column")
 }
 
+### type conversions
+#' @export
+as.character.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "string"))
+}
+
+#' @export
+as.numeric.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "double"))
+}
+
+#' @export
+as.float <- function (x, ...)  .Primitive("as.float")
+
+#' @export
+as.float.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "float"))
+}
+
+#' @export
+as.integer.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "integer"))
+}
+
+#' @export
+as.logical.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "boolean"))
+}
+
+# provide a few ways of converting to timestamp
+#' @export
+as.POSIXct.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "timestamp"))
+}
+
+#' @export
+as_datetime.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "timestamp"))
+}
+
+#' @export
+as.timestamp <- function (x, ...)  .Primitive("as.timestamp")
+
+#' @export
+as.timestamp.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "timestamp"))
+}
+
+# dates
+#' @export
+as.Date.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "date"))
+}
+
+# lists
+#' @export
+as.array.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "array"))
+}
+
+#' @export
+as.list.Column <- function(x) {
+  new("Column", callJMethod(x@jc, "cast", "array"))
+}
