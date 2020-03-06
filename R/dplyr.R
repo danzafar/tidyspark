@@ -129,9 +129,7 @@ mutate.spark_tbl <- function(.data, ...) {
                                      "partitionBy", group_jcols)
 
       eval <- new("Column", SparkR:::callJMethod(eval@jc, "over", window))
-    }
-
-    if (is_wndw_expr(eval)) {
+    } else if (is_wndw_expr(eval)) {
       # this is used for rank, min_rank, row_number, dense_rank, etc.
       func_wndw <- chop_wndw(eval)
 
