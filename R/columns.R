@@ -47,12 +47,12 @@ sort.Column <- function(x) {
 ### type conversions
 #' @export
 as.character.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "string"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "string"))
 }
 
 #' @export
 as.numeric.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "double"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "double"))
 }
 
 #' @export
@@ -60,28 +60,28 @@ as.float <- function (x, ...)  .Primitive("as.float")
 
 #' @export
 as.float.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "float"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "float"))
 }
 
 #' @export
 as.integer.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "integer"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "integer"))
 }
 
 #' @export
 as.logical.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "boolean"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "boolean"))
 }
 
 # provide a few ways of converting to timestamp
 #' @export
 as.POSIXct.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "timestamp"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "timestamp"))
 }
 
 #' @export
 as_datetime.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "timestamp"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "timestamp"))
 }
 
 #' @export
@@ -89,22 +89,22 @@ as.timestamp <- function (x, ...)  .Primitive("as.timestamp")
 
 #' @export
 as.timestamp.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "timestamp"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "timestamp"))
 }
 
 # dates
 #' @export
 as.Date.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "date"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "date"))
 }
 
 # lists
 #' @export
 as.array.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "array"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "array"))
 }
 
 #' @export
 as.list.Column <- function(x) {
-  new("Column", callJMethod(x@jc, "cast", "array"))
+  new("Column", SparkR:::callJMethod(x@jc, "cast", "array"))
 }
