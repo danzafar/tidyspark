@@ -249,9 +249,13 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     } else {
       cond <- rlang::eval_tidy(dot, df_cols)
       and_expr <- SparkR:::callJMethod(cond@jc, "expr")
+      if (spark_class(and_expr, trunc = T) == "Not") {
+        and_expr <- SparkR:::callJMethod(
+          SparkR:::callJMethod(and_expr, "children"),
+          "head")
+      }
       left <- SparkR:::callJMethod(and_expr, "left")
       right <- SparkR:::callJMethod(and_expr, "right")
-
       if (is_agg_expr(left) | is_agg_expr(right)) {
         # we extract both sides, turn them into quosures that we can do eval_tidy
         # on separately.
@@ -306,7 +310,6 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     names(df_cols_update) <- names(sdf)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update)
     conds[[i]] <- cond
-
 
   }
 
@@ -393,7 +396,7 @@ summarise.spark_tbl <- function(.data, ...) {
     if (i != "") {
       if (is.numeric(agg[[i]])) {
         if (length(agg[[i]]) != 1) {
-          stop("Column '", i,"' must be length 1 (a summary value), not ",
+          stop("Column '", i, "' must be length 1 (a summary value), not ",
                length(agg[[1]]))
         }
         jc <- SparkR:::callJMethod(SparkR::lit(agg[i])@jc, "getItem", 0L)
