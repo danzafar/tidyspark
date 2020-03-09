@@ -39,6 +39,16 @@ test_that("other tidy filters work", {
                  filter_all(any_vars(. == 3.4)))
 })
 
+test_that("value-first filters work", {
+  expect_equal(
+    spark_tbl(iris) %>%
+      filter("setosa" == Species) %>%
+      collect(),
+    iris_fix %>%
+      filter("setosa" == Species)
+    )
+})
+
 test_that("big boolean statements work", {
   expect_equal(
     spark_tbl(iris) %>%
