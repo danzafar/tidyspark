@@ -73,3 +73,28 @@ test_that("big aggregate boolean statements work", {
     )
 })
 
+test_that("aggregate filters work", {
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      filter(Sepal_Length == max(Sepal_Length)) %>%
+      collect(),
+    iris_fix %>%
+      group_by(Species) %>%
+      filter(Sepal_Length == max(Sepal_Length))
+  )
+})
+
+test_that("aggregate single boolean filters work", {
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      mutate(bigger = Sepal_Length > 5.85) %>%
+      filter(any(bigger)) %>%
+      collect(),
+    iris_fix %>%
+      group_by(Species) %>%
+      filter(Sepal_Length == max(Sepal_Length))
+  )
+})
+
