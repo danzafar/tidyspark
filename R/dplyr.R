@@ -144,8 +144,7 @@ mutate.spark_tbl <- function(.data, ...) {
     sdf[[name]] <- eval
   }
 
-  # consider recalculating groups
-  new_spark_tbl(sdf)
+  new_spark_tbl(sdf, groups = attr(.data, "groups"))
 }
 
 #' @export
