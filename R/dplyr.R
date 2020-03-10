@@ -235,9 +235,10 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   fix_dot <- function(dot, env) {
     # incoming env is expected to have namespace for
     # j, sdf, and to_drop
-    if (!rlang::is_call(rlang::get_expr(dot))) {
-      return(rlang::quo_text(dot))
-    }
+
+    # early return if there is no calling function (single boolean column)
+    if (!rlang::is_call(rlang::get_expr(dot))) return(rlang::quo_text(dot))
+
     op <- rlang::call_fn(dot)
     args <- rlang::call_args(dot)
     if (identical(op, `&`) | identical(op, `&&`)) {
@@ -246,6 +247,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
     } else if (identical(op, `(`)) {
       paste("(", fix_dot(args[[1]], env), ")")
+    } else if (identical(op, `==`)) {
+      paste(fix_dot(args[[1]], env), "==", fix_dot(args[[2]], env))
     } else if (length(rlang::call_args(dot)) == 1) {
       rlang::quo_text(dot)
     } else {
