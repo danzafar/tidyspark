@@ -24,7 +24,7 @@ rename.spark_tbl <- function(.data, ...) {
 
 # check to see if a column expression is aggregating
 is_agg_expr <- function(col) {
-  if (class(col) == "character" | class(col) == "numeric") return(F)
+  if (class(col) %in% c("character", "numeric", "logical")) return(F)
   if (class(col) == "Column") col <- SparkR:::callJMethod(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.aggregate", name)
@@ -270,8 +270,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
         # Now we need to replace the agg quosure with a virtual column
         # consider putting this into a function
-        if (is_agg_expr(left)) left_col <- sub_agg_column(left_col, env)
-        if (is_agg_expr(right)) right_col <- sub_agg_column(right_col, env)
+        if (is_agg_expr(left_col)) left_col <- sub_agg_column(left_col, env)
+        if (is_agg_expr(right_col)) right_col <- sub_agg_column(right_col, env)
         cond <- pred_func(left_col, right_col)
         SparkR:::callJMethod(cond@jc, "toString")
       } else if (is_wndw_expr(left) | is_wndw_expr(right)) {
