@@ -108,3 +108,195 @@ as.array.Column <- function(x) {
 as.list.Column <- function(x) {
   new("Column", SparkR:::callJMethod(x@jc, "cast", "array"))
 }
+
+### Set up S3 methods for the operators
+
+# plus
+setMethod("+", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "plus", e2))
+          })
+
+setMethod("+", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "plus", e1))
+          })
+
+# minus
+setMethod("-", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "minus", e2))
+          })
+
+setMethod("-", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "minus", e1))
+          })
+
+# multiply
+setMethod("*", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "multiply", e2))
+          })
+
+setMethod("*", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "multiply", e1))
+          })
+
+# divide
+setMethod("/", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "divide", e2))
+          })
+
+setMethod("/", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "divide", e1))
+          })
+
+# modulo
+setMethod("%%", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "mod", e2))
+          })
+
+setMethod("%%", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "mod", e1))
+          })
+
+# equal (numeric)
+setMethod("==", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "equalTo", e2))
+          })
+
+setMethod("==", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "equalTo", e1))
+          })
+
+# equal (string)
+setMethod("==", signature(e1 = "Column", e2 = "character"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "equalTo", e2))
+          })
+
+setMethod("==", signature(e1 = "character", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "equalTo", e1))
+          })
+
+# equal (boolean)
+setMethod("==", signature(e1 = "Column", e2 = "logical"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "equalTo", e2))
+          })
+
+setMethod("==", signature(e1 = "logical", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "equalTo", e1))
+          })
+
+# gt
+setMethod(">", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "gt", e2))
+          })
+
+setMethod(">", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "gt", e1))
+          })
+
+# lt
+setMethod("<", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "lt", e2))
+          })
+
+setMethod("<", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "lt", e1))
+          })
+
+# notEqual (numeric)
+setMethod("!=", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "notEqual", e2))
+          })
+
+setMethod("!=", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "notEqual", e1))
+          })
+
+# notEqual (string)
+setMethod("!=", signature(e1 = "Column", e2 = "character"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "notEqual", e2))
+          })
+
+setMethod("!=", signature(e1 = "character", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "notEqual", e1))
+          })
+
+# notEqual (logical)
+setMethod("!=", signature(e1 = "Column", e2 = "logical"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "notEqual", e2))
+          })
+
+setMethod("!=", signature(e1 = "logical", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "notEqual", e1))
+          })
+
+# leq
+setMethod("<=", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "leq", e2))
+          })
+
+setMethod("<=", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "leq", e1))
+          })
+
+# geq
+setMethod(">=", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e1@jc, "geq", e2))
+          })
+
+setMethod(">=", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", SparkR:::callJMethod(e2@jc, "geq", e1))
+          })
+
+#' @export
+setMethod("all", signature(x = "Column"),
+          function(x) {
+            # 'all' is same as 'min(z) == True'
+            jc_int <- SparkR:::callJMethod(x@jc, "cast", "integer")
+            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "min",
+                                       jc_int)
+            true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
+                                            "lit", T)
+            new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
+          })
+
+#' @export
+setMethod("any", signature(x = "Column"),
+          function(x) {
+            # 'any' is same as 'max(z) == True'
+            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "max",
+                                       x@jc)
+            true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
+                                            "lit", T)
+            new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
+          })
+
+
