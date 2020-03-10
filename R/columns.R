@@ -207,7 +207,7 @@ setMethod(">", signature(e1 = "Column", e2 = "numeric"),
 
 setMethod(">", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "gt", e1))
+            new("Column", SparkR:::callJMethod(e2@jc, "lt", e1))
           })
 
 # lt
@@ -218,7 +218,7 @@ setMethod("<", signature(e1 = "Column", e2 = "numeric"),
 
 setMethod("<", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "lt", e1))
+            new("Column", SparkR:::callJMethod(e2@jc, "gt", e1))
           })
 
 # notEqual (numeric)
@@ -262,7 +262,7 @@ setMethod("<=", signature(e1 = "Column", e2 = "numeric"),
 
 setMethod("<=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "leq", e1))
+            new("Column", SparkR:::callJMethod(e2@jc, "geq", e1))
           })
 
 # geq
@@ -273,7 +273,7 @@ setMethod(">=", signature(e1 = "Column", e2 = "numeric"),
 
 setMethod(">=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "geq", e1))
+            new("Column", SparkR:::callJMethod(e2@jc, "leq", e1))
           })
 
 #' @export
