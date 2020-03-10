@@ -3,7 +3,7 @@ tidyspark: tidy interface for Apache SparkR
 
 ## Motivation
 With the advent of the `tidyverse`, R coders expect a clean, tidy,
-and standardized API for interacting with packages. Unfortunetely Apache SparkR's
+and standardized API for interacting with packages. Unfortunately Apache SparkR's
 interface contains numererous namespace conflicts with dplyr:
 
 ```
