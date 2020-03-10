@@ -236,6 +236,9 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   fix_dot <- function(dot, env) {
     # incoming env is expected to have namespace for
     # j, sdf, and to_drop
+    if (!rlang::is_call(rlang::get_expr(dot))) {
+      return(rlang::quo_text(dot))
+    }
     op <- rlang::call_fn(dot)
     args <- rlang::call_args(dot)
     if (identical(op, `&`) | identical(op, `&&`)) {
@@ -312,7 +315,6 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     conds[[i]] <- cond
 
   }
-
   condition <- Reduce("&", conds)
   sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
   to_drop <- as.list(.counter_env$to_drop)
