@@ -250,7 +250,13 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     } else if (identical(op, `==`)) {
       paste(fix_dot(args[[1]], env), "==", fix_dot(args[[2]], env))
     } else if (length(rlang::call_args(dot)) == 1) {
-      rlang::quo_text(dot)
+      quo <- rlang::as_quosure(dot, env = dot_env)
+      col <- rlang::eval_tidy(quo, df_cols)
+
+      if (is_agg_expr(col)) col <- sub_agg_column(col, env)
+      if (is_wndw_expr(col)) col <- sub_wndw_column(col, env)
+
+      SparkR:::callJMethod(col@jc, "toString")
     } else {
       cond <- rlang::eval_tidy(dot, df_cols)
       and_expr <- SparkR:::callJMethod(cond@jc, "expr")
