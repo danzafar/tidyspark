@@ -146,3 +146,18 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 
   new_spark_tbl(attr(data, "DataFrame"), groups = vars)
 }
+
+#' Explain Plan
+#'
+#' @param x a \code{spark_tbl}
+#' @param extended \code{boolean} whether to print the extended plan
+#'
+#' @return
+#' @export
+#'
+#' @examples
+explain.spark_tbl <- function(x, extended = F) {
+  invisible(
+    SparkR:::callJMethod(attr(x, "DataFrame")@sdf, "explain", extended)
+  )
+}
