@@ -85,12 +85,6 @@ test_that("aggregate filters work", {
   )
 })
 
-spark_tbl(iris) %>%
-  group_by(Species) %>%
-  mutate(bigger = Sepal_Length > 5L) %>%
-  filter(bigger) %>%
-  collect()
-
 test_that("non-aggregating boolean filters work", {
   expect_equal(
     spark_tbl(iris) %>%
@@ -123,12 +117,12 @@ test_that("aggregate single boolean filters work", {
     spark_tbl(iris) %>%
       group_by(Species) %>%
       mutate(bigger = Sepal_Length > 5.85) %>%
-      filter(all(bigger)) %>%
+      filter(any(bigger)) %>%
       collect(),
     iris_fix %>%
       group_by(Species) %>%
       mutate(bigger = Sepal_Length > 5.85) %>%
-      filter(all(bigger))
+      filter(any(bigger))
   )
 })
 
