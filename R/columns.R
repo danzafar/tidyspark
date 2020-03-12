@@ -277,26 +277,24 @@ setMethod(">=", signature(e1 = "numeric", e2 = "Column"),
           })
 
 #' @export
-setMethod("all", signature(x = "Column"),
-          function(x) {
-            # 'all' is same as 'min(z) == True'
-            jc_int <- SparkR:::callJMethod(x@jc, "cast", "integer")
-            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "min",
-                                       jc_int)
-            true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
-                                            "lit", T)
-            new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
-          })
+all.Column <- function(x, ...) {
+  # 'all' is same as 'min(z) == True'
+  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "min",
+                             x@jc)
+  true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
+                                  "lit", T)
+  new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
+}
 
 #' @export
-setMethod("any", signature(x = "Column"),
-          function(x) {
-            # 'any' is same as 'max(z) == True'
-            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "max",
-                                       x@jc)
-            true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
-                                            "lit", T)
-            new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
-          })
+any.Column <- function(x, ...) {
+  # 'any' is same as 'max(z) == True'
+  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "max",
+                             x@jc)
+  true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
+                                  "lit", T)
+  new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
+}
+
 
 
