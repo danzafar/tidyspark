@@ -249,14 +249,35 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       paste("(", fix_dot(args[[1]], env), ")")
     } else if (identical(op, `==`)) {
       paste(fix_dot(args[[1]], env), "==", fix_dot(args[[2]], env))
+    } else if (identical(op, `any`) | identical(op, `all`)) {
+      # `any` and `all` are aggregate functions and require special treatment
+      quo <- rlang::as_quosure(dot, env = dot_env)
+      col <- rlang::eval_tidy(quo, df_cols)
+
+      str <- SparkR:::callJMethod(
+        SparkR:::callJMethod(
+          SparkR:::callJMethod(
+            SparkR:::callJMethod(col@jc, "expr"),
+            "children"),
+          "head"),
+        "toString")
+      parsed <- rlang::parse_quo(sub("(-)?(.*)#.*([)])", "\\2\\3", str),
+                       rlang::quo_get_env(quo))
+      paste(fix_dot(parsed, env), "==", fix_dot(TRUE, env))
+
     } else if (length(rlang::call_args(dot)) == 1) {
       quo <- rlang::as_quosure(dot, env = dot_env)
       col <- rlang::eval_tidy(quo, df_cols)
 
-      if (is_agg_expr(col)) col <- sub_agg_column(col, env)
-      if (is_wndw_expr(col)) col <- sub_wndw_column(col, env)
+      is_agg <- is_agg_expr(col)
+      is_wndw <- is_wndw_expr(col)
 
-      SparkR:::callJMethod(col@jc, "toString")
+      if (is_agg | is_wndw) {
+        if (is_agg_expr(col)) col <- sub_agg_column(col, env)
+        if (is_wndw_expr(col)) col <- sub_wndw_column(col, env)
+        SparkR:::callJMethod(col@jc, "toString")
+      } else rlang::quo_text(dot)
+
     } else {
       cond <- rlang::eval_tidy(dot, df_cols)
       and_expr <- SparkR:::callJMethod(cond@jc, "expr")
@@ -323,6 +344,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     conds[[i]] <- cond
 
   }
+
   condition <- Reduce("&", conds)
   sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
   to_drop <- as.list(.counter_env$to_drop)
