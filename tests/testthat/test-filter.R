@@ -39,6 +39,16 @@ test_that("other tidy filters work", {
                  filter_all(any_vars(. == 3.4)))
 })
 
+test_that("value-first filters work", {
+  expect_equal(
+    spark_tbl(iris) %>%
+      filter("setosa" == Species) %>%
+      collect(),
+    iris_fix %>%
+      filter("setosa" == Species)
+    )
+})
+
 test_that("big boolean statements work", {
   expect_equal(
     spark_tbl(iris) %>%
@@ -61,5 +71,58 @@ test_that("big aggregate boolean statements work", {
       group_by(Species) %>%
       filter(max(Sepal_Length) > 5 & Petal_Width < 1.5 | max(Petal_Length) > 6)
     )
+})
+
+test_that("aggregate filters work", {
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      filter(Sepal_Length == max(Sepal_Length)) %>%
+      collect(),
+    iris_fix %>%
+      group_by(Species) %>%
+      filter(Sepal_Length == max(Sepal_Length))
+  )
+})
+
+test_that("non-aggregating boolean filters work", {
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      mutate(bigger = Sepal_Length > 5L) %>%
+      filter(bigger) %>%
+      collect(),
+    iris_fix %>%
+      group_by(Species) %>%
+      mutate(bigger = Sepal_Length > 5L) %>%
+      filter(bigger)
+  )
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      mutate(bigger = Sepal_Length > 5,
+             better = Sepal_Width > 4) %>%
+      filter(bigger & better) %>%
+      collect(),
+    iris_fix %>%
+      group_by(Species) %>%
+      mutate(bigger = Sepal_Length > 5,
+             better = Sepal_Width > 4) %>%
+      filter(bigger & better)
+  )
+})
+
+test_that("aggregate single boolean filters work", {
+  expect_equal(
+    spark_tbl(iris) %>%
+      group_by(Species) %>%
+      mutate(bigger = Sepal_Length > 5.85) %>%
+      filter(any(bigger)) %>%
+      collect(),
+    iris_fix %>%
+      group_by(Species) %>%
+      mutate(bigger = Sepal_Length > 5.85) %>%
+      filter(any(bigger))
+  )
 })
 

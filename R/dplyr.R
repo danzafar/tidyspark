@@ -24,7 +24,7 @@ rename.spark_tbl <- function(.data, ...) {
 
 # check to see if a column expression is aggregating
 is_agg_expr <- function(col) {
-  if (class(col) == "character" | class(col) == "numeric") return(F)
+  if (class(col) %in% c("character", "numeric", "logical")) return(F)
   if (class(col) == "Column") col <- SparkR:::callJMethod(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.aggregate", name)
@@ -144,8 +144,7 @@ mutate.spark_tbl <- function(.data, ...) {
     sdf[[name]] <- eval
   }
 
-  # consider recalculating groups
-  new_spark_tbl(sdf)
+  new_spark_tbl(sdf, groups = attr(.data, "groups"))
 }
 
 #' @export
@@ -236,6 +235,10 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   fix_dot <- function(dot, env) {
     # incoming env is expected to have namespace for
     # j, sdf, and to_drop
+
+    # early return if there is no calling function (single boolean column)
+    if (!rlang::is_call(rlang::get_expr(dot))) return(rlang::quo_text(dot))
+
     op <- rlang::call_fn(dot)
     args <- rlang::call_args(dot)
     if (identical(op, `&`) | identical(op, `&&`)) {
@@ -244,14 +247,47 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
     } else if (identical(op, `(`)) {
       paste("(", fix_dot(args[[1]], env), ")")
+    } else if (identical(op, `==`)) {
+      paste(fix_dot(args[[1]], env), "==", fix_dot(args[[2]], env))
+    } else if (identical(op, `any`) | identical(op, `all`)) {
+      # `any` and `all` are aggregate functions and require special treatment
+      quo <- rlang::as_quosure(dot, env = dot_env)
+      col <- rlang::eval_tidy(quo, df_cols)
+
+      str <- SparkR:::callJMethod(
+        SparkR:::callJMethod(
+          SparkR:::callJMethod(
+            SparkR:::callJMethod(col@jc, "expr"),
+            "children"),
+          "head"),
+        "toString")
+      parsed <- rlang::parse_quo(sub("(-)?(.*)#.*([)])", "\\2\\3", str),
+                       rlang::quo_get_env(quo))
+      paste(fix_dot(parsed, env), "==", fix_dot(TRUE, env))
+
     } else if (length(rlang::call_args(dot)) == 1) {
-      rlang::quo_text(dot)
+      quo <- rlang::as_quosure(dot, env = dot_env)
+      col <- rlang::eval_tidy(quo, df_cols)
+
+      is_agg <- is_agg_expr(col)
+      is_wndw <- is_wndw_expr(col)
+
+      if (is_agg | is_wndw) {
+        if (is_agg_expr(col)) col <- sub_agg_column(col, env)
+        if (is_wndw_expr(col)) col <- sub_wndw_column(col, env)
+        SparkR:::callJMethod(col@jc, "toString")
+      } else rlang::quo_text(dot)
+
     } else {
       cond <- rlang::eval_tidy(dot, df_cols)
       and_expr <- SparkR:::callJMethod(cond@jc, "expr")
+      if (spark_class(and_expr, trunc = T) == "Not") {
+        and_expr <- SparkR:::callJMethod(
+          SparkR:::callJMethod(and_expr, "children"),
+          "head")
+      }
       left <- SparkR:::callJMethod(and_expr, "left")
       right <- SparkR:::callJMethod(and_expr, "right")
-
       if (is_agg_expr(left) | is_agg_expr(right)) {
         # we extract both sides, turn them into quosures that we can do eval_tidy
         # on separately.
@@ -264,8 +300,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
         # Now we need to replace the agg quosure with a virtual column
         # consider putting this into a function
-        if (is_agg_expr(left)) left_col <- sub_agg_column(left_col, env)
-        if (is_agg_expr(right)) right_col <- sub_agg_column(right_col, env)
+        if (is_agg_expr(left_col)) left_col <- sub_agg_column(left_col, env)
+        if (is_agg_expr(right_col)) right_col <- sub_agg_column(right_col, env)
         cond <- pred_func(left_col, right_col)
         SparkR:::callJMethod(cond@jc, "toString")
       } else if (is_wndw_expr(left) | is_wndw_expr(right)) {
@@ -306,7 +342,6 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     names(df_cols_update) <- names(sdf)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update)
     conds[[i]] <- cond
-
 
   }
 
@@ -393,7 +428,7 @@ summarise.spark_tbl <- function(.data, ...) {
     if (i != "") {
       if (is.numeric(agg[[i]])) {
         if (length(agg[[i]]) != 1) {
-          stop("Column '", i,"' must be length 1 (a summary value), not ",
+          stop("Column '", i, "' must be length 1 (a summary value), not ",
                length(agg[[1]]))
         }
         jc <- SparkR:::callJMethod(SparkR::lit(agg[i])@jc, "getItem", 0L)

@@ -7,7 +7,7 @@ spark_read_csv <- function(x = NULL, ...) {
 persist_read_csv <- function(df) {
   hash <- digest::digest(df, algo = "sha256")
   filename <- paste("spark_serialize_", hash, ".csv", sep = "")
-  tempfile <- file.path(tempdir(), filename)
+  tempfile <- file.path(tempdir(check = T), filename)
   if (!file.exists(tempfile)) {
     write.table(df, tempfile, sep = ",", col.names = F, # switch to \031 soon
                 row.names = FALSE, quote = FALSE)
