@@ -8,8 +8,13 @@ tbl_vars.spark_tbl <- function(x) {
 #' @importFrom dplyr select
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
-  sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
-    setNames(names(vars))
+  cols <- lapply(as.list(vars), function(c) {
+    new("Column",
+        SparkR:::callJStatic("org.apache.spark.sql.functions", "col", c)
+        )@jc
+    })
+  sdf <- SparkR:::callJMethod(attr(.data, "DataFrame")@sdf, "select", cols)
+  sdf <- setNames(new("SparkDataFrame", sdf, F), names(vars))
   new_spark_tbl(sdf)
 }
 
