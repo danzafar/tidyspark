@@ -109,6 +109,85 @@ as.list.Column <- function(x) {
   new("Column", SparkR:::callJMethod(x@jc, "cast", "array"))
 }
 
+### Check types
+check_schema <- function(x) {
+
+  jc <- callJMethod(attr(x, "DataFrame")@sdf, "schema")
+  browser()
+
+}
+
+# to get the Column types is tricky because the column itself
+# does not hold any of that information. To get it we actually
+# have to look at the parent environment where the dataframe is
+# held, but there is uncertainty to if it exists depending on
+# what function is calling this funcion. This should work for
+# mutate_if though...will not work if called directly. Could be
+# more robust.
+get_schema <- function(env) {
+  sdf_jc <- attr(env$.tbl, "DataFrame")@sdf
+  schema_jc <- SparkR:::callJMethod(sdf_jc, "schema")
+  fields_jc <- SparkR:::callJMethod(schema_jc, "fields")
+  names <- lapply(fields_jc, function(x) {
+    SparkR:::callJMethod(x, "name")
+  })
+  types <- lapply(fields_jc, function(x) {
+    SparkR:::callJMethod(
+      SparkR:::callJMethod(
+        x,
+        "dataType"),
+      "toString")
+  })
+  setNames(types, names)
+}
+
+is.numeric.Column <- function(x) {
+  if (is.null(parent.frame()$.tbl)) {
+    stop("In Spark the individual columns of a data frame do not contain
+         schema data such as column types, so is.numeric() cannot be called
+         directly. Use this function in a mutate_if() or get the schema of the
+         entire data frame using schema(your_df)")
+  }
+  # grab the dataframe from the parent env
+  df_schema <- get_schema(parent.frame())
+
+  # map that back to the column passed in
+  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  df_schema[str_name] %in% c("ByteType", "DecimalType", "DoubleType",
+                             "FloatType", "IntegerType", "LongType",
+                             "ShortType")
+}
+
+is.character.Column <- function(x) {
+  if (is.null(parent.frame()$.tbl)) {
+    stop("In Spark the individual columns of a data frame do not contain
+         schema data such as column types, so is.character() cannot be called
+         directly. Use this function in a mutate_if() or get the schema of the
+         entire data frame using schema(your_df)")
+  }
+  # grab the dataframe from the parent env
+  df_schema <- get_schema(parent.frame())
+
+  # map that back to the column passed in
+  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  df_schema[str_name] == "StringType"
+}
+
+is.list.Column <- function(x) {
+  if (is.null(parent.frame()$.tbl)) {
+    stop("In Spark the individual columns of a data frame do not contain
+         schema data such as column types, so is.list() cannot be called
+         directly. Use this function in a mutate_if() or get the schema of the
+         entire data frame using schema(your_df)")
+  }
+  # grab the dataframe from the parent env
+  df_schema <- get_schema(parent.frame())
+
+  # map that back to the column passed in
+  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  df_schema[str_name] == "ArrayType"
+}
+
 ### Set up S3 methods for the operators
 
 # plus
