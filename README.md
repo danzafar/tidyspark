@@ -37,21 +37,12 @@ library(SparkR)
 drop(join(left, right, left$name == right$name, "left_outer"), left$name)
 ```
 
-Many R users, accustomed to a tidy API, seek refuge in RStudio's `sparklyr` which
-uses a backend similar to `dbconnect`. With `sparkyr`, dplyr commands are translated into SQL
-syntax and that is passed to SparkSQL. `sparklyr` is based on the RDD API and centers around the
-Spark Context, though the RDD API will be deprecated with Spark 3.0.0. While this solves the syntax 
-problem, it also creates another layer of complexity. As such, Spark experts complain of bug 
-and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows 
-more efficent execution plans. This eventually leads to the question, "choose one: syntax or functionality?".
+Many R users seek refuge in RStudio's `sparklyr` package which is maintained by RStudio and adheres to tidy principles. `sparklyr` uses a backend similar to `dbconnect` where `dplyr` commands are translated into SQLsyntax and that is passed onto SparkSQL. `sparklyr` was origionally based on the RDD API and centers around theSpark Context as it's primary connection to Spark, though the RDD API will be deprecated with Spark 3.0.0. While usage of `sparklyr` has phenomenal syntax, it also creates another layer of complexity. As such, Spark experts complain of bug and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows more efficent execution plans which eventually leads to the question, **_choose one: syntax or functionality?_**.
 
-`tidyspark` represents a "best of both worlds" approach. The goal of `tidyspark` is to provide a
-tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. This ensures that
-R users get the funcationality of `SparkR` with the syntax of `sparklyr`.
+`tidyspark` was developed so that R users could have the "best of both worlds". The syntax of `sparklyr` butthe backend of `SparkR`. In essence, the goal of `tidyspark` is to provide a tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. The principles are to minimize learning by modelling after `dplyr`/`sparklyr` syntax as much as possible, keep tidy wrappers thin and simple to foster contribution for years to come, and to avoid namespace conflicts with `tidyverse` packages.
 
 ## Status
-This library is nacent (first code written Jan 23, 2020). The primary focus is to bring Spark's DataFrame API into dplyr methods, while preserving as many ancillary functions (such as `n_distinct`, `n()`, `length`, etc.) as possible. So far, the following `dplyr` verbs are supported:
-
+Since the first code written Jan 23, 2020 some significant progress has been made to prove out the `tidyspark` principles. At this time, all of the major `dplyr` verbs are supported in `tidyspark`. By far the most complex are the window-affected verbs and their usage with rank function. One of the goals of the project will be to provide explanatory documentation for how these verb methods work to foster collaboration. Here are the verbs that are currently supported, though some edge cases are still being worked out:
 - `select`
 - `rename`
 - `mutate`
@@ -70,11 +61,13 @@ The following workflows are still being developed
 - `gather`/`spread` (or `pivot_wider`/`pivot_longer`)
 - `nest`
 
+In addition to this core `tidyverse` interoperability, much of the other infra must still be built including file read/writes, converstion to/from `SparkR` and `sparklyr`, `arrow` compatibility, and exposing the suite of ML methods. Another item being considered is to support the entire Spark RDD API in the form of R6 classes with similar syntax to the Scala and `pyspark` APIs.
+
 At this time, the package should be considered a proof-of-concept.
 
 ## Installation
 
-You can install the **tidyspark** package from
+You can install the `tidyspark` package from
 Github as follows:
 
 ``` r
@@ -101,7 +94,7 @@ library(tidyspark)
 spark_session()
 ```
 
-Unlike sparklyr, the output of the session is stored in the R session environment 
+Unlike `sparklyr`, the output of the session is stored in the R session environment 
 and it is not needed in subsequent code. For more information on connecting to remote 
 Spark clusters you can use the `master` argument for `spark_session`. Refer to 
 [this page](https://spark.apache.org/docs/latest/submitting-applications.html#master-urls)
@@ -109,12 +102,9 @@ for more information.
 
 ## Using dplyr
 
-Following `sparklyr`'s readme, we can now use all of the available dplyr verbs against the tables
-within the cluster.
+Following `sparklyr`'s readme, we can now use all of the available `dplyr` verbs against the tables within the cluster.
 
-We’ll start by copying some datasets from R into the Spark cluster (note
-that you may need to install the nycflights13 and Lahman packages in
-order to execute this code):
+We’ll start by copying some datasets from R into the Spark cluster (note: that you may need to install the `nycflights13` and `Lahman` packages in order to execute this code):
 
 ``` r
 install.packages(c("nycflights13", "Lahman"))
@@ -180,7 +170,7 @@ ggplot(delay, aes(dist, delay)) +
 
 ### Window Functions
 
-dplyr [window functions](https://CRAN.R-project.org/package=dplyr) are also supported, for example:
+`dplyr` [window functions](https://CRAN.R-project.org/package=dplyr) are also supported, for example:
 
 ```{r dplyr-window}
 batting_tbl %>%
@@ -190,7 +180,7 @@ batting_tbl %>%
   filter(rank(desc(H)) <= 2 & H > 0)
 ```
 
-One significant difference between `tidyspark` and `sparklyr` is that `tidyspark` opts out of some of the minor yet computationally expensive operations that must be undergone to match dplyr exactly. For instance, looking at the above expression using basic `dplyr`, we would expect the results to be arranged by `playerID`, `yearID`, and `teamID`. In Spark, those kinds of global sorts are very expensive and would require more computation after the grouped rank occurred. `tidyspark` opts out of doing that by default, though the user can still choose to sort if preferred by adding an `arrange` afterward.
+One significant difference between `tidyspark` and `sparklyr` is that `tidyspark` opts out of some of the minor yet computationally expensive operations that must be undergone to match `dplyr` exactly. For instance, looking at the above expression using basic `dplyr`, we would expect the results to be arranged by `playerID`, `yearID`, and `teamID`. In Spark, those kinds of global sorts are very expensive and would require more computation after the grouped rank occurred. `tidyspark` opts out of doing that by default, though the user can still choose to sort if preferred by adding an `arrange` afterward.
 
 Another difference is the grouping. in `dplyr` we would expect the results to still be grouped by `playerID` since there are multiple rows with the same `playerID`. Similar to the above, calculating the groups would require more expensive operations that would not be useful a majority of the time, so `tidyspark` requires that you re-group manually if doing subsequent grouped window functions.
     
@@ -200,7 +190,7 @@ Another difference is the grouping. in `dplyr` we would expect the results to st
 It’s also possible to execute SQL queries directly against tables within
 a Spark cluster. In order to operate on a Spark table, it must be registered
 in the hive metastore as either a table or a temporary view. Unlike `sparklyr`, 
-temporary views are not created by default. To register a temporary view in the 
+temporary views are not created by default. Here we register a temporary view in the 
 hive metastore and run a SQL query on it:
 
 ``` r
