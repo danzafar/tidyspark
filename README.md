@@ -52,19 +52,21 @@ R users get the funcationality of `SparkR` with the syntax of `sparklyr`.
 ## Status
 This library is nacent (first code written Jan 23, 2020). The primary focus is to bring Spark's DataFrame API into dplyr methods, while preserving as many ancillary functions (such as `n_distinct`, `n()`, `length`, etc.) as possible. So far, the following `dplyr` verbs are supported:
 
-- `select`/`rename`
+- `select`
+- `rename`
 - `mutate`
 - `filter`
-- assorted joins
+- assorted `join`s
 - `summarise`
 - `group_by(...) %>% summarise(...)`
 - `group_by(...) %>% mutate(...)`
 - `group_by(...) %>% filter(...)`
 - `arrange`
 - `count`, `tally`, and `n`
+- `distinct`
+- `rank` functions
 
 The following workflows are still being developed
-- rank functions
 - `gather`/`spread` (or `pivot_wider`/`pivot_longer`)
 - `nest`
 
