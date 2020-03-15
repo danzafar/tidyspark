@@ -113,7 +113,6 @@ as.list.Column <- function(x) {
 check_schema <- function(x) {
 
   jc <- callJMethod(attr(x, "DataFrame")@sdf, "schema")
-  browser()
 
 }
 
