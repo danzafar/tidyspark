@@ -130,4 +130,21 @@ test_that("basic distinct works", {
                  distinct)
 })
 
+test_that("grouped distinct works", {
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 distinct(Petal_Width) %>%
+                 collect,
+               iris_fix %>%
+                 group_by(Species) %>%
+                 distinct(Petal_Width))
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 distinct %>%
+                 collect,
+               iris_fix %>%
+                 group_by(Species) %>%
+                 distinct)
+})
+
 

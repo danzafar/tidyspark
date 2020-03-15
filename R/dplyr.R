@@ -45,6 +45,36 @@ rename.spark_tbl <- function(.data, ...) {
   new_spark_tbl(sdf, groups = names(vars[vars %in% attr(.data, "groups")]))
 }
 
+#' @distinct
+#' @importFrom dplyr distinct
+distinct.spark_tbl <- function(.data, ...) {
+  # we use the distinct tools from dplyr
+  dist <- dplyr:::distinct_prepare(.data, enquos(...), .keep_all = FALSE)
+  vars <- tbl_vars(.data)[dplyr:::match_vars(dist$vars, dist$data)]
+  # consider adding in .keep_all = T functionality at some point
+  # keep <- dplyr:::match_vars(dist$keep, dist$data)
+
+  # manage the grouping columns
+  groups <- attr(.data, "groups")
+  groups_incl <- groups[!(groups %in% vars)]
+  vars_grp <- c(groups_incl, vars)
+  vars_grp <- setNames(vars_grp, vars_grp)
+
+  # select the columns
+  cols <- lapply(vars_grp, function(c) {
+    new("Column",
+        SparkR:::callJStatic("org.apache.spark.sql.functions", "col", c)
+    )@jc
+  })
+  sdf <- SparkR:::callJMethod(attr(.data, "DataFrame")@sdf, "select", cols)
+  sdf_named <- setNames(new("SparkDataFrame", sdf, F), names(vars_grp))
+
+  # execute distinct
+  sdf_dist <- SparkR:::callJMethod(sdf_named@sdf, "distinct")
+  new_spark_tbl(new("SparkDataFrame", sdf_dist, F), groups = groups)
+
+}
+
 # check to see if a column expression is aggregating
 is_agg_expr <- function(col) {
   if (class(col) %in% c("character", "numeric", "logical")) return(F)
