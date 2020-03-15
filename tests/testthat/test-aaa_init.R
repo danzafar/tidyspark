@@ -1,1 +1,1 @@
-spark_session()
+spark_session_reset()
