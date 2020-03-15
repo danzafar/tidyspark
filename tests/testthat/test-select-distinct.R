@@ -55,6 +55,30 @@ test_that("tidyselect works", {
                  select(matches("dth")))
 })
 
+test_that("grouped select works", {
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 select(Petal_Width) %>%
+                 collect,
+               iris_fix %>%
+                 group_by(Species) %>%
+                 select(Petal_Width))
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 select(Petal_Width, Species) %>%
+                 collect,
+               iris_fix %>%
+                 group_by(Species) %>%
+                 select(Petal_Width, Species))
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 select(Petal_Width, derp = Species) %>%
+                 collect,
+               iris_fix %>%
+                 group_by(Species) %>%
+                 select(Petal_Width, derp = Species))
+})
+
 test_that("rename works", {
   expect_equal(iris_spk %>%
                  rename(a = Species, b = Petal_Width) %>%
@@ -66,6 +90,44 @@ test_that("rename works", {
                  collect,
                iris_fix %>%
                  rename(`_54` = Sepal_Width, zz = Petal_Width))
+})
+
+test_that("rename works when a df is grouped", {
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 rename(a = Petal_Width) %>%
+                 collect,
+               iris_fix %>%
+                 group_by(Species) %>%
+                 rename(a = Petal_Width))
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 rename(a = Petal_Width, boop = Species) %>%
+                 collect,
+               iris_fix %>%
+                 group_by(Species) %>%
+                 rename(a = Petal_Width, boop = Species))
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 rename(a = Petal_Width) %>%
+                 attr("groups"), "Species")
+  expect_equal(iris_spk %>%
+                 group_by(Species) %>%
+                 rename(a = Petal_Width, boop = Species) %>%
+                 attr("groups"), "boop")
+})
+
+test_that("basic distinct works", {
+  expect_equal(iris_spk %>%
+                 distinct(Species) %>%
+                 collect,
+               iris_fix %>%
+                 distinct(Species))
+  expect_equal(iris_spk %>%
+                 distinct %>%
+                 collect,
+               iris_fix %>%
+                 distinct)
 })
 
 

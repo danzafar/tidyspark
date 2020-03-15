@@ -8,23 +8,41 @@ tbl_vars.spark_tbl <- function(x) {
 #' @importFrom dplyr select
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
-  cols <- lapply(as.list(vars), function(c) {
+
+  # add in grouped columns to the select if not specified
+  groups <- attr(.data, "groups")
+  groups_incl <- groups[!(groups %in% vars)]
+  if (length(groups_incl) > 0) {
+    message("Adding missing grouping variables: `",
+            paste(groups_incl, collapse = "`, `"), "`")
+  }
+  vars_grp <- c(setNames(groups_incl, groups_incl), vars)
+
+  # select the columns
+  cols <- lapply(vars_grp, function(c) {
     new("Column",
         SparkR:::callJStatic("org.apache.spark.sql.functions", "col", c)
         )@jc
     })
   sdf <- SparkR:::callJMethod(attr(.data, "DataFrame")@sdf, "select", cols)
-  sdf <- setNames(new("SparkDataFrame", sdf, F), names(vars))
-  new_spark_tbl(sdf)
+  sdf_named <- setNames(new("SparkDataFrame", sdf, F), names(vars_grp))
+
+  # regroup
+  new_spark_tbl(sdf_named, groups = groups)
 }
 
 #' @export
 #' @importFrom dplyr rename
 rename.spark_tbl <- function(.data, ...) {
-  vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
-  sdf <- SparkR::select(attr(.data, "DataFrame"), vars) %>%
-    setNames(names(vars))
-  new_spark_tbl(sdf)
+  vars <- tidyselect::vars_rename(names(.data), !!!enquos(...))
+  cols <- lapply(unclass(vars), function(c) {
+    new("Column",
+        SparkR:::callJStatic("org.apache.spark.sql.functions", "col", c)
+    )@jc
+  })
+  sdf <- SparkR:::callJMethod(attr(.data, "DataFrame")@sdf, "select", cols)
+  sdf <- setNames(new("SparkDataFrame", sdf, F), names(vars))
+  new_spark_tbl(sdf, groups = names(vars[vars %in% attr(.data, "groups")]))
 }
 
 # check to see if a column expression is aggregating
