@@ -28,11 +28,6 @@ setMethod("mean", signature(x = "Column"),
 setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
 #' @export
-is.logical.Column <- function(x) {
-  x
-}
-
-#' @export
 unique.Column <- function(x) {
   stop("Cannot call `unique` on spark Column, try calling `distinct`
        on the spark_tbl")
@@ -156,6 +151,28 @@ is.numeric.Column <- function(x) {
                              "FloatType", "IntegerType", "LongType",
                              "ShortType")
 }
+
+is.logical.Column <- function(x) {
+  if (is.null(parent.frame()$.tbl)) {
+    stop("In Spark the individual columns of a data frame do not contain
+         schema data such as column types, so is.logical() cannot be called
+         directly. Use this function in a mutate_if() or get the schema of the
+         entire data frame using schema(your_df)")
+  }
+  # grab the dataframe from the parent env
+  df_schema <- get_schema(parent.frame())
+
+  # map that back to the column passed in
+  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  df_schema[str_name] == c("BooleanType")
+}
+
+
+#' #' @export
+#' setMethod("is.logical", signature(x = "Column"),
+#'           function(x) {
+#'             T
+#'           })
 
 is.character.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
@@ -374,5 +391,22 @@ any.Column <- function(x, ...) {
   new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
 }
 
+### work on the case of assigning to a Column object like this:
+# iris_tbl <- spark_tbl(iris)
+# iris_tbl$Species <- iris_tbl$Species + 1
+#' @export
+`$.spark_tbl` <- function(x, y) attr(x, "DataFrame")[[y]]
 
+#' @export
+`$<-.spark_tbl` <- function(.data, col, value) {
+  sdf <- attr(.data, "DataFrame")
+  sdf[[col]] <- value
+  new_spark_tbl(sdf, groups = attr(.data, "groups"))
+}
 
+#' @export
+`[[<-.spark_tbl` <- function(.data, col, value) {
+  sdf <- attr(.data, "DataFrame")
+  sdf[[col]] <- value
+  new_spark_tbl(sdf, groups = attr(.data, "groups"))
+}
