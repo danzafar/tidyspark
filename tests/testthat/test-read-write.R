@@ -1,6 +1,6 @@
 
 
-test_that("read csv w/ and w/o schema", {
+test_that("read csvs", {
   # write files to disk that can be used
   path_csv <- tempfile()
   iris_fix <- iris %>%
@@ -30,6 +30,28 @@ test_that("read csv w/ and w/o schema", {
     iris_fix)
   expect_equal(
     spark_read_csv(path_csv, csv_schema, header = T) %>%
+      collect,
+    iris_fix)
+})
+
+test_that("read parquet", {
+  # write files to disk that can be used
+  path_pqt <- tempfile()
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
+  iris_sdf <- SparkR::createDataFrame(iris_fix)
+  SparkR::write.parquet(iris_sdf, path_pqt)
+
+  # no schema specified
+  expect_equal(
+    spark_read_parquet(path_pqt) %>% explain
+      collect,
+    iris_fix)
+
+  # with schema
+  expect_equal(
+    spark_read_parquet(path_pqt, schema = SparkR::schema(iris_sdf)) %>% explain
       collect,
     iris_fix)
 })
