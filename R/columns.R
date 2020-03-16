@@ -391,22 +391,3 @@ any.Column <- function(x, ...) {
   new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
 }
 
-### work on the case of assigning to a Column object like this:
-# iris_tbl <- spark_tbl(iris)
-# iris_tbl$Species <- iris_tbl$Species + 1
-#' @export
-`$.spark_tbl` <- function(x, y) attr(x, "DataFrame")[[y]]
-
-#' @export
-`$<-.spark_tbl` <- function(.data, col, value) {
-  sdf <- attr(.data, "DataFrame")
-  sdf[[col]] <- value
-  new_spark_tbl(sdf, groups = attr(.data, "groups"))
-}
-
-#' @export
-`[[<-.spark_tbl` <- function(.data, col, value) {
-  sdf <- attr(.data, "DataFrame")
-  sdf[[col]] <- value
-  new_spark_tbl(sdf, groups = attr(.data, "groups"))
-}
