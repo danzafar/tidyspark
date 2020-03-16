@@ -1,7 +1,7 @@
 
 #' @export
 #' @importFrom dplyr same_src
-same_src.spark_tbl <- function (x, y) all(class(x) == class(y))
+same_src.spark_tbl <- function (x, y) identical(class(x),class(y))
 
 #' @export
 #' @importFrom dplyr auto_copy

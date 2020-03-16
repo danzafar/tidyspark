@@ -479,7 +479,7 @@ summarise.spark_tbl <- function(.data, ...) {
 
   for (i in names(agg)) {
     if (i != "") {
-      if (is.numeric(agg[[i]])) {
+      if (class(agg[[i]]) != "Column") {
         if (length(agg[[i]]) != 1) {
           stop("Column '", i, "' must be length 1 (a summary value), not ",
                length(agg[[1]]))
