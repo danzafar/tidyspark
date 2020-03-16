@@ -11,8 +11,16 @@ persist_read_csv <- function(df) {
   SparkR::read.df(tempfile, "csv", SparkR::schema(sample))
 }
 
+# I was considering replacing SparkR:::varargsToStrEnv with this,
+# but SparkR:::varargsToStrEnv does some nice error handling.
+# args_to_env <- function(...) {
+#   quos <- rlang::enquos(...)
+#   args <- lapply(as.list(quos), rlang::quo_name)
+#   as.environment(args)
+# }
+
 read_from_file <- function(path = NULL, source = NULL, schema = NULL,
-                           header = F, delim = NULL, na.strings = "NA", ...) {
+                           na.strings = "NA", ...) {
 
   if (!is.null(path) && !is.character(path)) {
     stop("path should be character, NULL or omitted.")
@@ -23,12 +31,6 @@ read_from_file <- function(path = NULL, source = NULL, schema = NULL,
   }
   sparkSession <- SparkR:::getSparkSession()
   options <- SparkR:::varargsToStrEnv(...)
-  if (header) {
-    options[["header"]] <- "true"
-  }
-  if (!is.null(delim)) {
-    options[["sep"]] <- delim
-  }
   if (!is.null(path)) {
     options[["path"]] <- path
   }
@@ -70,5 +72,5 @@ spark_read_csv <- function(file, schema = NULL, na = "NA", header = FALSE,
     spk_tbl <- SparkR::createDataFrame(head(sample, 1L))
     schema <- schema(spk_tbl)
   }
-  read_from_file(file, source = "csv", schema, header, delim, na, ...)
+  read_from_file(file, source = "csv", schema, na, header = header, sep = delim, ...)
 }
