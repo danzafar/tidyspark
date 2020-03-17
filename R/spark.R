@@ -17,18 +17,18 @@
 #' @rdname javacall
 #' @export
 call_method <- function(jobj, method, ...) {
-  stopifnot(class(objId) == "jobj")
-  if (!validate_jobj(objId)) {
-    stop("Invalid jobj ", objId$id, ". If 'spark_session' was restarted,
+  stopifnot(class(jobj) == "jobj")
+  if (!validate_jobj(jobj)) {
+    stop("Invalid jobj ", jobj$id, ". If 'spark_session' was restarted,
     Spark operations need to be re-executed.")
   }
-  SparkR:::invokeJava(isStatic = FALSE, objId$id, methodName, ...)
+  SparkR:::invokeJava(isStatic = FALSE, jobj$id, method, ...)
 }
 
 #' @rdname javacall
 #' @export
 call_static <- function(class, method, ...) {
-  SparkR:::invokeJava(isStatic = TRUE, className, methodName, ...)
+  SparkR:::invokeJava(isStatic = TRUE, class, method, ...)
 }
 
 #' @rdname javacall
@@ -80,8 +80,8 @@ get_spark_session <- function() {
 }
 
 validate_jobj <- function (jobj) {
-  if (exists(".scStartTime", envir = .sparkREnv)) {
-    jobj$appId == get(".scStartTime", envir = .sparkREnv)
+  if (exists(".scStartTime", envir = SparkR:::.sparkREnv)) {
+    jobj$appId == get(".scStartTime", envir = SparkR:::.sparkREnv)
   } else FALSE
 }
 
@@ -99,8 +99,8 @@ validate_jobj <- function (jobj) {
 #' iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 #' iris_preview %>% collect
 spark_sql <- function(expr) {
-  sdf <- SparkR:::callJMethod(get_spark_session(), "sql", expr)
-  new_spark_tbl(new("SparkDataFrame", sdf, F))
+  sdf <- call_method(get_spark_session(), "sql", expr)
+  new_spark_tbl(sdf)
   }
 
 #' Create or replace a temporary view
@@ -121,8 +121,8 @@ spark_sql <- function(expr) {
 #' iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 #' iris_preview %>% collect
 register_temp_view <- function(.data, name) {
-  sdf <- attr(.data, "DataFrame")
-  SparkR:::callJMethod(sdf@sdf, "createOrReplaceTempView", name)
+  sdf <- attr(.data, "jc")
+  call_method(sdf, "createOrReplaceTempView", name)
   invisible()
   }
 
@@ -138,8 +138,8 @@ spark_class <- function(x, ...) {
 
 #' @export
 spark_class.jobj <- function(x, trunc = F) {
-  class <- SparkR:::callJMethod(
-    SparkR:::callJMethod(x, "getClass"),
+  class <- call_method(
+    call_method(x, "getClass"),
     "toString")
   if (trunc) sub(".*[.](.*)$", "\\1", class)
   else class
@@ -147,9 +147,9 @@ spark_class.jobj <- function(x, trunc = F) {
 
 #' @export
 spark_class.Column <- function(x, trunc = F) {
-  class <- SparkR:::callJMethod(
-    SparkR:::callJMethod(
-      SparkR:::callJMethod(x@jc, "expr"),
+  class <- call_method(
+    call_method(
+      call_method(x@jc, "expr"),
       "getClass"),
     "toString")
   if (trunc) sub(".*[.](.*)$", "\\1", class)

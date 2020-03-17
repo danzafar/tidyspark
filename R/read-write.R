@@ -13,7 +13,7 @@ persist_read_csv <- function(df) {
 
 schema <- function(.data) {
   if (class(.data) == "spark_tbl") .data <- attr(.data, "DataFrame")
-  obj <- SparkR:::callJMethod(.data@sdf, "schema")
+  obj <- call_method(.data@sdf, "schema")
   SparkR:::structType(obj)
 }
 
@@ -60,22 +60,22 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
   if (source == "csv" && is.null(options[["nullValue"]])) {
     options[["nullValue"]] <- na.strings
   }
-  read <- SparkR:::callJMethod(sparkSession, "read")
-  read <- SparkR:::callJMethod(read, "format", source)
+  read <- call_method(sparkSession, "read")
+  read <- call_method(read, "format", source)
   if (!is.null(schema)) {
     if (class(schema) == "structType") {
-      read <- SparkR:::callJMethod(read, "schema", schema$jobj)
+      read <- call_method(read, "schema", schema$jobj)
     } else if (is.character(schema)) {
-      read <- SparkR:::callJMethod(read, "schema", schema)
+      read <- call_method(read, "schema", schema)
     } else if (class(schema) == "jobj") {
-      read <- SparkR:::callJMethod(read, "schema", schema)
+      read <- call_method(read, "schema", schema)
     } else {
       stop("schema should be structType, character, or jobj.")
     }
   }
-  read <- SparkR:::callJMethod(read, "options", options)
-  sdf <- SparkR:::handledCallJMethod(read, "load")
-  new_spark_tbl(new("SparkDataFrame", sdf, F))
+  read <- call_method(read, "options", options)
+  sdf <- call_method_handled(read, "load")
+  new_spark_tbl(sdf)
 }
 
 
@@ -113,7 +113,7 @@ spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
   if (is.null(schema)) {
     message("No schema supplied, extracting from first ", guess_max, " rows")
     sample <- read.csv(path, header, nrows = guess_max, na.strings = na, sep = delim)
-    spk_tbl <- SparkR::createDataFrame(head(sample, 1L))
+    spk_tbl <- spark_tbl(SparkR::createDataFrame(head(sample, 1L)))
     schema <- schema(spk_tbl)
   }
   spark_read_source(path, source = "csv", schema, na, header = header, sep = delim, ...)
@@ -169,10 +169,10 @@ spark_read_json <- function (path, ...) {
   sparkSession <- get_spark_session()
   options <- SparkR:::varargsToStrEnv(...)
   paths <- as.list(suppressWarnings(normalizePath(path)))
-  read <- SparkR:::callJMethod(sparkSession, "read")
-  read <- SparkR:::callJMethod(read, "options", options)
-  sdf <-SparkR:::handledCallJMethod(read, "json", paths)
-  new_spark_tbl(new("SparkDataFrame", sdf, F))
+  read <- call_method(sparkSession, "read")
+  read <- call_method(read, "options", options)
+  sdf <-call_method_handled(read, "json", paths)
+  new_spark_tbl(sdf)
 }
 
 #' Create spark_tbl from JDBC connection
@@ -222,30 +222,30 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
                             ...) {
   jprops <- SparkR:::varargsToJProperties(...)
   sparkSession <- SparkR:::getSparkSession()
-  read <- SparkR:::callJMethod(sparkSession, "read")
+  read <- call_method(sparkSession, "read")
   if (!is.null(partition_col)) {
     if (is.null(num_partitions) || num_partitions == 0) {
-      sc <- SparkR:::callJMethod(sparkSession, "sparkContext")
+      sc <- call_method(sparkSession, "sparkContext")
       num_partitions <- callJMethod(sc, "defaultParallelism")
     }
     else {
       num_partitions <- numToInt(num_partitions)
     }
-    sdf <- SparkR:::handledCallJMethod(
+    sdf <- call_method_handled(
       read, "jdbc", url, table,
       as.character(partition_col), numToInt(lower_bound),
       numToInt(upper_bound), num_partitions, jprops)
   }
   else if (length(predicates) > 0) {
-    sdf <- SparkR:::handledCallJMethod(
+    sdf <- call_method_handled(
       read, "jdbc", url, table,
       as.list(as.character(predicates)), jprops)
   }
   else {
-    sdf <- SparkR:::handledCallJMethod(
+    sdf <- call_method_handled(
       read, "jdbc", url, table,
       jprops)
   }
-  new_spark_tbl(new("SparkDataFrame", sdf, F))
+  new_spark_tbl(sdf)
 }
 

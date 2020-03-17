@@ -23,28 +23,28 @@ join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
   by_x <- vars$idx$x$by
   by_y <- vars$idx$y$by
 
-  xDF <- attr(x, "DataFrame")
-  yDF <- attr(y, "DataFrame")
+  xDF <- attr(x, "jc")
+  yDF <- attr(y, "jc")
 
-  cols_x <- lapply(by_x, function(i) xDF[[i]])
-  cols_y <- lapply(by_y, function(i) yDF[[i]])
+  cols_x <- get_jc_cols(xDF)[by_x]
+  cols_y <- get_jc_cols(yDF)[by_y]
 
   op <- if (on_nulls) SparkR:::`%<=>%` else `==`
   cols = mapply(function(x, y) op(x, y), cols_x, cols_y, SIMPLIFY = F)
   joinExpr = Reduce(function(x, y) x & y, cols)
 
-  sdf <- SparkR:::callJMethod(xDF@sdf, "join", yDF@sdf, joinExpr@jc, type)
+  sdf <- call_method(xDF, "join", yDF, joinExpr@jc, type)
 
   if (!(type %in% c("leftsemi", "leftanti"))) {
 
     for (x in cols_y) {
-      sdf <- SparkR:::callJMethod(sdf, "drop", x@jc)
+      sdf <- call_method(sdf, "drop", x@jc)
     }
 
-    sdf <- SparkR:::callJMethod(sdf, "toDF", as.list(vars$alias))
+    sdf <- call_method(sdf, "toDF", as.list(vars$alias))
   }
 
-  new_spark_tbl(new("SparkDataFrame", sdf, F))
+  new_spark_tbl(sdf)
 
 }
 
