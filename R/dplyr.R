@@ -45,7 +45,7 @@ rename.spark_tbl <- function(.data, ...) {
   new_spark_tbl(sdf, groups = names(vars[vars %in% attr(.data, "groups")]))
 }
 
-#' @distinct
+#' distinct
 #' @importFrom dplyr distinct
 distinct.spark_tbl <- function(.data, ...) {
   # we use the distinct tools from dplyr

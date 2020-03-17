@@ -80,8 +80,6 @@ register_temp_view <- function(.data, name) {
 #'
 #' @return a character representing the spark object type
 #' @export
-#'
-#' @examples
 spark_class <- function(x, ...) {
   UseMethod("spark_class")
 }

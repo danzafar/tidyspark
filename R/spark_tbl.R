@@ -154,8 +154,6 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 explain.spark_tbl <- function(x, extended = F) {
   invisible(
     SparkR:::callJMethod(attr(x, "DataFrame")@sdf, "explain", extended)
