@@ -26,7 +26,6 @@ test_that("Multiple mutates work", {
   )
 })
 
-# NOT WORKING is.numeric does not yet work on Columns
 test_that("Special mutates work", {
   expect_equal(
     iris_spk %>%
@@ -69,3 +68,4 @@ test_that("Mutate with mutiple args works", {
       mutate(tot_Sepal_Petal = Sepal_Area^2 + Petal_Area^3)
   )
 })
+
