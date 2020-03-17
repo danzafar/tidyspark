@@ -112,7 +112,7 @@ spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
                            delim = ",", guess_max = 1000, ...) {
   if (is.null(schema)) {
     message("No schema supplied, extracting from first ", guess_max, " rows")
-    sample <- read.csv(file, header, nrows = guess_max, na.strings = na, sep = delim)
+    sample <- read.csv(path, header, nrows = guess_max, na.strings = na, sep = delim)
     spk_tbl <- SparkR::createDataFrame(head(sample, 1L))
     schema <- schema(spk_tbl)
   }

@@ -45,13 +45,13 @@ test_that("read parquet", {
 
   # no schema specified
   expect_equal(
-    spark_read_parquet(path_pqt) %>% explain
+    spark_read_parquet(path_pqt) %>%
       collect,
     iris_fix)
 
   # with schema
   expect_equal(
-    spark_read_parquet(path_pqt, schema = SparkR::schema(iris_sdf)) %>% explain
+    spark_read_parquet(path_pqt, schema = SparkR::schema(iris_sdf)) %>%
       collect,
     iris_fix)
 })
