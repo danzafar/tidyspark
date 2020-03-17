@@ -1,3 +1,52 @@
+#' Call Java Classes and Methods
+#'
+#' @description A low-level interface to Java and Spark. These functions
+#' are exported for programmers who want to interact with Spark directly.
+#' See https://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/sql/Dataset.html.
+#'
+#' @param jobj a valid \code{jobj} object
+#' @param method character, the method being invoked
+#' @param class character, the class being invoked
+#' @param ... any other arguments to be passed on
+#'
+#' @details The difference between \code{handled} calls and other calls is
+#' that handled calls capture JVM exceptions more effectivly. They are used
+#' in settings where the success of an operation is not assured. Practically
+#' speaking, the handled calls are thin wrappers of the non-handled calls.
+#'
+#' @rdname javacall
+#' @export
+call_method <- function(jobj, method, ...) {
+  stopifnot(class(objId) == "jobj")
+  if (!validate_jobj(objId)) {
+    stop("Invalid jobj ", objId$id, ". If 'spark_session' was restarted,
+    Spark operations need to be re-executed.")
+  }
+  SparkR:::invokeJava(isStatic = FALSE, objId$id, methodName, ...)
+}
+
+#' @rdname javacall
+#' @export
+call_static <- function(class, method, ...) {
+  SparkR:::invokeJava(isStatic = TRUE, className, methodName, ...)
+}
+
+#' @rdname javacall
+#' @export
+call_method_handled <- function(jobj, method, ...) {
+  tryCatch(call_method(jobj, method, ...),
+           error = function(e) {
+             SparkR:::captureJVMException(e, method)
+           })
+}
+
+#' @rdname javacall
+#' @export
+call_static_handled <- function(class, method, ...) {
+  tryCatch(call_method(class, method, ...), error = function(e) {
+    SparkR:::captureJVMException(e, method)
+  })
+}
 
 #' The Spark Session
 #'
@@ -27,10 +76,13 @@ spark_session_reset <- function() {
 get_spark_session <- function() {
   if (exists(".sparkRsession", envir = SparkR:::.sparkREnv)) {
     get(".sparkRsession", envir = SparkR:::.sparkREnv)
-  }
-  else {
-    stop("SparkSession not initialized")
-  }
+  } else stop("spark_session not initialized")
+}
+
+validate_jobj <- function (jobj) {
+  if (exists(".scStartTime", envir = .sparkREnv)) {
+    jobj$appId == get(".scStartTime", envir = .sparkREnv)
+  } else FALSE
 }
 
 #' Spark SQL
