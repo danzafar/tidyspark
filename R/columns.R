@@ -7,19 +7,19 @@ for (.f in other_functions) {
 #' @export
 setMethod("is.na", signature(x = "Column"),
           function(x) {
-            new("Column", SparkR:::callJMethod(x@jc, "isNull"))
+            new("Column", call_method(x@jc, "isNull"))
           })
 
 #' @export
 setMethod("is.nan", signature(x = "Column"),
           function(x) {
-            new("Column", SparkR:::callJMethod(x@jc, "isNaN"))
+            new("Column", call_method(x@jc, "isNaN"))
           })
 
 #' @export
 setMethod("mean", signature(x = "Column"),
           function(x) {
-            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "mean",
+            jc <- call_static("org.apache.spark.sql.functions", "mean",
                               x@jc)
             new("Column", jc)
           })
@@ -42,12 +42,12 @@ sort.Column <- function(x) {
 ### type conversions
 #' @export
 as.character.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "string"))
+  new("Column", call_method(x@jc, "cast", "string"))
 }
 
 #' @export
 as.numeric.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "double"))
+  new("Column", call_method(x@jc, "cast", "double"))
 }
 
 #' @export
@@ -55,28 +55,28 @@ as.float <- function (x, ...)  .Primitive("as.float")
 
 #' @export
 as.float.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "float"))
+  new("Column", call_method(x@jc, "cast", "float"))
 }
 
 #' @export
 as.integer.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "integer"))
+  new("Column", call_method(x@jc, "cast", "integer"))
 }
 
 #' @export
 as.logical.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "boolean"))
+  new("Column", call_method(x@jc, "cast", "boolean"))
 }
 
 # provide a few ways of converting to timestamp
 #' @export
 as.POSIXct.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "timestamp"))
+  new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
 #' @export
 as_datetime.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "timestamp"))
+  new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
 #' @export
@@ -84,24 +84,24 @@ as.timestamp <- function (x, ...)  .Primitive("as.timestamp")
 
 #' @export
 as.timestamp.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "timestamp"))
+  new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
 # dates
 #' @export
 as.Date.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "date"))
+  new("Column", call_method(x@jc, "cast", "date"))
 }
 
 # lists
 #' @export
 as.array.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "array"))
+  new("Column", call_method(x@jc, "cast", "array"))
 }
 
 #' @export
 as.list.Column <- function(x) {
-  new("Column", SparkR:::callJMethod(x@jc, "cast", "array"))
+  new("Column", call_method(x@jc, "cast", "array"))
 }
 
 ### Check types
@@ -119,15 +119,15 @@ check_schema <- function(x) {
 # mutate_if though...will not work if called directly. Could be
 # more robust.
 get_schema <- function(env) {
-  sdf_jc <- attr(env$.tbl, "DataFrame")@sdf
-  schema_jc <- SparkR:::callJMethod(sdf_jc, "schema")
-  fields_jc <- SparkR:::callJMethod(schema_jc, "fields")
+  sdf_jc <- attr(env$.tbl, "jc")
+  schema_jc <- call_method(sdf_jc, "schema")
+  fields_jc <- call_method(schema_jc, "fields")
   names <- lapply(fields_jc, function(x) {
-    SparkR:::callJMethod(x, "name")
+    call_method(x, "name")
   })
   types <- lapply(fields_jc, function(x) {
-    SparkR:::callJMethod(
-      SparkR:::callJMethod(
+    call_method(
+      call_method(
         x,
         "dataType"),
       "toString")
@@ -146,7 +146,7 @@ is.numeric.Column <- function(x) {
   df_schema <- get_schema(parent.frame())
 
   # map that back to the column passed in
-  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  str_name <- call_method(x@jc, "toString")
   df_schema[str_name] %in% c("ByteType", "DecimalType", "DoubleType",
                              "FloatType", "IntegerType", "LongType",
                              "ShortType")
@@ -163,7 +163,7 @@ is.logical.Column <- function(x) {
   df_schema <- get_schema(parent.frame())
 
   # map that back to the column passed in
-  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  str_name <- call_method(x@jc, "toString")
   df_schema[str_name] == c("BooleanType")
 }
 
@@ -185,7 +185,7 @@ is.character.Column <- function(x) {
   df_schema <- get_schema(parent.frame())
 
   # map that back to the column passed in
-  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  str_name <- call_method(x@jc, "toString")
   df_schema[str_name] == "StringType"
 }
 
@@ -200,7 +200,7 @@ is.list.Column <- function(x) {
   df_schema <- get_schema(parent.frame())
 
   # map that back to the column passed in
-  str_name <- SparkR:::callJMethod(x@jc, "toString")
+  str_name <- call_method(x@jc, "toString")
   df_schema[str_name] == "ArrayType"
 }
 
@@ -209,185 +209,185 @@ is.list.Column <- function(x) {
 # plus
 setMethod("+", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "plus", e2))
+            new("Column", call_method(e1@jc, "plus", e2))
           })
 
 setMethod("+", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "plus", e1))
+            new("Column", call_method(e2@jc, "plus", e1))
           })
 
 # minus
 setMethod("-", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "minus", e2))
+            new("Column", call_method(e1@jc, "minus", e2))
           })
 
 setMethod("-", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "minus", e1))
+            new("Column", call_method(e2@jc, "minus", e1))
           })
 
 # multiply
 setMethod("*", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "multiply", e2))
+            new("Column", call_method(e1@jc, "multiply", e2))
           })
 
 setMethod("*", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "multiply", e1))
+            new("Column", call_method(e2@jc, "multiply", e1))
           })
 
 # divide
 setMethod("/", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "divide", e2))
+            new("Column", call_method(e1@jc, "divide", e2))
           })
 
 setMethod("/", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "divide", e1))
+            new("Column", call_method(e2@jc, "divide", e1))
           })
 
 # modulo
 setMethod("%%", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "mod", e2))
+            new("Column", call_method(e1@jc, "mod", e2))
           })
 
 setMethod("%%", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "mod", e1))
+            new("Column", call_method(e2@jc, "mod", e1))
           })
 
 # equal (numeric)
 setMethod("==", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "equalTo", e2))
+            new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
 setMethod("==", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "equalTo", e1))
+            new("Column", call_method(e2@jc, "equalTo", e1))
           })
 
 # equal (string)
 setMethod("==", signature(e1 = "Column", e2 = "character"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "equalTo", e2))
+            new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
 setMethod("==", signature(e1 = "character", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "equalTo", e1))
+            new("Column", call_method(e2@jc, "equalTo", e1))
           })
 
 # equal (boolean)
 setMethod("==", signature(e1 = "Column", e2 = "logical"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "equalTo", e2))
+            new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
 setMethod("==", signature(e1 = "logical", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "equalTo", e1))
+            new("Column", call_method(e2@jc, "equalTo", e1))
           })
 
 # gt
 setMethod(">", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "gt", e2))
+            new("Column", call_method(e1@jc, "gt", e2))
           })
 
 setMethod(">", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "lt", e1))
+            new("Column", call_method(e2@jc, "lt", e1))
           })
 
 # lt
 setMethod("<", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "lt", e2))
+            new("Column", call_method(e1@jc, "lt", e2))
           })
 
 setMethod("<", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "gt", e1))
+            new("Column", call_method(e2@jc, "gt", e1))
           })
 
 # notEqual (numeric)
 setMethod("!=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "notEqual", e2))
+            new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
 setMethod("!=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "notEqual", e1))
+            new("Column", call_method(e2@jc, "notEqual", e1))
           })
 
 # notEqual (string)
 setMethod("!=", signature(e1 = "Column", e2 = "character"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "notEqual", e2))
+            new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
 setMethod("!=", signature(e1 = "character", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "notEqual", e1))
+            new("Column", call_method(e2@jc, "notEqual", e1))
           })
 
 # notEqual (logical)
 setMethod("!=", signature(e1 = "Column", e2 = "logical"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "notEqual", e2))
+            new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
 setMethod("!=", signature(e1 = "logical", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "notEqual", e1))
+            new("Column", call_method(e2@jc, "notEqual", e1))
           })
 
 # leq
 setMethod("<=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "leq", e2))
+            new("Column", call_method(e1@jc, "leq", e2))
           })
 
 setMethod("<=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "geq", e1))
+            new("Column", call_method(e2@jc, "geq", e1))
           })
 
 # geq
 setMethod(">=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e1@jc, "geq", e2))
+            new("Column", call_method(e1@jc, "geq", e2))
           })
 
 setMethod(">=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
-            new("Column", SparkR:::callJMethod(e2@jc, "leq", e1))
+            new("Column", call_method(e2@jc, "leq", e1))
           })
 
 #' @export
 all.Column <- function(x, ...) {
   # 'all' is same as 'min(z) == True'
-  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "min",
+  jc <- call_static("org.apache.spark.sql.functions", "min",
                              x@jc)
-  true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
+  true_jc <- call_static("org.apache.spark.sql.functions",
                                   "lit", T)
-  new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
+  new("Column", call_method(jc, "equalTo", true_jc))
 }
 
 #' @export
 any.Column <- function(x, ...) {
   # 'any' is same as 'max(z) == True'
-  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "max",
+  jc <- call_static("org.apache.spark.sql.functions", "max",
                              x@jc)
-  true_jc <- SparkR:::callJStatic("org.apache.spark.sql.functions",
+  true_jc <- call_static("org.apache.spark.sql.functions",
                                   "lit", T)
-  new("Column", SparkR:::callJMethod(jc, "equalTo", true_jc))
+  new("Column", call_method(jc, "equalTo", true_jc))
 }
 

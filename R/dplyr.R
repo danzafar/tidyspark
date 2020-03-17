@@ -21,14 +21,14 @@ select.spark_tbl <- function(.data, ...) {
   # select the columns
   cols <- lapply(vars_grp, function(c) {
     new("Column",
-        SparkR:::callJStatic("org.apache.spark.sql.functions", "col", c)
+        call_static("org.apache.spark.sql.functions", "col", c)
         )@jc
     })
-  sdf <- SparkR:::callJMethod(attr(.data, "DataFrame")@sdf, "select", cols)
-  sdf_named <- setNames(new("SparkDataFrame", sdf, F), names(vars_grp))
-
+  cols_rename <- mapply(function(x, y) call_method(x, "alias", y),
+                        cols, names(vars_grp))
+  sdf <- call_method(attr(.data, "jc"), "select", cols_rename)
   # regroup
-  new_spark_tbl(sdf_named, groups = groups)
+  new_spark_tbl(sdf, groups = groups)
 }
 
 #' @export
@@ -37,15 +37,16 @@ rename.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_rename(names(.data), !!!enquos(...))
   cols <- lapply(unclass(vars), function(c) {
     new("Column",
-        SparkR:::callJStatic("org.apache.spark.sql.functions", "col", c)
+        call_static("org.apache.spark.sql.functions", "col", c)
     )@jc
   })
-  sdf <- SparkR:::callJMethod(attr(.data, "DataFrame")@sdf, "select", cols)
-  sdf <- setNames(new("SparkDataFrame", sdf, F), names(vars))
+  cols_rename <- mapply(function(x, y) call_method(x, "alias", y),
+                        cols, names(vars))
+  sdf <- call_method(attr(.data, "jc"), "select", cols_rename)
   new_spark_tbl(sdf, groups = names(vars[vars %in% attr(.data, "groups")]))
 }
 
-#' @distinct
+#' distinct
 #' @importFrom dplyr distinct
 distinct.spark_tbl <- function(.data, ...) {
   # we use the distinct tools from dplyr
@@ -63,22 +64,22 @@ distinct.spark_tbl <- function(.data, ...) {
   # select the columns
   cols <- lapply(vars_grp, function(c) {
     new("Column",
-        SparkR:::callJStatic("org.apache.spark.sql.functions", "col", c)
+        call_static("org.apache.spark.sql.functions", "col", c)
     )@jc
   })
-  sdf <- SparkR:::callJMethod(attr(.data, "DataFrame")@sdf, "select", cols)
+  sdf <- call_method(attr(.data, "jc"), "select", cols)
   sdf_named <- setNames(new("SparkDataFrame", sdf, F), names(vars_grp))
 
   # execute distinct
-  sdf_dist <- SparkR:::callJMethod(sdf_named@sdf, "distinct")
-  new_spark_tbl(new("SparkDataFrame", sdf_dist, F), groups = groups)
+  sdf_dist <- call_method(sdf_named@sdf, "distinct")
+  new_spark_tbl(sdf_dist, groups = groups)
 
 }
 
 # check to see if a column expression is aggregating
 is_agg_expr <- function(col) {
   if (class(col) %in% c("character", "numeric", "logical")) return(F)
-  if (class(col) == "Column") col <- SparkR:::callJMethod(col@jc, "expr")
+  if (class(col) == "Column") col <- call_method(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.aggregate", name)
 }
@@ -86,7 +87,7 @@ is_agg_expr <- function(col) {
 # check to see if a column expression is aggregating
 is_wndw_expr <- function(col) {
   if (class(col) == "character" | class(col) == "numeric") return(F)
-  if (class(col) == "Column") col <- SparkR:::callJMethod(col@jc, "expr")
+  if (class(col) == "Column") col <- call_method(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.WindowExpression", name)
 }
@@ -97,16 +98,16 @@ is_wndw_expr <- function(col) {
 # questionable things to break up the expression and re-window it.
 chop_wndw <- function(col) {
   # lets do a little hacking to break up the incoming window col
-  func_spec <- SparkR:::callJMethod(
-    SparkR:::callJMethod(col@jc, "expr"),
+  func_spec <- call_method(
+    call_method(col@jc, "expr"),
     "children")
 
   # get the function the window should be over
   # same as `expr(func_spec.head.toString)`
-  func <- SparkR:::callJStatic(
+  func <- call_static(
     "org.apache.spark.sql.functions", "expr",
-    SparkR:::callJMethod(
-      SparkR:::callJMethod(
+    call_method(
+      call_method(
         func_spec,
         "head"),
       "toString"))
@@ -114,11 +115,11 @@ chop_wndw <- function(col) {
   # reconstruct the window spec
   # same as `func_spec.tail.head.children.head.toString`
   # or `func_spec(2)(1).toString`
-  wndw_str <- SparkR:::callJMethod(
-    SparkR:::callJMethod(
-      SparkR:::callJMethod(
-        SparkR:::callJMethod(
-          SparkR:::callJMethod(
+  wndw_str <- call_method(
+    call_method(
+      call_method(
+        call_method(
+          call_method(
             func_spec,
             "tail"),
           "head"),
@@ -136,7 +137,7 @@ chop_wndw <- function(col) {
   # # but results in error
   # # `cannot resolve '`-H ASC NULLS FIRST`' given input columns: [R, G,
   # #                   yearID, playerID, AB, teamID, H]`
-  # col_obj <- new("Column", SparkR:::callJStatic(
+  # col_obj <- new("Column", call_static(
   #   "org.apache.spark.sql.functions", "col",
   #   sub("(.*)(#[0-9]*) (.*)", "\\1 \\3", wndw_str)
   #   ))
@@ -144,7 +145,7 @@ chop_wndw <- function(col) {
   # grab the column name with regex and add the connonical desc applying
   # conditionally
   col_string <- sub("(-)?(.*)#.*", "\\2", wndw_str)
-  col_obj <- new("Column", SparkR:::callJStatic(
+  col_obj <- new("Column", call_static(
     "org.apache.spark.sql.functions", "col", col_string
   ))
 
@@ -152,7 +153,7 @@ chop_wndw <- function(col) {
   if (descending) col_obj <- desc(col_obj)
 
   # apply the column
-  wndw_ordr <- SparkR:::callJStatic(
+  wndw_ordr <- call_static(
     "org.apache.spark.sql.expressions.Window",
     "orderBy", list(col_obj@jc)
   )
@@ -165,23 +166,23 @@ chop_wndw <- function(col) {
 mutate.spark_tbl <- function(.data, ...) {
   dots <- rlang:::enquos(...)
 
-  sdf <- attr(.data, "DataFrame")
+  sdf <- attr(.data, "jc")
 
   for (i in seq_along(dots)) {
     name <- names(dots)[[i]]
     dot <- dots[[i]]
 
-    df_cols <- lapply(names(sdf), function(x) sdf[[x]])
-    eval <- rlang:::eval_tidy(dot, setNames(df_cols, names(sdf)))
+    df_cols <- get_jc_cols(sdf)
+    eval <- rlang:::eval_tidy(dot, df_cols)
 
     if (is_agg_expr(eval)) {
 
       groups <- attr(.data, "groups")
       group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
-      window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+      window <- call_static("org.apache.spark.sql.expressions.Window",
                                      "partitionBy", group_jcols)
 
-      eval <- new("Column", SparkR:::callJMethod(eval@jc, "over", window))
+      eval <- new("Column", call_method(eval@jc, "over", window))
     } else if (is_wndw_expr(eval)) {
       # this is used for rank, min_rank, row_number, dense_rank, etc.
       func_wndw <- chop_wndw(eval)
@@ -189,12 +190,16 @@ mutate.spark_tbl <- function(.data, ...) {
       # add in the partitionBy based on grouping
       groups <- attr(.data, "groups")
       group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
-      window <- SparkR:::callJMethod(func_wndw$wndw, "partitionBy", group_jcols)
+      window <- call_method(func_wndw$wndw, "partitionBy", group_jcols)
 
       # apply the window over the function
-      eval <- new("Column", SparkR:::callJMethod(func_wndw$func, "over", window))
+      eval <- new("Column", call_method(func_wndw$func, "over", window))
     }
-    sdf[[name]] <- eval
+
+    jcol <- if (class(eval) == "Column") eval@jc
+    else call_static("org.apache.spark.sql.functions", "lit", eval)
+
+    sdf <- call_method(sdf, "withColumn", name, jcol)
   }
 
   new_spark_tbl(sdf, groups = attr(.data, "groups"))
@@ -210,14 +215,11 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     bad <- dots[rlang::have_name(dots)]
     dplyr:::bad_eq_ops(bad, "must not be named, do you need `==`?")
   }
-  else if (rlang::is_empty(dots)) {
-    return(.data)
-  }
+  else if (rlang::is_empty(dots)) return(.data)
 
   # get the SparkDataFrame and cols needed for eval_tidy
-  sdf <- attr(.data, "DataFrame")
-  df_cols <- lapply(names(sdf), function(x) sdf[[x]])
-  names(df_cols) <- names(sdf)
+  sdf <- attr(.data, "jc")
+  df_cols <- get_jc_cols(sdf)
 
   # This is the most complicated part of tidyspark so far. In order to break up
   # complicated expressions like:
@@ -236,19 +238,19 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
     # generate a window, since we will need it
     groups <- attr(.data, "groups")
-    group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
-    window <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+    group_jcols <- lapply(groups, function(col) get_jc_cols(env$sdf)[[col]]@jc)
+    window <- call_static("org.apache.spark.sql.expressions.Window",
                                    "partitionBy", group_jcols)
 
     # apply the window
-    wndw <- SparkR:::callJMethod(col@jc, "over", window)
+    wndw <- call_method(col@jc, "over", window)
     wndw_col <- new("Column", wndw)
-    sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
+    sdf_jc <- call_method(env$sdf, "withColumn",
                                    virt,
                                    wndw_col@jc)
-    env$sdf <- new("SparkDataFrame", sdf_jc, F)
+    env$sdf <- sdf_jc
     env$to_drop <- c(env$to_drop, virt)
-    env$sdf[[virt]]
+    new("Column", call_method(env$sdf, "col", virt))
   }
 
   # here is what needs to happen in Spark:
@@ -264,20 +266,19 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
     # add in the partitionBy based on grouping
     groups <- attr(.data, "groups")
-    group_jcols <- lapply(groups, function(col) env$sdf[[col]]@jc)
-    window <- SparkR:::callJMethod(func_wndw$wndw, "partitionBy", group_jcols)
+    group_jcols <- lapply(groups, function(col) get_jc_cols(env$sdf)[[col]]@jc)
+    window <- call_method(func_wndw$wndw, "partitionBy", group_jcols)
 
     # apply the window over the function
-    wndw_col <- new("Column", SparkR:::callJMethod(func_wndw$func, "over", window))
+    wndw_col <- new("Column", call_method(func_wndw$func, "over", window))
 
     # add the windowed column
-    sdf_jc <- SparkR:::callJMethod(env$sdf@sdf, "withColumn",
-                                   virt,
-                                   wndw_col@jc)
-    env$sdf <- new("SparkDataFrame", sdf_jc, F)
-
+    sdf_jc <- call_method(env$sdf, "withColumn",
+                          virt,
+                          wndw_col@jc)
+    env$sdf <- sdf_jc
     env$to_drop <- c(env$to_drop, virt)
-    env$sdf[[virt]]
+    new("Column", call_method(env$sdf, "col", virt))
   }
 
   # this recursive function is needed to parse through abiguously large
@@ -307,10 +308,10 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       quo <- rlang::as_quosure(dot, env = dot_env)
       col <- rlang::eval_tidy(quo, df_cols)
 
-      str <- SparkR:::callJMethod(
-        SparkR:::callJMethod(
-          SparkR:::callJMethod(
-            SparkR:::callJMethod(col@jc, "expr"),
+      str <- call_method(
+        call_method(
+          call_method(
+            call_method(col@jc, "expr"),
             "children"),
           "head"),
         "toString")
@@ -328,19 +329,19 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
       if (is_agg | is_wndw) {
         if (is_agg_expr(col)) col <- sub_agg_column(col, env)
         if (is_wndw_expr(col)) col <- sub_wndw_column(col, env)
-        SparkR:::callJMethod(col@jc, "toString")
+        call_method(col@jc, "toString")
       } else rlang::quo_text(dot)
 
     } else {
       cond <- rlang::eval_tidy(dot, df_cols)
-      and_expr <- SparkR:::callJMethod(cond@jc, "expr")
+      and_expr <- call_method(cond@jc, "expr")
       if (spark_class(and_expr, trunc = T) == "Not") {
-        and_expr <- SparkR:::callJMethod(
-          SparkR:::callJMethod(and_expr, "children"),
+        and_expr <- call_method(
+          call_method(and_expr, "children"),
           "head")
       }
-      left <- SparkR:::callJMethod(and_expr, "left")
-      right <- SparkR:::callJMethod(and_expr, "right")
+      left <- call_method(and_expr, "left")
+      right <- call_method(and_expr, "right")
       if (is_agg_expr(left) | is_agg_expr(right)) {
         # we extract both sides, turn them into quosures that we can do eval_tidy
         # on separately.
@@ -356,7 +357,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
         if (is_agg_expr(left_col)) left_col <- sub_agg_column(left_col, env)
         if (is_agg_expr(right_col)) right_col <- sub_agg_column(right_col, env)
         cond <- pred_func(left_col, right_col)
-        SparkR:::callJMethod(cond@jc, "toString")
+        call_method(cond@jc, "toString")
       } else if (is_wndw_expr(left) | is_wndw_expr(right)) {
 
         pred_func <- rlang::call_fn(dot)
@@ -370,7 +371,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
         if (is_wndw_expr(right)) right_col <- sub_wndw_column(right_col, env)
 
         cond <- pred_func(left_col, right_col)
-        SparkR:::callJMethod(cond@jc, "toString")
+        call_method(cond@jc, "toString")
       } else rlang::quo_text(dot)
 
     }
@@ -391,22 +392,20 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     quo_sub <- rlang::parse_quo(fix_dot(dots[[i]], .counter_env), env = dot_env)
     sdf <- .counter_env$sdf
 
-    df_cols_update <- lapply(names(sdf), function(x) sdf[[x]])
-    names(df_cols_update) <- names(sdf)
+    df_cols_update <- get_jc_cols(sdf)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update)
     conds[[i]] <- cond
 
   }
 
   condition <- Reduce("&", conds)
-  sdf_filt <- SparkR:::callJMethod(sdf@sdf, "filter", condition@jc)
+  sdf_filt <- call_method(sdf, "filter", condition@jc)
   to_drop <- as.list(.counter_env$to_drop)
   if (length(to_drop) > 0) {
-    sdf_filt <- SparkR:::callJMethod(sdf_filt, "drop", to_drop)
+    sdf_filt <- call_method(sdf_filt, "drop", to_drop)
   }
-  out <- new("SparkDataFrame", sdf_filt, F)
 
-  new_spark_tbl(out)
+  new_spark_tbl(sdf_filt)
 }
 
 # diving into the group-by summarise implementation, Spark actually has a
@@ -438,7 +437,7 @@ group_by.spark_tbl <- function(.data, ..., add = FALSE,
 #' @export
 #' @importFrom dplyr ungroup
 ungroup.spark_tbl <- function(.data, ...) {
-  new_spark_tbl(attr(.data, "DataFrame"))
+  new_spark_tbl(attr(.data, "jc"))
 }
 
 group_spark_data <- function(.data) {
@@ -446,9 +445,9 @@ group_spark_data <- function(.data) {
   tbl_groups <- attr(.data, "groups")
 
   if (is.null(tbl_groups)) stop("Incoming spark_tbl must be grouped")
-  sdf <- attr(.data, "DataFrame")
-  jcol <- lapply(tbl_groups, function(x) sdf[[x]]@jc)
-  sgd <- SparkR:::callJMethod(sdf@sdf, "groupBy", jcol)
+  sdf <- attr(.data, "jc")
+  jcol <- lapply(tbl_groups, function(x) call_method(sdf, "col", x))
+  sgd <- call_method(sdf, "groupBy", jcol)
   SparkR:::groupedData(sgd)
 }
 
@@ -458,15 +457,15 @@ group_spark_data <- function(.data) {
 summarise.spark_tbl <- function(.data, ...) {
   dots <- rlang::enquos(..., .named = TRUE)
 
-  sdf <- attr(.data, "DataFrame")
+  sdf <- attr(.data, "jc")
   tbl_groups <- attr(.data, "groups")
 
   sgd <- if (is.null(tbl_groups)) {
-    SparkR::groupBy(sdf)
+    SparkR::groupBy(as_SparkDataFrame(sdf))
   } else group_spark_data(.data)
 
   agg <- list()
-  orig_df_cols <- setNames(lapply(names(sdf), function(x) sdf[[x]]), names(sdf))
+  orig_df_cols <- get_jc_cols(sdf)
 
   for (i in seq_along(dots)) {
     name <- names(dots)[[i]]
@@ -484,7 +483,7 @@ summarise.spark_tbl <- function(.data, ...) {
           stop("Column '", i, "' must be length 1 (a summary value), not ",
                length(agg[[1]]))
         }
-        jc <- SparkR:::callJMethod(SparkR::lit(agg[i])@jc, "getItem", 0L)
+        jc <- call_method(SparkR::lit(agg[i])@jc, "getItem", 0L)
         agg[[i]] <- new("Column", jc)
       }
       agg[[i]] <- SparkR::alias(agg[[i]], i)
@@ -492,32 +491,25 @@ summarise.spark_tbl <- function(.data, ...) {
   }
 
   jcols <- setNames(lapply(seq_along(agg), function(x) agg[[x]]@jc), names(agg))
-
-  sdf <- SparkR:::callJMethod(sgd@sgd, "agg", jcols[[1]], jcols[-1])
-
-  new_spark_tbl(new("SparkDataFrame", sdf, F))
+  sdf <- call_method(sgd@sgd, "agg", jcols[[1]], jcols[-1])
+  new_spark_tbl(sdf)
 }
 
 #' @export
 #' @importFrom dplyr arrange
 arrange.spark_tbl <- function(.data, ..., by_partition = F) {
   dots <- enquos(...)
-  sdf <- attr(.data, "DataFrame")
+  sdf <- attr(.data, "jc")
 
-  df_cols <- lapply(names(sdf), function(x) sdf[[x]])
+  df_cols <- get_jc_cols(sdf)
   jcols <- lapply(dots, function(col) {
-    rlang::eval_tidy(col, setNames(df_cols, names(sdf)))@jc
+    rlang::eval_tidy(col, df_cols)@jc
   })
 
-  if (by_partition) {
-    sdf <- SparkR:::callJMethod(sdf@sdf, "sortWithinPartitions",
-                                jcols)
-  }
-  else {
-    sdf <- SparkR:::callJMethod(sdf@sdf, "sort", jcols)
-  }
+  if (by_partition) sdf <- call_method(sdf, "sortWithinPartitions", jcols)
+  else sdf <- call_method(sdf, "sort", jcols)
 
-  new_spark_tbl(new("SparkDataFrame", sdf, F))
+  new_spark_tbl(sdf)
 }
 
 # pivots
@@ -535,7 +527,7 @@ piv_wider <- function(data, id_cols = NULL, names_from, values_from) {
     # this aggreagates and drops everything else
     sgd_in <-
       SparkR::agg(SparkR::pivot(
-        SparkR::groupBy(attr(.data, "DataFrame")),
+        SparkR::groupBy(attr(.data, "jc")),
         rlang::as_name(group_var)),
         SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
       )
@@ -575,8 +567,8 @@ piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
                         ") as (", names_to, ", ", values_to, ")")
 
   expr_list <- c(stack_query, non_pivot_cols)
-  sdf <- attr(data, "DataFrame")
-  sdf_jc <- SparkR:::callJMethod(sdf@sdf, "selectExpr", as.list(expr_list))
+  sdf <- attr(data, "jc")
+  sdf_jc <- call_method(sdf@sdf, "selectExpr", as.list(expr_list))
   sdf_out <- new("SparkDataFrame", sdf_jc, F)
   new_spark_tbl(sdf_out)
 

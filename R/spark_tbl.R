@@ -1,14 +1,23 @@
+
+get_jc_cols <- function(jc) {
+  names <- call_method(jc, "columns")
+  .l <- lapply(names, function(x) {
+    jc <- call_method(jc, "col", x)
+    new("Column", jc)
+  })
+  setNames(.l, names)
+}
+
 # create a low-level constructor for an new S3 class called "spark_tbl"
 # following tidy guidelines here https://adv-r.hadley.nz/s3.html#constructors
 new_spark_tbl <- function(sdf, ...) {
-  if (class(sdf) != "SparkDataFrame") {
+  if (class(sdf) != "jobj") {
     stop("Incoming object of class ", class(sdf),
-         "must be of class 'SparkDataFrame'")
+         "must be of class 'jobj'")
   }
-  spk_tbl <- structure(lapply(names(sdf), function(x) sdf[[x]]),
+  spk_tbl <- structure(get_jc_cols(sdf),
                        class = c("spark_tbl", "list"),
-                       DataFrame = sdf)
-  names(spk_tbl) <- names(sdf)
+                       jc = sdf)
   tibble:::update_tibble_attrs(spk_tbl, ...)
 }
 
@@ -47,18 +56,18 @@ spark_tbl.data.frame <- function(.df, ...) {
   # convert the data frame
   df <- if (all(dim(.df) == c(0, 0))) {
     spark <- SparkR:::getSparkSession()
-    sdf <- SparkR:::callJMethod(spark, "emptyDataFrame")
+    sdf <- call_method(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
   } else if (object.size(.df) <= 100000){
     SparkR::createDataFrame(.df)
   } else persist_read_csv(.df)
 
-  new_spark_tbl(df, ...)
+  new_spark_tbl(df@sdf, ...)
 }
 
 #' @export
 spark_tbl.SparkDataFrame <- function(.df, ...) {
-  new_spark_tbl(.df, ...)
+  new_spark_tbl(.df@sdf, ...)
 }
 
 #' @export
@@ -72,7 +81,7 @@ is.spark_tbl <- function(x) {
 
 #' @export
 print.spark_tbl <- function(x) {
-  cols <- lapply(SparkR::dtypes(attr(x, "DataFrame")),
+  cols <- lapply(dtypes(x),
                  function(l) {
                    paste0(paste(l, collapse = " <"), ">")
                  })
@@ -102,7 +111,7 @@ show <- function(x, n = NULL) {
     getOption("tibble.print_min", getOption("dplyr.print_min", 10))
   } else n
 
-  print(as_tibble(SparkR::take(attr(x, "DataFrame"), rows)))
+  print(as_tibble(SparkR::take(attr(x, "jc"), rows)))
   cat("# … with ?? more rows")
 
   invisible(x)
@@ -117,14 +126,29 @@ glimpse.spark_tbl <- function(x, n = NULL) {
     getOption("tibble.print_min", getOption("dplyr.print_min", 10))
   } else n
 
-  tibble:::glimpse.tbl(as_tibble(SparkR::take(attr(x, "DataFrame"), rows)))
+  tibble:::glimpse.tbl(as_tibble(SparkR::take(attr(x, "jc"), rows)))
 
 }
 
 #' @export
 #' @importFrom dplyr collect
 collect.spark_tbl <- function(x) {
-  as_tibble(SparkR::collect(attr(x, "DataFrame")))
+  as_tibble(SparkR::collect(as_SparkDataFrame(x)))
+}
+
+#' @export
+as_SparkDataFrame <- function(x) {
+  UseMethod("as_SparkDataFrame")
+}
+
+#' @export
+as_SparkDataFrame.spark_tbl <- function(x) {
+  new("SparkDataFrame", attr(x, "jc"), F)
+}
+
+#' @export
+as_SparkDataFrame.jobj <- function(x) {
+  new("SparkDataFrame", x, F)
 }
 
 # Strategy for grouped data: I won't create the SparkR 'GroupedData'
@@ -144,7 +168,7 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
     vars <- dplyr:::deparse_names(vars)
   }
 
-  new_spark_tbl(attr(data, "DataFrame"), groups = vars)
+  new_spark_tbl(attr(data, "jc"), groups = vars)
 }
 
 #' Explain Plan
@@ -154,11 +178,9 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 explain.spark_tbl <- function(x, extended = F) {
   invisible(
-    SparkR:::callJMethod(attr(x, "DataFrame")@sdf, "explain", extended)
+    call_method(attr(x, "jc"), "explain", extended)
   )
 }
 
@@ -166,18 +188,28 @@ explain.spark_tbl <- function(x, extended = F) {
 # iris_tbl <- spark_tbl(iris)
 # iris_tbl$Species <- iris_tbl$Species + 1
 #' @export
-`$.spark_tbl` <- function(x, y) attr(x, "DataFrame")[[y]]
+`$.spark_tbl` <- function(x, y) {
+  new("Column", call_method(attr(x, "jc"), "col", y))
+  }
 
 #' @export
 `$<-.spark_tbl` <- function(.data, col, value) {
-  sdf <- attr(.data, "DataFrame")
-  sdf[[col]] <- value
+  sdf <- attr(.data, "jc")
+
+  value_jc <- if (class(value) == "Column") value@jc
+  else call_static("org.apache.spark.sql.functions", "lit", value)
+
+  sdf <- call_method(sdf, "withColumn", col, value_jc)
   new_spark_tbl(sdf, groups = attr(.data, "groups"))
 }
 
 #' @export
 `[[<-.spark_tbl` <- function(.data, col, value) {
-  sdf <- attr(.data, "DataFrame")
-  sdf[[col]] <- value
+  sdf <- attr(.data, "jc")
+
+  value_jc <- if (class(value) == "Column") value@jc
+  else call_static("org.apache.spark.sql.functions", "lit", value)
+
+  sdf <- call_method(sdf, "withColumn", col, value_jc)
   new_spark_tbl(sdf, groups = attr(.data, "groups"))
 }
