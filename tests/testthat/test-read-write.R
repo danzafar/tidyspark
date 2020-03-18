@@ -57,3 +57,48 @@ test_that("read parquet", {
 })
 
 
+test_that("read json", {
+  data("json_sample")
+
+  # singleline
+  single <- '{"string":"string1","int":1,"array":[1,2,3],"dict": {"key": "value1"}}
+{"string":"string2","int":2,"array":[2,4,6],"dict": {"key": "value2"}}
+{"string":"string3","int":3,"array":[3,6,9],"dict": {"key": "value3", "extra_key": "extra_value3"}}'
+  tmp_single <- tempfile()
+  writeLines(single, con = tmp_single)
+
+  # multiline:
+  multi <- '[
+    {"string":"string1","int":1,"array":[1,2,3],"dict": {"key": "value1"}},
+    {"string":"string2","int":2,"array":[2,4,6],"dict": {"key": "value2"}},
+    {
+        "string": "string3",
+        "int": 3,
+        "array": [
+            3,
+            6,
+            9
+        ],
+        "dict": {
+            "key": "value3",
+            "extra_key": "extra_value3"
+        }
+    }
+]'
+  tmp_multi <- tempfile()
+  writeLines(multi, con = tmp_multi)
+
+  expect_equal(
+    identical(
+      spark_read_json(tmp_single) %>% collect,
+      json_sample),
+    T)
+  expect_equal(
+    identical(
+      spark_read_json(tmp_multi, multiline = T) %>% collect,
+      json_sample),
+    T)
+
+})
+
+
