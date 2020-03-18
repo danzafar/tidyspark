@@ -43,9 +43,10 @@ call_method_handled <- function(jobj, method, ...) {
 #' @rdname javacall
 #' @export
 call_static_handled <- function(class, method, ...) {
-  tryCatch(call_method(class, method, ...), error = function(e) {
-    SparkR:::captureJVMException(e, method)
-  })
+  tryCatch(call_static(class, method, ...),
+           error = function(e) {
+             SparkR:::captureJVMException(e, method)
+           })
 }
 
 #' The Spark Session
