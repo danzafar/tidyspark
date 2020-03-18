@@ -1,41 +1,41 @@
-#' structType
+#' StructType
 #'
-#' @description Create a structType object that contains the metadata for
+#' @description Create a StructType object that contains the metadata for
 #' a SparkDataFrame. Intended for use with read functions and apply functions.
 #'
-#' @param x a structField object (created with the structField method).
+#' @param x a StructField object (created with the StructField method).
 #' Since Spark 2.3, this can be a DDL-formatted string, which is a comma
 #' separated list of field definitions, e.g., "a INT, b STRING".
-#' @param ... additional structField objects
+#' @param ... additional StructField objects
 #'
-#' @return an object of type \code{structType}
+#' @return an object of type \code{StructType}
 #' @export
 #'
-#' @rdname structType
+#' @rdname StructType
 #' @examples
-#' schema <- structType(
-#'   structField("a", "integer"),
-#'   structField("c", "string"),
-#'   structField("avg", "double")
+#' schema <- StructType(
+#'   StructField("a", "integer"),
+#'   StructField("c", "string"),
+#'   StructField("avg", "double")
 #'   )
-structType <- function(x, ...) {
-  UseMethod("structType", x)
+StructType <- function(x, ...) {
+  UseMethod("StructType", x)
 }
 
-#' @rdname structType
+#' @rdname StructType
 #' @export
-structType.jobj <- function (x, ...) {
-  obj <- structure(list(), class = "structType")
+StructType.jobj <- function (x, ...) {
+  obj <- structure(list(), class = "StructType")
   obj$jobj <- x
   obj$fields <- function() {
-    lapply(call_method(obj$jobj, "fields"), structField)
+    lapply(call_method(obj$jobj, "fields"), StructField)
   }
   obj
 }
 
-#' @rdname structType
+#' @rdname StructType
 #' @export
-structType.character <- function (x, ...) {
+StructType.character <- function (x, ...) {
   if (!is.character(x)) {
     stop("schema must be a DDL-formatted string.")
   }
@@ -44,25 +44,45 @@ structType.character <- function (x, ...) {
   }
   stObj <- call_static_handled("org.apache.spark.sql.types.StructType",
                                "fromDDL", x)
-  structType(stObj)
+  StructType(stObj)
 }
 
-#' @rdname structType
+#' @rdname StructType
 #' @export
-structType.structField <- function (x, ...) {
+StructType.StructField <- function (x, ...) {
   fields <- list(x, ...)
-  if (!all(sapply(fields, inherits, "structField"))) {
-    stop("All arguments must be structField objects.")
+  if (!all(sapply(fields, inherits, "StructField"))) {
+    stop("All arguments must be StructField objects.")
   }
   sfObjList <- lapply(fields, function(field) {
     field$jobj
   })
   stObj <- call_static("org.apache.spark.sql.api.r.SQLUtils",
                        "createStructType", sfObjList)
-  structType(stObj)
+  StructType(stObj)
 }
 
-#' structField
+#' @export
+print.StructType <- function (x, ...) {
+  type_map <- c("byte" = "ByteType", "integer" = "IntegerType",
+                "float" = "FloatType", "double" = "DoubleType",
+                "string" = "StringType", "binary" = "BinaryType",
+                "boolean" = "BooleanType", "timestamp" = "TimestampType",
+                "date" = "DateType")
+  fields <- paste0(
+    sapply(x$fields(), function(field) {
+      type <- type_map[type_map %in% field$dataType.toString()]
+      if (length(type) == 0) type <- field$dataType.StructType()
+      paste("  StructField(\"", field$name(), "\", ",
+            "\"", type, "\", ",
+            "\"", field$nullable(), "\")",
+            sep = "")
+    }), collapse = ",\n")
+  cat("StructType(\n", fields, "\n  )", sep = "")
+  invisible()
+}
+
+#' StructField
 #'
 #' @param x the name of the field.
 #' @param type The data type of the field, see
@@ -73,23 +93,23 @@ structType.structField <- function (x, ...) {
 #' @return
 #' @export
 #'
-#' @rdname structField
+#' @rdname StructField
 #' @examples
 #' ## Not run:
-#' schema <- structType(
-#'   structField("a", "integer"),
-#'   structField("c", "string"),
-#'   structField("avg", "double")
+#' schema <- StructType(
+#'   StructField("a", "integer"),
+#'   StructField("c", "string"),
+#'   StructField("avg", "double")
 #'   )
 #' ## End(Not run)
-structField <- function (x, ...) {
-  UseMethod("structField", x)
+StructField <- function (x, ...) {
+  UseMethod("StructField", x)
 }
 
-#' @rdname structField
+#' @rdname StructField
 #' @export
-structField.jobj <- function (x, ...) {
-  obj <- structure(list(), class = "structField")
+StructField.jobj <- function (x, ...) {
+  obj <- structure(list(), class = "StructField")
   obj$jobj <- x
   obj$name <- function() {
     call_method(x, "name")
@@ -103,15 +123,18 @@ structField.jobj <- function (x, ...) {
   obj$dataType.simpleString <- function() {
     call_method(obj$dataType(), "simpleString")
   }
+  obj$dataType.StructType <- function() {
+    StructType(obj)
+  }
   obj$nullable <- function() {
     call_method(x, "nullable")
   }
   obj
 }
 
-#' @rdname structField
+#' @rdname StructField
 #' @export
-structField.character <- function (x, type, nullable = TRUE, ...) {
+StructField.character <- function (x, type, nullable = TRUE, ...) {
   if (class(x) != "character") {
     stop("Field name must be a string.")
   }
@@ -121,20 +144,31 @@ structField.character <- function (x, type, nullable = TRUE, ...) {
   if (class(nullable) != "logical") {
     stop("nullable must be either TRUE or FALSE")
   }
-  checkType(type)
+  SparkR:::checkType(type)
   sfObj <- call_static("org.apache.spark.sql.api.r.SQLUtils",
                        "createStructField", x, type, nullable)
-  structField(sfObj)
+  StructField(sfObj)
 }
+
+#' @export
+print.StructField <- function (x, ...) {
+  cat("StructField(name = \"", x$name(), "\", type = \"", x$dataType.toString(),
+      "\", nullable = ", x$nullable(), ")", sep = "")
+}
+
+# call_static("org.apache.spark.sql.types", "StructField",
+#             "ralph",
+#             call_static("org.apache.spark.sql.types", "StringType"),
+#             T)
 
 #' Get schema object
 #'
 #' @param x a \code{spark_tbl}
 #'
-#' @return a \code{structType}
+#' @return a \code{StructType}
 #' @export
 schema <- function(x) {
-  structType(call_method(attr(x, "jc"), "schema"))
+  StructType(call_method(attr(x, "jc"), "schema"))
 }
 
 dtypes <- function(x) {
