@@ -42,6 +42,12 @@ call_method_handled <- function(jobj, method, ...) {
 
 #' @rdname javacall
 #' @export
+new_jobj <- function(className, ...) {
+  SparkR:::invokeJava(isStatic = TRUE, className, methodName = "<init>",  ...)
+}
+
+#' @rdname javacall
+#' @export
 call_static_handled <- function(class, method, ...) {
   tryCatch(call_static(class, method, ...),
            error = function(e) {
