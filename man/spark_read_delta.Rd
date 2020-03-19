@@ -10,13 +10,13 @@ spark_read_delta(path, version = NULL, timestamp = NULL, ...)
 \item{path}{string, the path to the file. Needs to be accessible from the cluster.}
 
 \item{version}{numeric, the version of the Delta table. Can be obtained from
-the output of DESCRIBE HISTORY events.}
+the output of DESCRIBE HISTORY events. Alias of \code{timestampAsOf}.}
 
 \item{timestamp}{string, the time-based version of the Delta table to pull.
 Only date or timestamp strings are accepted. For example, "2019-01-01" and
-"2019-01-01T00:00:00.000Z".}
+"2019-01-01T00:00:00.000Z". Alias of \code{versionAsOf}.}
 
-\item{...}{named list, optional arguments to the reader}
+\item{...}{optional named arguments to the reader.}
 }
 \value{
 a \code{spark_tbl}

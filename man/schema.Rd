@@ -10,7 +10,7 @@ schema(x)
 \item{x}{a \code{spark_tbl}}
 }
 \value{
-a \code{structType}
+a \code{StructType}
 }
 \description{
 Get schema object
