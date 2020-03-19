@@ -63,22 +63,23 @@ StructType.StructField <- function (x, ...) {
 }
 
 #' @export
+tidyspark_types <- c(
+  "byte" = "ByteType", "integer" = "IntegerType",
+  "float" = "FloatType", "double" = "DoubleType",
+  "string" = "StringType", "binary" = "BinaryType",
+  "boolean" = "BooleanType", "timestamp" = "TimestampType",
+  "date" = "DateType")
+
+#' @export
 print.StructType <- function (x, ...) {
-  type_map <- c("byte" = "ByteType", "integer" = "IntegerType",
-                "float" = "FloatType", "double" = "DoubleType",
-                "string" = "StringType", "binary" = "BinaryType",
-                "boolean" = "BooleanType", "timestamp" = "TimestampType",
-                "date" = "DateType")
   fields <- paste0(
     sapply(x$fields(), function(field) {
-      type <- type_map[type_map %in% field$dataType.toString()]
-      if (length(type) == 0) type <- field$dataType.StructType()
-      paste("  StructField(\"", field$name(), "\", ",
-            "\"", type, "\", ",
-            "\"", field$nullable(), "\")",
+      paste("  StructField(\"", field$name(), "\",",
+            " ", field$dataType.print(1), ",",
+            " ", field$nullable(), ")",
             sep = "")
     }), collapse = ",\n")
-  cat("StructType(\n", fields, "\n  )", sep = "")
+  cat(paste0("StructType(\n", fields, "\n)"))
   invisible()
 }
 
@@ -123,8 +124,32 @@ StructField.jobj <- function (x, ...) {
   obj$dataType.simpleString <- function() {
     call_method(obj$dataType(), "simpleString")
   }
-  obj$dataType.StructType <- function() {
-    StructType(obj)
+  obj$dataType.print <- function(i) {
+    # complicated recursive print statement let's users copy/paste
+    # nested schemas back into their schema formulations.
+    if (spark_class(obj$dataType(), T) == "StructType") {
+      struct <- StructType(obj$dataType())
+      indent <- paste0(rep("  ", i + 1), collapse = "")
+      fields <- paste0(
+        sapply(struct$fields(), function(field) {
+          paste(indent, "StructField(\"", field$name(), "\",",
+                " ", field$dataType.print(i + 1), ",",
+                " ", field$nullable(), ")",
+                sep = "")
+        }), collapse = ",\n")
+      paste0("StructType(\n", fields, "\n  )")
+    } else if (spark_class(obj$dataType(), T) == "ArrayType") {
+      type <- spark_class(call_method(obj$dataType(), "elementType"), T)
+      nullable <- call_method(obj$dataType(), "containsNull")
+      paste0("ArrayType(", type, ", ", nullable, ")")
+    } else if (spark_class(obj$dataType(), T) == "MapType") {
+      key <- spark_class(call_method(obj$dataType(), "keyType"), T)
+      value <- spark_class(call_method(obj$dataType(), "valueType"), T)
+      nullable <- call_method(obj$dataType(), "valueContainsNull")
+      paste0("MapType(", key, ", ", value, ", ", nullable, ")")
+    } else {
+      sub(".*[.](.*)@.*$", "\\1", call_method(obj$dataType(), "toString"))
+    }
   }
   obj$nullable <- function() {
     call_method(x, "nullable")
@@ -138,28 +163,54 @@ StructField.character <- function (x, type, nullable = TRUE, ...) {
   if (class(x) != "character") {
     stop("Field name must be a string.")
   }
-  if (class(type) != "character") {
-    stop("Field type must be a string.")
+  if (class(type) == "StructType") {
+    type <- type$jobj
+  } else if (class(type) != "jobj") {
+    stop("Field type must be of class 'jobj' or 'StructType'.")
   }
   if (class(nullable) != "logical") {
     stop("nullable must be either TRUE or FALSE")
   }
-  SparkR:::checkType(type)
-  sfObj <- call_static("org.apache.spark.sql.api.r.SQLUtils",
+  sfObj <- call_static("org.apache.spark.sql.types.DataTypes",
                        "createStructField", x, type, nullable)
   StructField(sfObj)
 }
 
 #' @export
 print.StructField <- function (x, ...) {
-  cat("StructField(name = \"", x$name(), "\", type = \"", x$dataType.toString(),
-      "\", nullable = ", x$nullable(), ")", sep = "")
+  cat(paste("  StructField(\"", x$name(), "\",",
+            " ", x$dataType.print(1), ",",
+            " ", x$nullable(), ")",
+            sep = ""))
 }
 
-# call_static("org.apache.spark.sql.types", "StructField",
-#             "ralph",
-#             call_static("org.apache.spark.sql.types", "StringType"),
-#             T)
+#' @rdname ArrayType
+#' @export
+ArrayType <- function (type, nullable) {
+  call_static("org.apache.spark.sql.types.DataTypes",
+                       "createArrayType", type, nullable)
+}
+
+#' @rdname MapType
+#' @export
+MapType <- function (key, value, nullable) {
+  call_static("org.apache.spark.sql.types.DataTypes",
+                       "createMapType", key, value, nullable)
+}
+
+.onAttach <- function(...) {
+  rlang::env_bind_lazy(as.environment("package:tidyspark"),
+                       ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
+                       IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
+                       FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
+                       DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
+                       LongType = new_jobj("org.apache.spark.sql.types.LongType"),
+                       StringType = new_jobj("org.apache.spark.sql.types.StringType"),
+                       BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
+                       BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
+                       TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
+                       DateType = new_jobj("org.apache.spark.sql.types.DateType"))
+}
 
 #' Get schema object
 #'
