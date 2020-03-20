@@ -2,7 +2,7 @@
 
 get_count <- function() {
   if (!exists(".sparkRCon", SparkR:::.sparkREnv)) return(NULL)
-  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "count", "*")
+  jc <- call_static("org.apache.spark.sql.functions", "count", "*")
   SparkR:::column(jc)
 }
 

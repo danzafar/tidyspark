@@ -14,7 +14,7 @@ persist_read_csv <- function(df) {
 schema <- function(.data) {
   if (class(.data) == "spark_tbl") .data <- attr(.data, "DataFrame")
   obj <- call_method(.data@sdf, "schema")
-  SparkR:::structType(obj)
+  StructType(obj)
 }
 
 # I was considering replacing SparkR:::varargsToStrEnv with this,
@@ -63,14 +63,14 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
   read <- call_method(sparkSession, "read")
   read <- call_method(read, "format", source)
   if (!is.null(schema)) {
-    if (class(schema) == "structType") {
+    if (class(schema) == "StructType") {
       read <- call_method(read, "schema", schema$jobj)
     } else if (is.character(schema)) {
       read <- call_method(read, "schema", schema)
     } else if (class(schema) == "jobj") {
       read <- call_method(read, "schema", schema)
     } else {
-      stop("schema should be structType, character, or jobj.")
+      stop("schema should be StructType, character, or jobj.")
     }
   }
   read <- call_method(read, "options", options)
@@ -124,11 +124,11 @@ spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
 #'
 #' @param path string, the path to the file. Needs to be accessible from the cluster.
 #' @param version numeric, the version of the Delta table. Can be obtained from
-#' the output of DESCRIBE HISTORY events.
+#' the output of DESCRIBE HISTORY events. Alias of \code{timestampAsOf}.
 #' @param timestamp string, the time-based version of the Delta table to pull.
 #' Only date or timestamp strings are accepted. For example, "2019-01-01" and
-#' "2019-01-01T00:00:00.000Z".
-#' @param ... named list, optional arguments to the reader
+#' "2019-01-01T00:00:00.000Z". Alias of \code{versionAsOf}.
+#' @param ... optional named arguments to the reader.
 #'
 #' @details Other options such as specifing a schema can be specified in the \code{...}
 #' For more information on \code{version} and \code{timestamp}, see
@@ -138,7 +138,15 @@ spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
 #' @return a \code{spark_tbl}
 #' @export
 spark_read_delta <- function (path, version = NULL, timestamp = NULL, ...) {
-  spark_read_source(path, "delta", ...)
+  elipses <- rlang::enquos(...)
+  filtered <- Filter(function(x) !is.null(x),
+                     list(path = path,
+                          source = "delta",
+                          versionAsOf = version,
+                          timestampAsOf = timestamp))
+  combine_params <- c(rlang::as_quosures(filtered), elipses)
+  param_quos <- lapply(combine_params, rlang::eval_tidy)
+  do.call(spark_read_source, param_quos)
 }
 
 
@@ -158,6 +166,8 @@ spark_read_parquet <- function(path, ...) {
 #' Read a JSON file into a \code{spark_tbl}.
 #'
 #' @param path string, the path to the file. Needs to be accessible from the cluster.
+#' @param multiline logical, whether the json file is multiline or not, see:
+#' https://docs.databricks.com/data/data-sources/read-json.html#multi-line-mode
 #' @param ... named list, optional arguments to the reader
 #'
 #' @return
@@ -165,13 +175,14 @@ spark_read_parquet <- function(path, ...) {
 #'
 #' @examples
 #' TODO example of specifiying a schema and reading nested data
-spark_read_json <- function (path, ...) {
+spark_read_json <- function (path, multiline = F, ...) {
   sparkSession <- get_spark_session()
   options <- SparkR:::varargsToStrEnv(...)
+  options$multiline <- ifelse(multiline, "true", "false")
   paths <- as.list(suppressWarnings(normalizePath(path)))
   read <- call_method(sparkSession, "read")
   read <- call_method(read, "options", options)
-  sdf <-call_method_handled(read, "json", paths)
+  sdf <- call_method_handled(read, "json", paths)
   new_spark_tbl(sdf)
 }
 
