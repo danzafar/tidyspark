@@ -11,12 +11,6 @@ persist_read_csv <- function(df) {
   SparkR::read.df(tempfile, "csv", SparkR::schema(sample))
 }
 
-schema <- function(.data) {
-  if (class(.data) == "spark_tbl") .data <- attr(.data, "DataFrame")
-  obj <- call_method(.data@sdf, "schema")
-  StructType(obj)
-}
-
 # I was considering replacing SparkR:::varargsToStrEnv with this,
 # but SparkR:::varargsToStrEnv does some nice error handling.
 # args_to_env <- function(...) {

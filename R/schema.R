@@ -219,7 +219,15 @@ MapType <- function (key, value, nullable) {
 #' @return a \code{StructType}
 #' @export
 schema <- function(x) {
-  StructType(call_method(attr(x, "jc"), "schema"))
+  jc <- if (inherits(x, "spark_tbl")) {
+    attr(x, "jc")
+  } else if (inherits(x, "SparkDataFrame")) {
+    x@sdf
+  } else if (inherits(x, "jobj")) {
+    x
+  } else stop("Input must be of class `jobj` or coercible to 'jobj'")
+
+  StructType(call_method(jc, "schema"))
 }
 
 dtypes <- function(x) {
