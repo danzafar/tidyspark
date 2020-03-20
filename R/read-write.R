@@ -14,7 +14,7 @@ persist_read_csv <- function(df) {
 schema <- function(.data) {
   if (class(.data) == "spark_tbl") .data <- attr(.data, "DataFrame")
   obj <- call_method(.data@sdf, "schema")
-  SparkR:::structType(obj)
+  StructType(obj)
 }
 
 # I was considering replacing SparkR:::varargsToStrEnv with this,
@@ -63,14 +63,14 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
   read <- call_method(sparkSession, "read")
   read <- call_method(read, "format", source)
   if (!is.null(schema)) {
-    if (class(schema) == "structType") {
+    if (class(schema) == "StructType") {
       read <- call_method(read, "schema", schema$jobj)
     } else if (is.character(schema)) {
       read <- call_method(read, "schema", schema)
     } else if (class(schema) == "jobj") {
       read <- call_method(read, "schema", schema)
     } else {
-      stop("schema should be structType, character, or jobj.")
+      stop("schema should be StructType, character, or jobj.")
     }
   }
   read <- call_method(read, "options", options)

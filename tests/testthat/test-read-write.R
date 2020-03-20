@@ -8,7 +8,7 @@ test_that("read csvs", {
     mutate(Species = levels(Species)[Species])
   write.csv(iris_fix, path_csv, row.names = F)
 
-  csv_schema <- SparkR::schema(SparkR::createDataFrame(iris_fix))
+  csv_schema <- schema(spark_tbl(iris_fix))
 
   # test with an without schema
   expect_equal(
