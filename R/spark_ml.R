@@ -133,3 +133,81 @@ ml_random_forest <- function(data, formula, ...) {
   }
   .local(data, formula, ...)
 }
+
+# gradient boosted trees
+
+ml_gbt <- function(data, formula, ...)
+{
+  .local <- function (data, formula, type = c("regression",
+                                              "classification"), maxDepth = 5, maxBins = 32, maxIter = 20,
+                      stepSize = 0.1, lossType = NULL, seed = NULL, subsamplingRate = 1,
+                      minInstancesPerNode = 1, minInfoGain = 0, checkpointInterval = 10,
+                      maxMemoryInMB = 256, cacheNodeIds = FALSE, handleInvalid = c("error",
+                                                                                   "keep", "skip"))
+  {
+    type <- match.arg(type)
+    formula <- paste(deparse(formula), collapse = "")
+    if (!is.null(seed)) {
+      seed <- as.character(as.integer(seed))
+    }
+    switch(type, regression = {
+      if (is.null(lossType)) lossType <- "squared"
+      lossType <- match.arg(lossType, c("squared", "absolute"))
+      jobj <- call_static("org.apache.spark.ml.r.GBTRegressorWrapper",
+                          "fit", attr(data, "jc"), formula, as.integer(maxDepth),
+                          as.integer(maxBins), as.integer(maxIter), as.numeric(stepSize),
+                          as.integer(minInstancesPerNode), as.numeric(minInfoGain),
+                          as.integer(checkpointInterval), lossType, seed,
+                          as.numeric(subsamplingRate), as.integer(maxMemoryInMB),
+                          as.logical(cacheNodeIds))
+      new("GBTRegressionModel", jobj = jobj)
+    }, classification = {
+      handleInvalid <- match.arg(handleInvalid)
+      if (is.null(lossType)) lossType <- "logistic"
+      lossType <- match.arg(lossType, "logistic")
+      jobj <- call_static("org.apache.spark.ml.r.GBTClassifierWrapper",
+                          "fit", attr(data, "jc"), formula, as.integer(maxDepth),
+                          as.integer(maxBins), as.integer(maxIter), as.numeric(stepSize),
+                          as.integer(minInstancesPerNode), as.numeric(minInfoGain),
+                          as.integer(checkpointInterval), lossType, seed,
+                          as.numeric(subsamplingRate), as.integer(maxMemoryInMB),
+                          as.logical(cacheNodeIds), handleInvalid)
+      new("GBTClassificationModel", jobj = jobj)
+    })
+  }
+  .local(data, formula, ...)
+}
+
+ml_survival_regression <- function(data, formula, ...) {
+  .local <- function(data, formula, aggregationDepth = 2,
+                      stringIndexerOrderType = c("frequencyDesc", "frequencyAsc",
+                                                 "alphabetDesc", "alphabetAsc"))
+  {
+    stringIndexerOrderType <- match.arg(stringIndexerOrderType)
+    formula <- paste(deparse(formula), collapse = "")
+    jobj <- call_static("org.apache.spark.ml.r.AFTSurvivalRegressionWrapper",
+                        "fit", formula, attr(data, "jc"), as.integer(aggregationDepth),
+                        stringIndexerOrderType)
+    new("AFTSurvivalRegressionModel", jobj = jobj)
+  }
+  .local(data, formula, ...)
+}
+
+ml_isotonic_regression <- function(data, formula, ...) {
+  .local <- function(data, formula, isotonic = TRUE, featureIndex = 0,
+                      weightCol = NULL)
+  {
+    formula <- paste(deparse(formula), collapse = "")
+    if (!is.null(weightCol) && weightCol == "") {
+      weightCol <- NULL
+    }
+    else if (!is.null(weightCol)) {
+      weightCol <- as.character(weightCol)
+    }
+    jobj <- call_static("org.apache.spark.ml.r.IsotonicRegressionWrapper",
+                        "fit", attr(data, "jc"), formula, as.logical(isotonic), as.integer(featureIndex),
+                        weightCol)
+    new("IsotonicRegressionModel", jobj = jobj)
+  }
+  .local(data, formula, ...)
+}
