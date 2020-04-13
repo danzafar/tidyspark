@@ -199,17 +199,18 @@ MapType <- function (key, value, nullable) {
 }
 
 .onAttach <- function(...) {
-  rlang::env_bind_lazy(as.environment("package:tidyspark"),
-                       ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
-                       IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
-                       FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
-                       DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
-                       LongType = new_jobj("org.apache.spark.sql.types.LongType"),
-                       StringType = new_jobj("org.apache.spark.sql.types.StringType"),
-                       BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
-                       BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
-                       TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
-                       DateType = new_jobj("org.apache.spark.sql.types.DateType"))
+  rlang::env_bind_lazy(
+    as.environment("package:tidyspark"),
+    ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
+    IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
+    FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
+    DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
+    LongType = new_jobj("org.apache.spark.sql.types.LongType"),
+    StringType = new_jobj("org.apache.spark.sql.types.StringType"),
+    BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
+    BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
+    TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
+    DateType = new_jobj("org.apache.spark.sql.types.DateType"))
 }
 
 #' Get schema object
