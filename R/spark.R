@@ -64,7 +64,7 @@ spark_session <- function(...) {
 
 #' @export
 spark_session_stop <- function(...) {
-  SparkR:::sparkR.session.stop(...)us
+  SparkR:::sparkR.session.stop(...)
 }
 
 #' @export
