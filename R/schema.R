@@ -199,17 +199,18 @@ MapType <- function (key, value, nullable) {
 }
 
 .onAttach <- function(...) {
-  rlang::env_bind_lazy(as.environment("package:tidyspark"),
-                       ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
-                       IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
-                       FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
-                       DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
-                       LongType = new_jobj("org.apache.spark.sql.types.LongType"),
-                       StringType = new_jobj("org.apache.spark.sql.types.StringType"),
-                       BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
-                       BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
-                       TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
-                       DateType = new_jobj("org.apache.spark.sql.types.DateType"))
+  rlang::env_bind_lazy(
+    as.environment("package:tidyspark"),
+    ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
+    IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
+    FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
+    DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
+    LongType = new_jobj("org.apache.spark.sql.types.LongType"),
+    StringType = new_jobj("org.apache.spark.sql.types.StringType"),
+    BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
+    BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
+    TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
+    DateType = new_jobj("org.apache.spark.sql.types.DateType"))
 }
 
 #' Get schema object
@@ -219,7 +220,15 @@ MapType <- function (key, value, nullable) {
 #' @return a \code{StructType}
 #' @export
 schema <- function(x) {
-  StructType(call_method(attr(x, "jc"), "schema"))
+  jc <- if (inherits(x, "spark_tbl")) {
+    attr(x, "jc")
+  } else if (inherits(x, "SparkDataFrame")) {
+    x@sdf
+  } else if (inherits(x, "jobj")) {
+    x
+  } else stop("Input must be of class `jobj` or coercible to 'jobj'")
+
+  StructType(call_method(jc, "schema"))
 }
 
 dtypes <- function(x) {

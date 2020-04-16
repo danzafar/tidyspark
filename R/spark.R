@@ -58,19 +58,19 @@ call_static_handled <- function(class, method, ...) {
 #' The Spark Session
 #'
 #' @export
-spark_session <- function() {
-  SparkR:::sparkR.session()
+spark_session <- function(...) {
+  SparkR:::sparkR.session(...)
 }
 
 #' @export
-spark_session_stop <- function() {
-  SparkR:::sparkR.session.stop()
+spark_session_stop <- function(...) {
+  SparkR:::sparkR.session.stop(...)
 }
 
 #' @export
-spark_session_reset <- function() {
+spark_session_reset <- function(...) {
   SparkR:::sparkR.session.stop()
-  SparkR:::sparkR.session()
+  SparkR:::sparkR.session(...)
 }
 
 #' Get Spark Session
