@@ -1,4 +1,5 @@
 
+spark_session_reset()
 
 test_that("read csvs", {
   # write files to disk that can be used
@@ -51,7 +52,7 @@ test_that("read parquet", {
 
   # with schema
   expect_equal(
-    spark_read_parquet(path_pqt, schema = SparkR::schema(iris_sdf)) %>%
+    spark_read_parquet(path_pqt, schema = schema(iris_sdf)) %>%
       collect,
     iris_fix)
 })
