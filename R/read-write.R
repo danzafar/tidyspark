@@ -1,4 +1,3 @@
-
 persist_read_csv <- function(df) {
   hash <- digest::digest(df, algo = "sha256")
   filename <- paste("spark_serialize_", hash, ".csv", sep = "")
@@ -18,6 +17,8 @@ persist_read_csv <- function(df) {
 #   args <- lapply(as.list(quos), rlang::quo_name)
 #   as.environment(args)
 # }
+
+### READ ----------------------------------------------------------------------
 
 #' Read from a generic source into a \code{spark_tbl}
 #'
@@ -182,17 +183,17 @@ spark_read_json <- function (path, multiline = F, ...) {
 
 #' Create spark_tbl from JDBC connection
 #'
-#' @param url JDBC database url of the form jdbc:subprotocol:subname
-#' @param table the name of the table in the external database
-#' @param partition_by the name of a column of numeric, date, or timestamp
+#' @param url spring, JDBC database url of the form jdbc:subprotocol:subname
+#' @param table string, the name of the table in the external database
+#' @param partition_by string, the name of a column of numeric, date, or timestamp
 #' type that will be used for partitioning.
 #' @param lower_bound the minimum value of partition_by used to decide partition stride
 #' @param upper_bound the maximum value of partition_by used to decide partition stride
-#' @param num_partitions the number of partitions, This, along with lowerBound
+#' @param num_partitions intteger, the number of partitions, This, along with lowerBound
 #' (inclusive), upperBound (exclusive), form partition strides for generated
 #' WHERE clause expressions used to split the column partitionColumn evenly.
 #' This defaults to SparkContext.defaultParallelism when unset.
-#' @param predicates a list of conditions in the where clause; each one defines
+#' @param predicates list, conditions in the where clause; each one defines
 #' one partition should be in the form of a SQL query string, see example.
 #' @param ... additional JDBC database connection named properties.
 #'
@@ -215,11 +216,25 @@ spark_read_json <- function (path, multiline = F, ...) {
 #'
 #' @examples
 #' ## Not run:
-#' spark_session()
+#' spark_session(sparkPackages=c("mysql:mysql-connector-java:5.1.48"))
+#'
 #' url <- "jdbc:mysql://localhost:3306/databasename"
 #' df <- spark_read_jdbc(url, "table", predicates = list("field <= 123"), user = "username")
+#'
 #' df2 <- spark_read_jdbc(url, "table2", partition_by = "index", lower_bound = 0,
-#'                  upper_bound = 10000, user = "username", password = "password")
+#'                        upper_bound = 10000, user = "username", password = "password")
+#'
+#' spark_session_stop()
+#'
+#' # postgres example
+#'
+#' spark_session(sparkPackages=c("org.postgresql:postgresql:42.2.12"))
+#'
+#' iris_jdbc <- spark_read_jdbc(url = "jdbc:postgresql://localhost/databasename",
+#'                              table = "table",
+#'                              driver = "org.postgresql.Driver")
+#'
+#' spark_session_stop()
 #'
 #' ## End(Not run)
 spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NULL,
@@ -253,4 +268,177 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
   }
   new_spark_tbl(sdf)
 }
+
+
+### WRITE ---------------------------------------------------------------------
+
+#' Write a \code{spark_tbl} to an arbitrary file format
+#'
+#' @description functions used to write Spark tables to file. These use the backend
+#' \code{spark_write_source} to write the actual file. Note, \code{spark_write_source}
+#' is not meant to write files to the the hive metastore, see \code{spark_write_table}
+#' for functionality similar to Spark's \code{saveAsTable} and \code{insertInto}.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the parth where the file is to be saved.
+#' @param source string, can be file types like \code{parquet} or \code{csv}.
+#' @param mode string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other option to be passed. Must be a named argument.
+#'
+#' @rdname write_file
+#' @export
+spark_write_source <- function(.data, path, source = NULL, mode = "error",
+                               partition_by = NULL, ...) {
+  if (!is.null(path) && !is.character(path)) {
+    stop("path should be character, NULL or omitted.")
+  }
+  if (!is.null(source) && !is.character(source)) {
+    stop("source should be character, NULL or omitted. It is the datasource specified ",
+         "in 'spark.sql.sources.default' configuration by default.")
+  }
+  if (!is.character(mode)) {
+    stop("mode should be character or omitted. It is 'error' by default.")
+  }
+  if (is.null(source)) {
+    source <- getDefaultSqlSource()
+  }
+
+  options <- SparkR:::varargsToStrEnv(...)
+  if (!is.null(options$partitionBy)) {
+    stop("'partitionBy' argument suppied, 'partiton_by' expected")
+    }
+
+  if (!is.null(path)) {
+    options[["path"]] <- path
+  }
+
+  call_method_handled(
+    call_method(
+      call_method_handled(
+        call_method(
+          call_method(
+            call_method(
+              attr(.data, "jc"),
+              "write"),
+            "format", source),
+          "partitionBy", as.list(partition_by)),
+        "mode", mode),
+      "options", options),
+    "save")
+
+  invisible()
+
+}
+
+#' @rdname write_file
+#' @export
+spark_write_csv <- function(.data, path, mode = "error",
+                            partition_by = NULL, ...) {
+
+  spark_write_source(.data, path, source = "csv", mode, partition_by, ...)
+
+}
+
+#' @rdname write_file
+#' @export
+spark_write_delta <- function(.data, path, mode = "error",
+                              partition_by = NULL, ...) {
+
+  spark_write_source(.data, path, source = "delta", mode, partition_by, ...)
+
+}
+
+#' @rdname write_file
+#' @export
+spark_write_json <- function(.data, path, mode = "error",
+                             partition_by = NULL, ...) {
+
+  spark_write_source(.data, path, source = "json", mode, partition_by, ...)
+
+}
+
+#' @rdname write_file
+#' @export
+spark_write_orc <- function(.data, path, mode = "error",
+                            partition_by = NULL, ...) {
+
+  spark_write_source(.data, path, source = "orc", mode, partition_by, ...)
+
+}
+
+#' @rdname write_file
+#' @export
+spark_write_parquet <- function(.data, path, mode = "error",
+                                partition_by = NULL, ...) {
+
+  spark_write_source(.data, path, source = "parquet", mode, partition_by, ...)
+
+}
+
+#' @rdname write_file
+#' @export
+spark_write_text <- function(.data, path, mode = "error",
+                             partition_by = NULL, ...) {
+
+  spark_write_source(.data, path, source = "text", mode, partition_by, ...)
+
+}
+
+#' Write to a JDBC table
+#'
+#' @param .data a \code{spark_tbl}
+#' @param url string, the jdbc URL
+#' @param table sting, the table name
+#' @param mode string, either \code{"error"} (default), \code{"overwrite"},
+#' or \code{"append"}.
+#' @param partition_by string, the column to partition by
+#' @param driver string, the driver class to use, e.g. \code{"org.postgresql.Driver"}
+#' @param ... additional connection options such as \code{user}, \code{password}, etc.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
+                             partition_by = NULL, driver = NULL, ...) {
+  if (!is.null(url) && !is.character(url)) {
+    stop("url should be character.")
+  }
+  if (!is.character(mode)) {
+    stop("mode should be character or omitted. It is 'error' by default.")
+  }
+
+  options <- SparkR:::varargsToStrEnv(...)
+  if (!is.null(options$partitionBy)) {
+    stop("'partitionBy' argument suppied, 'partiton_by' expected")
+  }
+
+  call_method_handled(
+    call_method(
+      call_method_handled(
+        call_method(
+          call_method(
+            call_method(
+              call_method(
+                call_method(
+                  call_method(
+                    attr(.data, "jc"),
+                    "write"),
+                  "format", "jdbc"),
+                "option", "url", url),
+              "option", "dbtable", table),
+            "option", "driver", driver),
+          "partitionBy", as.list(partition_by)),
+        "mode", mode),
+      "options", options),
+    "save")
+
+  invisible()
+}
+
+# stop("Bucketing is not supported for DataFrameWriter.save, DataFrameWriter.insertInto and DataFrameWriter.jdbc methods.")
+
+
+
 
