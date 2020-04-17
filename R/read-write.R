@@ -280,7 +280,7 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
 #' for functionality similar to Spark's \code{saveAsTable} and \code{insertInto}.
 #'
 #' @param .data a \code{spark_tbl}
-#' @param path string, the parth where the file is to be saved.
+#' @param path string, the path where the file is to be saved.
 #' @param source string, can be file types like \code{parquet} or \code{csv}.
 #' @param mode string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/
 #' @param partition_by string, column names to partition by on disk
@@ -331,8 +331,25 @@ spark_write_source <- function(.data, path, source = NULL, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to CSV format
+#'
+#' @description
+#' Write a \code{spark_tbl} to a tabular (typically, comma-separated) file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details Many other options can be set using the \code{...}. Some popular
+#' ones include \code{header = T} or \code{sep = ","}. A full list can be found
+#' here: https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#csv-java.lang.String-
+#'
+#' @return
 #' @export
+#'
+#' @examples
 spark_write_csv <- function(.data, path, mode = "error",
                             partition_by = NULL, ...) {
 
