@@ -4,6 +4,7 @@
 \alias{call_method}
 \alias{call_static}
 \alias{call_method_handled}
+\alias{new_jobj}
 \alias{call_static_handled}
 \title{Call Java Classes and Methods}
 \usage{
@@ -12,6 +13,8 @@ call_method(jobj, method, ...)
 call_static(class, method, ...)
 
 call_method_handled(jobj, method, ...)
+
+new_jobj(className, ...)
 
 call_static_handled(class, method, ...)
 }

@@ -4,7 +4,7 @@
 \alias{spark_session}
 \title{The Spark Session}
 \usage{
-spark_session()
+spark_session(...)
 }
 \description{
 The Spark Session

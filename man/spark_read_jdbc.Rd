@@ -16,25 +16,25 @@ spark_read_jdbc(
 )
 }
 \arguments{
-\item{url}{JDBC database url of the form jdbc:subprotocol:subname}
+\item{url}{spring, JDBC database url of the form jdbc:subprotocol:subname}
 
-\item{table}{the name of the table in the external database}
+\item{table}{string, the name of the table in the external database}
 
 \item{lower_bound}{the minimum value of partition_by used to decide partition stride}
 
 \item{upper_bound}{the maximum value of partition_by used to decide partition stride}
 
-\item{num_partitions}{the number of partitions, This, along with lowerBound
+\item{num_partitions}{intteger, the number of partitions, This, along with lowerBound
 (inclusive), upperBound (exclusive), form partition strides for generated
 WHERE clause expressions used to split the column partitionColumn evenly.
 This defaults to SparkContext.defaultParallelism when unset.}
 
-\item{predicates}{a list of conditions in the where clause; each one defines
+\item{predicates}{list, conditions in the where clause; each one defines
 one partition should be in the form of a SQL query string, see example.}
 
 \item{...}{additional JDBC database connection named properties.}
 
-\item{partition_by}{the name of a column of numeric, date, or timestamp
+\item{partition_by}{string, the name of a column of numeric, date, or timestamp
 type that will be used for partitioning.}
 }
 \value{
@@ -60,11 +60,25 @@ For specifing partitioning, the following rules apply:
 }
 \examples{
 ## Not run:
-spark_session()
+spark_session(sparkPackages=c("mysql:mysql-connector-java:5.1.48"))
+
 url <- "jdbc:mysql://localhost:3306/databasename"
 df <- spark_read_jdbc(url, "table", predicates = list("field <= 123"), user = "username")
+
 df2 <- spark_read_jdbc(url, "table2", partition_by = "index", lower_bound = 0,
-                 upper_bound = 10000, user = "username", password = "password")
+                       upper_bound = 10000, user = "username", password = "password")
+
+spark_session_stop()
+
+# postgres example
+
+spark_session(sparkPackages=c("org.postgresql:postgresql:42.2.12"))
+
+iris_jdbc <- spark_read_jdbc(url = "jdbc:postgresql://localhost/databasename",
+                             table = "table",
+                             driver = "org.postgresql.Driver")
+
+spark_session_stop()
 
 ## End(Not run)
 }
