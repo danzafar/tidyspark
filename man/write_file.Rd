@@ -3,10 +3,6 @@
 \name{spark_write_source}
 \alias{spark_write_source}
 \alias{spark_write_delta}
-\alias{spark_write_json}
-\alias{spark_write_orc}
-\alias{spark_write_parquet}
-\alias{spark_write_text}
 \title{Write a \code{spark_tbl} to an arbitrary file format}
 \usage{
 spark_write_source(
@@ -19,14 +15,6 @@ spark_write_source(
 )
 
 spark_write_delta(.data, path, mode = "error", partition_by = NULL, ...)
-
-spark_write_json(.data, path, mode = "error", partition_by = NULL, ...)
-
-spark_write_orc(.data, path, mode = "error", partition_by = NULL, ...)
-
-spark_write_parquet(.data, path, mode = "error", partition_by = NULL, ...)
-
-spark_write_text(.data, path, mode = "error", partition_by = NULL, ...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}
@@ -35,7 +23,7 @@ spark_write_text(.data, path, mode = "error", partition_by = NULL, ...)
 
 \item{source}{string, can be file types like \code{parquet} or \code{csv}.}
 
-\item{mode}{string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/}
+\item{mode}{string, usually \code{"error"} (default), \code{"overwrite"}, \code{"append"}, or \code{"ignore"}}
 
 \item{partition_by}{string, column names to partition by on disk}
 

@@ -282,7 +282,7 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
 #' @param .data a \code{spark_tbl}
 #' @param path string, the path where the file is to be saved.
 #' @param source string, can be file types like \code{parquet} or \code{csv}.
-#' @param mode string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"}, \code{"append"}, or \code{"ignore"}
 #' @param partition_by string, column names to partition by on disk
 #' @param ... any other option to be passed. Must be a named argument.
 #'
@@ -338,7 +338,8 @@ spark_write_source <- function(.data, path, source = NULL, mode = "error",
 #'
 #' @param .data a \code{spark_tbl}
 #' @param path string, the path where the file is to be saved.
-#' @param mode string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
 #' @param partition_by string, column names to partition by on disk
 #' @param ... any other named options. See details below.
 #'
@@ -346,10 +347,7 @@ spark_write_source <- function(.data, path, source = NULL, mode = "error",
 #' ones include \code{header = T} or \code{sep = ","}. A full list can be found
 #' here: https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#csv-java.lang.String-
 #'
-#' @return
 #' @export
-#'
-#' @examples
 spark_write_csv <- function(.data, path, mode = "error",
                             partition_by = NULL, ...) {
 
@@ -366,7 +364,36 @@ spark_write_delta <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to json file
+#'
+#' @description
+#' Write a \code{spark_tbl} to a json file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For text, a few additional options can be specified using \code{...}:
+#' #' \describe{
+#'   \item{compression}{(default null), compression codec to use when saving to
+#'   file. This can be one of the known case-insensitive shorten names (none,
+#'   bzip2, gzip, lz4, snappy and deflate).}
+#'   \item{dateFormat}{(default yyyy-MM-dd), sets the string that indicates a
+#'   date format. Custom date formats follow the formats at java.text.SimpleDateFormat.
+#'   This applies to date type.}
+#'   \item{timestampFormat}{(default yyyy-MM-dd'T'HH:mm:ss.SSSXXX), sets the
+#'   string that indicates a timestamp format. Custom date formats follow the
+#'   formats at java.text.SimpleDateFormat. This applies to timestamp type.}
+#'   \item{encoding}{(by default it is not set), specifies encoding (charset)
+#'   of saved json files. If it is not set, the UTF-8 charset will be used.}
+#'   \item{lineSep}{(default \\n), defines the line separator that should be
+#'   used for writing.}
+#' }
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#json-java.lang.String-
+#'
 #' @export
 spark_write_json <- function(.data, path, mode = "error",
                              partition_by = NULL, ...) {
@@ -375,7 +402,25 @@ spark_write_json <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to ORC format
+#'
+#' @description
+#' Write a \code{spark_tbl} to an ORC file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For ORC, compression can be set using \code{...}. Compression
+#' (default is the value specified in spark.sql.orc.compression.codec):
+#' compression codec to use when saving to file. This can be one of the known
+#' case-insensitive shorten names(none, snappy, zlib, and lzo).. More
+#' information can be found here:
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#orc-java.lang.String-
+#'
 #' @export
 spark_write_orc <- function(.data, path, mode = "error",
                             partition_by = NULL, ...) {
@@ -384,7 +429,25 @@ spark_write_orc <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to Parquet format
+#'
+#' @description
+#' Write a \code{spark_tbl} to a parquet file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For Parquet, compression can be set using \code{...}. Compression
+#' (default is the value specified in spark.sql.orc.compression.codec):
+#' compression codec to use when saving to file. This can be one of the known
+#' case-insensitive shorten names(none, snappy, zlib, and lzo).. More
+#' information can be found here:
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#parquet-java.lang.String-
+#'
 #' @export
 spark_write_parquet <- function(.data, path, mode = "error",
                                 partition_by = NULL, ...) {
@@ -393,7 +456,27 @@ spark_write_parquet <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to text file
+#'
+#' @description
+#' Write a \code{spark_tbl} to a text file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For text, two additional options can be specified using \code{...}:
+#' #' \describe{
+#'   \item{compression}{(default \code{null}), compression codec to use when saving to
+#'   file. This can be one of the known case-insensitive shorten names (none,
+#'   bzip2, gzip, lz4, snappy and deflate).}
+#'   \item{lineSep}{(default \code{\\n}), defines the line separator that should be used for writing.}
+#' }
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#text-java.lang.String-
+#'
 #' @export
 spark_write_text <- function(.data, path, mode = "error",
                              partition_by = NULL, ...) {

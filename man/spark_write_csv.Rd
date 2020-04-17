@@ -11,14 +11,12 @@ spark_write_csv(.data, path, mode = "error", partition_by = NULL, ...)
 
 \item{path}{string, the path where the file is to be saved.}
 
-\item{mode}{string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/}
+\item{mode}{string, usually \code{"error"} (default), \code{"overwrite"},
+\code{"append"}, or \code{"ignore"}}
 
 \item{partition_by}{string, column names to partition by on disk}
 
 \item{...}{any other named options. See details below.}
-}
-\value{
-
 }
 \description{
 Write a \code{spark_tbl} to a tabular (typically, comma-separated) file.
