@@ -1,6 +1,7 @@
 
 spark_session_reset()
 
+# CSV -------------------------------------------------------------------------
 test_that("read csvs", {
   # write files to disk that can be used
   path_csv <- tempfile()
@@ -35,6 +36,38 @@ test_that("read csvs", {
     iris_fix)
 })
 
+test_that("write csvs", {
+  path_csv <- tempfile()
+
+  spark_tbl(iris) %>%
+    spark_write_csv(path_csv, mode = "overwrite")
+
+  expect_equal(
+    list.files(path_csv, full.names = T) %>%
+      .[grep("part-00000", .)] %>%
+      read.csv %>%
+      names,
+    c("X5.1", "X3.5", "X1.4", "X0.2", "setosa")
+    )
+})
+
+test_that("write csvs with header", {
+  path_csv <- tempfile()
+
+  spark_tbl(iris) %>%
+    spark_write_csv(path_csv, mode = "overwrite", header = T)
+
+  expect_equal(
+    list.files(path_csv, full.names = T) %>%
+      .[grep("part-00000", .)] %>%
+      read.csv %>%
+      names,
+    c("Sepal_Length", "Sepal_Width", "Petal_Length",
+      "Petal_Width", "Species")
+  )
+})
+
+# PARQUET ---------------------------------------------------------------------
 test_that("read parquet", {
   # write files to disk that can be used
   path_pqt <- tempfile()
@@ -57,7 +90,7 @@ test_that("read parquet", {
     iris_fix)
 })
 
-
+# JSON ------------------------------------------------------------------------
 test_that("read json", {
   data("json_sample")
 
