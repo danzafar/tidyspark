@@ -294,6 +294,27 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
   new_spark_tbl(sdf)
 }
 
+#' Read a Spark Managed Table
+#'
+#' @description a shortcut function to read a Spark-managed table directly
+#' from the hive metastore without have to write any SQL. This is not a
+#' feature in Spark's Scala or Python API.
+#'
+#' @param table string, the name of the table to read
+#'
+#' @return a \code{spark_tbl}
+#' @export
+#'
+#' @examples
+#'
+#' spark_read_table("iris")
+#' # same as
+#' spark.sql("SELECT * FROM iris")
+#'
+spark_read_table <- function(table) {
+  spark.sql(paste0("SELECT * FROM ", table))
+}
+
 
 ### WRITE ---------------------------------------------------------------------
 
