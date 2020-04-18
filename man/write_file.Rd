@@ -2,7 +2,6 @@
 % Please edit documentation in R/read-write.R
 \name{spark_write_source}
 \alias{spark_write_source}
-\alias{spark_write_delta}
 \title{Write a \code{spark_tbl} to an arbitrary file format}
 \usage{
 spark_write_source(
@@ -13,8 +12,6 @@ spark_write_source(
   partition_by = NULL,
   ...
 )
-
-spark_write_delta(.data, path, mode = "error", partition_by = NULL, ...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}
