@@ -2,7 +2,7 @@
 % Please edit documentation in R/read-write.R
 \name{spark_write_delta}
 \alias{spark_write_delta}
-\title{Write a \code{spark_tbl} to Delta format}
+\title{Write a \code{spark_tbl} to a Delta file}
 \usage{
 spark_write_delta(.data, path, mode = "error", partition_by = NULL, ...)
 }
@@ -19,23 +19,34 @@ spark_write_delta(.data, path, mode = "error", partition_by = NULL, ...)
 \item{...}{any other named options. See details below.}
 }
 \description{
-Write a \code{spark_tbl} to Delta
+Write a \code{spark_tbl} to Delta.
 }
 \details{
-For text, a few additional options can be specified using \code{...}:
+For Delta, a few additional options can be specified using \code{...}:
 #' \describe{
   \item{compression}{(default null), compression codec to use when saving to
   file. This can be one of the known case-insensitive shorten names (none,
-  bzip2, gzip, lz4, snappy and deflate).}
-  \item{dateFormat}{(default yyyy-MM-dd), sets the string that indicates a
-  date format. Custom date formats follow the formats at java.text.SimpleDateFormat.
-  This applies to date type.}
-  \item{timestampFormat}{(default yyyy-MM-dd'T'HH:mm:ss.SSSXXX), sets the
-  string that indicates a timestamp format. Custom date formats follow the
-  formats at java.text.SimpleDateFormat. This applies to timestamp type.}
-  \item{encoding}{(by default it is not set), specifies encoding (charset)
-  of saved json files. If it is not set, the UTF-8 charset will be used.}
-  \item{lineSep}{(default \\n), defines the line separator that should be
-  used for writing.}
+  bzip2, gzip, lz4, snappy and deflate)}
+  \item{replaceWhere}{(default null), You can selectively overwrite only
+  the data that matches predicates over partition columns (e.g. "date >=
+  '2017-01-01' AND date <= '2017-01-31'")}
+  \item{overwriteSchema}{(default FALSE), when overwriting a table using
+  mode("overwrite") without replaceWhere, you may still want to overwrite
+  the schema of the data being written. You replace the schema and
+  partitioning of the table by setting this param option to \code{TRUE}}
 }
+}
+\examples{
+# here using open-source delta jar dropped in the $SPARK_HOME/lib dir
+spark_session(sparkPackages = "io.delta:delta-core_2.11:0.5.0")
+
+iris_tbl <- spark_tbl(iris)
+
+iris_tbl \%>\%
+  spark_write_delta("/tmp/iris_tbl")
+
+# you can go further and add to hive metastore like this:
+spark_sql("CREATE TABLE iris_ddl USING DELTA LOCATION '/tmp/iris_tbl'")
+# right now this throws a warning, you can ignore it.
+
 }

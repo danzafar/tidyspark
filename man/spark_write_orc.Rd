@@ -25,7 +25,7 @@ Write a \code{spark_tbl} to an ORC file.
 For ORC, compression can be set using \code{...}. Compression
 (default is the value specified in spark.sql.orc.compression.codec):
 compression codec to use when saving to file. This can be one of the known
-case-insensitive shorten names(none, snappy, zlib, and lzo).. More
+case-insensitive shorten names(none, snappy, zlib, and lzo). More
 information can be found here:
 https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#orc-java.lang.String-
 }

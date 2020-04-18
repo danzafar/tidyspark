@@ -24,15 +24,21 @@ spark_write_jdbc(
 \item{mode}{string, either \code{"error"} (default), \code{"overwrite"},
 or \code{"append"}.}
 
-\item{partition_by}{string, the column to partition by}
+\item{partition_by}{string, the column names to partition by}
 
 \item{driver}{string, the driver class to use, e.g. \code{"org.postgresql.Driver"}}
 
 \item{...}{additional connection options such as \code{user}, \code{password}, etc.}
 }
-\value{
-
-}
 \description{
 Write to a JDBC table
+}
+\details{
+connection properties can be set by other named arguments in the \code{...}
+JDBC database connection arguments, a list of arbitrary string tag/value. Normally
+at least a "user" and "password" property should be included. "batchsize" can be
+used to control the number of rows per insert. "isolationLevel" can be one of
+"NONE", "READ_COMMITTED", "READ_UNCOMMITTED", "REPEATABLE_READ", or "SERIALIZABLE",
+corresponding to standard transaction isolation levels defined by JDBC's Connection
+object, with default of "READ_UNCOMMITTED".
 }
