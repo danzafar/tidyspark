@@ -42,3 +42,16 @@ used to control the number of rows per insert. "isolationLevel" can be one of
 corresponding to standard transaction isolation levels defined by JDBC's Connection
 object, with default of "READ_UNCOMMITTED".
 }
+\examples{
+spark_session_reset(sparkPackages = c("org.postgresql:postgresql:42.2.12"))
+
+iris_tbl <- spark_tbl(iris)
+
+iris_tbl \%>\%
+  spark_write_jdbc(url = "jdbc:postgresql://localhost/tidyspark_test",
+                   table = "iris_test",
+                   partition_by = "Species",
+                   mode = "overwrite",
+                   user = "tidyspark_tester", password = "test4life",
+                   driver = "org.postgresql.Driver")
+}

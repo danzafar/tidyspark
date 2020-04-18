@@ -157,6 +157,19 @@ spark_read_delta <- function (path, version = NULL, timestamp = NULL, ...) {
 }
 
 
+#' Read an orc file into a \code{spark_tbl}.
+#'
+#' @param path string, the path to the file. Needs to be accessible from the cluster.
+#' @param ... named list, optional arguments to the reader
+#'
+#' @details Other options such as specifing a schema can be specified in the \code{...}
+#'
+#' @return a \code{spark_tbl}
+#' @export
+spark_read_orc <- function(path, ...) {
+  spark_read_source(path, source = "orc", ...)
+}
+
 #' Read a parquet file into a \code{spark_tbl}.
 #'
 #' @param path string, the path to the file. Needs to be accessible from the cluster.
@@ -556,6 +569,17 @@ spark_write_text <- function(.data, path, mode = "error",
 #' @export
 #'
 #' @examples
+#' spark_session_reset(sparkPackages = c("org.postgresql:postgresql:42.2.12"))
+#'
+#' iris_tbl <- spark_tbl(iris)
+#'
+#' iris_tbl %>%
+#'   spark_write_jdbc(url = "jdbc:postgresql://localhost/tidyspark_test",
+#'                    table = "iris_test",
+#'                    partition_by = "Species",
+#'                    mode = "overwrite",
+#'                    user = "tidyspark_tester", password = "test4life",
+#'                    driver = "org.postgresql.Driver")
 spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
                              partition_by = NULL, driver = NULL, ...) {
   if (!is.null(url) && !is.character(url)) {

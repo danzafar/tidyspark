@@ -67,6 +67,29 @@ test_that("write csvs with header", {
   )
 })
 
+# ORC -------------------------------------------------------------------------
+test_that("read/write orc", {
+  # write files to disk that can be used
+  path_orc <- tempfile()
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
+  iris_sdf <- spark_tbl(iris)
+  spark_write_orc(iris_sdf, mode = "overwrite", path_orc)
+
+  # no schema specified
+  expect_equal(
+    spark_read_orc(path_orc) %>%
+      collect,
+    iris_fix)
+
+  # with schema
+  expect_equal(
+    spark_read_orc(path_orc, schema = schema(iris_sdf)) %>%
+      collect,
+    iris_fix)
+})
+
 # PARQUET ---------------------------------------------------------------------
 test_that("read parquet", {
   # write files to disk that can be used
