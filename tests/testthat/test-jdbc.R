@@ -2,7 +2,7 @@
 # NOTES: I'm having some M'FUCKIN ISSUES with my connecting to my postgres and mysql DBs.I'm going to continue debugging this later...
 
 # # load the jdbc driver that's on my desktop
-# spark_session_reset(sparkPackages = c("org.postgresql:postgresql:42.2.12", "mysql:mysql-connector-java:5.1.48"))
+# spark_session_reset(spark_packages = c("org.postgresql:postgresql:42.2.12", "mysql:mysql-connector-java:5.1.48"))
 #
 # iris_tbl <- spark_tbl(iris)
 #

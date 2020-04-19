@@ -58,8 +58,13 @@ call_static_handled <- function(class, method, ...) {
 #' The Spark Session
 #'
 #' @export
-spark_session <- function(...) {
-  SparkR:::sparkR.session(...)
+spark_session <- function(master = "", app_name = "SparkR", spark_home = Sys.getenv("SPARK_HOME"),
+                          spark_config = list(), spark_jars = "", spark_packages = "",
+                          enable_hive_support = TRUE, ...) {
+  SparkR:::sparkR.session(master, appName = app_name, sparkHome = spark_home,
+                          sparkConfig = spark_config, sparkJars = spark_jars,
+                          sparkPackages = spark_packages,
+                          enableHiveSupport = enable_hive_support, ...)
 }
 
 #' @export
@@ -68,9 +73,14 @@ spark_session_stop <- function(...) {
 }
 
 #' @export
-spark_session_reset <- function(...) {
+spark_session_reset <- function(master = "", app_name = "SparkR", spark_home = Sys.getenv("SPARK_HOME"),
+                                spark_config = list(), spark_jars = "", spark_packages = "",
+                                enable_hive_support = TRUE, ...) {
   SparkR:::sparkR.session.stop()
-  SparkR:::sparkR.session(...)
+  SparkR:::sparkR.session(master, appName = app_name, sparkHome = spark_home,
+                          sparkConfig = spark_config, sparkJars = spark_jars,
+                          sparkPackages = spark_packages,
+                          enableHiveSupport = enable_hive_support, ...)
 }
 
 #' Get Spark Session
