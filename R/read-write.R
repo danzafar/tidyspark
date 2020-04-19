@@ -703,7 +703,7 @@ spark_write_table <- function(.data, table, mode = "error",
                               sort_by = NULL, ...) {
 
   if (!is.null(table) && !is.character(table)) {
-    stop("table should be character, NULL or omitted.")
+    stop("'table' should be character, NULL or omitted.")
   }
   if (!is.character(mode)) {
     stop("mode should be character or omitted. It is 'error' by default.")
@@ -752,4 +752,39 @@ spark_write_table <- function(.data, table, mode = "error",
 
   invisible()
 
+}
+
+#' Insert into a Spark Managed Table
+#'
+#' @description Inserts the content of the \code{spark_tbl} into the specified
+#' table. An R wrapper for Spark's \code{insertInto}.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param table string, the table name
+#' @param mode string, usually \code{"append"} (default), \code{"overwrite"},
+#' \code{"error"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by
+#'
+#' @details Unlike \code{saveAsTable}, \code{insertInto} ignores the column
+#' names and just uses position-based resolution. Watch out for column order!
+#'
+#' @export
+spark_write_insert <- function(.data, table, mode = "append",
+                               partition_by = NULL) {
+
+  if (!is.null(table) && !is.character(table)) {
+    stop("'table' should be character, NULL or omitted.")
+  }
+
+  call_method(
+    call_method(
+      call_method(
+        call_method(
+          attr(.data, "jc"),
+          "write"),
+        "mode", mode),
+      "partitionBy", as.list(partition_by)),
+    "insertInto", table)
+
+  invisible()
 }
