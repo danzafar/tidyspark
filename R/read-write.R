@@ -312,7 +312,7 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
 #' spark.sql("SELECT * FROM iris")
 #'
 spark_read_table <- function(table) {
-  spark.sql(paste0("SELECT * FROM ", table))
+  spark_sql(paste0("SELECT * FROM ", table))
 }
 
 
