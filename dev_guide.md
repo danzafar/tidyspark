@@ -46,7 +46,7 @@ get_jc_cols <- function(jc) {
 }
 ```
 
-So we bring in a `jobj` of the `SparkDataFrame`, then we use `get_jc_cols()` to extract each of the `Column` objects. We set those as a list which will comprise the meat of the S3 class. Important note, these are never actaully used in further functions, they are just there for show and for auto-completion. The real `SparkDataFrame` is stored in the slot `jc`. This is accessed in `tidyspark` function with the command `attr(df, "jc")`.
+So we bring in a `jobj` of the `SparkDataFrame`, then we use `get_jc_cols()` to extract each of the `Column` objects. We set those as a list which will comprise the meat of the S3 class. Important note, these are never actaully used in further functions, they are just there for show and for auto-completion. The real `SparkDataFrame` is stored in the slot `jc`. This is accessed in `tidyspark` functions with the command `attr(df, "jc")`.
 
 ### The `Column` class
 At this time `tidyspark` relies heavily on `SparkR`s column objects. These are originally implemented here:
