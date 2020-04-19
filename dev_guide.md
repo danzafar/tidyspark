@@ -165,7 +165,7 @@ transform2(df, x2 = x * 2, y = -y)
 If you understand how this works, you should be well on your way to understanding how the `dplyr` verbs in `tidyspark` work.
 
 ## Wrapping it all together 
-Let's see so `tidyspark`'s `mutate` works. Here is a simplified example with lots of comments:
+Let's see how `tidyspark`'s `mutate` works. Here is a simplified example with lots of comments:
 
 ```
 # We define this as an S3 method for class spark_tbl, so dplyr class this class
