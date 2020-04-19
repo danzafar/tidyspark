@@ -95,5 +95,5 @@ transform2(df, x2 = x * 2, y = -y)
 #> 3 1 -0.6008  2
 ```
 
-If you understand how this works, you should be well on your way to understanding how `tidyspark`s `dplyr` verbs function.
+If you understand how this works, you should be well on your way to understanding how the `dplyr` verbs in `tidyspark` work.
 
