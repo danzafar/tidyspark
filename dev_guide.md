@@ -208,7 +208,7 @@ mutate.spark_tbl <- function(.data, ...) {
     # given an expression and the list of columns as a data mask, eval the expression
     eval <- rlang:::eval_tidy(dot, df_cols)
     
-    [omitted code dealing with grouped or windowed data for this ex.]
+    [omitted code dealing with grouped or windowed data]
 
     # get the jobj of the resulting Column using the jc slot
     jcol <- if (class(eval) == "Column") eval@jc
@@ -222,7 +222,7 @@ mutate.spark_tbl <- function(.data, ...) {
   }
 
   # after completing all the loops, sdf has everything we need, so we
-  # create a spark_tbl to hause the new data frame and make it usable 
+  # create a spark_tbl to house the new data frame and make it usable 
   # to the end user.
   new_spark_tbl(sdf, groups = attr(.data, "groups"))
 }
