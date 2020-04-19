@@ -649,8 +649,8 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
 #' \code{"append"}, or \code{"ignore"}
 #' @param partition_by string, column names to partition by
 #' @param bucket_by list, format \code{list(n = <integer>, cols = <string>)}")specifying
-#' the number of buckets and strings to bucket on. Use with caution.
-#' @param sort_by string, if bucketed, column names to sort by
+#' the number of buckets and strings to bucket on. Use with caution. Not currently working.
+#' @param sort_by string, if bucketed, column names to sort by.
 #'
 #' @details In the case the table already exists, behavior of this function
 #' depends on the save mode, specified by the mode function (default to throwing
@@ -666,7 +666,7 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
 #' Bucketing is supported in \code{tidyspark} but as a general warning in
 #' most cases bucketing is very difficult to do correctly and manage. It is
 #' the opinion of many Spark experts that you are better off using Delta
-#' optimize/zorder.
+#' optimize/z-order.
 #'
 #' @export
 #'
@@ -736,18 +736,10 @@ spark_write_table <- function(.data, table, mode = "error",
     "partitionBy", as.list(partition_by))
 
   if (!is.na(bucket_by$n)) {
-    browser()
-    if (length(bucket_by$cols) == 1) {
+    stop("Bucketing is not currently working, can you solve the riddle?
+         Give it a shot at least ;)")
       writer <- call_method(writer, "bucketBy",
-                            as.integer(bucket_by$n), NULL,
-                            bucket_by$cols)
-    } else if (length(bucket_by$cols) > 1) {
-      writer <- call_method(writer, "bucketBy",
-                            bucket_by$n,
-                            bucket_by$cols)
-    } else {
-      stop("bucking spec must be in form 'list(n = <integer>, cols = <string>)'")}
-
+                            bucket_by$n, as.list(bucket_by$cols))
     if (!is.na(sort_by)) {
       writer <- call_method(writer, "sortBy", sort_by)
     }
