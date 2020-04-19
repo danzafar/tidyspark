@@ -1,6 +1,19 @@
 # Developer Guide
 Learn how `tidyspark` works!
 
+## Table of Contents
+
+   * [Overview](#overview)
+   * [`spark` perspective](#spark-perspective)
+      * [The `spark_tbl` class](#the-spark_tbl-class)
+      * [The `Column` class](#the-column-class)
+   * [`rlang` perspective](#rlang-perspective)
+      * [Non-standard evaluation](#non-standard-evaluation)
+      * [The data mask](#the-data-mask)
+         * [The gotcha](#the-gotcha)
+      * [Hadley's `transform` example](#hadleys-transform-example)
+   * [Wrapping it all together](#wrapping-it-all-together)
+
 ## Overview
 `tidyspark` is an implementation of `Spark` built on the `tidyverse` and `rlang`. The goals are:
 
@@ -86,6 +99,7 @@ Column ((max(((max((kipper + 1)) / 56.0) = 7)) = true) + snacks)
 
 
 ## `rlang` perspective
+### Non-standard evaluation
 `rlang` allows us to do quite a bit of hacking to get whatever we need done. The most unique thing about `R` in relation 
 to other programming languages is the use of the non-standard evaluation (NSE). Non-standard evaluation allows the user to
 write:
@@ -101,6 +115,7 @@ jarring to have to go back. Of course there are some big issues with writing pro
 Hadley, Lionel, et. al. at RStudio have come up with solutions for. `tidyspark` only works because we stand on the shoulders of 
 the `tidyverse`. All of the magic to get these things running is done upstream of any `tidyspark` function.
 
+### The data mask
 In order to understand how NSE works at it's core, you must understand the concept of the `data_mask`. If you are blessed with 
 time, the best resource is Hadley's chapter on the subject here: 
 [https://adv-r.hadley.nz/evaluation.html#data-masks](https://adv-r.hadley.nz/evaluation.html#data-masks)
@@ -122,7 +137,7 @@ So steps:
 5. `eval` finds a value for `a`.
 6. `eval` evaluates the expression `a + b` to find the result of `7`
 
-### The Gotcha
+#### The gotcha
 So in the above example we were able to create a data mask out of a `list` instead of an `environment` object. But guess what?`data.frame`s are also `list`s. A `data.frame` is just a special case of a `list` where all of the elements have an equal length. So what does that enable?
 
 ```
@@ -136,7 +151,7 @@ This results in:
 
 So if you look at this for a second you can start to see how verbs like `mutate` were formed. You can specify the column names without the data frame they are attached to as long as the data frame is used as a `data_mask`. 
 
-### Hadley's example with `transform`
+### Hadley's `transform` example
 In order to see this in action, let's use Hadley's example (from link above). In this example instead of using `expr` we use `quosures` and instead of used `eval` we use `eval_tidy` which is a variant that leverages 'rlang`'s `data_mask` type.
 
 In the example below we see a simple rendition (error handling aside) of how `transform` works. Note, `transform` and `mutate` do pretty much the same thing. We capture the unevaluated ... with `enquos(...)`, and then evaluate each expression using a `for` loop. 
@@ -168,7 +183,7 @@ If you understand how this works, you should be well on your way to understandin
 Let's see how `tidyspark`'s `mutate` works. Here is a simplified example with lots of comments:
 
 ```
-# We define this as an S3 method for class spark_tbl, so dplyr class this class
+# We define this as an S3 method for class spark_tbl, so dplyr calls this class
 mutate.spark_tbl <- function(.data, ...) {
 
   # we bring in the arguments and convert them to a list of quosures, which
