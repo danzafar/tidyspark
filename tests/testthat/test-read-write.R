@@ -158,4 +158,25 @@ test_that("read json", {
 
 })
 
+# TABLE -----------------------------------------------------------------------
 
+test_that("saveAsTable and insertInto work", {
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
+  iris_sdf <- spark_tbl(iris)
+
+  spark_write_table(iris_sdf, "iris_test")
+
+  expect_equal(
+    spark_read_table("iris_test") %>% collect %>% nrow,
+    150
+    )
+
+  spark_write_insert(iris_sdf, "iris_test")
+
+  expect_equal(
+    spark_read_table("iris_test") %>% collect %>% nrow,
+    300
+  )
+})
