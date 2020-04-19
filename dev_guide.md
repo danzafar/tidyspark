@@ -46,7 +46,7 @@ get_jc_cols <- function(jc) {
 }
 ```
 
-So we bring in a `jobj` of the `SparkDataFrame`, then we use `get_jc_cols()` to extract each of the `Column` objects. We set those as a list which will comprise the meat of the S3 class. Important note, these are never actaully used in further functions, they are just there for show and for auto-completion. The real `SparkDataFrame` is stored in the slot `jc`. This is accessed in `tidyspark` functions with the command `attr(df, "jc")`.
+So we bring in a `jobj` of the `SparkDataFrame`, then we use `get_jc_cols()` to extract each of the `Column` objects. We set those as a list which will comprise the meat of the S3 class. Important note, these are never actaully used in further functions, they are just there for show and for auto-completion. The real `SparkDataFrame` is stored in the slot `jc`. This is accessed in `tidyspark` functions with the command `attr(df, "jc")`. `tibble:::update_tibble_attrs` is just for grouping and maybe other things later on.
 
 ### The `Column` class
 At this time `tidyspark` relies heavily on `SparkR`s column objects. These are originally implemented here:
@@ -163,4 +163,53 @@ transform2(df, x2 = x * 2, y = -y)
 ```
 
 If you understand how this works, you should be well on your way to understanding how the `dplyr` verbs in `tidyspark` work.
+
+## Wrapping it all together 
+Let's see so `tidyspark`'s `mutate` works. Here is a simplified example with lots of comments:
+
+```
+# We define this as an S3 method for class spark_tbl, so dplyr class this class
+mutate.spark_tbl <- function(.data, ...) {
+
+  # we bring in the arguments and convert them to a list of quosures, which
+  # are basically fancy expression objects, but they have an env attached.
+  dots <- rlang:::enquos(...)
+
+  # we grab the DataFrame's pointer object from the data frame
+  sdf <- attr(.data, "jc")
+
+  # we define a for loop that will go through all of the arguments submitted in ...
+  for (i in seq_along(dots)) {
+  
+    # get the name of the new column
+    name <- names(dots)[[i]]
+    
+    # get the expression for the new col
+    dot <- dots[[i]]
+
+    # get a list of column objects in the DataFrame
+    df_cols <- get_jc_cols(sdf)
+    
+    # given an expression and the list of columns as a data mask, eval the expression
+    eval <- rlang:::eval_tidy(dot, df_cols)
+    
+    [omitted code dealing with grouped or windowed data for this ex.]
+
+    # get the jobj of the resulting Column using the jc slot
+    jcol <- if (class(eval) == "Column") eval@jc
+    # if the result is not a Column then we make it one with "lit"
+    else call_static("org.apache.spark.sql.functions", "lit", eval)
+
+    # we then pipe the results into 'withColumn' which is Spark's mutate.
+    # then we update the sdf so that it has the new column for the next 
+    # iteration in the for loop
+    sdf <- call_method(sdf, "withColumn", name, jcol)
+  }
+
+  # after completing all the loops, sdf has everything we need, so we
+  # create a spark_tbl to hause the new data frame and make it usable 
+  # to the end user.
+  new_spark_tbl(sdf, groups = attr(.data, "groups"))
+}
+```
 
