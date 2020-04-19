@@ -166,7 +166,7 @@ test_that("saveAsTable and insertInto work", {
     mutate(Species = levels(Species)[Species])
   iris_sdf <- spark_tbl(iris)
 
-  spark_write_table(iris_sdf, "iris_test")
+  spark_write_table(iris_sdf, "iris_test", "overwrite")
 
   expect_equal(
     spark_read_table("iris_test") %>% collect %>% nrow,

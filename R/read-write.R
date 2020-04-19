@@ -728,12 +728,14 @@ spark_write_table <- function(.data, table, mode = "error",
   }
 
   writer <- call_method(
-    call_method(
       call_method(
         attr(.data, "jc"),
         "write"),
-      "mode", mode),
-    "partitionBy", as.list(partition_by))
+      "mode", mode)
+
+  if (!is.null(partition_by)) {
+    call_method(writer, "partitionBy", as.list(partition_by))
+  }
 
   if (!is.na(bucket_by$n)) {
     stop("Bucketing is not currently working, can you solve the riddle?
@@ -769,8 +771,7 @@ spark_write_table <- function(.data, table, mode = "error",
 #' names and just uses position-based resolution. Watch out for column order!
 #'
 #' @export
-spark_write_insert <- function(.data, table, mode = "append",
-                               partition_by = NULL) {
+spark_write_insert <- function(.data, table, mode = "append") {
 
   if (!is.null(table) && !is.character(table)) {
     stop("'table' should be character, NULL or omitted.")
@@ -779,11 +780,9 @@ spark_write_insert <- function(.data, table, mode = "append",
   call_method(
     call_method(
       call_method(
-        call_method(
-          attr(.data, "jc"),
-          "write"),
-        "mode", mode),
-      "partitionBy", as.list(partition_by)),
+        attr(.data, "jc"),
+        "write"),
+      "mode", mode),
     "insertInto", table)
 
   invisible()
