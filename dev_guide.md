@@ -1,7 +1,7 @@
 # Developer Guide
 Learn how `tidyspark` works!
 
-### Overview
+## Overview
 `tidyspark` is an implementation of `Spark` built on the `tidyverse` and `rlang`. The goals are:
 
 1. Match the existing `tidyverse` APIs exactly
@@ -11,14 +11,14 @@ Learn how `tidyspark` works!
 3. Avoid namespace conflicts with `tidyverse` packages
 4. Leverage Spark directly, functions should be thin wrappers to Spark functions.
 
-### `spark` perspective
+## `spark` perspective
 All of the functions in `tidyspark` boil down to calls to java functions. These three basic functions are used:
 
 - `call_static()`: calls a new java class and method.
 - `call_method()`: calls a method of an input java class.
 - `new_jobj()`: a wrapper for `call_static` with `<init>` as the method. This is a shorcut to the class constructor.
 
-### `rlang` perspective
+## `rlang` perspective
 `rlang` allows us to do quite a bit of hacking to get whatever we need done. The most unique thing about `R` in relation 
 to other programming languages is the use of the non-standard evaluation (NSE). Non-standard evaluation allows the user to
 write:
@@ -45,11 +45,7 @@ b <- 10
 eval(expr(a + b), envir = list(b = 5))
 ```
 
-If you run this in `R` you get the result `7`. Why not `12`? `expr(a + b)` is simply an expression so the variables input are 
-not evaluated until this is processed by the `eval` function. The `eval` needs to evaluate the expression `a + b` so it looks 
-first to the specified `envir` (the data mask). This is usually an object of class `environment` (`map` in `spark`), but it interestingly also 
-takes `list` objects. So first it look at the list and gets a value for `b`, then it hops to the `parent.frame` of `envir` to 
-find the value for `a`. Since it already has a value for `b` it never uses `b <- 10`.
+If you run this in `R` you get the result `7`. Why not `12`? `expr(a + b)` is simply an expression so the variables input are not evaluated until this is processed by the `eval` function. The `eval` needs to evaluate the expression `a + b` so it looks first to the specified `envir` (the data mask). This is usually an object of class `environment` (`map` in `spark`), but it interestingly also takes `list` objects. So first it looks at the list and gets a value for `b`, then it hops to the `parent.frame` of `envir` to find the value for `a`. Since it already has a value for `b` it never uses `b <- 10`.
 
 So steps:
 1. `eval` sees that it needs values for `a` and `b`
@@ -59,10 +55,8 @@ So steps:
 5. `eval` finds a value for `a`.
 6. `eval` evaluates the expression `a + b` to find the result of `7`
 
-##### The Gotcha
-So in the above example we were able to create a data mask out of a `list` instead of an `environment` object. But guess what?
-`data.frame`s are also `list`s. A `data.frame` is just a special case of a `list` where all of the elements have an equal 
-length. So what does that enable?
+### The Gotcha
+So in the above example we were able to create a data mask out of a `list` instead of an `environment` object. But guess what?`data.frame`s are also `list`s. A `data.frame` is just a special case of a `list` where all of the elements have an equal length. So what does that enable?
 
 ```
 some_constant <- 3.14159
@@ -73,16 +67,12 @@ eval(expr(some_constant * a), some_df)
 This results in:
 `[1]  3.14159  6.28318  9.42477 12.56636 15.70795 18.84954 21.99113 25.13272 28.27431 31.41590`
 
-So if you look at this for a second you can start to see how verbs like `mutate` were formed. You can specify the column names 
-without the data frame they are attached to as long as the data frame is used as a `data_mask`. 
+So if you look at this for a second you can start to see how verbs like `mutate` were formed. You can specify the column names without the data frame they are attached to as long as the data frame is used as a `data_mask`. 
 
-##### Hadley's example with `transform`
-In order to see this in action, let's use Hadley's example (from link above). In this example instead of using `expr` we use 
-`quosures` and instead of used `eval` we use `eval_tidy` which is a variant that leverages 'rlang`'s `data_mask` type.
+### Hadley's example with `transform`
+In order to see this in action, let's use Hadley's example (from link above). In this example instead of using `expr` we use `quosures` and instead of used `eval` we use `eval_tidy` which is a variant that leverages 'rlang`'s `data_mask` type.
 
-In the example below we see a simple rendition (error handling aside) of how `transform` works. Note, `transform` and `mutate`
-do pretty much the same thing. We capture the unevaluated ... with `enquos(...)`, and then evaluate each expression using a 
-`for` loop. 
+In the example below we see a simple rendition (error handling aside) of how `transform` works. Note, `transform` and `mutate` do pretty much the same thing. We capture the unevaluated ... with `enquos(...)`, and then evaluate each expression using a `for` loop. 
 
 ```
 transform2 <- function(.data, ...) {
