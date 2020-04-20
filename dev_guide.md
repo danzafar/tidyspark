@@ -13,6 +13,8 @@ Learn how `tidyspark` works!
          * [The gotcha](#the-gotcha)
       * [Hadley's `transform` example](#hadleys-transform-example)
    * [Wrapping it all together](#wrapping-it-all-together)
+   * [S3 and S4 classes](#s3-and-s4-classes)
+      * [Working with S4](#working-with-s4)
 
 ## Overview
 `tidyspark` is an implementation of `Spark` built on the `tidyverse` and `rlang`. The goals are:
@@ -228,3 +230,82 @@ mutate.spark_tbl <- function(.data, ...) {
 }
 ```
 
+## S3 and S4 classes
+While `SparkR` was built using mostly S4 classes, `dplyr` was built on S3 classes. `tidyspark` uses a blend of these. The benefit of S3 is that it is very easy to code, monitor, and debug, the primary benefit of S4 is that you can match multiple arguments easily to a given method instead of just relying on the first. 
+
+For instance, let's look at some of the `Column` class methods which are primarily implemented in S4:
+
+```
+setMethod("+", signature(e1 = "Column", e2 = "numeric"),
+          function (e1, e2) {
+            new("Column", call_method(e1@jc, "plus", e2))
+          })
+
+setMethod("+", signature(e1 = "numeric", e2 = "Column"),
+          function (e1, e2) {
+            new("Column", call_method(e2@jc, "plus", e1))
+          })
+```
+
+The S4 class takes a signature for each method, that signature is the combination of types it expects to see coming into it's methods. As you can see below, this can be an arbritary number of arguments while in S3 this can only easily be the first one. In the above case, we wanted to make sure that we could add with the numeric on either side of the `Column` object. By the way, in `SparkR` you actually can't do this:
+
+```
+> library(SparkR)
+> sparkR.session()
+> iris_sdf <- createDataFrame(iris)
+> iris_sdf$Sepal_Length + 1
+Column (Sepal_Length + 1.0) 
+> 1 + iris_sdf$Sepal_Length
+Error in 1 + iris_sdf$Sepal_Length : 
+  non-numeric argument to binary operator
+```
+
+Getting back to the point, I don't know how you would achieve this in an elegant way using S3 classes. There is already an addition method for class numeric, so that would not be pretty. Actually, the way that S4 handles this is very similar to the way that `Spark` handles pattern matching for methods, so it's a logical choice for many use cases.
+
+### Working with S4
+Despite it's usefulness, S4 can be very opaque to deal with. Here are some tips on finding the source code for functions you may be interested in. When developing `tidyspark` I typically do not load `SparkR`. I really want to make sure that it's very clear when I'm depending on `SparkR` and it can be easy to overlook these dependancies with `SparkR` loaded. I'll walk you through my typical process for finding `SparkR` code. 
+
+Let's say we are trying to find out how `SparkR` does `count`:
+1. First let's confirm that it is S4:
+
+        > SparkR:::count
+        nonstandardGenericFunction for "count" defined from package "SparkR"
+        
+        function (x) 
+        {
+            standardGeneric("count")
+        }
+        <bytecode: 0x7fc751c38d28>
+        <environment: 0x7fc751b13b30>
+        Methods may be defined for arguments: x
+        Use  showMethods("count")  for currently available ones.
+2. Now let's check out the methods:
+
+        > showMethods(SparkR:::count)
+        Function: count (package SparkR)
+        x="Column"
+        x="GroupedData"
+        x="SparkDataFrame"   
+3. There are 3 methods for three single class types (should have used S3 amirite?). Let's check out the `Column` method:
+
+        > getMethod(SparkR:::count, c("Column"))
+        Method Definition:
+        
+        function (x) 
+        {
+            jc <- callJStatic("org.apache.spark.sql.functions", "count", 
+                x@jc)
+            column(jc)
+        }
+        <bytecode: 0x7fd0d645c688>
+        <environment: namespace:SparkR>
+        
+        Signatures:
+                x       
+        target  "Column"
+        defined "Column"
+4. If you are using RStudio and want to jump into this function you can use `debugonce` like so:
+
+        > debugonce(getMethod(SparkR:::count, c("Column")))
+        
+Hopefully that helps shed some light on these bad boy S4 classes. If you made it this far, give yourself a pat on the back from Dan. He is very happy. Happy coding!
