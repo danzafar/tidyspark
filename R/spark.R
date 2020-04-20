@@ -55,27 +55,78 @@ call_static_handled <- function(class, method, ...) {
            })
 }
 
-#' The Spark Session
+#' Get or create a SparkSession
+#'
+#' @description SparkSession is the entry point into Spark. spark_session
+#' gets the existing SparkSession or initializes a new SparkSession. Additional
+#' Spark properties can be set in ..., and these named parameters take
+#' priority over values in master, app_name, named lists of spark_config.
+#'
+#' @param master 	string, the Spark master URL.
+#' @param app_name string, application name to register with cluster manager.
+#' @param spark_home string, Spark Home directory.
+#' @param spark_config named list of Spark configuration to set on worker nodes.
+#' @param spark_jars string vector of jar files to pass to the worker nodes.
+#' @param spark_packages string vector of package coordinates
+#' @param enable_hive_support enable support for Hive, fallback if not built
+#' with Hive support; once set, this cannot be turned off on an existing session
+#' @param ... named Spark properties passed to the method.
+#'
+#' @details \code{spark_session_reset} will first stop the existing session and
+#' then run \code{spark_session}.
+#'
+#' When called in an interactive session, this method checks for the
+#' Spark installation, and, if not found, it will be downloaded and cached
+#' automatically. Alternatively, install.spark can be called manually.
+#'
+#' For details on how to initialize and use Spark, refer to SparkR
+#' programming guide at
+#' http://spark.apache.org/docs/latest/sparkr.html#starting-up-sparksession.
 #'
 #' @export
-spark_session <- function(master = "", app_name = "SparkR", spark_home = Sys.getenv("SPARK_HOME"),
-                          spark_config = list(), spark_jars = "", spark_packages = "",
-                          enable_hive_support = TRUE, ...) {
+#' @rdname spark_session
+#' @examples
+#' ## Not run:
+#' spark_session()
+#' df <- spark_read_json(path)
+#'
+#' spark_session("local[2]", "SparkR", "/home/spark")
+#' spark_session("yarn-client", "SparkR", "/home/spark",
+#'                list(spark.executor.memory="4g"),
+#'                c("one.jar", "two.jar", "three.jar"),
+#'                c("com.databricks:spark-avro_2.11:2.0.1"))
+#' spark_session(spark.master = "yarn-client", spark.executor.memory = "4g")
+#'
+#' ## End(Not run)
+spark_session <- function(master = "", app_name = "SparkR",
+                          spark_home = Sys.getenv("SPARK_HOME"),
+                          spark_config = list(), spark_jars = "",
+                          spark_packages = "", enable_hive_support = TRUE, ...) {
   SparkR:::sparkR.session(master, appName = app_name, sparkHome = spark_home,
                           sparkConfig = spark_config, sparkJars = spark_jars,
                           sparkPackages = spark_packages,
                           enableHiveSupport = enable_hive_support, ...)
 }
 
+#' Stop the Spark Session and Spark Context
+#'
+#' @description Stop the Spark Session and Spark Context.
+#'
+#' @details Also terminates the backend this R session is connected to.
 #' @export
-spark_session_stop <- function(...) {
-  SparkR:::sparkR.session.stop(...)
+#'
+#' @examples
+#' spark_session_stop()
+spark_session_stop <- function() {
+  SparkR:::sparkR.session.stop()
 }
 
+#' @rdname spark_session
 #' @export
-spark_session_reset <- function(master = "", app_name = "SparkR", spark_home = Sys.getenv("SPARK_HOME"),
-                                spark_config = list(), spark_jars = "", spark_packages = "",
-                                enable_hive_support = TRUE, ...) {
+spark_session_reset <- function(master = "", app_name = "SparkR",
+                                spark_home = Sys.getenv("SPARK_HOME"),
+                                spark_config = list(), spark_jars = "",
+                                spark_packages = "", enable_hive_support = TRUE, ...) {
   SparkR:::sparkR.session.stop()
   SparkR:::sparkR.session(master, appName = app_name, sparkHome = spark_home,
                           sparkConfig = spark_config, sparkJars = spark_jars,
