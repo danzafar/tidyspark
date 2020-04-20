@@ -25,9 +25,9 @@ spark_write_table(
 \item{partition_by}{string, column names to partition by}
 
 \item{bucket_by}{list, format \code{list(n = <integer>, cols = <string>)}")specifying
-the number of buckets and strings to bucket on. Use with caution.}
+the number of buckets and strings to bucket on. Use with caution. Not currently working.}
 
-\item{sort_by}{string, if bucketed, column names to sort by}
+\item{sort_by}{string, if bucketed, column names to sort by.}
 }
 \description{
 Saves the content of the \code{spark_tbl} as the specified
@@ -48,7 +48,7 @@ column positions
 Bucketing is supported in \code{tidyspark} but as a general warning in
 most cases bucketing is very difficult to do correctly and manage. It is
 the opinion of many Spark experts that you are better off using Delta
-optimize/zorder.
+optimize/z-order.
 }
 \examples{
 
