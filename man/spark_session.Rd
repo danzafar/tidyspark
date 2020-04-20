@@ -2,10 +2,78 @@
 % Please edit documentation in R/spark.R
 \name{spark_session}
 \alias{spark_session}
-\title{The Spark Session}
+\alias{spark_session_reset}
+\title{Get or create a SparkSession}
 \usage{
-spark_session(...)
+spark_session(
+  master = "",
+  app_name = "SparkR",
+  spark_home = Sys.getenv("SPARK_HOME"),
+  spark_config = list(),
+  spark_jars = "",
+  spark_packages = "",
+  enable_hive_support = TRUE,
+  ...
+)
+
+spark_session_reset(
+  master = "",
+  app_name = "SparkR",
+  spark_home = Sys.getenv("SPARK_HOME"),
+  spark_config = list(),
+  spark_jars = "",
+  spark_packages = "",
+  enable_hive_support = TRUE,
+  ...
+)
+}
+\arguments{
+\item{master}{string, the Spark master URL.}
+
+\item{app_name}{string, application name to register with cluster manager.}
+
+\item{spark_home}{string, Spark Home directory.}
+
+\item{spark_config}{named list of Spark configuration to set on worker nodes.}
+
+\item{spark_jars}{string vector of jar files to pass to the worker nodes.}
+
+\item{spark_packages}{string vector of package coordinates}
+
+\item{enable_hive_support}{enable support for Hive, fallback if not built
+with Hive support; once set, this cannot be turned off on an existing session}
+
+\item{...}{named Spark properties passed to the method.}
 }
 \description{
-The Spark Session
+SparkSession is the entry point into Spark. spark_session
+gets the existing SparkSession or initializes a new SparkSession. Additional
+Spark properties can be set in ..., and these named parameters take
+priority over values in master, app_name, named lists of spark_config.
+}
+\details{
+\code{spark_session_reset} will first stop the existing session and
+then run \code{spark_session}.
+
+When called in an interactive session, this method checks for the
+Spark installation, and, if not found, it will be downloaded and cached
+automatically. Alternatively, install.spark can be called manually.
+
+For details on how to initialize and use Spark, refer to SparkR
+programming guide at
+http://spark.apache.org/docs/latest/sparkr.html#starting-up-sparksession.
+}
+\examples{
+## Not run:
+spark_session()
+df <- spark_read_json(path)
+
+spark_session("local[2]", "SparkR", "/home/spark")
+spark_session("yarn-client", "SparkR", "/home/spark",
+               list(spark.executor.memory="4g"),
+               c("one.jar", "two.jar", "three.jar"),
+               c("com.databricks:spark-avro_2.11:2.0.1"))
+spark_session(spark.master = "yarn-client", spark.executor.memory = "4g")
+
+## End(Not run)
 }
