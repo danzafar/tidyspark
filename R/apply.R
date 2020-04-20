@@ -1,5 +1,5 @@
 # dapply ---------
-tidyspark_udf <- function (x, func, schema) {
+spark_udf <- function (x, func, schema) {
   if (is.character(schema)) {
     schema <- structType(schema)
   }
@@ -25,7 +25,7 @@ grouped <- do.call("groupBy", c(x, cols))
 gapply(grouped, func, schema)
 
 # grouped
-function (x, func, schema) {
+spark_grouped_udf <- function (x, func, schema) {
   if (is.character(schema)) {
     schema <- structType(schema)
   }
