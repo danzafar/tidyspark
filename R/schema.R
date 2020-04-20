@@ -184,14 +184,12 @@ print.StructField <- function (x, ...) {
             sep = ""))
 }
 
-#' @rdname ArrayType
 #' @export
 ArrayType <- function (type, nullable) {
   call_static("org.apache.spark.sql.types.DataTypes",
                        "createArrayType", type, nullable)
 }
 
-#' @rdname MapType
 #' @export
 MapType <- function (key, value, nullable) {
   call_static("org.apache.spark.sql.types.DataTypes",

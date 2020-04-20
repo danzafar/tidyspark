@@ -1,5 +1,7 @@
 
+spark_session_reset()
 
+# CSV -------------------------------------------------------------------------
 test_that("read csvs", {
   # write files to disk that can be used
   path_csv <- tempfile()
@@ -34,6 +36,61 @@ test_that("read csvs", {
     iris_fix)
 })
 
+test_that("write csvs", {
+  path_csv <- tempfile()
+
+  spark_tbl(iris) %>%
+    spark_write_csv(path_csv, mode = "overwrite")
+
+  expect_equal(
+    list.files(path_csv, full.names = T) %>%
+      .[grep("part-00000", .)] %>%
+      read.csv %>%
+      names,
+    c("X5.1", "X3.5", "X1.4", "X0.2", "setosa")
+    )
+})
+
+test_that("write csvs with header", {
+  path_csv <- tempfile()
+
+  spark_tbl(iris) %>%
+    spark_write_csv(path_csv, mode = "overwrite", header = T)
+
+  expect_equal(
+    list.files(path_csv, full.names = T) %>%
+      .[grep("part-00000", .)] %>%
+      read.csv %>%
+      names,
+    c("Sepal_Length", "Sepal_Width", "Petal_Length",
+      "Petal_Width", "Species")
+  )
+})
+
+# ORC -------------------------------------------------------------------------
+test_that("read/write orc", {
+  # write files to disk that can be used
+  path_orc <- tempfile()
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
+  iris_sdf <- spark_tbl(iris)
+  spark_write_orc(iris_sdf, mode = "overwrite", path_orc)
+
+  # no schema specified
+  expect_equal(
+    spark_read_orc(path_orc) %>%
+      collect,
+    iris_fix)
+
+  # with schema
+  expect_equal(
+    spark_read_orc(path_orc, schema = schema(iris_sdf)) %>%
+      collect,
+    iris_fix)
+})
+
+# PARQUET ---------------------------------------------------------------------
 test_that("read parquet", {
   # write files to disk that can be used
   path_pqt <- tempfile()
@@ -51,12 +108,12 @@ test_that("read parquet", {
 
   # with schema
   expect_equal(
-    spark_read_parquet(path_pqt, schema = SparkR::schema(iris_sdf)) %>%
+    spark_read_parquet(path_pqt, schema = schema(iris_sdf)) %>%
       collect,
     iris_fix)
 })
 
-
+# JSON ------------------------------------------------------------------------
 test_that("read json", {
   data("json_sample")
 
@@ -101,4 +158,25 @@ test_that("read json", {
 
 })
 
+# TABLE -----------------------------------------------------------------------
 
+test_that("saveAsTable and insertInto work", {
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
+  iris_sdf <- spark_tbl(iris)
+
+  spark_write_table(iris_sdf, "iris_test", "overwrite")
+
+  expect_equal(
+    spark_read_table("iris_test") %>% collect %>% nrow,
+    150
+    )
+
+  spark_write_insert(iris_sdf, "iris_test")
+
+  expect_equal(
+    spark_read_table("iris_test") %>% collect %>% nrow,
+    300
+  )
+})

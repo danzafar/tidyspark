@@ -31,7 +31,7 @@ persist_read_csv <- function(df) {
 #' @return a \code{spark_tbl}
 #' @export
 spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
-                           na.strings = "NA", ...) {
+                              na.strings = "NA", ...) {
 
   if (!is.null(path) && !is.character(path)) {
     stop("path should be character, NULL or omitted.")
@@ -43,7 +43,7 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
   if (length(na.strings) > 1) {
     na.strings <- na.strings[1]
     warning("More than one 'na.string' value found, using first value, ", na.strings)
-    }
+  }
   sparkSession <- SparkR:::getSparkSession()
   options <- SparkR:::varargsToStrEnv(...)
   if (!is.null(path)) {
@@ -132,6 +132,18 @@ spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
 #'
 #' @return a \code{spark_tbl}
 #' @export
+#'
+#' @examples
+#' spark_session(sparkPackages = "io.delta:delta-core_2.11:0.5.0")
+#'
+#' iris_tbl <- spark_tbl(iris)
+#'
+#' iris_tbl %>%
+#'   spark_write_delta("/tmp/iris_tbl")
+#'
+#' spark_read_delta("/tmp/iris_tbl") %>%
+#'   collect
+#'
 spark_read_delta <- function (path, version = NULL, timestamp = NULL, ...) {
   elipses <- rlang::enquos(...)
   filtered <- Filter(function(x) !is.null(x),
@@ -144,6 +156,19 @@ spark_read_delta <- function (path, version = NULL, timestamp = NULL, ...) {
   do.call(spark_read_source, param_quos)
 }
 
+
+#' Read an orc file into a \code{spark_tbl}.
+#'
+#' @param path string, the path to the file. Needs to be accessible from the cluster.
+#' @param ... named list, optional arguments to the reader
+#'
+#' @details Other options such as specifing a schema can be specified in the \code{...}
+#'
+#' @return a \code{spark_tbl}
+#' @export
+spark_read_orc <- function(path, ...) {
+  spark_read_source(path, source = "orc", ...)
+}
 
 #' Read a parquet file into a \code{spark_tbl}.
 #'
@@ -238,8 +263,8 @@ spark_read_json <- function (path, multiline = F, ...) {
 #'
 #' ## End(Not run)
 spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NULL,
-                            upper_bound = NULL, num_partitions = 0L, predicates = list(),
-                            ...) {
+                             upper_bound = NULL, num_partitions = 0L, predicates = list(),
+                             ...) {
   jprops <- SparkR:::varargsToJProperties(...)
   sparkSession <- SparkR:::getSparkSession()
   read <- call_method(sparkSession, "read")
@@ -269,6 +294,27 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
   new_spark_tbl(sdf)
 }
 
+#' Read a Spark Managed Table
+#'
+#' @description a shortcut function to read a Spark-managed table directly
+#' from the hive metastore without have to write any SQL. This is not a
+#' feature in Spark's Scala or Python API.
+#'
+#' @param table string, the name of the table to read
+#'
+#' @return a \code{spark_tbl}
+#' @export
+#'
+#' @examples
+#'
+#' spark_read_table("iris")
+#' # same as
+#' spark.sql("SELECT * FROM iris")
+#'
+spark_read_table <- function(table) {
+  spark_sql(paste0("SELECT * FROM ", table))
+}
+
 
 ### WRITE ---------------------------------------------------------------------
 
@@ -280,9 +326,9 @@ spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NUL
 #' for functionality similar to Spark's \code{saveAsTable} and \code{insertInto}.
 #'
 #' @param .data a \code{spark_tbl}
-#' @param path string, the parth where the file is to be saved.
+#' @param path string, the path where the file is to be saved.
 #' @param source string, can be file types like \code{parquet} or \code{csv}.
-#' @param mode string, usually \code{"error"}, \code{"overwrite"}, or \code{"append"}/
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"}, \code{"append"}, or \code{"ignore"}
 #' @param partition_by string, column names to partition by on disk
 #' @param ... any other option to be passed. Must be a named argument.
 #'
@@ -307,7 +353,7 @@ spark_write_source <- function(.data, path, source = NULL, mode = "error",
   options <- SparkR:::varargsToStrEnv(...)
   if (!is.null(options$partitionBy)) {
     stop("'partitionBy' argument suppied, 'partiton_by' expected")
-    }
+  }
 
   if (!is.null(path)) {
     options[["path"]] <- path
@@ -331,7 +377,22 @@ spark_write_source <- function(.data, path, source = NULL, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to CSV format
+#'
+#' @description
+#' Write a \code{spark_tbl} to a tabular (typically, comma-separated) file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details Many other options can be set using the \code{...}. Some popular
+#' ones include \code{header = T} or \code{sep = ","}. A full list can be found
+#' here: https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#csv-java.lang.String-
+#'
 #' @export
 spark_write_csv <- function(.data, path, mode = "error",
                             partition_by = NULL, ...) {
@@ -340,16 +401,83 @@ spark_write_csv <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to a Delta file
+#'
+#' @description
+#' Write a \code{spark_tbl} to Delta.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For Delta, a few additional options can be specified using \code{...}:
+#' #' \describe{
+#'   \item{compression}{(default null), compression codec to use when saving to
+#'   file. This can be one of the known case-insensitive shorten names (none,
+#'   bzip2, gzip, lz4, snappy and deflate)}
+#'   \item{replaceWhere}{(default null), You can selectively overwrite only
+#'   the data that matches predicates over partition columns (e.g. "date >=
+#'   '2017-01-01' AND date <= '2017-01-31'")}
+#'   \item{overwriteSchema}{(default FALSE), when overwriting a table using
+#'   mode("overwrite") without replaceWhere, you may still want to overwrite
+#'   the schema of the data being written. You replace the schema and
+#'   partitioning of the table by setting this param option to \code{TRUE}}
+#' }
+#'
 #' @export
+#'
+#' @examples
+#' # here using open-source delta jar dropped in the $SPARK_HOME/lib dir
+#' spark_session(sparkPackages = "io.delta:delta-core_2.11:0.5.0")
+#'
+#' iris_tbl <- spark_tbl(iris)
+#'
+#' iris_tbl %>%
+#'   spark_write_delta("/tmp/iris_tbl")
+#'
+#' # you can go further and add to hive metastore like this:
+#' spark_sql("CREATE TABLE iris_ddl USING DELTA LOCATION '/tmp/iris_tbl'")
+#' # right now this throws a warning, you can ignore it.
+#'
 spark_write_delta <- function(.data, path, mode = "error",
                               partition_by = NULL, ...) {
-
   spark_write_source(.data, path, source = "delta", mode, partition_by, ...)
-
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to JSON format
+#'
+#' @description
+#' Write a \code{spark_tbl} to JSON
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For JSON, additional options can be specified using \code{...}:
+#' #' \describe{
+#'   \item{compression}{(default null), compression codec to use when saving to
+#'   file. This can be one of the known case-insensitive shorten names (none,
+#'   bzip2, gzip, lz4, snappy and deflate).}
+#'   \item{dateFormat}{(default yyyy-MM-dd), sets the string that indicates a
+#'   date format. Custom date formats follow the formats at java.text.SimpleDateFormat.
+#'   This applies to date type.}
+#'   \item{timestampFormat}{(default yyyy-MM-dd'T'HH:mm:ss.SSSXXX), sets the
+#'   string that indicates a timestamp format. Custom date formats follow the
+#'   formats at java.text.SimpleDateFormat. This applies to timestamp type.}
+#'   \item{encoding}{(by default it is not set), specifies encoding (charset)
+#'   of saved json files. If it is not set, the UTF-8 charset will be used.}
+#'   \item{lineSep}{(default \\n), defines the line separator that should be
+#'   used for writing.}
+#' }
+#' More information can be found here:
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#json-java.lang.String-
+#'
 #' @export
 spark_write_json <- function(.data, path, mode = "error",
                              partition_by = NULL, ...) {
@@ -358,7 +486,25 @@ spark_write_json <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to ORC format
+#'
+#' @description
+#' Write a \code{spark_tbl} to an ORC file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For ORC, compression can be set using \code{...}. Compression
+#' (default is the value specified in spark.sql.orc.compression.codec):
+#' compression codec to use when saving to file. This can be one of the known
+#' case-insensitive shorten names(none, snappy, zlib, and lzo). More
+#' information can be found here:
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#orc-java.lang.String-
+#'
 #' @export
 spark_write_orc <- function(.data, path, mode = "error",
                             partition_by = NULL, ...) {
@@ -367,7 +513,25 @@ spark_write_orc <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to Parquet format
+#'
+#' @description
+#' Write a \code{spark_tbl} to a parquet file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For Parquet, compression can be set using \code{...}. Compression
+#' (default is the value specified in spark.sql.orc.compression.codec):
+#' compression codec to use when saving to file. This can be one of the known
+#' case-insensitive shorten names(none, snappy, zlib, and lzo).. More
+#' information can be found here:
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#parquet-java.lang.String-
+#'
 #' @export
 spark_write_parquet <- function(.data, path, mode = "error",
                                 partition_by = NULL, ...) {
@@ -376,7 +540,27 @@ spark_write_parquet <- function(.data, path, mode = "error",
 
 }
 
-#' @rdname write_file
+#' Write a \code{spark_tbl} to text file
+#'
+#' @description
+#' Write a \code{spark_tbl} to a text file.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param path string, the path where the file is to be saved.
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by on disk
+#' @param ... any other named options. See details below.
+#'
+#' @details For text, two additional options can be specified using \code{...}:
+#' #' \describe{
+#'   \item{compression}{(default \code{null}), compression codec to use when saving to
+#'   file. This can be one of the known case-insensitive shorten names (none,
+#'   bzip2, gzip, lz4, snappy and deflate).}
+#'   \item{lineSep}{(default \code{\\n}), defines the line separator that should be used for writing.}
+#' }
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/DataFrameWriter.html#text-java.lang.String-
+#'
 #' @export
 spark_write_text <- function(.data, path, mode = "error",
                              partition_by = NULL, ...) {
@@ -392,14 +576,31 @@ spark_write_text <- function(.data, path, mode = "error",
 #' @param table sting, the table name
 #' @param mode string, either \code{"error"} (default), \code{"overwrite"},
 #' or \code{"append"}.
-#' @param partition_by string, the column to partition by
+#' @param partition_by string, the column names to partition by
 #' @param driver string, the driver class to use, e.g. \code{"org.postgresql.Driver"}
 #' @param ... additional connection options such as \code{user}, \code{password}, etc.
 #'
-#' @return
+#' @details connection properties can be set by other named arguments in the \code{...}
+#' JDBC database connection arguments, a list of arbitrary string tag/value. Normally
+#' at least a "user" and "password" property should be included. "batchsize" can be
+#' used to control the number of rows per insert. "isolationLevel" can be one of
+#' "NONE", "READ_COMMITTED", "READ_UNCOMMITTED", "REPEATABLE_READ", or "SERIALIZABLE",
+#' corresponding to standard transaction isolation levels defined by JDBC's Connection
+#' object, with default of "READ_UNCOMMITTED".
 #' @export
 #'
 #' @examples
+#' spark_session_reset(sparkPackages = c("org.postgresql:postgresql:42.2.12"))
+#'
+#' iris_tbl <- spark_tbl(iris)
+#'
+#' iris_tbl %>%
+#'   spark_write_jdbc(url = "jdbc:postgresql://localhost/tidyspark_test",
+#'                    table = "iris_test",
+#'                    partition_by = "Species",
+#'                    mode = "overwrite",
+#'                    user = "tidyspark_tester", password = "test4life",
+#'                    driver = "org.postgresql.Driver")
 spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
                              partition_by = NULL, driver = NULL, ...) {
   if (!is.null(url) && !is.character(url)) {
@@ -437,8 +638,152 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
   invisible()
 }
 
-# stop("Bucketing is not supported for DataFrameWriter.save, DataFrameWriter.insertInto and DataFrameWriter.jdbc methods.")
+#' Write to a Spark table
+#'
+#' @description Saves the content of the \code{spark_tbl} as the specified
+#' table. An R wrapper for Spark's \code{saveAsTable}.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param table string, the table name
+#' @param mode string, usually \code{"error"} (default), \code{"overwrite"},
+#' \code{"append"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by
+#' @param bucket_by list, format \code{list(n = <integer>, cols = <string>)}")specifying
+#' the number of buckets and strings to bucket on. Use with caution. Not currently working.
+#' @param sort_by string, if bucketed, column names to sort by.
+#'
+#' @details In the case the table already exists, behavior of this function
+#' depends on the save mode, specified by the mode function (default to throwing
+#' an exception). When mode is Overwrite, the schema of the DataFrame does not
+#' need to be the same as that of the existing table.
+#'
+#' When mode is Append, if there is an existing table, we will use the format
+#' and options of the existing table. The column order in the schema of the
+#' DataFrame doesn't need to be same as that of the existing table. Unlike
+#' insertInto, saveAsTable will use the column names to find the correct
+#' column positions
+#'
+#' Bucketing is supported in \code{tidyspark} but as a general warning in
+#' most cases bucketing is very difficult to do correctly and manage. It is
+#' the opinion of many Spark experts that you are better off using Delta
+#' optimize/z-order.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' iris_tbl <- spark_tbl(iris)
+#'
+#' # save as table
+#' iris_tbl %>%
+#'   spark_write_table("iris_tbl")
+#'
+#' # try it with partitioning
+#' iris_tbl %>%
+#'   spark_write_table("iris_tbl", mode = "overwrite", partition_by = "Species")
+#'
+#' spark_sql("DESCRIBE iris_tbl") %>% collect
+#' # # A tibble: 8 x 3
+#' # col_name                data_type   comment
+#' # <chr>                   <chr>       <chr>
+#' #   1 Sepal_Length            "double"     NA
+#' # 2 Sepal_Width             "double"     NA
+#' # 3 Petal_Length            "double"     NA
+#' # 4 Petal_Width             "double"     NA
+#' # 5 Species                 "string"     NA
+#' # 6 # Partition Information ""          ""
+#' # 7 # col_name              "data_type" "comment"
+#' # 8 Species                 "string"     NA
+#'
+#'
+#'
+spark_write_table <- function(.data, table, mode = "error",
+                              partition_by = NULL,
+                              bucket_by = list(n = NA_integer_, cols = NA_character_),
+                              sort_by = NULL, ...) {
 
+  if (!is.null(table) && !is.character(table)) {
+    stop("'table' should be character, NULL or omitted.")
+  }
+  if (!is.character(mode)) {
+    stop("mode should be character or omitted. It is 'error' by default.")
+  }
+  if (is.null(source)) {
+    source <- getDefaultSqlSource()
+  }
 
+  options <- SparkR:::varargsToStrEnv(...)
+  if (!is.null(options$partitionBy)) {
+    stop("'partitionBy' argument suppied, 'partiton_by' expected")
+  }
 
+  if (!is.list(bucket_by) ||
+      !is.numeric(bucket_by$n) ||
+      !is.character(bucket_by$cols)) {
+    stop("bucking spec must be in form 'list(n = <integer>, cols = <string>)'")
+  }
 
+  if (!is.null(sort_by) & is.null(bucket_by)) {
+    stop("'sort_by' can only be used in conjunction with 'bucket_by'")
+  }
+
+  writer <- call_method(
+      call_method(
+        attr(.data, "jc"),
+        "write"),
+      "mode", mode)
+
+  if (!is.null(partition_by)) {
+    call_method(writer, "partitionBy", as.list(partition_by))
+  }
+
+  if (!is.na(bucket_by$n)) {
+    stop("Bucketing is not currently working, can you solve the riddle?
+         Give it a shot at least ;)")
+      writer <- call_method(writer, "bucketBy",
+                            bucket_by$n, as.list(bucket_by$cols))
+    if (!is.na(sort_by)) {
+      writer <- call_method(writer, "sortBy", sort_by)
+    }
+  }
+
+  call_method_handled(
+    call_method(writer,
+                "options", options),
+    "saveAsTable", table)
+
+  invisible()
+
+}
+
+#' Insert into a Spark Managed Table
+#'
+#' @description Inserts the content of the \code{spark_tbl} into the specified
+#' table. An R wrapper for Spark's \code{insertInto}.
+#'
+#' @param .data a \code{spark_tbl}
+#' @param table string, the table name
+#' @param mode string, usually \code{"append"} (default), \code{"overwrite"},
+#' \code{"error"}, or \code{"ignore"}
+#' @param partition_by string, column names to partition by
+#'
+#' @details Unlike \code{saveAsTable}, \code{insertInto} ignores the column
+#' names and just uses position-based resolution. Watch out for column order!
+#'
+#' @export
+spark_write_insert <- function(.data, table, mode = "append") {
+
+  if (!is.null(table) && !is.character(table)) {
+    stop("'table' should be character, NULL or omitted.")
+  }
+
+  call_method(
+    call_method(
+      call_method(
+        attr(.data, "jc"),
+        "write"),
+      "mode", mode),
+    "insertInto", table)
+
+  invisible()
+}
