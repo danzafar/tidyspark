@@ -62,6 +62,12 @@ StructType.StructField <- function (x, ...) {
   StructType(stObj)
 }
 
+#' @rdname StructType
+#' @export
+StructType.StructType <- function (x, ...) {
+  x
+}
+
 #' @export
 tidyspark_types <- c(
   "byte" = "ByteType", "integer" = "IntegerType",
