@@ -42,7 +42,7 @@ Many R users seek refuge in RStudio's `sparklyr` package which is maintained by 
 `tidyspark` was developed so that R users could have the "best of both worlds". The syntax of `sparklyr` butthe backend of `SparkR`. In essence, the goal of `tidyspark` is to provide a tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. The principles are to minimize learning by modelling after `dplyr`/`sparklyr` syntax as much as possible, keep tidy wrappers thin and simple to foster contribution for years to come, and to avoid namespace conflicts with `tidyverse` packages.
 
 ### More Information
-For more information on the philosophy of `tidyspark` and technical information on how it works, please view the (Developer Guide)[https://github.com/danzafar/tidyspark/blob/master/dev_guide.md]
+For more information on the philosophy of `tidyspark` and technical information on how it works, please view the [Developer Guide](https://github.com/danzafar/tidyspark/blob/master/dev_guide.md)
 
 ## Status
 Since the first code written Jan 23, 2020 some significant progress has been made to prove out the `tidyspark` principles. At this time, all of the major `dplyr` verbs are supported in `tidyspark`. By far the most complex are the window-affected verbs and their usage with rank function. One of the goals of the project will be to provide explanatory documentation for how these verb methods work to foster collaboration. Here are the verbs that are currently supported, though some edge cases are still being worked out:
