@@ -512,6 +512,22 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
   new_spark_tbl(sdf)
 }
 
+#' @export
+#' @importFrom dplyr coalesce
+coalesce.spark_tbl <- function(.data, partitions) {
+
+  sdf <- attr(.data, "jc")
+
+  partitions <- numToInt(partitions)
+
+  if (partitions < 1)
+    stop("number of partitions must be positive")
+
+  sdf <- call_method(sdf, "coalesce", partitions)
+
+  new_spark_tbl(sdf)
+}
+
 # pivots
 
 #' @export
