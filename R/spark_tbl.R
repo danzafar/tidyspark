@@ -213,3 +213,20 @@ explain.spark_tbl <- function(x, extended = F) {
   sdf <- call_method(sdf, "withColumn", col, value_jc)
   new_spark_tbl(sdf, groups = attr(.data, "groups"))
 }
+
+# Functions that deal with partitions -----------------------------------------
+
+#' Get the Number of Partitions in a \code{spark_tbl}
+#'
+#' @description Return the number of partitions
+#'
+#' @param .data a spark_tbl
+#'
+#' @export
+n_partitions <- function(...) {
+  UseMethod("num_partitions")
+}
+
+n_partitions.spark_tbl <- function(.data) {
+  call_method(call_method(attr(.data, "jc"), "rdd"), "getNumPartitions")
+}
