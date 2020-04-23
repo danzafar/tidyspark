@@ -5,33 +5,39 @@ iris_fix <- iris %>%
   mutate(Species = levels(Species)[Species])
 iris_spk <- spark_tbl(iris)
 
-testthat::expect_success({
-  ml_glm(iris_spk, Sepal_Width ~ Petal_Length)
-})
+tmp_glm <- tempfile()
+expect_known_output({
+  ml_glm(iris_spk, Sepal_Width ~ Petal_Length) %>%
+    SparkR::summary()},
+tmp_glm,
+print = TRUE)
 
 
-testthat::expect_success({
-x <- ml_random_forest(iris_spk, Sepal_Width ~ Petal_Length)
-x %>% SparkR::summary()
-})
+tmp_rf <- tempfile()
+expect_known_output({
+ml_random_forest(iris_spk, Sepal_Width ~ Petal_Length) %>%
+    SparkR::summary()},
+tmp_rf,
+print = TRUE)
 
+tmp_gbt <- tempfile()
+expect_known_output({
+  ml_gbt(iris_spk, Sepal_Width ~ Petal_Length) %>%
+    SparkR::summary()},
+  tmp_gbt,
+  print = TRUE)
 
-testthat::expect_success({
-  x <- ml_gbt(iris_spk, Sepal_Width ~ Petal_Length)
-  x %>% SparkR::summary()
-})
-
-testthat::expect_success({
-
+tmp_surv <- tempfile()
+expect_known_output({
   library(survival)
-
   # Fit an accelerated failure time (AFT) survival regression model with spark.survreg
   ovarianDF <- suppressWarnings(spark_tbl(ovarian))
   aftDF <- ovarianDF
   aftTestDF <- ovarianDF
-  aftModel <- ml_survival_regression(aftDF, Surv(futime, fustat) ~ ecog_ps + rx)
-
-})
+  ml_survival_regression(aftDF, Surv(futime, fustat) ~ ecog_ps + rx) %>%
+    SparkR::summary()},
+  tmp_surv,
+  print = TRUE)
 
 
 
