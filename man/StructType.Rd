@@ -5,6 +5,7 @@
 \alias{StructType.jobj}
 \alias{StructType.character}
 \alias{StructType.StructField}
+\alias{StructType.StructType}
 \title{StructType}
 \usage{
 StructType(x, ...)
@@ -14,6 +15,8 @@ StructType(x, ...)
 \method{StructType}{character}(x, ...)
 
 \method{StructType}{StructField}(x, ...)
+
+\method{StructType}{StructType}(x, ...)
 }
 \arguments{
 \item{x}{a StructField object (created with the StructField method).
