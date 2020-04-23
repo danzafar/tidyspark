@@ -513,6 +513,11 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 }
 
 #' @export
+coalesce <- function(x, ...) {
+  UseMethod("coalesce")
+}
+
+#' @export
 #' @importFrom dplyr coalesce
 coalesce.spark_tbl <- function(.data, partitions) {
 
