@@ -224,7 +224,7 @@ explain.spark_tbl <- function(x, extended = F) {
 #'
 #' @export
 n_partitions <- function(...) {
-  UseMethod("num_partitions")
+  UseMethod("n_partitions")
 }
 
 n_partitions.spark_tbl <- function(.data) {
