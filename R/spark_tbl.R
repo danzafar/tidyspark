@@ -58,6 +58,7 @@ spark_tbl.data.frame <- function(.df, ...) {
     spark <- SparkR:::getSparkSession()
     sdf <- call_method(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
+  # TODO: We should update this to spark.r.maxAllocationLimit or 200MB, as per SparkR
   } else if (object.size(.df) <= 100000){
     SparkR::createDataFrame(.df)
   } else persist_read_csv(.df)
