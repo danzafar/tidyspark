@@ -231,3 +231,82 @@ n_partitions <- function(...) {
 n_partitions.spark_tbl <- function(.data) {
   call_method(call_method(attr(.data, "jc"), "rdd"), "getNumPartitions")
 }
+
+#' @export
+coalesce <- function(x, ...) {
+  UseMethod("coalesce")
+}
+
+#' Coalesce the Number of Partitions in a \code{spark_tbl}
+#'
+#' @description Returns the newly coalesced spark_tbl.
+#'
+#' @param .data
+#'
+#' @param n_partitions
+#'
+#' @export
+#' @importFrom dplyr coalesce
+coalesce.spark_tbl <- function(.data, n_partitions) {
+
+  sdf <- attr(.data, "jc")
+
+  n_partitions <- numToInt(n_partitions)
+
+  if (n_partitions < 1)
+    stop("number of partitions must be positive")
+
+  sdf <- call_method(sdf, "coalesce", n_partitions)
+
+  new_spark_tbl(sdf)
+}
+
+#' @export
+repartition <- function(x, ...) {
+  UseMethod("repartition")
+}
+
+
+#' Repartition a \code{spark_tbl}
+#'
+#' @description Repartitions a spark_tbl. Optionally allos for vector of columns to be used for partitioning.
+#'
+#' @param partitions number of partitions. Must be numeric.
+#' @param partition_by vector of column names used for partitioning, only supported for Spark 2.0+
+#'
+#' @export
+#' @examples
+#' df <- spark_tbl(mtcars)
+#'
+#' df %>% n_partitions() # 1
+#'
+#' df_repartitioned <- df %>% repartition(5)
+#' df %>% n_partitions() # 5
+#'
+#' df_repartitioned <- df %>% repartition(5, c("cyl"))
+repartition.spark_tbl <- function(.data, n_partitions = NULL, partition_by = NULL) {
+
+  sdf <- attr(.data, "jc")
+
+  # get partition columns
+  if (!is.null(partition_by)) {
+    sdf_cols <- get_jc_cols(sdf)[partition_by]
+    jcols <- lapply(sdf_cols, function(c) { c@jc })
+  }
+
+  # partitions and columns
+  if (!is.null(n_partitions) && is.numeric(n_partitions)) {
+    if (!is.null(partition_by)) {
+      rsdf <- call_method(sdf, "repartition", numToInt(n_partitions), jcols)
+    } else {
+      rsdf <- call_method(sdf, "repartition", numToInt(n_partitions))
+    }
+  # columns only
+  } else if (!is.null(partition_by)) {
+    rsdf <- call_method(sdf, "repartition", jcols)
+  } else {
+    stop("Must specify either number of partitions and/or columns(s)")
+  }
+
+  new_spark_tbl(rsdf)
+}
