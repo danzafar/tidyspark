@@ -391,3 +391,36 @@ any.Column <- function(x, ...) {
   new("Column", call_method(jc, "equalTo", true_jc))
 }
 
+#' Create a Column of literal value
+#'
+#' @description Create a Column object out of character, numeric, or boolean
+#' value
+#'
+#' @param .x a literal value or a Column object. A literal value can be an
+#' arbitrary value like a character, string, or boolean value.
+#'
+#' @return a Column object
+#' @export
+#'
+#' @rdname lit
+#' @examples
+#'
+#' # these do the same thing:
+#' as.Column("derpin'")
+#' as_Column("all day")
+#' lit("long")
+#'
+lit <- function(.x) {
+  jc <- call_static("org.apache.spark.sql.functions", "lit",
+                    if (inherits(.x, "Column")) .x@jc else .x)
+  new("Column", jc)
+}
+
+#' @rdname lit
+#' @export
+as.Column <- function(.x) lit(.x)
+
+#' @rdname lit
+#' @export
+as_Column <- function(.x) lit(.x)
+
