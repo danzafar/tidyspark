@@ -78,7 +78,7 @@ distinct.spark_tbl <- function(.data, ...) {
 
 # check to see if a column expression is aggregating
 is_agg_expr <- function(col) {
-  if (class(col) %in% c("character", "numeric", "logical")) return(F)
+  if (inherits(col, c("character", "numeric", "logical", "integer"))) return(F)
   if (class(col) == "Column") col <- call_method(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.aggregate", name)
@@ -86,7 +86,7 @@ is_agg_expr <- function(col) {
 
 # check to see if a column expression is aggregating
 is_wndw_expr <- function(col) {
-  if (class(col) == "character" | class(col) == "numeric") return(F)
+  if (inherits(col, c("character", "numeric", "logical", "integer"))) return(F)
   if (class(col) == "Column") col <- call_method(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.WindowExpression", name)
