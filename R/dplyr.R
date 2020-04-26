@@ -444,7 +444,6 @@ group_spark_data <- function(.data) {
 
   tbl_groups <- attr(.data, "groups")
 
-  if (is.null(tbl_groups)) stop("Incoming spark_tbl must be grouped")
   sdf <- attr(.data, "jc")
   jcol <- lapply(tbl_groups, function(x) call_method(sdf, "col", x))
   sgd <- call_method(sdf, "groupBy", jcol)
@@ -460,9 +459,7 @@ summarise.spark_tbl <- function(.data, ...) {
   sdf <- attr(.data, "jc")
   tbl_groups <- attr(.data, "groups")
 
-  sgd <- if (is.null(tbl_groups)) {
-    SparkR::groupBy(as_SparkDataFrame(sdf))
-  } else group_spark_data(.data)
+  sgd <- group_spark_data(.data)
 
   agg <- list()
   orig_df_cols <- get_jc_cols(sdf)
