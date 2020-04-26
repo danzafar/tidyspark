@@ -171,8 +171,15 @@ StructField.character <- function (x, type, nullable = TRUE, ...) {
   }
   if (class(type) == "StructType") {
     type <- type$jobj
+  } else if (inherits(type, "character")) {
+    spark_type <- tidyspark_types[type]
+    if (length(spark_type) == 0) {
+      stop("Type '", type, "' not recognised, see tidyspark:::tidyspark_types
+           for supported type conventions.")
+      }
+    type <- eval(as.name(spark_type))
   } else if (class(type) != "jobj") {
-    stop("Field type must be of class 'jobj' or 'StructType'.")
+    stop("Field type must be of class 'jobj', 'StructType', or 'String'.")
   }
   if (class(nullable) != "logical") {
     stop("nullable must be either TRUE or FALSE")
