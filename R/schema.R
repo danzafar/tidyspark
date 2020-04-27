@@ -169,8 +169,9 @@ StructField.character <- function (x, type, nullable = TRUE, ...) {
   if (class(x) != "character") {
     stop("Field name must be a string.")
   }
-  if (class(type) == "StructType") {
+  if (inherits(type, "StructType")) {
     type <- type$jobj
+    class <- "org.apache.spark.sql.types.DataTypes"
   } else if (inherits(type, "character")) {
     spark_type <- tidyspark_types[type]
     if (length(spark_type) == 0) {
@@ -178,14 +179,16 @@ StructField.character <- function (x, type, nullable = TRUE, ...) {
            for supported type conventions.")
       }
     type <- eval(as.name(spark_type))
-  } else if (class(type) != "jobj") {
-    stop("Field type must be of class 'jobj', 'StructType', or 'String'.")
-  }
+    class <- "org.apache.spark.sql.api.r.SQLUtils"
+  } else if (inherits(type, "jobj")) {
+    class <- "org.apache.spark.sql.types.DataTypes"
+  } else stop("Field type must be of class 'jobj', 'StructType', or 'String'.")
   if (class(nullable) != "logical") {
     stop("nullable must be either TRUE or FALSE")
   }
-  sfObj <- call_static("org.apache.spark.sql.types.DataTypes",
-                       "createStructField", x, type, nullable)
+
+  sfObj <- call_static(class, "createStructField", x, type, nullable)
+
   StructField(sfObj)
 }
 
@@ -198,31 +201,65 @@ print.StructField <- function (x, ...) {
 }
 
 #' @export
-ArrayType <- function (type, nullable) {
+ArrayType <- function(type, nullable) {
+  type <- if (inherits(type, "character")) {
+    spark_type <- tidyspark_types[type]
+    if (length(spark_type) == 0) {
+      stop("Type '", type, "' not recognised, see tidyspark:::tidyspark_types
+           for supported type conventions.")
+    }
+    new_jobj(paste0("org.apache.spark.sql.types.", spark_type))
+  }
   call_static("org.apache.spark.sql.types.DataTypes",
                        "createArrayType", type, nullable)
 }
 
 #' @export
 MapType <- function (key, value, nullable) {
+  key <- if (inherits(key, "character")) {
+    spark_type <- tidyspark_types[key]
+    if (length(spark_type) == 0) {
+      stop("Type '", key, "' not recognised, see tidyspark:::tidyspark_types
+           for supported type conventions.")
+    }
+    new_jobj(paste0("org.apache.spark.sql.types.", spark_type))
+  }
+  value <- if (inherits(value, "character")) {
+    spark_type <- tidyspark_types[value]
+    if (length(spark_type) == 0) {
+      stop("Type '", value, "' not recognised, see tidyspark:::tidyspark_types
+           for supported type conventions.")
+    }
+    new_jobj(paste0("org.apache.spark.sql.types.", spark_type))
+  }
   call_static("org.apache.spark.sql.types.DataTypes",
                        "createMapType", key, value, nullable)
 }
 
-.onAttach <- function(...) {
-  rlang::env_bind_lazy(
-    as.environment("package:tidyspark"),
-    ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
-    IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
-    FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
-    DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
-    LongType = new_jobj("org.apache.spark.sql.types.LongType"),
-    StringType = new_jobj("org.apache.spark.sql.types.StringType"),
-    BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
-    BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
-    TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
-    DateType = new_jobj("org.apache.spark.sql.types.DateType"))
-}
+# .onAttach <- function(...) {
+#   rlang::env_bind_lazy(
+#     as.environment("package:tidyspark"),
+#     ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
+#     IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
+#     FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
+#     DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
+#     LongType = new_jobj("org.apache.spark.sql.types.LongType"),
+#     StringType = new_jobj("org.apache.spark.sql.types.StringType"),
+#     BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
+#     BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
+#     TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
+#     DateType = new_jobj("org.apache.spark.sql.types.DateType"))
+# }
+
+ByteType = "byte"
+IntegerType = "integer"
+FloatType = "float"
+DoubleType = "double"
+StringType = "string"
+BinaryType = "binary"
+BooleanType = "boolean"
+TimestampType = "timestamp"
+DateType = "date"
 
 #' Get schema object
 #'
