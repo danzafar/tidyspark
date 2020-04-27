@@ -206,6 +206,16 @@ mutate.spark_tbl <- function(.data, ...) {
 }
 
 #' @export
+coalesce <- function(...) {
+  UseMethod("coalesce")
+}
+
+#' @importFrom dplyr coalesce
+coalesce.default <- function(...) {
+  dplyr::coalesce(...)
+}
+
+#' @export
 #' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 

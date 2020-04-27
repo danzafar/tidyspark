@@ -233,11 +233,45 @@ n_partitions.spark_tbl <- function(.data) {
 }
 
 #' @export
-coalesce <- function(x, ...) {
-  UseMethod("coalesce")
+nrow <- function(x, ...) {
+  UseMethod("nrow")
 }
 
-#' Coalesce the Number of Partitions in a \code{spark_tbl}
+#' @export
+#' @param .data
+nrow.spark_tbl <- function(.data) {
+  sdf <- attr(.data, "jc")
+  as.integer(call_method(sdf, "count"))
+}
+
+nrow.default <- function(.data) {
+  dplyr:::nrow()
+}
+
+#' @export
+ncol <- function(x, ...) {
+  UseMethod("ncol")
+}
+
+#' @export
+#' @param .data
+ncol.spark_tbl <- function(.data) {
+  sdf <- attr(.data, "jc")
+  length(call_method(attr(.data, "jc"), "columns"))
+}
+
+ncol.default <- function(.data) {
+  dplyr:::ncol()
+}
+
+#' @export
+dim.spark_tbl <- function(.data) {
+  rows <- nrow(.data)
+  columns <- ncol(.data)
+  c(rows, length(columns))
+}
+
+#' Coalesce the number of partitions in a \code{spark_tbl}
 #'
 #' @description Returns the newly coalesced spark_tbl.
 #'
@@ -266,7 +300,6 @@ repartition <- function(x, ...) {
   UseMethod("repartition")
 }
 
-
 #' Repartition a \code{spark_tbl}
 #'
 #' @description Repartitions a spark_tbl. Optionally allos for vector of columns to be used for partitioning.
@@ -294,7 +327,7 @@ repartition.spark_tbl <- function(.data, n_partitions = NULL, partition_by = NUL
     jcols <- lapply(sdf_cols, function(c) { c@jc })
   }
 
-  # partitions and columns
+  # partitions and columns specified
   if (!is.null(n_partitions) && is.numeric(n_partitions)) {
     if (!is.null(partition_by)) {
       rsdf <- call_method(sdf, "repartition", numToInt(n_partitions), jcols)
