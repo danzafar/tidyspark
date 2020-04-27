@@ -82,14 +82,83 @@ spark_udf <- function (.data, .f, schema) {
 #' @export
 #'
 #' @examples
+#'
+#' ## Not run:
+#' # Computes the arithmetic mean of the second column by grouping
+#' # on the first and third columns. Output the grouping values and the average.
+#'
+#' df <- spark_tbl(tibble(a = c(1L, 1L, 3L),
+#'                        b = c(1, 2, 3),
+#'                        c = c("1", "1", "3"),
+#'                        d = c(0.1, 0.2, 0.3)))
+#'
+#' # Here our output contains three columns, the key which is a combination of two
+#' # columns with data types integer and string and the mean which is a double.
+#' schema <- StructType(
+#'   StructField("a", IntegerType, TRUE),
+#'   StructField("c", StringType, TRUE),
+#'   StructField("avg", DoubleType, TRUE)
+#' )
+#'
+#' result <- df %>%
+#'   group_by(a, c) %>%
+#'   spark_grouped_udf(function(key, .df) {
+#'     data.frame(key, mean(.df$b), stringsAsFactors = FALSE)
+#'   }, schema) %>%
+#'   collect
+#'
+#' # The schema also can be specified in a DDL-formatted string and the
+#' # function can be specified as a formula
+#' schema <- "a INT, c STRING, avg DOUBLE"
+#' result <- df %>%
+#'   group_by(a, c) %>%
+#'   spark_grouped_udf(~ data.frame(..1, mean(..2$b), stringsAsFactors = FALSE),
+#'                     schema) %>%
+#'   collect
+#'
+#' result
+#' # # A tibble: 2 x 3
+#' #       a c       avg
+#' #   <int> <chr> <dbl>
+#' # 1     3 3       3
+#' # 2     1 1       1.5
+#'
+#' # Fits linear models on iris dataset by grouping on the 'Species' column and
+#' # using 'Sepal_Length' as a target variable, 'Sepal_Width', 'Petal_Length'
+#' # and 'Petal_Width' as training features.
+#'
+#' iris_tbl <- spark_tbl(iris)
+#' schema <- StructType(StructField("(Intercept)", "double"),
+#'                      StructField("Sepal_Width", "double"),
+#'                      StructField("Petal_Length", "double"),
+#'                      StructField("Petal_Width", "double"))
+#' iris_tbl %>%
+#'   group_by(Species) %>%
+#'   spark_grouped_udf(function(key, x) {
+#'     m <- suppressWarnings(lm(Sepal_Length ~
+#'                                Sepal_Width + Petal_Length + Petal_Width, x))
+#'     data.frame(t(coef(m)))
+#'   }, schema) %>%
+#'   collect
+#'
+#' # # A tibble: 3 x 4
+#' #   `(Intercept)` Sepal_Width Petal_Length Petal_Width
+#' #           <dbl>       <dbl>        <dbl>       <dbl>
+#' # 1         0.700       0.330        0.946      -0.170
+#' # 2         1.90        0.387        0.908      -0.679
+#' # 3         2.35        0.655        0.238       0.252
+#'
+#'
+#' ## End(Not run)
 spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
+
   if (is.character(schema)) {
     schema <- StructType(schema)
   }
   if (rlang::is_formula(.f)) .f <- rlang::as_function(.f)
 
   sgd <- if (!is.null(cols)) {
-    group_spark_data(group_by(.data, cols))
+    group_spark_data(group_by(.data, !!!rlang::syms(cols)))
   } else group_spark_data(.data)
 
   .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]], connection = NULL)
