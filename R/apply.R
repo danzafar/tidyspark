@@ -41,9 +41,43 @@
 #'   }, schema(iris_tbl)) %>%
 #'   collect
 #'
+#' # filter and add a column:
+#' df <- spark_tbl(
+#'   data.frame(a = c(1L, 2L, 3L),
+#'              b = c(1, 2, 3),
+#'              c = c("1","2","3"))
+#' )
+#'
+#' schema <- StructType(StructField("a", "integer"),
+#'                      StructField("b", "double"),
+#'                      StructField("c", "string"),
+#'                      StructField("add", "integer"))
+#'
+#' df %>%
+#'   spark_udf(function(x) {
+#'     library(dplyr)
+#'     x %>%
+#'       filter(a > 1) %>%
+#'       mutate(add = a + 1L)
+#'   },
+#'   schema) %>%
+#'   collect
+#'
+#' # The schema also can be specified in a DDL-formatted string.
+#' schema <- "a INT, d DOUBLE, c STRING, add INT"
+#' df %>%
+#'   spark_udf(function(x) {
+#'     library(dplyr)
+#'     x %>%
+#'       filter(a > 1) %>%
+#'       mutate(add = a + 1L)
+#'   },
+#'   schema) %>%
+#'   collect
+#'
 spark_udf <- function (.data, .f, schema) {
   if (is.character(schema)) {
-    schema <- structType(schema)
+    schema <- StructType(schema)
   }
   if (rlang::is_formula(.f)) .f <- rlang::as_function(.f)
   .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]], connection = NULL)
