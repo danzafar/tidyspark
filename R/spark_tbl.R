@@ -285,7 +285,7 @@ coalesce.spark_tbl <- function(.data, n_partitions) {
 
   sdf <- attr(.data, "jc")
 
-  n_partitions <- numToInt(n_partitions)
+  n_partitions <- num_to_int(n_partitions)
 
   if (n_partitions < 1)
     stop("number of partitions must be positive")
@@ -330,9 +330,9 @@ repartition.spark_tbl <- function(.data, n_partitions = NULL, partition_by = NUL
   # partitions and columns specified
   if (!is.null(n_partitions) && is.numeric(n_partitions)) {
     if (!is.null(partition_by)) {
-      rsdf <- call_method(sdf, "repartition", numToInt(n_partitions), jcols)
+      rsdf <- call_method(sdf, "repartition", num_to_int(n_partitions), jcols)
     } else {
-      rsdf <- call_method(sdf, "repartition", numToInt(n_partitions))
+      rsdf <- call_method(sdf, "repartition", num_to_int(n_partitions))
     }
   # columns only
   } else if (!is.null(partition_by)) {
