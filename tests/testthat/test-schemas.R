@@ -1,6 +1,6 @@
 test_that("able to specify simple StructField", {
   expect_equal(
-    class(StructField("int", LongType, TRUE)),
+    class(StructField("int", IntegerType, TRUE)),
     "StructField"
   )
 })
@@ -8,7 +8,7 @@ test_that("able to specify simple StructField", {
 test_that("able to specify simple StructType", {
   expect_equal(
     StructType(
-      StructField("int", LongType, TRUE),
+      StructField("int", IntegerType, TRUE),
       StructField("string", StringType, TRUE)
     ) %>% class,
     "StructType"
@@ -22,7 +22,7 @@ test_that("able to specify simple nested StructTypes", {
         StructField("extra_key", StringType, TRUE),
         StructField("key", StringType, TRUE)
       ), TRUE),
-      StructField("int", LongType, TRUE)
+      StructField("int", IntegerType, TRUE)
     ) %>% class,
     "StructType"
   )
@@ -39,7 +39,7 @@ test_that("able to specify arbitrary nested StructTypes", {
           StructField("super_key", StringType, TRUE)
         ), TRUE)
       ), TRUE),
-      StructField("int", LongType, TRUE),
+      StructField("int", IntegerType, TRUE),
       StructField("string", StructType(
         StructField("a", StringType, TRUE),
         StructField("b", StringType, TRUE),
@@ -64,12 +64,12 @@ test_that("able to specify arbitrary nested StructTypes", {
 test_that("able to specify simple nested StructTypes with Map and Array", {
   expect_equal(
     StructType(
-      StructField("array", ArrayType(LongType, TRUE), TRUE),
+      StructField("array", ArrayType(IntegerType, TRUE), TRUE),
       StructField("dict", StructType(
         StructField("extra_key", StringType, TRUE),
         StructField("key", StringType, TRUE)
       ), TRUE),
-      StructField("int", LongType, TRUE),
+      StructField("int", IntegerType, TRUE),
       StructField("string", StringType, TRUE)
     ) %>% class,
     "StructType"
@@ -77,12 +77,12 @@ test_that("able to specify simple nested StructTypes with Map and Array", {
 
   expect_equal(
     StructType(
-      StructField("map", MapType(LongType, StringType, TRUE), TRUE),
+      StructField("map", MapType(IntegerType, StringType, TRUE), TRUE),
       StructField("dict", StructType(
         StructField("extra_key", StringType, TRUE),
         StructField("key", StringType, TRUE)
       ), TRUE),
-      StructField("int", LongType, TRUE),
+      StructField("int", IntegerType, TRUE),
       StructField("string", StringType, TRUE)
     ) %>% class,
     "StructType"

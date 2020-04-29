@@ -78,7 +78,7 @@ distinct.spark_tbl <- function(.data, ...) {
 
 # check to see if a column expression is aggregating
 is_agg_expr <- function(col) {
-  if (class(col) %in% c("character", "numeric", "logical")) return(F)
+  if (inherits(col, c("character", "numeric", "logical", "integer"))) return(F)
   if (class(col) == "Column") col <- call_method(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.aggregate", name)
@@ -86,7 +86,7 @@ is_agg_expr <- function(col) {
 
 # check to see if a column expression is aggregating
 is_wndw_expr <- function(col) {
-  if (class(col) == "character" | class(col) == "numeric") return(F)
+  if (inherits(col, c("character", "numeric", "logical", "integer"))) return(F)
   if (class(col) == "Column") col <- call_method(col@jc, "expr")
   name <- SparkR:::getClassName.jobj(col)
   grepl("expressions\\.WindowExpression", name)
@@ -444,7 +444,6 @@ group_spark_data <- function(.data) {
 
   tbl_groups <- attr(.data, "groups")
 
-  if (is.null(tbl_groups)) stop("Incoming spark_tbl must be grouped")
   sdf <- attr(.data, "jc")
   jcol <- lapply(tbl_groups, function(x) call_method(sdf, "col", x))
   sgd <- call_method(sdf, "groupBy", jcol)
@@ -460,9 +459,7 @@ summarise.spark_tbl <- function(.data, ...) {
   sdf <- attr(.data, "jc")
   tbl_groups <- attr(.data, "groups")
 
-  sgd <- if (is.null(tbl_groups)) {
-    SparkR::groupBy(as_SparkDataFrame(sdf))
-  } else group_spark_data(.data)
+  sgd <- group_spark_data(.data)
 
   agg <- list()
   orig_df_cols <- get_jc_cols(sdf)
