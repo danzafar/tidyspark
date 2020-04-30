@@ -26,11 +26,11 @@ getConf <- R6::R6Class("getConf", list(
 sparkContext <- R6::R6Class("sparkContext", list(
   jobj = NULL,
   getConf = NULL,
-  initialize = function() {
-    self$jobj <- SparkR:::getSparkContext()
+  initialize = function(sc = NULL) {
+    self$jobj <- if (is.null(sc)) SparkR:::getSparkContext() else sc
     self$getConf <- getConf$new(call_method(self$jobj, "getConf"))
   },
-
+  setLogLevel = function(level) callJMethod(self$jobj, "setLogLevel", level),
   parallelize = function(seq, numSlices) {
 
     if ((!is.list(seq) && !is.vector(seq)) || is.data.frame(seq)) {
