@@ -1,8 +1,4 @@
-# This is a POC of getting RDD API coded into R6
-# This syntax works:
-#   sc <- sparkContext$new()
-#   sc$getConf$get("spark.r.maxAllocationLimit")
-#   sc$parallelize(list(1:5), 1)
+
 
 
 getConf <- R6::R6Class("getConf", list(
@@ -10,6 +6,7 @@ getConf <- R6::R6Class("getConf", list(
   initialize = function(jobj) {
     self$jobj <- jobj
   },
+  contains = function(key) call_method(self$jobj, "contains", key),
   get = function(...) {
     args <- list(...)
 
@@ -20,7 +17,51 @@ getConf <- R6::R6Class("getConf", list(
 
     call_it <- function(...) call_method(self$jobj, "get", ...)
     do.call(call_it, args)
-  })
+  },
+  getAll = function() call_method(self$jobj, "getAll"),
+  getAllWithPrefix = function(prefix) {
+    call_method(self$jobj, "getAllWithPrefix", prefix)
+    },
+  getAppId = function() call_method(self$jobj, "getAppId"),
+  getBoolean = function(key, defaultValue) {
+    call_method(self$jobj, "getBoolean", key, defaultValue)
+    },
+  getDouble = function(key, defaultValue) {
+    call_method(self$jobj, "getDouble", key, defaultValue)
+    },
+  getInt = function(key, defaultValue) {
+    call_method(self$jobj, "getInt", key, defaultValue)
+    },
+  getSizeAsBytes = function(key, defaultValue = NULL) {
+    call_method(self$jobj, "getSizeAsBytes", key, defaultValue)
+    },
+  getSizeAsGb = function(key, defaultValue = NULL) {
+    call_method(self$jobj, "getSizeAsGb", key, defaultValue)
+    },
+  getSizeAsKb = function(key, defaultValue = NULL) {
+    call_method(self$jobj, "getSizeAsKb", key, defaultValue)
+    },
+  getSizeAsMb = function(key, defaultValue = NULL) {
+    call_method(self$jobj, "getSizeAsMb", key, defaultValue)
+    },
+  isSparkPortConf = function(name) {
+    call_method(self$jobj, "isSparkPortConf", name)
+    },
+  remove = function(key) {
+    call_method(self$jobj, "remove", key)
+    },
+  set = function(key, value) {
+    call_method(self$jobj, "set", key, value)
+    },
+  setAppName = function(name) {
+    call_method(self$jobj, "setAppName", name)
+    },
+  toDebugString = function(show = T) {
+    msg <- call_method(self$jobj, "toDebugString")
+    if (show) cat(msg)
+    invisible(msg)
+    }
+  )
 )
 
 sparkContext <- R6::R6Class("sparkContext", list(
@@ -30,9 +71,47 @@ sparkContext <- R6::R6Class("sparkContext", list(
     self$jobj <- if (is.null(sc)) SparkR:::getSparkContext() else sc
     self$getConf <- getConf$new(call_method(self$jobj, "getConf"))
   },
-  setLogLevel = function(level) callJMethod(self$jobj, "setLogLevel", level),
+  print = function() {
+    cat("<tidyspark sparkContext>\n")
+    invisible(self)
+  },
+  addFile = function(path, recursive = F) {
+    invisible(call_method(self$jobj, "addFile",
+                          suppressWarnings(normalizePath(path)),
+                          recursive))},
+  addJar = function(path) {
+    invisible(call_method(self$jobj, "addJar",
+                          suppressWarnings(normalizePath(path))))
+    },
+  applicationId = function() call_method(self$jobj, "applicationId"),           # Nope
+  appName = function() call_method(self$jobj, "appName"),
+  cancelAllJobs = function() {
+    invisible(call_method(self$jobj, "cancelAllJobs"))
+    },
+  cancelJobGroup = function(groupId) {
+    invisible(call_method(self$jobj, "cancelJobGroup", groupId))
+    },
+  clearJobGroup = function() call_method(self$jobj, "clearJobGroup"),
+  defaultMinPartitions = function() {
+    call_method(self$jobj, "defaultMinPartitions")
+    },
+  defaultParallelism = function() {
+    call_method(self$jobj, "defaultParallelism")
+    },
+  deployMode = function() call_method(self$jobj, "deployMode"),                 # Nope
+  emptyRDD = function() {
+    jrdd <- call_method(self$jobj, "emptyRDD")
+    new("RDD", jrdd, "byte", FALSE, FALSE)
+    },
+  files = function() call_method(self$jobj, "files"),                           # Nope
+  # getCheckpointDir = function() call_method(self$jobj, "getCheckpointDir"),
+  isLocal = function() call_method(self$jobj, "isLocal"),
+  isStopped = function() call_method(self$jobj, "isStopped"),                   # Nope
+  jars = function() call_method(self$jobj, "jars"),
+  listFiles = function() call_method(self$jobj, "listFiles"),                   # Nope
+  listJars = function() call_method(self$jobj, "listJars"),                     # Nope
+  master = function() call_method(self$jobj, "master"),
   parallelize = function(seq, numSlices) {
-
     if ((!is.list(seq) && !is.vector(seq)) || is.data.frame(seq)) {
       if (is.data.frame(seq)) {
         message(paste("context.R: A data frame is parallelized by columns."))
@@ -48,8 +127,6 @@ sparkContext <- R6::R6Class("sparkContext", list(
       }
       seq <- as.list(seq)
     }
-
-    # sizeLimit <- SparkR:::getMaxAllocationLimit(self$jobj)
     sizeLimit <- as.numeric(self$getConf$get("spark.r.maxAllocationLimit"))
     objectSize <- object.size(seq)
 
@@ -93,7 +170,47 @@ sparkContext <- R6::R6Class("sparkContext", list(
                          })
       }
     }
-    SparkR:::RDD(jrdd, "byte")
-
-  })
+    new("RDD", jrdd, "byte", FALSE, FALSE)
+  },
+  range = function(start, end, step, numSlices) {                               # Nope
+    call_method(self$jobj, "range", start, end, step, numSlices)
+    },
+  setCheckpointDir = function(directory) {
+    invisible(call_method(self$jobj, "setCheckpointDir", directory))
+    },
+  setJobDescription = function(value) {
+    invisible(call_method(self$jobj, "setJobDescription", value))
+    },
+  setJobGroup = function(groupId, description, interruptOnCancel) {
+    call_method(self$jobj, "setJobGroup",
+                groupId, description, interruptOnCancel)
+    },
+  setLocalProperty = function(key, value) {
+    invisible(call_method(self$jobj, "setLocalProperty", key, value))
+    },
+  sparkUser = function() call_method(self$jobj, "sparkUser"),
+  startTime = function() call_method(self$jobj, "startTime"),                   # ish
+  stop = function() invisible(call_method(self$jobj, "stop")),
+  textFile = function(path, minPartitions) {
+    jrdd <- call_method(self$jobj, "textFile",
+                suppressWarnings(normalizePath(path)),
+                as.integer(minPartitions))
+    new("RDD", jrdd, "byte", FALSE, FALSE)
+    },
+  version = function() call_method(self$jobj, "version"),
+  union = function(rdds) {                                                      # ish
+    if (!is.list(rdds)) stop("Input must be a list of RDDs")
+    jrdds <- lapply(rdds, function(rdd) {
+      if (inherits(rdd, "RDD")) rdd@jrdd
+      else if (inherits(rdd, "jobj")) rdd
+    })
+    call_method(self$jobj, "union", jrdds)
+    },
+  wholeTextFiles = function(path, minPartitions) {
+    jrdd <- call_method(self$jobj, "wholeTextFiles",
+                suppressWarnings(normalizePath(path)),
+                as.integer(minPartitions))
+    new("RDD", jrdd, "byte", FALSE, FALSE)
+    }
+  )
 )
