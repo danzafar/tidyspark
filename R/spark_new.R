@@ -44,7 +44,7 @@
 #' spark_session(spark.master = "yarn-client", spark.executor.memory = "4g")
 #'
 #' ## End(Not run)
-spark_session <- function (master = "", app_name = "SparkR",
+spark_session <- function (master = "", app_name = "tidyspark",
                            spark_home = Sys.getenv("SPARK_HOME"),
                            spark_config = list(), spark_jars = "",
                            spark_packages = "",

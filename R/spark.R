@@ -74,7 +74,8 @@ spark_session_stop <- function() {
 spark_session_reset <- function(master = "", app_name = "SparkR",
                                 spark_home = Sys.getenv("SPARK_HOME"),
                                 spark_config = list(), spark_jars = "",
-                                spark_packages = "", enable_hive_support = TRUE, ...) {
+                                spark_packages = "",
+                                enable_hive_support = TRUE, ...) {
   SparkR:::sparkR.session.stop()
   SparkR:::sparkR.session(master, appName = app_name, sparkHome = spark_home,
                           sparkConfig = spark_config, sparkJars = spark_jars,
@@ -122,9 +123,9 @@ spark_sql <- function(expr) {
 #' Create or replace a temporary view
 #'
 #' @description similar to Spark's \code{createOrReplaceTemporaryView} method,
-#' this function registers the DAG at a given point in the lineage as a temp view
-#' in the hive metastore. It does not cache the data, but the name supplied can
-#' be used in future Spark SQL queries.
+#' this function registers the DAG at a given point in the lineage as a temp
+#' view in the hive metastore. It does not cache the data, but the name
+#' supplied can be used in future Spark SQL queries.
 #'
 #' @param .data a \code{spark_tbl} to be registered
 #' @param name a \code{string} of the name to store the table as

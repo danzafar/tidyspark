@@ -7,3 +7,4 @@ derby.log
 metastore_db
 logs/*
 spark-warehouse
+del
