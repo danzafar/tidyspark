@@ -41,9 +41,43 @@
 #'   }, schema(iris_tbl)) %>%
 #'   collect
 #'
+#' # filter and add a column:
+#' df <- spark_tbl(
+#'   data.frame(a = c(1L, 2L, 3L),
+#'              b = c(1, 2, 3),
+#'              c = c("1","2","3"))
+#' )
+#'
+#' schema <- StructType(StructField("a", "integer"),
+#'                      StructField("b", "double"),
+#'                      StructField("c", "string"),
+#'                      StructField("add", "integer"))
+#'
+#' df %>%
+#'   spark_udf(function(x) {
+#'     library(dplyr)
+#'     x %>%
+#'       filter(a > 1) %>%
+#'       mutate(add = a + 1L)
+#'   },
+#'   schema) %>%
+#'   collect
+#'
+#' # The schema also can be specified in a DDL-formatted string.
+#' schema <- "a INT, d DOUBLE, c STRING, add INT"
+#' df %>%
+#'   spark_udf(function(x) {
+#'     library(dplyr)
+#'     x %>%
+#'       filter(a > 1) %>%
+#'       mutate(add = a + 1L)
+#'   },
+#'   schema) %>%
+#'   collect
+#'
 spark_udf <- function (.data, .f, schema) {
   if (is.character(schema)) {
-    schema <- structType(schema)
+    schema <- StructType(schema)
   }
   if (rlang::is_formula(.f)) .f <- rlang::as_function(.f)
   .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]], connection = NULL)
@@ -174,10 +208,36 @@ spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
   new_spark_tbl(sdf)
 }
 
-# # spark.lapply ---------
-# spark_lapply <- function (list, func) {
-#   sc <- SparkR:::getSparkContext()
-#   rdd <- SparkR:::parallelize(sc, list, length(list))
-#   results <- SparkR:::map(rdd, func)
-#   SparkR:::collectRDD(results)
-# }
+#' Apply a Function over a List or Vector, Distribute operations in Spark
+#'
+#' @description Run a function over a list of elements, distributing the
+#' computations with Spark. Applies a function in a manner that is similar to
+#' doParallel or lapply to elements of a list. The computations are distributed
+#' using Spark. It is conceptually the same as the following
+#' code: \code{lapply(list, func)}
+#'
+#' @param .l a vector (atomic or list)
+#' @param .f he function to be applied to each element of \code{.l}
+#'
+#' @return an in-memory \code{list} object
+#' @export
+#'
+#' @examples
+#'
+#' spark_session()
+#' doubled <- spark_lapply(1:10, function(x) {2 * x})
+#'
+#' # or using tidyverse style lamdas
+#' doubled <- spark_lapply(1:10, ~ 2 * .)
+#'
+spark_lapply <- function (.l, .f) {
+  if (rlang::is_formula(.f)) {
+    .f <- rlang::as_function(.f)
+    .f <- unclass(.f)
+  }
+  sc <- SparkR:::getSparkContext()
+  rdd <- SparkR:::parallelize(sc, .l, length(.l))
+  results <- SparkR:::map(rdd, .f)
+  SparkR:::collectRDD(results)
+}
+

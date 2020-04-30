@@ -58,6 +58,7 @@ spark_tbl.data.frame <- function(.df, ...) {
     spark <- SparkR:::getSparkSession()
     sdf <- call_method(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
+  # TODO: We should update this to spark.r.maxAllocationLimit or 200MB, as per SparkR
   } else if (object.size(.df) <= 100000){
     SparkR::createDataFrame(.df)
   } else persist_read_csv(.df)
@@ -212,4 +213,133 @@ explain.spark_tbl <- function(x, extended = F) {
 
   sdf <- call_method(sdf, "withColumn", col, value_jc)
   new_spark_tbl(sdf, groups = attr(.data, "groups"))
+}
+
+# Functions that deal with partitions -----------------------------------------
+
+#' Get the Number of Partitions in a \code{spark_tbl}
+#'
+#' @description Return the number of partitions
+#'
+#' @param .data a spark_tbl
+#'
+#' @export
+n_partitions <- function(...) {
+  UseMethod("n_partitions")
+}
+
+n_partitions.spark_tbl <- function(.data) {
+  call_method(call_method(attr(.data, "jc"), "rdd"), "getNumPartitions")
+}
+
+#' @export
+nrow <- function(x, ...) {
+  UseMethod("nrow")
+}
+
+#' @export
+#' @param .data
+nrow.spark_tbl <- function(.data) {
+  sdf <- attr(.data, "jc")
+  as.integer(call_method(sdf, "count"))
+}
+
+nrow.default <- function(.data) {
+  dplyr:::nrow()
+}
+
+#' @export
+ncol <- function(x, ...) {
+  UseMethod("ncol")
+}
+
+#' @export
+#' @param .data
+ncol.spark_tbl <- function(.data) {
+  sdf <- attr(.data, "jc")
+  length(call_method(attr(.data, "jc"), "columns"))
+}
+
+ncol.default <- function(.data) {
+  dplyr:::ncol()
+}
+
+#' @export
+dim.spark_tbl <- function(.data) {
+  rows <- nrow(.data)
+  columns <- ncol(.data)
+  c(rows, length(columns))
+}
+
+#' Coalesce the number of partitions in a \code{spark_tbl}
+#'
+#' @description Returns the newly coalesced spark_tbl.
+#'
+#' @param .data
+#'
+#' @param n_partitions
+#'
+#' @export
+#' @importFrom dplyr coalesce
+coalesce.spark_tbl <- function(.data, n_partitions) {
+
+  sdf <- attr(.data, "jc")
+
+  n_partitions <- num_to_int(n_partitions)
+
+  if (n_partitions < 1)
+    stop("number of partitions must be positive")
+
+  sdf <- call_method(sdf, "coalesce", n_partitions)
+
+  new_spark_tbl(sdf)
+}
+
+#' @export
+repartition <- function(x, ...) {
+  UseMethod("repartition")
+}
+
+#' Repartition a \code{spark_tbl}
+#'
+#' @description Repartitions a spark_tbl. Optionally allos for vector of columns to be used for partitioning.
+#'
+#' @param partitions number of partitions. Must be numeric.
+#' @param partition_by vector of column names used for partitioning, only supported for Spark 2.0+
+#'
+#' @export
+#' @examples
+#' df <- spark_tbl(mtcars)
+#'
+#' df %>% n_partitions() # 1
+#'
+#' df_repartitioned <- df %>% repartition(5)
+#' df %>% n_partitions() # 5
+#'
+#' df_repartitioned <- df %>% repartition(5, c("cyl"))
+repartition.spark_tbl <- function(.data, n_partitions = NULL, partition_by = NULL) {
+
+  sdf <- attr(.data, "jc")
+
+  # get partition columns
+  if (!is.null(partition_by)) {
+    sdf_cols <- get_jc_cols(sdf)[partition_by]
+    jcols <- lapply(sdf_cols, function(c) { c@jc })
+  }
+
+  # partitions and columns specified
+  if (!is.null(n_partitions) && is.numeric(n_partitions)) {
+    if (!is.null(partition_by)) {
+      rsdf <- call_method(sdf, "repartition", num_to_int(n_partitions), jcols)
+    } else {
+      rsdf <- call_method(sdf, "repartition", num_to_int(n_partitions))
+    }
+  # columns only
+  } else if (!is.null(partition_by)) {
+    rsdf <- call_method(sdf, "repartition", jcols)
+  } else {
+    stop("Must specify either number of partitions and/or columns(s)")
+  }
+
+  new_spark_tbl(rsdf)
 }

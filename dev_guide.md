@@ -17,7 +17,7 @@ Learn how `tidyspark` works!
       * [Working with S4](#working-with-s4)
 
 ## Overview
-`tidyspark` is an implementation of `Spark` built on the `tidyverse` and `rlang`. The goals are:
+`tidyspark` is an interface to `Spark` built on the `tidyverse` and `rlang`. The goals are:
 
 1. Match the existing `tidyverse` APIs exactly
 2. Consider exceptions if they:

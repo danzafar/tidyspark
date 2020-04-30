@@ -9,8 +9,8 @@ spark_udf(.data, .f, schema)
 \arguments{
 \item{.data}{a \code{spark_tbl}}
 
-\item{.f}{a function to be applied to each partition of the \code{spark_tbl}.
-Can also be an anonymous function e.g. \code{~ head(. 10)}
+\item{.f}{a function or formula to be applied to each partition of the
+\code{spark_tbl}. Can be an anonymous function e.g. \code{~ head(. 10)}
 \code{.f} should have only one parameter, to which a R data.frame corresponds
 to each partition will be passed. The output of func should be an R data.frame.}
 
@@ -26,7 +26,7 @@ Applies an R User-Defined Function (UDF) to each partition of
 a \code{spark_tbl}.
 }
 \details{
-\spark{spark_udf} is a re-implementation of \code{SparkR::dapply}.
+\code{spark_udf} is a re-implementation of \code{SparkR::dapply}.
 Importantly, \code{spark_udf} (and \code{SparkR::dapply}) will scan the
 function being passed and automatically broadcast any values from the
 \code{.GlobalEnv} that are being referenced.
@@ -50,6 +50,40 @@ iris_tbl \%>\%
     .df \%>\%
       head(my_var)
   }, schema(iris_tbl)) \%>\%
+  collect
+
+# filter and add a column:
+df <- spark_tbl(
+  data.frame(a = c(1L, 2L, 3L),
+             b = c(1, 2, 3),
+             c = c("1","2","3"))
+)
+
+schema <- StructType(StructField("a", "integer"),
+                     StructField("b", "double"),
+                     StructField("c", "string"),
+                     StructField("add", "integer"))
+
+df \%>\%
+  spark_udf(function(x) {
+    library(dplyr)
+    x \%>\%
+      filter(a > 1) \%>\%
+      mutate(add = a + 1L)
+  },
+  schema) \%>\%
+  collect
+
+# The schema also can be specified in a DDL-formatted string.
+schema <- "a INT, d DOUBLE, c STRING, add INT"
+df \%>\%
+  spark_udf(function(x) {
+    library(dplyr)
+    x \%>\%
+      filter(a > 1) \%>\%
+      mutate(add = a + 1L)
+  },
+  schema) \%>\%
   collect
 
 }

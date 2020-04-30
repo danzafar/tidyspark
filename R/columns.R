@@ -19,8 +19,7 @@ setMethod("is.nan", signature(x = "Column"),
 #' @export
 setMethod("mean", signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "mean",
-                              x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
             new("Column", jc)
           })
 
@@ -390,4 +389,77 @@ any.Column <- function(x, ...) {
                                   "lit", T)
   new("Column", call_method(jc, "equalTo", true_jc))
 }
+
+#' @export
+size <- function(x, ...) {
+  UseMethod("size")
+}
+
+size.Column <- function(x) {
+  jc <- call_static("org.apache.spark.sql.functions", "size", x@jc)
+  new("Column", jc)
+}
+
+#' Create a Column of literal value
+#'
+#' @description Create a Column object out of character, numeric, or boolean
+#' value
+#'
+#' @param .x a literal value or a Column object. A literal value can be an
+#' arbitrary value like a character, string, or boolean value.
+#'
+#' @return a Column object
+#' @export
+#'
+#' @rdname lit
+#' @examples
+#'
+#' # these do the same thing:
+#' as.Column("derpin'")
+#' as_Column("all day")
+#' lit("long")
+#'
+lit <- function(.x) {
+  jc <- call_static("org.apache.spark.sql.functions", "lit",
+                    if (inherits(.x, "Column")) .x@jc else .x)
+  new("Column", jc)
+}
+
+#' @rdname lit
+#' @export
+as.Column <- function(.x) lit(.x)
+
+#' @rdname lit
+#' @export
+as_Column <- function(.x) lit(.x)
+
+#' Coalesce \code{Columns}
+#'
+#' @description Coalesces any number of Columns where precedence of the values is taken
+#' as the order of the inputs.
+#'
+#' @return a Column object
+#' @export
+coalesce.Column <- function(...) {
+
+  dots <- rlang:::enquos(...)
+
+  if (rlang::is_empty(dots)) {
+       abort("At least one argument must be supplied")
+  }
+
+  x = rlang:::eval_tidy(dots[[1]])
+  dots = dots[-1]
+
+  for (i in seq_along(dots)) {
+     jcols <- c(x@jc, rlang:::eval_tidy(dots[[i]])@jc)
+     jc <- call_static("org.apache.spark.sql.functions", "coalesce", jcols)
+     x = new("Column", jc)
+  }
+
+  return(x)
+}
+
+
+
 
