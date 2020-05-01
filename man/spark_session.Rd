@@ -18,7 +18,7 @@ spark_session_reset(
 
 spark_session(
   master = "",
-  app_name = "SparkR",
+  app_name = "tidyspark",
   spark_home = Sys.getenv("SPARK_HOME"),
   spark_config = list(),
   spark_jars = "",

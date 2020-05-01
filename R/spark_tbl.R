@@ -238,7 +238,6 @@ nrow <- function(x, ...) {
 }
 
 #' @export
-#' @param .data
 nrow.spark_tbl <- function(.data) {
   sdf <- attr(.data, "jc")
   as.integer(call_method(sdf, "count"))
@@ -254,7 +253,6 @@ ncol <- function(x, ...) {
 }
 
 #' @export
-#' @param .data
 ncol.spark_tbl <- function(.data) {
   sdf <- attr(.data, "jc")
   length(call_method(attr(.data, "jc"), "columns"))

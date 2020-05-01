@@ -256,7 +256,7 @@ Parallelize
 \subsection{Method \code{parallelize()}}{
 Distribute a list (or Scala collection) to form an RDD.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{sparkContext$parallelize(seq, numSlices)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{sparkContext$parallelize(seq, numSlices = 1L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

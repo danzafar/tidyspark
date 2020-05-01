@@ -127,7 +127,7 @@ sparkContext <- R6::R6Class("sparkContext", list(
   #' @return RDD
   emptyRDD = function() {
     jrdd <- call_method(self$jobj, "emptyRDD")
-    new("RDD", jrdd, "byte", FALSE, FALSE)
+    RDD$new(jrdd, "byte", FALSE, FALSE)
     },
 
   #' isLocal
@@ -166,7 +166,7 @@ sparkContext <- R6::R6Class("sparkContext", list(
   #' parallelize(Seq[T]()) for an RDD of T with empty partitions.
   #'
   #' @return RDD
-  parallelize = function(seq, numSlices) {
+  parallelize = function(seq, numSlices = 1L) {
     if ((!is.list(seq) && !is.vector(seq)) || is.data.frame(seq)) {
       if (is.data.frame(seq)) {
         message(paste("context.R: A data frame is parallelized by columns."))
@@ -225,7 +225,7 @@ sparkContext <- R6::R6Class("sparkContext", list(
                          })
       }
     }
-    new("RDD", jrdd, "byte", FALSE, FALSE)
+    RDD$new(jrdd, "byte", FALSE, FALSE)
   },
 
   # range = function(start, end, step, numSlices) {                             # not working
@@ -312,7 +312,7 @@ sparkContext <- R6::R6Class("sparkContext", list(
     jrdd <- call_method(self$jobj, "textFile",
                 suppressWarnings(normalizePath(path)),
                 as.integer(minPartitions))
-    new("RDD", jrdd, "byte", FALSE, FALSE)
+    RDD$new(jrdd, "byte", FALSE, FALSE)
     },
 
   #' version
@@ -354,7 +354,7 @@ sparkContext <- R6::R6Class("sparkContext", list(
     jrdd <- call_method(self$jobj, "wholeTextFiles",
                 suppressWarnings(normalizePath(path)),
                 as.integer(minPartitions))
-    new("RDD", jrdd, "byte", FALSE, FALSE)
+    RDD$new(jrdd, "byte", FALSE, FALSE)
     }
   )
 )
