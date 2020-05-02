@@ -71,6 +71,11 @@ convertJListToRList <- function (jList, flatten, logicalUpperBound = NULL,
   else as.list(results)
 }
 
+# Utility function to validate that the incoming oject is a function or
+# forumula and then it converts the formula to a function if needed
+# used to be able to do rdd$map(~ .) instead of rdd$map(function(x) x).
+# param:
+#   some_function A function or formula shorthand
 prepare_func <- function(some_function) {
   if (rlang::is_formula(some_function)) {
     some_function <- rlang::as_function(some_function)
@@ -79,4 +84,21 @@ prepare_func <- function(some_function) {
          class(some_function))
   }
   some_function
+}
+
+# Utility function to merge compact R lists
+# Used in Join-family functions
+# param:
+#   left/right Two compact lists ready for Cartesian product
+mergeCompactLists <- function(left, right) {
+  result <- list()
+  length(result) <- length(left) * length(right)
+  index <- 1
+  for (i in left) {
+    for (j in right) {
+      result[[index]] <- list(i, j)
+      index <- index + 1
+    }
+  }
+  result
 }
