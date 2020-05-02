@@ -74,9 +74,9 @@ convertJListToRList <- function (jList, flatten, logicalUpperBound = NULL,
 prepare_func <- function(some_function) {
   if (rlang::is_formula(some_function)) {
     some_function <- rlang::as_function(some_function)
-    } else if (!inherits(some_function, "function")) {
+  } else if (!inherits(some_function, "function")) {
     stop("Input must be of class 'function' or 'formula', not ",
          class(some_function))
-    }
+  }
   some_function
 }
