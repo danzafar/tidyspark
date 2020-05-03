@@ -102,3 +102,65 @@ mergeCompactLists <- function(left, right) {
   }
   result
 }
+
+convertEnvsToList <- function (keys, vals) {
+  lapply(ls(keys), function(name) {
+    list(keys[[name]], vals[[name]])
+  })
+}
+
+close_tidyspark <- function() {
+  spark_session_stop()
+  rstudioapi::restartSession()
+}
+
+#' @export
+hashCode <- function (key) {
+
+  wrapInt <- function (value) {
+    if (value > .Machine$integer.max) {
+      value <- value - 2 * .Machine$integer.max - 2
+    }
+    else if (value < -1 * .Machine$integer.max) {
+      value <- 2 * .Machine$integer.max + value + 2
+    }
+    value
+  }
+
+  mult31AndAdd <- function (val, addVal) {
+    vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
+    vec[is.na(vec)] <- 0
+    Reduce(function(a, b) {
+      wrapInt(as.numeric(a) + as.numeric(b))
+    }, vec)
+  }
+
+  if (class(key) == "integer") {
+    as.integer(key[[1]])
+  }
+  else if (class(key) == "numeric") {
+    rawVec <- writeBin(key[[1]], con = raw())
+    intBits <- packBits(rawToBits(rawVec), "integer")
+    as.integer(bitwXor(intBits[2], intBits[1]))
+  }
+  else if (class(key) == "character") {
+    n <- nchar(key)
+    if (n == 0) {
+      0L
+    }
+    else {
+      asciiVals <- sapply(charToRaw(key), function(x) {
+        strtoi(x, 16L)
+      })
+      hashC <- 0
+      for (k in seq_len(length(asciiVals))) {
+        hashC <- mult31AndAdd(hashC, asciiVals[k])
+      }
+      as.integer(hashC)
+    }
+  }
+  else {
+    warning(paste("Could not hash object, returning 0", sep = ""))
+    as.integer(0)
+  }
+}
