@@ -94,28 +94,66 @@ print.spark_tbl <- function(x) {
   cat(paste("[", s, "]\n", sep = ""))
 }
 
-#' Show a sample of a \code{spark_tbl}
+#' Limit or show a sample of a \code{spark_tbl}
 #'
-#' @param x a \code{spark_tbl}
+#' @param .data a \code{spark_tbl}
 #' @param n numeric, the number of rows to collect
 #'
 #' @return a \code{spark_tbl}, invisibly
 #' @export
 #'
+#' @details \code{limit} and \code{head} just gets the top \code{n} rows
+#' of the \code{spark_tbl} but does not \code{collect}. \code{take} does
+#' a \code{limit} and then \code{collect}s. \code{show} displays
+#' the result of \code{take}, but invisbly returns a \code{spark_tbl}.
+#'
+#' @rdname limit
+#'
 #' @examples
 #'
+#' # limit returns a spark_tbl
+#' spark_tbl(mtcars) %>% limit(15)
+#'
+#' # take returns a tibble
+#' spark_tbl(mtcars) %>% take(15)
+#'
+#' # show displays the tibble, but returns a spark_tbl
 #' spark_tbl(iris) %>% show
 #' spark_tbl(mtcars) %>% show(15)
-show <- function(x, n = NULL) {
+limit <- function (.data, n) {
+  res <- call_method(attr(.data, "jc"), "limit", as.integer(n))
+  new_spark_tbl(res)
+}
+
+#' @rdname limit
+#' @export
+head.spark_tbl <- function(.data, n) {
+  limit(.data, n)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @param n numeric, the number of rows to collect
+#' @export
+#' @rdname limit
+take <- function (.data, n) {
+  limited <- limit(.data, n)
+  collect(limited)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @param n numeric, the number of rows to collect
+#' @export
+#' @rdname limit
+show <- function(.data, n = NULL) {
 
   rows <- if (is.null(n)) {
     getOption("tibble.print_min", getOption("dplyr.print_min", 10))
   } else n
 
-  print(as_tibble(SparkR::take(attr(x, "jc"), rows)))
+  print(as_tibble(take(.data, rows)))
   cat("# … with ?? more rows")
 
-  invisible(x)
+  invisible(.data)
 
 }
 
@@ -238,7 +276,6 @@ nrow <- function(x, ...) {
 }
 
 #' @export
-#' @param .data
 nrow.spark_tbl <- function(.data) {
   sdf <- attr(.data, "jc")
   as.integer(call_method(sdf, "count"))
@@ -254,7 +291,6 @@ ncol <- function(x, ...) {
 }
 
 #' @export
-#' @param .data
 ncol.spark_tbl <- function(.data) {
   sdf <- attr(.data, "jc")
   length(call_method(attr(.data, "jc"), "columns"))
