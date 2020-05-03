@@ -30,16 +30,14 @@ test_that("missing values work in the same way as Spark", {
 expect_equal(na_ifelse$w, c(TRUE, TRUE, FALSE))
 })
 
-test_that('fails gracefully if true/false types are different' , {
+test_that('fails gracefully if wrong ifelse is used (if_else)' , {
   type_test <- data.frame(
     x = c(1, 2, 3),
     y = c(0, 1, 5)) %>%
     spark_tbl()
 
-  collect(
-    mutate(type_test, z = if_else(y > x, TRUE, 'fish'))
-  )
-
+  expect_error({collect(mutate(type_test, z = if_else(y > x, TRUE, 'fish')))},
+              regexp = '`if_else` is not defined in tidyspark! Consider `ifelse`.')
 })
 
 

@@ -172,6 +172,8 @@ mutate.spark_tbl <- function(.data, ...) {
     name <- names(dots)[[i]]
     dot <- dots[[i]]
 
+    check_if_else(dot)
+
     df_cols <- get_jc_cols(sdf)
     eval <- rlang:::eval_tidy(dot, df_cols)
 
@@ -477,7 +479,7 @@ summarise.spark_tbl <- function(.data, ...) {
   for (i in seq_along(dots)) {
     name <- names(dots)[[i]]
     dot <- dots[[i]]
-
+    check_if_else(dot)
     new_df_cols <- lapply(names(agg), function(x) agg[[x]])
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols)
