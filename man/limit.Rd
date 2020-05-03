@@ -2,11 +2,14 @@
 % Please edit documentation in R/spark_tbl.R
 \name{limit}
 \alias{limit}
+\alias{head.spark_tbl}
 \alias{take}
 \alias{show}
 \title{Limit or show a sample of a \code{spark_tbl}}
 \usage{
 limit(.data, n)
+
+\method{head}{spark_tbl}(.data, n)
 
 take(.data, n)
 
@@ -24,8 +27,8 @@ a \code{spark_tbl}, invisibly
 Limit or show a sample of a \code{spark_tbl}
 }
 \details{
-\code{limit} just gets the top \code{n} rows of the
-\code{spark_tbl} but does not \code{collect}. \code{take} does
+\code{limit} and \code{head} just gets the top \code{n} rows
+of the \code{spark_tbl} but does not \code{collect}. \code{take} does
 a \code{limit} and then \code{collect}s. \code{show} displays
 the result of \code{take}, but invisbly returns a \code{spark_tbl}.
 }

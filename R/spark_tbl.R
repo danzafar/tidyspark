@@ -102,8 +102,8 @@ print.spark_tbl <- function(x) {
 #' @return a \code{spark_tbl}, invisibly
 #' @export
 #'
-#' @details \code{limit} just gets the top \code{n} rows of the
-#' \code{spark_tbl} but does not \code{collect}. \code{take} does
+#' @details \code{limit} and \code{head} just gets the top \code{n} rows
+#' of the \code{spark_tbl} but does not \code{collect}. \code{take} does
 #' a \code{limit} and then \code{collect}s. \code{show} displays
 #' the result of \code{take}, but invisbly returns a \code{spark_tbl}.
 #'
@@ -123,6 +123,12 @@ print.spark_tbl <- function(x) {
 limit <- function (.data, n) {
   res <- call_method(attr(.data, "jc"), "limit", as.integer(n))
   new_spark_tbl(res)
+}
+
+#' @rdname limit
+#' @export
+head.spark_tbl <- function(.data, n) {
+  limit(.data, n)
 }
 
 #' @param .data a \code{spark_tbl}
