@@ -1,16 +1,3 @@
-# if_else <- function(condition, true, false, missing = NULL) {
-#   if (!is.logical(condition)) {
-#     bad_args("condition", "must be a logical vector, not {friendly_type_of(condition)}")
-#   }
-#   out <- true[rep(NA_integer_, length(condition))]
-#   out <- replace_with(out, condition, true, fmt_args(~true),
-#                       glue("length of {fmt_args(~condition)}"))
-#   out <- replace_with(out, !condition, false, fmt_args(~false),
-#                       glue("length of {fmt_args(~condition)}"))
-#   out <- replace_with(out, is.na(condition), missing, fmt_args(~missing),
-#                       glue("length of {fmt_args(~condition)}"))
-#   out
-# }
 
 #' Vectorised if
 #'
@@ -18,6 +5,9 @@
 #' It checks that `true` and `false` are the same type. This
 #' strictness makes the output type more predictable, and makes it somewhat
 #' faster.
+#'
+#' Warning! evaluate NA different. EG in R 1 == NA returns NA where as spark would return FALSE.
+#' Keep that in mind!
 #'
 #' @param condition Logical Column object
 #' @param true,false Values to use for `TRUE` and `FALSE` values of
