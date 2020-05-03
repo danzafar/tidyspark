@@ -17,7 +17,7 @@ expected_x <- c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE)
 expect_true(expected_x, x_sdf$x)
 })
 
-test_that("missing values are missing", {
+test_that("missing values work in the same way as Spark", {
   na_test <- data.frame(
     y = c(1, 2, 3),
     z = c(1, 2, NA)) %>%
@@ -27,7 +27,19 @@ test_that("missing values are missing", {
     mutate(na_test, w = if_else(y == z, TRUE, FALSE))
   )
 
-expect_equal(na_ifelse$w, c(TRUE, TRUE, NA))
+expect_equal(na_ifelse$w, c(TRUE, TRUE, FALSE))
+})
+
+test_that('fails gracefully if true/false types are different' , {
+  type_test <- data.frame(
+    x = c(1, 2, 3),
+    y = c(0, 1, 5)) %>%
+    spark_tbl()
+
+  collect(
+    mutate(type_test, z = if_else(y > x, TRUE, 'fish'))
+  )
+
 })
 
 

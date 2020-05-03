@@ -30,6 +30,13 @@
 #'
 if_else <- function (condition, true, false)
 {
+  if (class(true) == 'Column' && class(true) == 'Column') {
+    #if (schema_parsed(true) != schema_parsed(false)) stop('types need to be the same.')
+    NULL
+  } else {
+    if (class(true) != class(false)) stop('types need to be the same.')
+  }
+
   condition <- condition@jc
   true <- if (class(true) == "Column") {
     true@jc
