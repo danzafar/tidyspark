@@ -28,15 +28,25 @@
 #'   spark_tbl() %>%
 #'   mutate(na_test, z = if_else(x == y, TRUE, FALSE))
 #'
-if_else <- function (condition, true, false)
-{
+if_else <- function (condition, true, false){
+
+  # validate the fields are the same type
+  if (is.null(parent.frame(2)$.tbl)) {
+    stop("In Spark the individual columns of a data frame do not contain
+         schema data such as column types, so if_else() cannot be called
+         directly. Use this function in a mutate() or get the schema of the
+         entire data frame using schema(your_df)")
+  }
+  # grab the dataframe from the parent env
+  df_schema <- get_schema(parent.frame())
+
   if (class(true) == 'Column' && class(true) == 'Column') {
-    #if (schema_parsed(true) != schema_parsed(false)) stop('types need to be the same.')
-    NULL
+    if (df_schema[true] != df_schema[false]) stop('types need to be the same.')
   } else {
     if (class(true) != class(false)) stop('types need to be the same.')
   }
 
+  # do actual logic gates
   condition <- condition@jc
   true <- if (class(true) == "Column") {
     true@jc
