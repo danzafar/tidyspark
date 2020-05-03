@@ -104,9 +104,17 @@ as.list.Column <- function(x) {
 }
 
 ### Check types
-check_schema <- function(x) {
+col_types <- function(.data) {
 
-  jc <- callJMethod(attr(x, "DataFrame")@sdf, "schema")
+  names_types <- lapply(schema(.data)$fields(),
+         function(f) {
+    list(f$name(), f$dataType.simpleString())
+  })
+
+  names <- lapply(names_types, function(x) x[[1]])
+  types <- lapply(names_types, function(x) x[[2]])
+
+  setNames(types, names)
 
 }
 
@@ -118,6 +126,7 @@ check_schema <- function(x) {
 # mutate_if though...will not work if called directly. Could be
 # more robust.
 get_schema <- function(env) {
+  stopifnot(inherits(env, "environment"))
   sdf_jc <- attr(env$.tbl, "jc")
   schema_jc <- call_method(sdf_jc, "schema")
   fields_jc <- call_method(schema_jc, "fields")
