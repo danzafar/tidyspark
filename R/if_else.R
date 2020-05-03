@@ -1,69 +1,28 @@
-
-#' Vectorised if
-#'
-#' Compared to the base [ifelse()], this function is more strict.
-#' It checks that `true` and `false` are the same type. This
-#' strictness makes the output type more predictable, and makes it somewhat
-#' faster.
-#'
-#' Warning! evaluate NA different. EG in R 1 == NA returns NA where as spark would return FALSE.
-#' Keep that in mind!
-#'
-#' @param condition Logical Column object
-#' @param true,false Values to use for `TRUE` and `FALSE` values of
-#'   `condition`. They must be either the same length as `condition`,
-#'   or length 1. They must also be the same type: `if_else()` checks that
-#'   they have the same type and same class. All other attributes are
-#'   taken from `true`.
-#' @param missing If not `NULL`, will be used to replace missing
-#'   values.
-#' @return Where `condition` is `TRUE`, the matching value from
-#'   `true`, where it's `FALSE`, the matching value from `false`,
-#'   otherwise `NA`.
 #' @export
-#' @examples
-#' data.frame(
-#'   x = c(1, 2, 3),
-#'   y = c(1, 2, 4)) %>%
-#'   spark_tbl() %>%
-#'   mutate(na_test, z = if_else(x == y, TRUE, FALSE))
-#'
-if_else <- function (condition, true, false){
+setMethod("ifelse", signature(test = "Column",
+                              yes  = 'ANY',
+                              no   = 'ANY'),
+          function (test, yes, no) {
 
-  # validate the fields are the same type
-  if (is.null(parent.frame(2)$.tbl)) {
-    stop("In Spark the individual columns of a data frame do not contain
-         schema data such as column types, so if_else() cannot be called
-         directly. Use this function in a mutate() or get the schema of the
-         entire data frame using schema(your_df)")
-  }
-  # grab the dataframe from the parent env
-  df_schema <- get_schema(parent.frame())
+            test <- test@jc
+            yes <- if (class(yes) == "Column") {
+              yes@jc
+            }
+            else {
+              yes
+            }
+            no <- if (class(no) == "Column") {
+              no@jc
+            }
+            else {
+              no
+            }
+            jc <- call_method(call_static("org.apache.spark.sql.functions",
+                                           "when", test, yes), "otherwise", no)
+            new("Column", jc)
+          })
 
-  if (class(true) == 'Column' && class(true) == 'Column') {
-    if (df_schema[true] != df_schema[false]) stop('types need to be the same.')
-  } else {
-    if (class(true) != class(false)) stop('types need to be the same.')
-  }
 
-  # do actual logic gates
-  condition <- condition@jc
-  true <- if (class(true) == "Column") {
-    true@jc
-  }
-  else {
-    true
-  }
-  false <- if (class(false) == "Column") {
-    false@jc
-  }
-  else {
-    false
-  }
-  jc <- SparkR:::callJMethod(SparkR:::callJStatic("org.apache.spark.sql.functions",
-                                "when", condition, true), "otherwise", false)
-  new("Column", jc)
-}
 
 
 
