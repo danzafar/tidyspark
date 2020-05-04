@@ -119,10 +119,6 @@
 #' case_character_type(150, 250, "Droid")
 #' case_character_type(150, 150, "Droid")
 #'
-#' # Such functions can be used inside `mutate()` as well:
-#' starwars %>%
-#'   mutate(type = case_character_type(height, mass, species)) %>%
-#'   pull(type)
 #'
 #' # `case_when()` ignores `NULL` inputs. This is useful when you'd
 #' # like to use a pattern only under certain conditions. Here we'll
@@ -158,8 +154,12 @@ case_when.Column <- function (...) {
   query <- vector("list", n)
   value <- vector("list", n)
   default_env <- rlang::caller_env()
-  quos_pairs <- purrr::map2(fs, seq_along(fs), dplyr:::validate_formula,
-                     default_env, current_env())
+
+  quos_pairs <- mapply(function(x, y) {
+    dplyr:::validate_formula(x, y, default_env, current_env())},
+                       fs, seq_along(fs),
+    SIMPLIFY = F)
+
   for (i in seq_len(n)) {
     pair <- quos_pairs[[i]]
     query[[i]] <- rlang::eval_tidy(pair$lhs, env = default_env)
