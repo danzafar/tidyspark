@@ -28,6 +28,7 @@
 #' df <- spark_tbl(t)
 #' model <- ml_kmeans(df, Class ~ Survived, k = 4, initMode = "random")
 #' summary(model)
+#' #' @export
 ml_kmeans <- function(data,
                       formula,
                       k = 2,
@@ -85,6 +86,7 @@ ml_kmeans <- function(data,
 #' iris_spk <- spark_tbl(iris)
 #' model <- spark.bisectingKmeans(iris_spk, Sepal_Width ~ Sepal_Length, k = 4)
 #' summary(model)
+#' #' @export
 ml_kmeans_bisecting <- function(data,
                                 formula,
                                 k = 4,
@@ -101,7 +103,34 @@ ml_kmeans_bisecting <- function(data,
   new("BisectingKMeansModel", jobj = jobj)
 }
 
-# LDA
+#' Latent Dirichlet Allocation
+#'
+#' \code{ml_lda} fits a Latent Dirichlet Allocation model on a SparkDataFrame. Users can call
+#' \code{summary} to get a summary of the fitted LDA model.
+#'
+#' @param data A SparkDataFrame for training.
+#' @param features Features column name. Either libSVM-format column or character-format column is
+#'        valid.
+#' @param k Number of topics.
+#' @param maxIter Maximum iterations.
+#' @param optimizer Optimizer to train an LDA model, "online" or "em", default is "online".
+#' @param subsamplingRate (For online optimizer) Fraction of the corpus to be sampled and used in
+#'        each iteration of mini-batch gradient descent, in range (0, 1].
+#' @param topicConcentration concentration parameter (commonly named \code{beta} or \code{eta}) for
+#'        the prior placed on topic distributions over terms, default -1 to set automatically on the
+#'        Spark side. Use \code{summary} to retrieve the effective topicConcentration. Only 1-size
+#'        numeric is accepted.
+#' @param docConcentration concentration parameter (commonly named \code{alpha}) for the
+#'        prior placed on documents distributions over topics (\code{theta}), default -1 to set
+#'        automatically on the Spark side. Use \code{summary} to retrieve the effective
+#'        docConcentration. Only 1-size or \code{k}-size numeric is accepted.
+#' @param customizedStopWords stopwords that need to be removed from the given corpus. Ignore the
+#'        parameter if libSVM-format column is used as the features column.
+#' @param maxVocabSize maximum vocabulary size, default 1 << 18
+#' @param ... additional argument(s) passed to the method.
+#' @return \code{ml_lda} returns a fitted Latent Dirichlet Allocation model.
+#' @seealso topicmodels: \url{https://cran.r-project.org/package=topicmodels}
+#' @export
 ml_lda <- function(data,
                    features = "features",
                    k = 10,
@@ -150,7 +179,7 @@ ml_lda <- function(data,
 #' df <- spark_tbl(as.data.frame(data))
 #' model <- ml_gaussian_mixture(df, ~ V1 + V2, k = 2)
 #' summary(model)
-
+#' @export
 ml_gaussian_mixture <- function(data, formula, k = 2, maxIter = 100,
                                 tol = 0.01) {
   formula <- paste(deparse(formula), collapse = "")
