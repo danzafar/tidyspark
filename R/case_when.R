@@ -143,63 +143,45 @@
 #'
 #'
 
+case_when <- function(...) {
+  UseMethod("case_when")
+}
+case_when.default <- function(...) {
+  dplyr:::case_when(...)
+}
+case_when.Column <- function (...) {
+  fs <- dplyr:::compact_null(rlang::list2(...))
+  n <- length(fs)
+  if (n == 0) {
+    abort("No cases provided")
+  }
+  query <- vector("list", n)
+  value <- vector("list", n)
+  default_env <- rlang::caller_env()
+  quos_pairs <- purrr::map2(fs, seq_along(fs), dplyr:::validate_formula,
+                     default_env, current_env())
+  for (i in seq_len(n)) {
+    pair <- quos_pairs[[i]]
+    query[[i]] <- rlang::eval_tidy(pair$lhs, env = default_env)
+    value[[i]] <- rlang::eval_tidy(pair$rhs, env = default_env)
+    if (!is.logical(query[[i]])) {
+      #dplyr:::abort_case_when_logical(pair$lhs, i, query[[i]])
+      message('Working on this')
+    }
+  }
+  # not need if only called from a data_frame or data_frame like context
+  #m <- dplyr:::validate_case_when_length(query, value, fs)
+  #out <- value[[1]][rep(NA_integer_, m)]
 
-## RN none of this works - commented out
-# dplyr has a lot of unimported operators under the hood that are hard to work around.
-# Also unlike most dplyr, `case_when` is not a generic. Need to think about this more.
-# case_when <- function(...) {
-#   {
-#     fs <- Filter(function(elt) !is.null(elt), list2(...))
-#     n <- length(fs)
-#     if (n == 0) {
-#       abort("No cases provided")
-#     }
-#     query <- vector("list", n)
-#     value <- vector("list", n)
-#     default_env <- caller_env()
-#     quos_pairs <- map2(.x = fs,
-#                        .y = seq_along(fs),
-#                        .f = validate_formula,
-#                        default_env,
-#                        current_env())
-#
-#     quos_pairs <- list()
-#     for(i in fs) {}
-#
-#     for (i in seq_len(n)) {
-#       pair <- quos_pairs[[i]]
-#       query[[i]] <- eval_tidy(pair$lhs, env = default_env)
-#       value[[i]] <- eval_tidy(pair$rhs, env = default_env)
-#       if (!is.logical(query[[i]])) {
-#         abort_case_when_logical(pair$lhs, i, query[[i]])
-#       }
-#     }
-#     m <- validate_case_when_length(query, value, fs)
-#     out <- value[[1]][rep(NA_integer_, m)]
-#     replaced <- rep(FALSE, m)
-#     for (i in seq_len(n)) {
-#       out <- replace_with(out, query[[i]] & !replaced, value[[i]],
-#                           NULL)
-#       replaced <- replaced | (query[[i]] & !is.na(query[[i]]))
-#     }
-#     out
-#   }
-# }
-#
-# validate_formula <- function (x, i, default_env, dots_env)
-# {
-#   if (is_quosure(x)) {
-#     default_env <- quo_get_env(x)
-#     x <- quo_get_expr(x)
-#   }
-#   if (!is_formula(x)) {
-#     stop('must be a formula')
-#   }
-#   if (is_null(f_lhs(x))) {
-#     abort("formulas must be two-sided")
-#   }
-#   env <- f_env(x) %||% default_env
-#   list(lhs = new_quosure(f_lhs(x), env),
-#        rhs = new_quosure(f_rhs(x), env))
-# }
-#
+
+  out <- lit(value[[1]])
+  replaced <- lit(FALSE)
+  for (i in seq_len(n)) {
+    # out <- replace_with(out, query[[i]] & !replaced, value[[i]],
+    #                     NULL)
+    out <- ifelse(lit(query[[i]]) & !replaced, value[[i]], out)
+    replaced <- replaced | (lit(query[[i]]) & !is.na(lit(query[[i]])))
+
+  }
+  out
+}
