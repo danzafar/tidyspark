@@ -7,7 +7,11 @@ num_to_int <- function(num) {
 
 #TODO make recursive (EG max(if_else(foo, fizz, buzz)) will fail this because max is returned)
 check_if_else <- function(x) {
-  if (rlang::call_name(x) == 'if_else') {
+  if (!rlang::is_call(rlang::get_expr(x))) {
+    invisible()
+  } else if (rlang::call_name(x) == 'if_else') {
     stop('`if_else` is not defined in tidyspark! Consider `ifelse`.')
+  } else {
+    lapply(rlang::call_args(x), check_if_else)
   }
 }
