@@ -179,7 +179,7 @@ case_when.Column <- function (...) {
   for (i in seq_len(n)) {
     # out <- replace_with(out, query[[i]] & !replaced, value[[i]],
     #                     NULL)
-    out <- ifelse(lit(query[[i]]) & !replaced, value[[i]], out)
+    out <- if_else(lit(query[[i]]) & !replaced, value[[i]], out)
     replaced <- replaced | (lit(query[[i]]) & !is.na(lit(query[[i]])))
 
   }

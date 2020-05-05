@@ -172,7 +172,7 @@ mutate.spark_tbl <- function(.data, ...) {
     name <- names(dots)[[i]]
     dot <- dots[[i]]
 
-    check_if_else(dot)
+    check_ifelse(dot)
 
     df_cols <- get_jc_cols(sdf)
     eval <- rlang:::eval_tidy(dot, df_cols)
@@ -180,7 +180,8 @@ mutate.spark_tbl <- function(.data, ...) {
     if (is_agg_expr(eval)) {
 
       groups <- attr(.data, "groups")
-      group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+      # group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+      group_jcols <- lapply(df_cols[groups], function(x) x@jc)
       window <- call_static("org.apache.spark.sql.expressions.Window",
                                      "partitionBy", group_jcols)
 
@@ -191,7 +192,7 @@ mutate.spark_tbl <- function(.data, ...) {
 
       # add in the partitionBy based on grouping
       groups <- attr(.data, "groups")
-      group_jcols <- lapply(groups, function(col) sdf[[col]]@jc)
+      group_jcols <- lapply(df_cols[groups], function(x) x@jc)
       window <- call_method(func_wndw$wndw, "partitionBy", group_jcols)
 
       # apply the window over the function
@@ -479,7 +480,7 @@ summarise.spark_tbl <- function(.data, ...) {
   for (i in seq_along(dots)) {
     name <- names(dots)[[i]]
     dot <- dots[[i]]
-    check_if_else(dot)
+    check_ifelse(dot)
     new_df_cols <- lapply(names(agg), function(x) agg[[x]])
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols)

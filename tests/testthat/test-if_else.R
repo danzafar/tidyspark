@@ -4,15 +4,15 @@ iris_fix <- iris %>%
   mutate(Species = levels(Species)[Species])
 iris_spk <- spark_tbl(iris)
 
-test_that("ifelse returns expected results in a mutate", {
+test_that("if_else returns expected results in a mutate", {
 
   expect_equal(
     iris_spk %>%
-      mutate(x = ifelse(Sepal_Width < 3, TRUE, FALSE)) %>%
+      mutate(x = if_else(Sepal_Width < 3, TRUE, FALSE)) %>%
       collect %>%
       pull(x),
     iris_fix %>%
-      mutate(x = ifelse(Sepal_Width < 3, TRUE, FALSE)) %>%
+      mutate(x = if_else(Sepal_Width < 3, TRUE, FALSE)) %>%
       pull(x)
   )
 
@@ -26,20 +26,22 @@ test_that("missing values work in the same way as Spark", {
     spark_tbl()
 
   na_ifelse <- collect(
-    mutate(na_test, w = ifelse(y == z, TRUE, FALSE))
+    mutate(na_test, w = if_else(y == z, TRUE, FALSE))
   )
 
 expect_equal(na_ifelse$w, c(TRUE, TRUE, FALSE))
 })
 
-test_that('fails gracefully if wrong ifelse is used (if_else)' , {
+test_that('fails gracefully if wrong if_else is used (ifelse)' , {
   type_test <- data.frame(
     x = c(1, 2, 3),
     y = c(0, 1, 5)) %>%
     spark_tbl()
 
-  expect_error({collect(mutate(type_test, z = if_else(y > x, TRUE, 'fish')))},
-              regexp = '`if_else` is not defined in tidyspark! Consider `ifelse`.')
+  expect_error(type_test %>%
+                 mutate(z = ifelse(y > x, TRUE, 'fish')) %>%
+                 collect,
+              regexp = '`ifelse` is not defined in tidyspark! Consider `if_else`.')
 })
 
 
