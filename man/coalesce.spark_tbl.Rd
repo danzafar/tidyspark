@@ -7,9 +7,9 @@
 \method{coalesce}{spark_tbl}(.data, n_partitions)
 }
 \arguments{
-\item{.data}{}
+\item{.data}{a \code{spark_tbl}}
 
-\item{n_partitions}{}
+\item{n_partitions}{integer, the number of partitions to resize to}
 }
 \description{
 Returns the newly coalesced spark_tbl.
