@@ -165,8 +165,16 @@ case_when.Column <- function (...) {
     query[[i]] <- rlang::eval_tidy(pair$lhs, env = default_env)
     value[[i]] <- rlang::eval_tidy(pair$rhs, env = default_env)
     if (!is.logical(query[[i]])) {
-      #dplyr:::abort_case_when_logical(pair$lhs, i, query[[i]])
-      message('Working on this')
+      allowed <- c("GreaterThan", "LessThan", "GreaterThanOrEqual",
+                   "LessThanOrEqual", "EqualTo", "EqualNullSafe", "Not")
+      class_in <- spark_class(query[[i]], T)
+      if (!(class_in %in% allowed)) {
+        stop("LHS of case ", i, " (`", rlang::get_expr(pair$lhs), "` must",
+             "be a Column expression class matching one of: '",
+             paste0(allowed, collapse = "', '"),
+             "'. Yours is: '", class_in, "'")
+      }
+
     }
   }
   # not need if only called from a data_frame or data_frame like context
