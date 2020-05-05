@@ -96,7 +96,7 @@ ml_glm <- function(data, formula, family = gaussian, tol = 1e-06,
                           regParam, as.double(var.power), as.double(link.power),
                           stringIndexerOrderType, offsetCol)
       new("GeneralizedLinearRegressionModel", jobj = jobj)
-    }
+}
 
 
 #' Logistic Regression Model
@@ -546,6 +546,181 @@ ml_gbt <- function(data, formula,
       new("GBTClassificationModel", jobj = jobj)
     })
   }
+
+# Create the summary of a tree ensemble model (eg. Random Forest, GBT)
+summary.treeEnsemble <- function(model) {
+  jobj <- model@jobj
+  formula <- callJMethod(jobj, "formula")
+  numFeatures <- callJMethod(jobj, "numFeatures")
+  features <-  callJMethod(jobj, "features")
+  featureImportances <- callJMethod(callJMethod(jobj, "featureImportances"), "toString")
+  maxDepth <- callJMethod(jobj, "maxDepth")
+  numTrees <- callJMethod(jobj, "numTrees")
+  treeWeights <- callJMethod(jobj, "treeWeights")
+  list(formula = formula,
+       numFeatures = numFeatures,
+       features = features,
+       featureImportances = featureImportances,
+       maxDepth = maxDepth,
+       numTrees = numTrees,
+       treeWeights = treeWeights,
+       jobj = jobj)
+}
+
+# Prints the summary of tree ensemble models (eg. Random Forest, GBT)
+print.summary.treeEnsemble <- function(x) {
+  jobj <- x$jobj
+  cat("Formula: ", x$formula)
+  cat("\nNumber of features: ", x$numFeatures)
+  cat("\nFeatures: ", unlist(x$features))
+  cat("\nFeature importances: ", x$featureImportances)
+  cat("\nMax Depth: ", x$maxDepth)
+  cat("\nNumber of trees: ", x$numTrees)
+  cat("\nTree weights: ", unlist(x$treeWeights))
+
+  summaryStr <- callJMethod(jobj, "summary")
+  cat("\n", summaryStr, "\n")
+  invisible(x)
+}
+
+# Create the summary of a decision tree model
+summary.decisionTree <- function(model) {
+  jobj <- model@jobj
+  formula <- callJMethod(jobj, "formula")
+  numFeatures <- callJMethod(jobj, "numFeatures")
+  features <-  callJMethod(jobj, "features")
+  featureImportances <- callJMethod(callJMethod(jobj, "featureImportances"), "toString")
+  maxDepth <- callJMethod(jobj, "maxDepth")
+  list(formula = formula,
+       numFeatures = numFeatures,
+       features = features,
+       featureImportances = featureImportances,
+       maxDepth = maxDepth,
+       jobj = jobj)
+}
+
+# Prints the summary of decision tree models
+print.summary.decisionTree <- function(x) {
+  jobj <- x$jobj
+  cat("Formula: ", x$formula)
+  cat("\nNumber of features: ", x$numFeatures)
+  cat("\nFeatures: ", unlist(x$features))
+  cat("\nFeature importances: ", x$featureImportances)
+  cat("\nMax Depth: ", x$maxDepth)
+
+  summaryStr <- callJMethod(jobj, "summary")
+  cat("\n", summaryStr, "\n")
+  invisible(x)
+}
+
+setMethod("summary", signature(object = "GBTRegressionModel"),
+          function(object) {
+            ans <- summary.treeEnsemble(object)
+            class(ans) <- "summary.GBTRegressionModel"
+            ans
+          })
+
+
+print.summary.GBTRegressionModel <- function(x, ...) {
+  print.summary.treeEnsemble(x)
+}
+
+setMethod("summary", signature(object = "GBTClassificationModel"),
+          function(object) {
+            ans <- summary.treeEnsemble(object)
+            class(ans) <- "summary.GBTClassificationModel"
+            ans
+          })
+
+
+print.summary.GBTClassificationModel <- function(x, ...) {
+  print.summary.treeEnsemble(x)
+}
+
+setMethod("predict", signature(object = "GBTRegressionModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+setMethod("predict", signature(object = "GBTClassificationModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+setMethod("summary", signature(object = "RandomForestRegressionModel"),
+          function(object) {
+            ans <- summary.treeEnsemble(object)
+            class(ans) <- "summary.RandomForestRegressionModel"
+            ans
+          })
+
+print.summary.RandomForestRegressionModel <- function(x, ...) {
+  print.summary.treeEnsemble(x)
+}
+
+setMethod("summary", signature(object = "RandomForestClassificationModel"),
+          function(object) {
+            ans <- summary.treeEnsemble(object)
+            class(ans) <- "summary.RandomForestClassificationModel"
+            ans
+          })
+
+print.summary.RandomForestClassificationModel <- function(x, ...) {
+  print.summary.treeEnsemble(x)
+}
+
+setMethod("predict", signature(object = "RandomForestRegressionModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+setMethod("predict", signature(object = "RandomForestClassificationModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+setMethod("summary", signature(object = "DecisionTreeRegressionModel"),
+          function(object) {
+            ans <- summary.decisionTree(object)
+            class(ans) <- "summary.DecisionTreeRegressionModel"
+            ans
+          })
+
+print.summary.DecisionTreeRegressionModel <- function(x, ...) {
+  print.summary.decisionTree(x)
+}
+
+setMethod("summary", signature(object = "DecisionTreeClassificationModel"),
+          function(object) {
+            ans <- summary.decisionTree(object)
+            class(ans) <- "summary.DecisionTreeClassificationModel"
+            ans
+          })
+
+print.summary.DecisionTreeClassificationModel <- function(x, ...) {
+  print.summary.decisionTree(x)
+}
+
+setMethod("predict", signature(object = "DecisionTreeRegressionModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+setMethod("predict", signature(object = "DecisionTreeClassificationModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+
+
+
+
+
+
+
+
+
+
 
 #' Accelerated Failure Time (AFT) Survival Regression Model
 #'
