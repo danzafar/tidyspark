@@ -1,3 +1,11 @@
+#' S4 class that represents a generalized linear model
+#'
+#' @param jobj a Java object reference to the backing Scala GeneralizedLinearRegressionWrapper
+#' @note GeneralizedLinearRegressionModel since 2.0.0
+setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
+
+
+
 #' Generalized Linear Models
 #'
 #' Fits generalized linear model against a SparkDataFrame.
@@ -98,6 +106,82 @@ ml_glm <- function(data, formula, family = gaussian, tol = 1e-06,
       new("GeneralizedLinearRegressionModel", jobj = jobj)
 }
 
+setMethod("summary", signature(object = "GeneralizedLinearRegressionModel"),
+          function(object) {
+            jobj <- object@jobj
+            is.loaded <- callJMethod(jobj, "isLoaded")
+            features <- callJMethod(jobj, "rFeatures")
+            coefficients <- callJMethod(jobj, "rCoefficients")
+            dispersion <- callJMethod(jobj, "rDispersion")
+            null.deviance <- callJMethod(jobj, "rNullDeviance")
+            deviance <- callJMethod(jobj, "rDeviance")
+            df.null <- callJMethod(jobj, "rResidualDegreeOfFreedomNull")
+            df.residual <- callJMethod(jobj, "rResidualDegreeOfFreedom")
+            iter <- callJMethod(jobj, "rNumIterations")
+            family <- callJMethod(jobj, "rFamily")
+            aic <- callJMethod(jobj, "rAic")
+            if (family == "tweedie" && aic == 0) aic <- NA
+            deviance.resid <- if (is.loaded) {
+              NULL
+            } else {
+              dataFrame(callJMethod(jobj, "rDevianceResiduals"))
+            }
+            # If the underlying WeightedLeastSquares using "normal" solver, we can provide
+            # coefficients, standard error of coefficients, t value and p value. Otherwise,
+            # it will be fitted by local "l-bfgs", we can only provide coefficients.
+            if (length(features) == length(coefficients)) {
+              coefficients <- matrix(unlist(coefficients), ncol = 1)
+              colnames(coefficients) <- c("Estimate")
+              rownames(coefficients) <- unlist(features)
+            } else {
+              coefficients <- matrix(unlist(coefficients), ncol = 4)
+              colnames(coefficients) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+              rownames(coefficients) <- unlist(features)
+            }
+            ans <- list(deviance.resid = deviance.resid, coefficients = coefficients,
+                        dispersion = dispersion, null.deviance = null.deviance,
+                        deviance = deviance, df.null = df.null, df.residual = df.residual,
+                        aic = aic, iter = iter, family = family, is.loaded = is.loaded)
+            class(ans) <- "summary.GeneralizedLinearRegressionModel"
+            ans
+          })
+
+print.summary.GeneralizedLinearRegressionModel <- function(x, ...) {
+  if (x$is.loaded) {
+    cat("\nSaved-loaded model does not support output 'Deviance Residuals'.\n")
+  } else {
+    x$deviance.resid <- setNames(unlist(approxQuantile(x$deviance.resid, "devianceResiduals",
+                                                       c(0.0, 0.25, 0.5, 0.75, 1.0), 0.01)), c("Min", "1Q", "Median", "3Q", "Max"))
+    x$deviance.resid <- zapsmall(x$deviance.resid, 5L)
+    cat("\nDeviance Residuals: \n")
+    cat("(Note: These are approximate quantiles with relative error <= 0.01)\n")
+    print.default(x$deviance.resid, digits = 5L, na.print = "", print.gap = 2L)
+  }
+
+  cat("\nCoefficients:\n")
+  print.default(x$coefficients, digits = 5L, na.print = "", print.gap = 2L)
+
+  cat("\n(Dispersion parameter for ", x$family, " family taken to be ", format(x$dispersion),
+      ")\n\n", apply(cbind(paste(format(c("Null", "Residual"), justify = "right"), "deviance:"),
+                           format(unlist(x[c("null.deviance", "deviance")]), digits = 5L),
+                           " on", format(unlist(x[c("df.null", "df.residual")])), " degrees of freedom\n"),
+                     1L, paste, collapse = " "), sep = "")
+  cat("AIC: ", format(x$aic, digits = 4L), "\n\n",
+      "Number of Fisher Scoring iterations: ", x$iter, "\n\n", sep = "")
+  invisible(x)
+}
+
+setMethod("predict", signature(object = "GeneralizedLinearRegressionModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+
+#' S4 class that represents an LogisticRegressionModel
+#'
+#' @param jobj a Java object reference to the backing Scala LogisticRegressionModel
+#' @note LogisticRegressionModel since 2.1.0
+setClass("LogisticRegressionModel", representation(jobj = "jobj"))
 
 #' Logistic Regression Model
 #'
@@ -243,6 +327,69 @@ ml_logit <- function(data, formula, regParam = 0, elasticNetParam = 0,
                         handleInvalid)
     new("LogisticRegressionModel", jobj = jobj)
 }
+
+setMethod("summary", signature(object = "LogisticRegressionModel"),
+          function(object) {
+            jobj <- object@jobj
+            features <- callJMethod(jobj, "rFeatures")
+            labels <- callJMethod(jobj, "labels")
+            coefficients <- callJMethod(jobj, "rCoefficients")
+            nCol <- length(coefficients) / length(features)
+            coefficients <- matrix(unlist(coefficients), ncol = nCol)
+            # If nCol == 1, means this is a binomial logistic regression model with pivoting.
+            # Otherwise, it's a multinomial logistic regression model without pivoting.
+            if (nCol == 1) {
+              colnames(coefficients) <- c("Estimate")
+            } else {
+              colnames(coefficients) <- unlist(labels)
+            }
+            rownames(coefficients) <- unlist(features)
+
+            list(coefficients = coefficients)
+          })
+
+setMethod("predict", signature(object = "LogisticRegressionModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+# Tree Models ---------------------------
+
+#' S4 class that represents a GBTRegressionModel
+#'
+#' @param jobj a Java object reference to the backing Scala GBTRegressionModel
+#' @note GBTRegressionModel since 2.1.0
+setClass("GBTRegressionModel", representation(jobj = "jobj"))
+
+#' S4 class that represents a GBTClassificationModel
+#'
+#' @param jobj a Java object reference to the backing Scala GBTClassificationModel
+#' @note GBTClassificationModel since 2.1.0
+setClass("GBTClassificationModel", representation(jobj = "jobj"))
+
+#' S4 class that represents a RandomForestRegressionModel
+#'
+#' @param jobj a Java object reference to the backing Scala RandomForestRegressionModel
+#' @note RandomForestRegressionModel since 2.1.0
+setClass("RandomForestRegressionModel", representation(jobj = "jobj"))
+
+#' S4 class that represents a RandomForestClassificationModel
+#'
+#' @param jobj a Java object reference to the backing Scala RandomForestClassificationModel
+#' @note RandomForestClassificationModel since 2.1.0
+setClass("RandomForestClassificationModel", representation(jobj = "jobj"))
+
+#' S4 class that represents a DecisionTreeRegressionModel
+#'
+#' @param jobj a Java object reference to the backing Scala DecisionTreeRegressionModel
+#' @note DecisionTreeRegressionModel since 2.3.0
+setClass("DecisionTreeRegressionModel", representation(jobj = "jobj"))
+
+#' S4 class that represents a DecisionTreeClassificationModel
+#'
+#' @param jobj a Java object reference to the backing Scala DecisionTreeClassificationModel
+#' @note DecisionTreeClassificationModel since 2.3.0
+setClass("DecisionTreeClassificationModel", representation(jobj = "jobj"))
 
 
 #' Decision Tree Model for Regression and Classification
@@ -715,11 +862,13 @@ setMethod("predict", signature(object = "DecisionTreeClassificationModel"),
 
 
 
+# Survival Analysis --------------
 
-
-
-
-
+#' S4 class that represents a AFTSurvivalRegressionModel
+#'
+#' @param jobj a Java object reference to the backing Scala AFTSurvivalRegressionWrapper
+#' @note AFTSurvivalRegressionModel since 2.0.0
+setClass("AFTSurvivalRegressionModel", representation(jobj = "jobj"))
 
 
 #' Accelerated Failure Time (AFT) Survival Regression Model
@@ -765,6 +914,34 @@ ml_survival_regression <- function(data, formula, aggregationDepth = 2,
     new("AFTSurvivalRegressionModel", jobj = jobj)
 }
 
+setMethod("summary", signature(object = "AFTSurvivalRegressionModel"),
+          function(object) {
+            jobj <- object@jobj
+            features <- callJMethod(jobj, "rFeatures")
+            coefficients <- callJMethod(jobj, "rCoefficients")
+            coefficients <- as.matrix(unlist(coefficients))
+            colnames(coefficients) <- c("Value")
+            rownames(coefficients) <- unlist(features)
+            list(coefficients = coefficients)
+          })
+
+setMethod("predict", signature(object = "AFTSurvivalRegressionModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+
+
+
+# Isotonic Regression ----------
+
+#' S4 class that represents an IsotonicRegressionModel
+#'
+#' @param jobj a Java object reference to the backing Scala IsotonicRegressionModel
+#' @note IsotonicRegressionModel since 2.1.0
+setClass("IsotonicRegressionModel", representation(jobj = "jobj"))
+
+
 #' Isotonic Regression Model
 #'
 #' Fits an Isotonic Regression model against a SparkDataFrame, similarly to R's isoreg().
@@ -806,6 +983,27 @@ ml_isotonic_regression <- function(data, formula, isotonic = TRUE, featureIndex 
                       weightCol)
   new("IsotonicRegressionModel", jobj = jobj)
 }
+
+setMethod("summary", signature(object = "IsotonicRegressionModel"),
+          function(object) {
+            jobj <- object@jobj
+            boundaries <- callJMethod(jobj, "boundaries")
+            predictions <- callJMethod(jobj, "predictions")
+            list(boundaries = boundaries, predictions = predictions)
+          })
+
+setMethod("predict", signature(object = "IsotonicRegressionModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+# Nueral Networks --------
+
+#' S4 class that represents a MultilayerPerceptronClassificationModel
+#'
+#' @param jobj a Java object reference to the backing Scala MultilayerPerceptronClassifierWrapper
+#' @note MultilayerPerceptronClassificationModel since 2.1.0
+setClass("MultilayerPerceptronClassificationModel", representation(jobj = "jobj"))
 
 #' Multilayer Perceptron Classification Model
 #'
@@ -874,3 +1072,20 @@ ml_mlp <- function(data, formula, layers, blockSize = 128,
                       handleInvalid)
   new("MultilayerPerceptronClassificationModel", jobj = jobj)
 }
+
+setMethod("summary", signature(object = "MultilayerPerceptronClassificationModel"),
+          function(object) {
+            jobj <- object@jobj
+            layers <- unlist(callJMethod(jobj, "layers"))
+            numOfInputs <- head(layers, n = 1)
+            numOfOutputs <- tail(layers, n = 1)
+            weights <- callJMethod(jobj, "weights")
+            list(numOfInputs = numOfInputs, numOfOutputs = numOfOutputs,
+                 layers = layers, weights = weights)
+          })
+
+setMethod("predict", signature(object = "MultilayerPerceptronClassificationModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
