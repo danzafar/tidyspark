@@ -1,4 +1,3 @@
-context("case_when")
 iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species]) %>%

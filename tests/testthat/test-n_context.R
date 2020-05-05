@@ -12,7 +12,6 @@ test_that("n_context is correctly bound", {
   )
 })
 test_that("n() works with summarise", {
-  browser()
   expect_equal(
     spark_tbl(iris) %>%
       summarise(n = as.integer(n())) %>%
