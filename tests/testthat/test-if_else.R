@@ -1,21 +1,23 @@
 context("if_else")
 iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
-  mutate(Species = levels(Species)[Species]) %>%
-  head(10)
+  mutate(Species = levels(Species)[Species])
 iris_spk <- spark_tbl(iris)
 
-test_that("if_else returns expected results in a mutate", {
+test_that("ifelse returns expected results in a mutate", {
 
-expected_x <- c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE)
+  expect_equal(
+    iris_spk %>%
+      mutate(x = ifelse(Sepal_Width < 3, TRUE, FALSE)) %>%
+      collect %>%
+      pull(x),
+    iris_fix %>%
+      mutate(x = ifelse(Sepal_Width < 3, TRUE, FALSE)) %>%
+      pull(x)
+  )
 
- x_sdf <-
-   collect(
-     mutate(iris_spk, x = if_else(Sepal_Length > Sepal_Width, TRUE, FALSE))
-   )
-
-expect_true(expected_x, x_sdf$x)
 })
+
 
 test_that("missing values work in the same way as Spark", {
   na_test <- data.frame(
@@ -24,7 +26,7 @@ test_that("missing values work in the same way as Spark", {
     spark_tbl()
 
   na_ifelse <- collect(
-    mutate(na_test, w = if_else(y == z, TRUE, FALSE))
+    mutate(na_test, w = ifelse(y == z, TRUE, FALSE))
   )
 
 expect_equal(na_ifelse$w, c(TRUE, TRUE, FALSE))
