@@ -86,6 +86,8 @@ prepare_func <- function(some_function) {
   some_function
 }
 
+#### RDD-related ---------------------------------------------------------------
+
 # Utility function to merge compact R lists
 # Used in Join-family functions
 # param:
@@ -112,6 +114,11 @@ convertEnvsToList <- function (keys, vals) {
 close_tidyspark <- function() {
   spark_session_stop()
   rstudioapi::restartSession()
+}
+
+sortKeyValueList <- function(kv_list, decreasing = FALSE) {
+  keys <- sapply(kv_list, function(x) x[[1]])
+  kv_list[order(keys, decreasing = decreasing)]
 }
 
 #' @export
@@ -162,5 +169,34 @@ hashCode <- function (key) {
   else {
     warning(paste("Could not hash object, returning 0", sep = ""))
     as.integer(0)
+  }
+}
+
+#### Startup-Related -----------------------------------------------------------
+
+check_spark_install <- function (spark_home, master, deploy_mode, verbose = F) {
+  if (!SparkR:::isSparkRShell()) {
+    if (!is.na(file.info(spark_home)$isdir)) {
+      if (verbose) message("Spark package found in SPARK_HOME: ", spark_home)
+      NULL
+    }
+    else {
+      if (interactive() || isMasterLocal(master)) {
+        if (verbose) message("Spark not found in SPARK_HOME: ", spark_home)
+        packageLocalDir <- SparkR:::install.spark()
+        packageLocalDir
+      }
+      else if (isClientMode(master) || deployMode == "client") {
+        msg <- paste0("Spark not found in SPARK_HOME: ",
+                      spark_home, "\n", installInstruction("remote"))
+        stop(msg)
+      }
+      else {
+        NULL
+      }
+    }
+  }
+  else {
+    NULL
   }
 }
