@@ -1,3 +1,10 @@
+#' S4 class that represents a KMeansModel
+#'
+#' @param jobj a Java object reference to the backing Scala KMeansModel
+#' @note KMeansModel since 2.0.0
+setClass("KMeansModel", representation(jobj = "jobj"))
+
+
 #' K-Means Clustering Model
 #'
 #' Fits a k-means clustering model against a SparkDataFrame, similarly to R's kmeans().
@@ -48,6 +55,62 @@ ml_kmeans <- function(data,
                       initMode, seed, as.integer(initSteps), as.numeric(tol))
   new("KMeansModel", jobj = jobj)
 }
+
+setMethod("summary", signature(object = "KMeansModel"),
+          function(object) {
+            jobj <- object@jobj
+            is.loaded <- callJMethod(jobj, "isLoaded")
+            features <- callJMethod(jobj, "features")
+            coefficients <- callJMethod(jobj, "coefficients")
+            k <- callJMethod(jobj, "k")
+            size <- callJMethod(jobj, "size")
+            clusterSize <- callJMethod(jobj, "clusterSize")
+            coefficients <- t(matrix(unlist(coefficients), ncol = clusterSize))
+            colnames(coefficients) <- unlist(features)
+            rownames(coefficients) <- 1:clusterSize
+            cluster <- if (is.loaded) {
+              NULL
+            } else {
+              dataFrame(callJMethod(jobj, "cluster"))
+            }
+            list(k = k, coefficients = coefficients, size = size,
+                 cluster = cluster, is.loaded = is.loaded, clusterSize = clusterSize)
+          })
+
+setMethod("predict", signature(object = "KMeansModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+#' Get fitted result from a k-means model
+#'
+#' Get fitted result from a k-means model, similarly to R's fitted().
+#' Note: A saved-loaded model does not support this method.
+#'
+#' @param object a fitted k-means model.
+#' @param method type of fitted results, \code{"centers"} for cluster centers
+#'        or \code{"classes"} for assigned classes.
+#' @param ... additional argument(s) passed to the method.
+#' @return \code{fitted} returns a SparkDataFrame containing fitted values.
+
+setMethod("fitted", signature(object = "KMeansModel"),
+          function(object, method = c("centers", "classes")) {
+            method <- match.arg(method)
+            jobj <- object@jobj
+            is.loaded <- callJMethod(jobj, "isLoaded")
+            if (is.loaded) {
+              stop("Saved-loaded k-means model does not support 'fitted' method")
+            } else {
+              dataFrame(callJMethod(jobj, "fitted", method))
+            }
+          })
+
+
+#' S4 class that represents a BisectingKMeansModel
+#'
+#' @param jobj a Java object reference to the backing Scala BisectingKMeansModel
+#' @note BisectingKMeansModel since 2.2.0
+setClass("BisectingKMeansModel", representation(jobj = "jobj"))
 
 #' Spark ML -- Bisecting K-Means Clustering
 #'
@@ -103,6 +166,59 @@ ml_kmeans_bisecting <- function(data,
   new("BisectingKMeansModel", jobj = jobj)
 }
 
+setMethod("summary", signature(object = "BisectingKMeansModel"),
+          function(object) {
+            jobj <- object@jobj
+            is.loaded <- callJMethod(jobj, "isLoaded")
+            features <- callJMethod(jobj, "features")
+            coefficients <- callJMethod(jobj, "coefficients")
+            k <- callJMethod(jobj, "k")
+            size <- callJMethod(jobj, "size")
+            coefficients <- t(matrix(coefficients, ncol = k))
+            colnames(coefficients) <- unlist(features)
+            rownames(coefficients) <- 1:k
+            cluster <- if (is.loaded) {
+              NULL
+            } else {
+              dataFrame(callJMethod(jobj, "cluster"))
+            }
+            list(k = k, coefficients = coefficients, size = size,
+                 cluster = cluster, is.loaded = is.loaded)
+          })
+
+setMethod("predict", signature(object = "BisectingKMeansModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+#' Get fitted result from a bisecting k-means model
+#'
+#' Get fitted result from a bisecting k-means model.
+#' Note: A saved-loaded model does not support this method.
+#'
+#' @param method type of fitted results, \code{"centers"} for cluster centers
+#'        or \code{"classes"} for assigned classes.
+#' @return \code{fitted} returns a SparkDataFrame containing fitted values.
+setMethod("fitted", signature(object = "BisectingKMeansModel"),
+          function(object, method = c("centers", "classes")) {
+            method <- match.arg(method)
+            jobj <- object@jobj
+            is.loaded <- callJMethod(jobj, "isLoaded")
+            if (is.loaded) {
+              stop("Saved-loaded bisecting k-means model does not support 'fitted' method")
+            } else {
+              dataFrame(callJMethod(jobj, "fitted", method))
+            }
+          })
+
+
+
+#' S4 class that represents an LDAModel
+#'
+#' @param jobj a Java object reference to the backing Scala LDAWrapper
+#' @note LDAModel since 2.1.0
+setClass("LDAModel", representation(jobj = "jobj"))
+
 #' Latent Dirichlet Allocation
 #'
 #' \code{ml_lda} fits a Latent Dirichlet Allocation model on a SparkDataFrame. Users can call
@@ -150,6 +266,66 @@ ml_lda <- function(data,
   new("LDAModel", jobj = jobj)
 }
 
+setMethod("summary", signature(object = "LDAModel"),
+          function(object, maxTermsPerTopic) {
+            maxTermsPerTopic <- as.integer(ifelse(missing(maxTermsPerTopic), 10, maxTermsPerTopic))
+            jobj <- object@jobj
+            docConcentration <- callJMethod(jobj, "docConcentration")
+            topicConcentration <- callJMethod(jobj, "topicConcentration")
+            logLikelihood <- callJMethod(jobj, "logLikelihood")
+            logPerplexity <- callJMethod(jobj, "logPerplexity")
+            isDistributed <- callJMethod(jobj, "isDistributed")
+            vocabSize <- callJMethod(jobj, "vocabSize")
+            topics <- dataFrame(callJMethod(jobj, "topics", maxTermsPerTopic))
+            vocabulary <- callJMethod(jobj, "vocabulary")
+            trainingLogLikelihood <- if (isDistributed) {
+              callJMethod(jobj, "trainingLogLikelihood")
+            } else {
+              NA
+            }
+            logPrior <- if (isDistributed) {
+              callJMethod(jobj, "logPrior")
+            } else {
+              NA
+            }
+            list(docConcentration = unlist(docConcentration),
+                 topicConcentration = topicConcentration,
+                 logLikelihood = logLikelihood, logPerplexity = logPerplexity,
+                 isDistributed = isDistributed, vocabSize = vocabSize,
+                 topics = topics, vocabulary = unlist(vocabulary),
+                 trainingLogLikelihood = trainingLogLikelihood, logPrior = logPrior)
+          })
+
+
+#' @return \code{spark.perplexity} returns the log perplexity of given SparkDataFrame, or the log
+#'         perplexity of the training data if missing argument "data".
+#' @rdname ml_lda
+#' @aliases spark.perplexity,LDAModel-method
+#' @note spark.perplexity(LDAModel) since 2.1.0
+setMethod("ml_perplexity", signature(object = "LDAModel", data = "SparkDataFrame"),
+          function(object, data) {
+            ifelse(missing(data), callJMethod(object@jobj, "logPerplexity"),
+                   callJMethod(object@jobj, "computeLogPerplexity", data@sdf))
+          })
+
+
+#' @param newData A SparkDataFrame for testing.
+#' @return \code{spark.posterior} returns a SparkDataFrame containing posterior probabilities
+#'         vectors named "topicDistribution".
+#' @rdname ml_lda
+#' @aliases spark.posterior,LDAModel,SparkDataFrame-method
+#' @note spark.posterior(LDAModel) since 2.1.0
+setMethod("ml_posterior", signature(object = "LDAModel", newData = "SparkDataFrame"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+#' S4 class that represents a GaussianMixtureModel
+#'
+#' @param jobj a Java object reference to the backing Scala GaussianMixtureModel
+#' @note GaussianMixtureModel since 2.1.0
+setClass("GaussianMixtureModel", representation(jobj = "jobj"))
+
 #' Multivariate Gaussian Mixture Model (GMM)
 #'
 #' Fits multivariate gaussian mixture model against a SparkDataFrame, similarly to R's
@@ -188,4 +364,40 @@ ml_gaussian_mixture <- function(data, formula, k = 2, maxIter = 100,
                       as.numeric(tol))
   new("GaussianMixtureModel", jobj = jobj)
 }
+
+setMethod("summary", signature(object = "GaussianMixtureModel"),
+          function(object) {
+            jobj <- object@jobj
+            is.loaded <- callJMethod(jobj, "isLoaded")
+            lambda <- unlist(callJMethod(jobj, "lambda"))
+            muList <- callJMethod(jobj, "mu")
+            sigmaList <- callJMethod(jobj, "sigma")
+            k <- callJMethod(jobj, "k")
+            dim <- callJMethod(jobj, "dim")
+            loglik <- callJMethod(jobj, "logLikelihood")
+            mu <- c()
+            for (i in 1 : k) {
+              start <- (i - 1) * dim + 1
+              end <- i * dim
+              mu[[i]] <- unlist(muList[start : end])
+            }
+            sigma <- c()
+            for (i in 1 : k) {
+              start <- (i - 1) * dim * dim + 1
+              end <- i * dim * dim
+              sigma[[i]] <- t(matrix(sigmaList[start : end], ncol = dim))
+            }
+            posterior <- if (is.loaded) {
+              NULL
+            } else {
+              dataFrame(callJMethod(jobj, "posterior"))
+            }
+            list(lambda = lambda, mu = mu, sigma = sigma, loglik = loglik,
+                 posterior = posterior, is.loaded = is.loaded)
+          })
+
+setMethod("predict", signature(object = "GaussianMixtureModel"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
 
