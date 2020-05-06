@@ -68,6 +68,7 @@ sc$getConf$get("spark.submit.deployMode")
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{sparkContext} note, one is generated when you run
 \code{spark_session()} and inserted to workspace as \code{sc}
@@ -85,6 +86,7 @@ Create a new \code{sparkContext} note, one is generated when you run
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 print \code{sparkContext}
 Add File
@@ -95,6 +97,7 @@ Add File
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-addFile"></a>}}
+\if{latex}{\out{\hypertarget{method-addFile}{}}}
 \subsection{Method \code{addFile()}}{
 Add a file to be downloaded with this Spark job on every node.
 \subsection{Usage}{
@@ -114,6 +117,7 @@ Add Jar}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-addJar"></a>}}
+\if{latex}{\out{\hypertarget{method-addJar}{}}}
 \subsection{Method \code{addJar()}}{
 Adds a JAR dependency for all tasks to be executed on this SparkContext in
 the future.
@@ -132,6 +136,7 @@ App Name}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-appName"></a>}}
+\if{latex}{\out{\hypertarget{method-appName}{}}}
 \subsection{Method \code{appName()}}{
 get the App name
 cancelAllJobs
@@ -142,6 +147,7 @@ cancelAllJobs
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cancelAllJobs"></a>}}
+\if{latex}{\out{\hypertarget{method-cancelAllJobs}{}}}
 \subsection{Method \code{cancelAllJobs()}}{
 Cancel all jobs that have been scheduled or are running.
 cancelJobGroup
@@ -152,6 +158,7 @@ cancelJobGroup
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cancelJobGroup"></a>}}
+\if{latex}{\out{\hypertarget{method-cancelJobGroup}{}}}
 \subsection{Method \code{cancelJobGroup()}}{
 Cancel active jobs for the specified group.
 \subsection{Usage}{
@@ -169,6 +176,7 @@ clearJobGroup}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clearJobGroup"></a>}}
+\if{latex}{\out{\hypertarget{method-clearJobGroup}{}}}
 \subsection{Method \code{clearJobGroup()}}{
 Clear the current thread's job group ID and its description.
 defaultMinPartitions
@@ -179,6 +187,7 @@ defaultMinPartitions
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-defaultMinPartitions"></a>}}
+\if{latex}{\out{\hypertarget{method-defaultMinPartitions}{}}}
 \subsection{Method \code{defaultMinPartitions()}}{
 Default min number of partitions for Hadoop RDDs when not given by user
 Notice that we use math.min so the "defaultMinPartitions" cannot be higher
@@ -191,6 +200,7 @@ defaultParallelism
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-defaultParallelism"></a>}}
+\if{latex}{\out{\hypertarget{method-defaultParallelism}{}}}
 \subsection{Method \code{defaultParallelism()}}{
 Default level of parallelism to use when not given by user
 emptyRDD
@@ -201,6 +211,7 @@ emptyRDD
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-emptyRDD"></a>}}
+\if{latex}{\out{\hypertarget{method-emptyRDD}{}}}
 \subsection{Method \code{emptyRDD()}}{
 Get an RDD that has no partitions or elements.
 \subsection{Usage}{
@@ -214,6 +225,7 @@ isLocal
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-isLocal"></a>}}
+\if{latex}{\out{\hypertarget{method-isLocal}{}}}
 \subsection{Method \code{isLocal()}}{
 is the Spark process local?
 \subsection{Usage}{
@@ -227,6 +239,7 @@ jars
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-jars"></a>}}
+\if{latex}{\out{\hypertarget{method-jars}{}}}
 \subsection{Method \code{jars()}}{
 is the Spark process local?
 \subsection{Usage}{
@@ -240,6 +253,7 @@ master
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-master"></a>}}
+\if{latex}{\out{\hypertarget{method-master}{}}}
 \subsection{Method \code{master()}}{
 why is roxygen making me do all these...
 \subsection{Usage}{
@@ -253,6 +267,7 @@ Parallelize
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-parallelize"></a>}}
+\if{latex}{\out{\hypertarget{method-parallelize}{}}}
 \subsection{Method \code{parallelize()}}{
 Distribute a list (or Scala collection) to form an RDD.
 \subsection{Usage}{
@@ -284,6 +299,7 @@ setCheckpointDir
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-setCheckpointDir"></a>}}
+\if{latex}{\out{\hypertarget{method-setCheckpointDir}{}}}
 \subsection{Method \code{setCheckpointDir()}}{
 Set the directory under which RDDs are going to be checkpointed.
 setJobDescription
@@ -302,6 +318,7 @@ be stored (must be HDFS path if running in cluster)}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-setJobDescription"></a>}}
+\if{latex}{\out{\hypertarget{method-setJobDescription}{}}}
 \subsection{Method \code{setJobDescription()}}{
 Set a human readable description of the current job.
 setJobGroup
@@ -319,6 +336,7 @@ setJobGroup
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-setJobGroup"></a>}}
+\if{latex}{\out{\hypertarget{method-setJobGroup}{}}}
 \subsection{Method \code{setJobGroup()}}{
 Assigns a group ID to all the jobs started by this thread until the
 group ID is set to a different value or cleared.
@@ -345,6 +363,7 @@ setLocalProperty}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-setLocalProperty"></a>}}
+\if{latex}{\out{\hypertarget{method-setLocalProperty}{}}}
 \subsection{Method \code{setLocalProperty()}}{
 Set a local property that affects jobs submitted from this thread, such
 as the Spark fair scheduler pool.
@@ -365,6 +384,7 @@ sparkuser
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-sparkUser"></a>}}
+\if{latex}{\out{\hypertarget{method-sparkUser}{}}}
 \subsection{Method \code{sparkUser()}}{
 Who AM I?
 startTime
@@ -375,6 +395,7 @@ startTime
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-startTime"></a>}}
+\if{latex}{\out{\hypertarget{method-startTime}{}}}
 \subsection{Method \code{startTime()}}{
 still surprised I have to write these. but the big bad orange
 warnings that roxygen throws are just sooooo ugly
@@ -386,6 +407,7 @@ stop
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-stop"></a>}}
+\if{latex}{\out{\hypertarget{method-stop}{}}}
 \subsection{Method \code{stop()}}{
 Shut down the SparkContext.
 textFile
@@ -396,6 +418,7 @@ textFile
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-textFile"></a>}}
+\if{latex}{\out{\hypertarget{method-textFile}{}}}
 \subsection{Method \code{textFile()}}{
 Read a text file from HDFS, a local file system (available
 on all nodes), or any Hadoop-supported file system URI, and return it as
@@ -418,6 +441,7 @@ resulting RDD}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-version"></a>}}
+\if{latex}{\out{\hypertarget{method-version}{}}}
 \subsection{Method \code{version()}}{
 The version of Spark on which this application is running.
 Union RDDs
@@ -428,6 +452,7 @@ Union RDDs
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-union"></a>}}
+\if{latex}{\out{\hypertarget{method-union}{}}}
 \subsection{Method \code{union()}}{
 Build the union of a list of RDDs.
 \subsection{Usage}{
@@ -448,6 +473,7 @@ wholeTextFiles
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-wholeTextFiles"></a>}}
+\if{latex}{\out{\hypertarget{method-wholeTextFiles}{}}}
 \subsection{Method \code{wholeTextFiles()}}{
 Read a directory of text files from HDFS, a local file system
 (available on all nodes), or any Hadoop-supported file system URI.
@@ -472,6 +498,7 @@ RDD
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

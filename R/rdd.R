@@ -434,7 +434,7 @@ RDD <- R6::R6Class("RDD", list(
 
   #' Take elements from an RDD.
   #'
-  #' This function takes the first NUM elements in the RDD and
+  #' @description This function takes the first NUM elements in the RDD and
   #' returns them in a list.
   #'
   #' @param num Number of elements to take
@@ -479,16 +479,20 @@ RDD <- R6::R6Class("RDD", list(
 
   #' First
   #'
-  #' Return the first element of an RDD
+  #' @description Return the first element of an RDD
   #'
   #' @rdname first
   #' @examples
+  # nolint start
   #'\dontrun{
   #' spark_session()
   #' rdd <- sc$parallelize(1:10)
   #' rdd$first()
-  #' }
-  first = function() self$take(1)[[1]],
+  #'}
+  # nolint end
+  first = function() {
+    self$take(1)[[1]]
+  },
 
   #' Removes the duplicates from RDD.
   #'
@@ -510,13 +514,6 @@ RDD <- R6::R6Class("RDD", list(
   #'}
   # nolint end
   distinct = function(numPartitions = self$getNumPartitions()) {
-
-    # identical.mapped <- lapply(x, function(x) { list(., NULL) })
-    # reduced <- reduceByKey(identical.mapped,
-    #                        function(x, y) x ,
-    #                        numPartitions)
-    # resRDD <- lapply(reduced, function(x) { x[[1]] })
-
     self$
       map(~ list(., NULL))$
       reduceByKey(~ ..1, numPartitions)$

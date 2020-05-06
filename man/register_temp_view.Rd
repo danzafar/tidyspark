@@ -16,9 +16,9 @@ register_temp_view(.data, name)
 }
 \description{
 similar to Spark's \code{createOrReplaceTemporaryView} method,
-this function registers the DAG at a given point in the lineage as a temp
-view in the hive metastore. It does not cache the data, but the name
-supplied can be used in future Spark SQL queries.
+this function registers the DAG at a given point in the lineage as a temp view
+in the hive metastore. It does not cache the data, but the name supplied can
+be used in future Spark SQL queries.
 }
 \examples{
 #' spark_tbl(iris) \%>\% register_temp_view("iris")

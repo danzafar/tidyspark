@@ -151,7 +151,7 @@ show <- function(.data, n = NULL) {
   } else n
 
   print(as_tibble(take(.data, rows)))
-  cat("# … with ?? more rows")
+  cat("# ... with ?? more rows")
 
   invisible(.data)
 
