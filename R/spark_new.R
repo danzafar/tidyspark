@@ -44,7 +44,7 @@
 #' spark_session(spark.master = "yarn-client", spark.executor.memory = "4g")
 #'
 #' ## End(Not run)
-spark_session <- function (master = "", app_name = "SparkR",
+spark_session <- function (master = "", app_name = "tidyspark",
                            spark_home = Sys.getenv("SPARK_HOME"),
                            spark_config = list(), spark_jars = "",
                            spark_packages = "",
@@ -95,7 +95,8 @@ spark_session <- function (master = "", app_name = "SparkR",
   jvmVersionStrip <- gsub("-SNAPSHOT", "", jvmVersion)
   rPackageVersion <- paste0(packageVersion("SparkR"))
   if (jvmVersionStrip != rPackageVersion) {
-    warning(paste("Version mismatch between Spark JVM and SparkR package. JVM version was",
+    warning(paste("Version mismatch between Spark JVM and SparkR package.
+                  JVM version was",
                   jvmVersion, ", while R package version was", rPackageVersion))
   }
   sparkSession
@@ -109,8 +110,8 @@ init_spark_context <- function(master = "", app_name = "tidyspark",
                                spark_jars = "", spark_packages = "",
                                verbose = F) {
   if (exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
-    cat(paste("Re-using existing Spark Context.",
-              "Call sparkR.session.stop() or restart R to create a new Spark Context\n"))
+    cat(paste("Re-using existing Spark Context. Call sparkR.session.stop() or
+              restart R to create a new Spark Context\n"))
     return(get(".sparkRjsc", envir = SparkR:::.sparkREnv))
   }
   jars <- SparkR:::processSparkJars(spark_jars)
@@ -120,8 +121,8 @@ init_spark_context <- function(master = "", app_name = "tidyspark",
                                              "6000"))
   if (existingPort != "") {
     if (length(packages) != 0) {
-      warning(paste("spark_packages has no effect when using spark-submit or sparkR shell",
-                    " please use the --packages commandline instead",
+      warning(paste("spark_packages has no effect when using spark-submit or
+                    sparkR shell please use the --packages commandline instead",
                     sep = ","))
     }
     backendPort <- existingPort
@@ -187,8 +188,9 @@ init_spark_context <- function(master = "", app_name = "tidyspark",
     spark_home <- suppressWarnings(normalizePath(spark_home))
   }
   if (is.null(spark_executor_env_map$LD_LIBRARY_PATH)) {
-    spark_executor_env_map[["LD_LIBRARY_PATH"]] <- paste0("$LD_LIBRARY_PATH:",
-                                                       Sys.getenv("LD_LIBRARY_PATH"))
+    spark_executor_env_map[["LD_LIBRARY_PATH"]] <-
+      paste0("$LD_LIBRARY_PATH:",
+             Sys.getenv("LD_LIBRARY_PATH"))
   }
   if (.Platform$OS.type == "unix") {
     uriSep <- "//"
@@ -229,33 +231,5 @@ launch_backend <- function(args, sparkHome, jars, sparkSubmitOpts,
         combinedArgs, "\n")
   }
   invisible(SparkR:::launchScript(sparkSubmitBin, combinedArgs))
-}
-
-# Various Utils ----------------------------------------------------------------
-check_spark_install <- function (spark_home, master, deploy_mode, verbose = F)  {
-  if (!SparkR:::isSparkRShell()) {  ################## move this function to Utils.R
-    if (!is.na(file.info(spark_home)$isdir)) {
-      if (verbose) message("Spark package found in SPARK_HOME: ", spark_home)
-      NULL
-    }
-    else {
-      if (interactive() || isMasterLocal(master)) {
-        if (verbose) message("Spark not found in SPARK_HOME: ", spark_home)
-        packageLocalDir <- SparkR:::install.spark()
-        packageLocalDir
-      }
-      else if (isClientMode(master) || deployMode == "client") {
-        msg <- paste0("Spark not found in SPARK_HOME: ",
-                      spark_home, "\n", installInstruction("remote"))
-        stop(msg)
-      }
-      else {
-        NULL
-      }
-    }
-  }
-  else {
-    NULL
-  }
 }
 

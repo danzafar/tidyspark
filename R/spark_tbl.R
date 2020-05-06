@@ -379,3 +379,20 @@ repartition.spark_tbl <- function(.data, n_partitions = NULL, partition_by = NUL
 
   new_spark_tbl(rsdf)
 }
+
+# RDD-related ------------------------------------------------------------------
+
+as.RDD <- function(...) {
+  UseMethod("as.RDD")
+}
+
+as_RDD <- function(...) as.RDD(...)
+
+as.RDD.spark_tbl <- function(.data) {
+  RDD$new(call_method(attr(.data, "jc"), "rdd"), "byte", F, F)
+}
+
+as.RDD.list <- function(.l, numSlices = 1L) {
+  context <- get("sc", envir = as.environment(".GlobalEnv"))
+  context$parallelize(.l, numSlices)
+}
