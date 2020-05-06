@@ -104,7 +104,7 @@ as.list.Column <- function(x) {
 }
 
 ### Check types
-col_types <- function(.data) {
+schema_parsed <- function(.data) {
 
   names_types <- lapply(schema(.data)$fields(),
          function(f) {
