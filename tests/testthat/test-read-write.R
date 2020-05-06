@@ -1,6 +1,4 @@
 
-spark_session_reset()
-
 # CSV -------------------------------------------------------------------------
 test_that("read csvs", {
   # write files to disk that can be used

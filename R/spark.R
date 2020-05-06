@@ -65,7 +65,7 @@ call_static_handled <- function(class, method, ...) {
 #' @examples
 #' spark_session_stop()
 spark_session_stop <- function() {
-  rm(sc, envir = as.environment(".GlobalEnv"))
+  if (exists("sc")) rm(sc, envir = as.environment(".GlobalEnv"))
   SparkR:::sparkR.session.stop()
 }
 

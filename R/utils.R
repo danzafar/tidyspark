@@ -5,6 +5,16 @@ num_to_int <- function(num) {
   as.integer(num)
 }
 
+check_ifelse <- function(x) {
+  if (!rlang::is_call(rlang::get_expr(x))) {
+    invisible()
+  } else if (is.null(rlang::call_name(x))) {
+    check_ifelse(rlang::call_args(x))
+  } else if (rlang::call_name(x) == 'ifelse') {
+    stop('`ifelse` is not defined in tidyspark! Consider `if_else`.')
+  } else {
+    lapply(rlang::call_args(x), check_ifelse)
+
 getStorageLevel <- function(newLevel = c("DISK_ONLY", "DISK_ONLY_2",
                                          "MEMORY_AND_DISK", "MEMORY_AND_DISK_2",
                                          "MEMORY_AND_DISK_SER",

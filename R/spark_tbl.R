@@ -24,7 +24,7 @@ new_spark_tbl <- function(sdf, ...) {
 #' Create a \code{spark_tbl}
 #'
 #' @param x object coercible to \code{spark_tbl}
-#' @param ...
+#' @param ... any other arguments passed to \code{spark_tbl}, currently unused
 #'
 #' @return an object of class \code{spark_tbl}
 #' @export
@@ -271,49 +271,19 @@ n_partitions.spark_tbl <- function(.data) {
 }
 
 #' @export
-nrow <- function(x, ...) {
-  UseMethod("nrow")
-}
-
-#' @export
-nrow.spark_tbl <- function(.data) {
-  sdf <- attr(.data, "jc")
-  as.integer(call_method(sdf, "count"))
-}
-
-nrow.default <- function(.data) {
-  dplyr:::nrow()
-}
-
-#' @export
-ncol <- function(x, ...) {
-  UseMethod("ncol")
-}
-
-#' @export
-ncol.spark_tbl <- function(.data) {
-  sdf <- attr(.data, "jc")
-  length(call_method(attr(.data, "jc"), "columns"))
-}
-
-ncol.default <- function(.data) {
-  dplyr:::ncol()
-}
-
-#' @export
 dim.spark_tbl <- function(.data) {
-  rows <- nrow(.data)
-  columns <- ncol(.data)
-  c(rows, length(columns))
+  sdf <- attr(.data, "jc")
+  rows <- as.integer(call_method(sdf, "count"))
+  columns <- length(call_method(attr(.data, "jc"), "columns"))
+  c(rows, columns)
 }
 
 #' Coalesce the number of partitions in a \code{spark_tbl}
 #'
 #' @description Returns the newly coalesced spark_tbl.
 #'
-#' @param .data
-#'
-#' @param n_partitions
+#' @param .data a \code{spark_tbl}
+#' @param n_partitions integer, the number of partitions to resize to
 #'
 #' @export
 #' @importFrom dplyr coalesce
@@ -338,10 +308,12 @@ repartition <- function(x, ...) {
 
 #' Repartition a \code{spark_tbl}
 #'
-#' @description Repartitions a spark_tbl. Optionally allos for vector of columns to be used for partitioning.
+#' @description Repartitions a spark_tbl. Optionally allos for vector of
+#' columns to be used for partitioning.
 #'
 #' @param partitions number of partitions. Must be numeric.
-#' @param partition_by vector of column names used for partitioning, only supported for Spark 2.0+
+#' @param partition_by vector of column names used for partitioning, only
+#' supported for Spark 2.0+
 #'
 #' @export
 #' @examples
@@ -353,7 +325,8 @@ repartition <- function(x, ...) {
 #' df %>% n_partitions() # 5
 #'
 #' df_repartitioned <- df %>% repartition(5, c("cyl"))
-repartition.spark_tbl <- function(.data, n_partitions = NULL, partition_by = NULL) {
+repartition.spark_tbl <- function(.data, n_partitions = NULL,
+                                  partition_by = NULL) {
 
   sdf <- attr(.data, "jc")
 
