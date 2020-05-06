@@ -81,6 +81,9 @@ spark_session <- function (master = "", app_name = "SparkR",
   }
   if (exists(".sparkRsession", envir = SparkR:::.sparkREnv)) {
     sparkSession <- get(".sparkRsession", envir = SparkR:::.sparkREnv)
+    assign("sc",
+           get(".sc", as.environment(SparkR:::.sparkREnv)),
+           envir = as.environment(".GlobalEnv"))
     call_static("org.apache.spark.sql.api.r.SQLUtils",
                 "setSparkContextSessionConf",
                 sparkSession, sparkConfigMap)
@@ -111,6 +114,9 @@ init_spark_context <- function(master = "", app_name = "tidyspark",
   if (exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
     cat(paste("Re-using existing Spark Context.",
               "Call sparkR.session.stop() or restart R to create a new Spark Context\n"))
+    assign("sc",
+           get(".sc", as.environment(SparkR:::.sparkREnv)),
+           envir = as.environment(".GlobalEnv"))
     return(get(".sparkRjsc", envir = SparkR:::.sparkREnv))
   }
   jars <- SparkR:::processSparkJars(spark_jars)
@@ -210,7 +216,13 @@ init_spark_context <- function(master = "", app_name = "tidyspark",
     Sys.sleep(1)
   }, onexit = TRUE)
 
-  sc <<- sparkContext$new(sc)
+  sc_obj <- sparkContext$new(sc)
+
+  assign(".sc", sc_obj, envir = as.environment(SparkR:::.sparkREnv))
+  assign("sc", sc_obj, envir = as.environment(".GlobalEnv"))
+
+  sc
+
 }
 
 launch_backend <- function(args, sparkHome, jars, sparkSubmitOpts,
