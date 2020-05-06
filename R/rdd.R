@@ -756,7 +756,6 @@ RDD <- R6::R6Class("RDD", list(
     invisible(call_method(jrdd, "saveAsTextFile", path))
   },
 
-  ########### ---------- !!! WAITING FOR sortByKey --------------------------------------
   #' Sort an RDD by the given key function.
   #'
   #' @param .f A function used to compute the sort key for each element.
@@ -773,7 +772,7 @@ RDD <- R6::R6Class("RDD", list(
   #'}
   # nolint end
   sortBy = function(.f, ascending = TRUE,
-                    numPartitions = self$getNumPartitionsRDD()) {
+                    numPartitions = self$getNumPartitions()) {
     .f <- prepare_func(.f)
     self$
       keyBy(.f)$
@@ -1096,7 +1095,6 @@ RDD <- R6::R6Class("RDD", list(
     rdd$mergePartitions(TRUE)
   },
 
-  #### !!! WAITING FOR sortByKey -----------------------------------------------
   #' Cartesian product of this RDD and another one.
   #'
   #' Return the Cartesian product of this RDD and another one,
@@ -2145,7 +2143,7 @@ RDD <- R6::R6Class("RDD", list(
           }
 
           if (!zip) {
-            return(mergeCompactLists(keys, values))
+            return(SparkR:::mergeCompactLists(keys, values))
           }
         } else {
           keys <- part[c(TRUE, FALSE)]
