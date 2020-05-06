@@ -3,9 +3,10 @@ iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
 # batting_tbl <- spark_tbl(Lahman::Batting)
+flights_tbl <- spark_tbl(nycflights13::flights)
 
 test_that("simple filter", {
-  expect_equal(spark_tbl(nycflights13::flights) %>%
+  expect_equal(flights_tbl %>%
                  filter(dep_delay == 2) %>%
                  collect %>% select(1:5) %>%
                  as.list,
@@ -16,7 +17,7 @@ test_that("simple filter", {
 })
 
 test_that("group_by, summarise, filter on flights_tbl", {
-  expect_equal(spark_tbl(nycflights13::flights) %>%
+  expect_equal(flights_tbl %>%
                  group_by(tailnum) %>%
                  summarise(count = n(),
                            dist = mean(distance),
@@ -59,7 +60,8 @@ test_that("window function", {
                  select(playerID, yearID, teamID, G, AB:H) %>%
                  arrange(playerID, yearID, teamID) %>%
                  group_by(playerID) %>%
-                 filter(rank(desc(H), na.last = 'keep', ties.method = 'min') <= 2 & H > 0) %>%
+                 filter(rank(desc(H), na.last = 'keep', ties.method = 'min') <= 2 &
+                          H > 0) %>%
                  mutate(teamID = levels(teamID)[teamID]))
 })
 
