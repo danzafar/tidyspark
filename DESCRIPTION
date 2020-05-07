@@ -2,15 +2,22 @@ Package: tidyspark
 Type: Package
 Title: A Tidy Interface to Spark
 Version: 0.0.0
-Author: S Daniel Zafar
+Authors@R: c(
+    person("S Daniel", "Zafar", email = "daniel.zafar@gmail.com", role = "cre"),
+    person("Stern", "Eric", email = "eric.stern1@gmail.com", role = "aut"))
 Maintainer: S Daniel Zafar <dan.zafar@databricks.com>
-Description: Provides a familiar interface for Spark, following tidyverse syntax
-License: What license is it under?
+Description: Provides a familiar interface for Spark, following tidyverse 
+    syntax. Designed to be easy to understand and contribute to. Also 
+    implements the lower-level Spark API using pyspark-style R6 classes. 
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    knitr,
+    rmarkdown
 Depends: 
-    dplyr (>= 0.8.0)
-Imports: 
-RoxygenNote: 7.0.2
+    dplyr (>= 0.8.0),
+    utils
+RoxygenNote: 7.1.0
+VignetteBuilder: knitr

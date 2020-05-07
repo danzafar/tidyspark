@@ -8,3 +8,4 @@ metastore_db
 logs/*
 spark-warehouse
 del
+inst/doc

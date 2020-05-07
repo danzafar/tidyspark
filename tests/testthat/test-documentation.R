@@ -1,11 +1,19 @@
 
-library(dplyr)
-flights_tbl <- spark_tbl(nycflights13::flights)
+iris_fix <- iris %>%
+  setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+  mutate(Species = levels(Species)[Species])
 # batting_tbl <- spark_tbl(Lahman::Batting)
+flights_tbl <- spark_tbl(nycflights13::flights)
 
 test_that("simple filter", {
-  expect_equal(flights_tbl %>% filter(dep_delay == 2) %>% collect %>% select(1:5) %>% as.list,
-               nycflights13::flights %>% filter(dep_delay == 2) %>% select(1:5) %>% as.list)
+  expect_equal(flights_tbl %>%
+                 filter(dep_delay == 2) %>%
+                 collect %>% select(1:5) %>%
+                 as.list,
+               nycflights13::flights %>%
+                 filter(dep_delay == 2) %>%
+                 select(1:5) %>%
+                 as.list)
 })
 
 test_that("group_by, summarise, filter on flights_tbl", {
@@ -28,11 +36,12 @@ test_that("group_by, summarise, filter on flights_tbl", {
                )
 })
 
-test_that("group_by, summarise, filter on flights_tbl", {
+test_that("spark_sql works as advertised", {
   spark_tbl(iris) %>% register_temp_view("iris")
   iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
   expect_equal(iris_preview %>% collect,
-               iris %>% setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+               iris %>%
+                 setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
                  mutate(Species = levels(Species)[Species]) %>%
                  head(10))
 })
@@ -51,7 +60,8 @@ test_that("window function", {
                  select(playerID, yearID, teamID, G, AB:H) %>%
                  arrange(playerID, yearID, teamID) %>%
                  group_by(playerID) %>%
-                 filter(rank(desc(H), na.last = 'keep', ties.method = 'min') <= 2 & H > 0) %>%
+                 filter(rank(desc(H), na.last = 'keep', ties.method = 'min') <= 2 &
+                          H > 0) %>%
                  mutate(teamID = levels(teamID)[teamID]))
 })
 

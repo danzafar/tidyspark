@@ -7,12 +7,14 @@
 \method{repartition}{spark_tbl}(.data, n_partitions = NULL, partition_by = NULL)
 }
 \arguments{
-\item{partition_by}{vector of column names used for partitioning, only supported for Spark 2.0+}
+\item{partition_by}{vector of column names used for partitioning, only
+supported for Spark 2.0+}
 
 \item{partitions}{number of partitions. Must be numeric.}
 }
 \description{
-Repartitions a spark_tbl. Optionally allos for vector of columns to be used for partitioning.
+Repartitions a spark_tbl. Optionally allos for vector of
+columns to be used for partitioning.
 }
 \examples{
 df <- spark_tbl(mtcars)
