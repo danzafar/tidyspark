@@ -259,28 +259,28 @@ NULL
 #' head(tmp)}
 NULL
 
-#' @details
-#' \code{lit}: A new Column is created to represent the literal value.
-#' If the parameter is a Column, it is returned unchanged.
-#'
-#' @rdname column_nonaggregate_functions
-#' @aliases lit lit,ANY-method
-#' @examples
-#'
-#' \dontrun{
-#' tmp <- mutate(df, v1 = lit(df$mpg), v2 = lit("x"), v3 = lit("2015-01-01"),
-#'                   v4 = negate(df$mpg), v5 = expr('length(model)'),
-#'                   v6 = greatest(df$vs, df$am), v7 = least(df$vs, df$am),
-#'                   v8 = column("mpg"))
-#' head(tmp)}
-#' @note lit since 1.5.0
-setMethod("lit", signature("ANY"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions",
-                              "lit",
-                              if (class(x) == "Column") { x@jc } else { x })
-            new("Column", jc)
-          })
+# #' @details
+# #' \code{lit}: A new Column is created to represent the literal value.
+# #' If the parameter is a Column, it is returned unchanged.
+# #'
+# #' @rdname column_nonaggregate_functions
+# #' @aliases lit lit,ANY-method
+# #' @examples
+# #'
+# #' \dontrun{
+# #' tmp <- mutate(df, v1 = lit(df$mpg), v2 = lit("x"), v3 = lit("2015-01-01"),
+# #'                   v4 = negate(df$mpg), v5 = expr('length(model)'),
+# #'                   v6 = greatest(df$vs, df$am), v7 = least(df$vs, df$am),
+# #'                   v8 = column("mpg"))
+# #' head(tmp)}
+# #' @note lit since 1.5.0
+# setMethod("lit", signature("ANY"),
+#           function(x) {
+#             jc <- call_static("org.apache.spark.sql.functions",
+#                               "lit",
+#                               if (class(x) == "Column") { x@jc } else { x })
+#             new("Column", jc)
+#           })
 
 #' @details
 #' \code{abs}: Computes the absolute value.
