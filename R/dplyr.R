@@ -240,7 +240,7 @@ count.Column <- function(x, ...){
 
 #' @export
 n <- function(...) {
-  UseMethod(" ")
+  UseMethod("n")
 }
 
 #' @importFrom dplyr n
