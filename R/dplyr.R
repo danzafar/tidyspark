@@ -46,11 +46,11 @@ rename.spark_tbl <- function(.data, ...) {
   new_spark_tbl(sdf, groups = names(vars[vars %in% attr(.data, "groups")]))
 }
 
-#' distinct
+#' @export
 #' @importFrom dplyr distinct
 distinct.spark_tbl <- function(.data, ...) {
   # we use the distinct tools from dplyr
-  dist <- dplyr:::distinct_prepare(.data, enquos(...), .keep_all = FALSE)
+  dist <- dplyr::distinct_prepare(.data, enquos(...), .keep_all = FALSE)
   vars <- tbl_vars(.data)[dplyr:::match_vars(dist$vars, dist$data)]
   # consider adding in .keep_all = T functionality at some point
   # keep <- dplyr:::match_vars(dist$keep, dist$data)
@@ -165,8 +165,9 @@ chop_wndw <- function(col) {
 
 #' @export
 #' @importFrom dplyr mutate
+#' @importFrom rlang enquos eval_tidy
 mutate.spark_tbl <- function(.data, ...) {
-  dots <- rlang:::enquos(...)
+  dots <- rlang::enquos(...)
 
   sdf <- attr(.data, "jc")
 
@@ -177,7 +178,7 @@ mutate.spark_tbl <- function(.data, ...) {
     check_ifelse(dot)
 
     df_cols <- get_jc_cols(sdf)
-    eval <- rlang:::eval_tidy(dot, df_cols)
+    eval <- rlang::eval_tidy(dot, df_cols)
 
     if (is_agg_expr(eval)) {
 
@@ -324,7 +325,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 #' @importFrom dplyr group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
                                .drop = group_by_drop_default(.data)) {
-  groups <- dplyr:::group_by_prepare(.data, ..., add = add)
+  groups <- dplyr::group_by_prepare(.data, ..., add = add)
   valid <- groups$group_names %in% tbl_vars(.data)
   if (!all(valid)) {
     stop("Column '", groups$group_names[!valid][1], "' is unknown")

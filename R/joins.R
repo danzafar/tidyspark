@@ -17,7 +17,7 @@ join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
   dplyr:::check_valid_names(tbl_vars(y))
   by <- common_by(by, x, y)
   suffix <- dplyr:::check_suffix(suffix)
-  na_matches <- dplyr:::check_na_matches(na_matches)
+  na_matches <- check_na_matches(na_matches)
   y <- auto_copy(x, y, copy = copy)
   vars <- dplyr:::join_vars(tbl_vars(x), tbl_vars(y), by, suffix)
   by_x <- vars$idx$x$by
@@ -29,7 +29,7 @@ join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
   cols_x <- get_jc_cols(xDF)[by_x]
   cols_y <- get_jc_cols(yDF)[by_y]
 
-  op <- if (on_nulls) SparkR:::`%<=>%` else `==`
+  op <- if (on_nulls) SparkR::`%<=>%` else `==`
   cols = mapply(function(x, y) op(x, y), cols_x, cols_y, SIMPLIFY = F)
   joinExpr = Reduce(function(x, y) x & y, cols)
 

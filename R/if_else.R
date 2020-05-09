@@ -219,7 +219,7 @@ case_when <- function(...) {
   is_Column <- sapply(classes, function(x) inherits(x, "Column"))
 
   if (any(is_Column)) case_when.Column(...)
-  else dplyr:::case_when(...)
+  else dplyr::case_when(...)
 
 }
 

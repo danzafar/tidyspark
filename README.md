@@ -59,6 +59,7 @@ Since the first code written Jan 23, 2020 some significant progress has been mad
 - `count`, `tally`, and `n`
 - `distinct`
 - `rank` functions
+- `if_else` and `case_when`
 
 The following workflows are still being developed
 - `gather`/`spread` (or `pivot_wider`/`pivot_longer`)

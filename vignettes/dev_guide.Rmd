@@ -1,3 +1,9 @@
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Developer Guide}
+  %\usepackage[UTF-8]{inputenc}
+
 # Developer Guide
 Learn how `tidyspark` works!
 

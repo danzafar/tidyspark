@@ -20,6 +20,9 @@ spark_read_jdbc(
 
 \item{table}{string, the name of the table in the external database}
 
+\item{partition_col}{string, the name of a column of numeric, date, or timestamp
+type that will be used for partitioning.}
+
 \item{lower_bound}{the minimum value of partition_by used to decide partition stride}
 
 \item{upper_bound}{the maximum value of partition_by used to decide partition stride}
@@ -33,9 +36,6 @@ This defaults to SparkContext.defaultParallelism when unset.}
 one partition should be in the form of a SQL query string, see example.}
 
 \item{...}{additional JDBC database connection named properties.}
-
-\item{partition_by}{string, the name of a column of numeric, date, or timestamp
-type that will be used for partitioning.}
 }
 \value{
 

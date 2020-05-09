@@ -14,7 +14,7 @@ call_static(class, method, ...)
 
 call_method_handled(jobj, method, ...)
 
-new_jobj(className, ...)
+new_jobj(class, ...)
 
 call_static_handled(class, method, ...)
 }

@@ -4,9 +4,7 @@
 \alias{rank}
 \alias{dense_rank}
 \alias{min_rank}
-\title{#' @rdname column_window_functions
-#' @name NULL
-setGeneric("row_number", function(x = "missing") { standardGeneric("row_number") })}
+\title{Rank}
 \usage{
 rank(x, ...)
 
@@ -14,11 +12,11 @@ dense_rank(x, ...)
 
 min_rank(x, ...)
 }
+\arguments{
+\item{x}{a vector or Column object}
+
+\item{...}{additional arguments to \code{base::rank}}
+}
 \description{
-#' @export
-setMethod("row_number", signature(x = "missing"),
-          function(x) {
-            jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "row_number")
-            new("Column", jc)
-          })
+Rank
 }
