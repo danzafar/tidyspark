@@ -210,7 +210,7 @@ spark_read_json <- function (path, multiline = F, ...) {
 #'
 #' @param url spring, JDBC database url of the form jdbc:subprotocol:subname
 #' @param table string, the name of the table in the external database
-#' @param partition_by string, the name of a column of numeric, date, or timestamp
+#' @param partition_col string, the name of a column of numeric, date, or timestamp
 #' type that will be used for partitioning.
 #' @param lower_bound the minimum value of partition_by used to decide partition stride
 #' @param upper_bound the maximum value of partition_by used to decide partition stride
@@ -262,9 +262,9 @@ spark_read_json <- function (path, multiline = F, ...) {
 #' spark_session_stop()
 #'
 #' ## End(Not run)
-spark_read_jdbc <- function (url, table, partition_col = NULL, lower_bound = NULL,
-                             upper_bound = NULL, num_partitions = 0L, predicates = list(),
-                             ...) {
+spark_read_jdbc <- function(url, table, partition_col = NULL,
+                            lower_bound = NULL, upper_bound = NULL,
+                            num_partitions = 0L, predicates = list(), ...) {
   jprops <- SparkR:::varargsToJProperties(...)
   sparkSession <- SparkR:::getSparkSession()
   read <- call_method(sparkSession, "read")
@@ -765,7 +765,6 @@ spark_write_table <- function(.data, table, mode = "error",
 #' @param table string, the table name
 #' @param mode string, usually \code{"append"} (default), \code{"overwrite"},
 #' \code{"error"}, or \code{"ignore"}
-#' @param partition_by string, column names to partition by
 #'
 #' @details Unlike \code{saveAsTable}, \code{insertInto} ignores the column
 #' names and just uses position-based resolution. Watch out for column order!

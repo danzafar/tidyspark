@@ -1,19 +1,11 @@
 # there's not much we can do in terms of avoiding namespace conflicts
 # with these functions, so instead we have to provide back-functionality
 
-# avoid namespace conflicts
-
-#' #' @rdname column_window_functions
-#' #' @name NULL
-#' setGeneric("row_number", function(x = "missing") { standardGeneric("row_number") })
+#' Rank
 #'
-#' #' @export
-#' setMethod("row_number", signature(x = "missing"),
-#'           function(x) {
-#'             jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "row_number")
-#'             new("Column", jc)
-#'           })
-
+#' @param x a vector or Column object
+#' @param ... additional arguments to \code{base::rank}
+#'
 #' @rdname column_window_functions
 #' @export
 rank <- function(x, ...) {
@@ -26,10 +18,10 @@ rank.Column <- function(x, ...) {
       !(rlang::quo_name(quos$na.last) %in% c("NULL", "keep"))) {
     stop("Spark only supports `na.last = 'keep', ties.method = 'min'")
   }
-  wndw <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+  wndw <- call_static("org.apache.spark.sql.expressions.Window",
                                            "orderBy", list(x@jc))
-  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "rank")
-  new("Column", SparkR:::callJMethod(jc, "over", wndw))
+  jc <- call_static("org.apache.spark.sql.functions", "rank")
+  new("Column", call_method(jc, "over", wndw))
 }
 
 rank.default <- function(x, ...) {
@@ -43,10 +35,10 @@ dense_rank <- function(x, ...) {
 }
 
 dense_rank.Column <- function(x, ...) {
-  wndw <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+  wndw <- call_static("org.apache.spark.sql.expressions.Window",
                                            "orderBy", list(x@jc))
-  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "dense_rank")
-  new("Column", SparkR:::callJMethod(jc, "over", wndw))
+  jc <- call_static("org.apache.spark.sql.functions", "dense_rank")
+  new("Column", call_method(jc, "over", wndw))
 }
 
 dense_rank.default <- function(x, ...) {
@@ -60,10 +52,10 @@ min_rank <- function(x, ...) {
 }
 
 min_rank.Column <- function(x, ...) {
-  wndw <- SparkR:::callJStatic("org.apache.spark.sql.expressions.Window",
+  wndw <- call_static("org.apache.spark.sql.expressions.Window",
                                            "orderBy", list(x@jc))
-  jc <- SparkR:::callJStatic("org.apache.spark.sql.functions", "rank")
-  new("Column", SparkR:::callJMethod(jc, "over", wndw))
+  jc <- call_static("org.apache.spark.sql.functions", "rank")
+  new("Column", call_method(jc, "over", wndw))
 }
 
 min_rank.default <- function(x, ...) {

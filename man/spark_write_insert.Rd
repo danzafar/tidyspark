@@ -13,8 +13,6 @@ spark_write_insert(.data, table, mode = "append")
 
 \item{mode}{string, usually \code{"append"} (default), \code{"overwrite"},
 \code{"error"}, or \code{"ignore"}}
-
-\item{partition_by}{string, column names to partition by}
 }
 \description{
 Inserts the content of the \code{spark_tbl} into the specified

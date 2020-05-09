@@ -42,8 +42,8 @@ call_method_handled <- function(jobj, method, ...) {
 
 #' @rdname javacall
 #' @export
-new_jobj <- function(className, ...) {
-  SparkR:::invokeJava(isStatic = TRUE, className, methodName = "<init>",  ...)
+new_jobj <- function(class, ...) {
+  SparkR:::invokeJava(isStatic = TRUE, class, methodName = "<init>",  ...)
 }
 
 #' @rdname javacall
@@ -66,7 +66,7 @@ call_static_handled <- function(class, method, ...) {
 #' spark_session_stop()
 spark_session_stop <- function() {
   if (exists("sc")) rm(sc, envir = as.environment(".GlobalEnv"))
-  SparkR:::sparkR.session.stop()
+  SparkR::sparkR.session.stop()
 }
 
 #' @rdname spark_session
@@ -75,11 +75,11 @@ spark_session_reset <- function(master = "", app_name = "SparkR",
                                 spark_home = Sys.getenv("SPARK_HOME"),
                                 spark_config = list(), spark_jars = "",
                                 spark_packages = "", enable_hive_support = TRUE, ...) {
-  SparkR:::sparkR.session.stop()
-  SparkR:::sparkR.session(master, appName = app_name, sparkHome = spark_home,
-                          sparkConfig = spark_config, sparkJars = spark_jars,
-                          sparkPackages = spark_packages,
-                          enableHiveSupport = enable_hive_support, ...)
+  SparkR::sparkR.session.stop()
+  spark_session(master, appName = app_name, sparkHome = spark_home,
+                sparkConfig = spark_config, sparkJars = spark_jars,
+                sparkPackages = spark_packages,
+                enableHiveSupport = enable_hive_support, ...)
 }
 
 #' Get Spark Session
@@ -145,10 +145,11 @@ register_temp_view <- function(.data, name) {
 #' Get Spark Class
 #'
 #' @param x a \code{spark_tbl} or \code{jobj}
+#' @param trunc whether to return a truncated class name
 #'
 #' @return a character representing the spark object type
 #' @export
-spark_class <- function(x, ...) {
+spark_class <- function(x, trunc) {
   UseMethod("spark_class")
 }
 

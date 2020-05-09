@@ -11,6 +11,7 @@
 #' \code{sc$textFile} etc. Robust documentation is provided for each method
 #' in this class. Check it out!
 #'
+#' @importFrom R6 R6Class
 RDD <- R6::R6Class("RDD", list(
   env = NULL,
   jrdd = NULL,
@@ -38,9 +39,10 @@ RDD <- R6::R6Class("RDD", list(
 
   getJRDD = function() self$jrdd,
 
-  #' Cache an RDD
+  #' @title Cache an RDD
   #'
-  #' Persist this RDD with the default storage level (MEMORY_ONLY).
+  #' @description
+  #' Persist this RDD with the default storage level MEMORY_ONLY.
   #'
   #' @examples
   #'\dontrun{
@@ -55,8 +57,9 @@ RDD <- R6::R6Class("RDD", list(
     self
   },
 
-  #' Persist an RDD
+  #' @title Persist an RDD
   #'
+  #' @description
   #' Persist this RDD with the specified storage level. For details of the
   #' supported storage levels, refer to
   #'\url{http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence}.
@@ -68,7 +71,6 @@ RDD <- R6::R6Class("RDD", list(
   #' rdd <- sc$parallelize(1:10, 2L)
   #' rdd$persist("MEMORY_AND_DISK")
   #'}
-  #'
   persist = function(newLevel = "MEMORY_ONLY") {
     call_method(self$jrdd, "persist", getStorageLevel(newLevel))
     self$env$isCached <- TRUE
@@ -292,27 +294,29 @@ RDD <- R6::R6Class("RDD", list(
   #'}
   mapPartitions = function(.f) {
     .f <- prepare_func(.f)
-    self$mapPartitionsWithIndex(function(s, part) .f(part) )
+    self$mapPartitionsWithIndex(function(s, part) .f(part))
   },
 
-  #' Return a new RDD by applying a function to each partition of this RDD, while
-  #' tracking the index of the original partition.
+  #' Apply a function to each partition of an RDD using an index
   #'
-  #' @param .f the transformation to apply on each partition; takes the partition
-  #'        index and a list of elements in the particular partition.
+  #' Return a new RDD by applying a function to each partition of this RDD,
+  #' while tracking the index of the original partition.
+  #'
+  #' @param .f the transformation to apply on each partition; takes the
+  #'        partition index and a list of elements in the particular partition.
   #' @return a new RDD created by the transformation.
+  #'
   #' @examples
-  # nolint start
   #'\dontrun{
   #' spark_session()
   #' rdd <- sc$parallelize(1:10, 5L)
-  #' rdd$mapPartitionsWithIndex(
-  #'   function(partIndex, part) partIndex * Reduce(`+`, part)
+  #' rdd$
+  #'   mapPartitionsWithIndex(
+  #'     function(partIndex, part) partIndex * Reduce(`+`, part)
   #'   )$
   #'   collect(flatten = FALSE)
   #' # 0, 7, 22, 45, 76
   #'}
-  # nolint end
   mapPartitionsWithIndex = function(.f) {
     .f <- prepare_func(.f)
     PipelinedRDD$new(self, unclass(.f), NULL)
@@ -346,7 +350,7 @@ RDD <- R6::R6Class("RDD", list(
   #' specified commutative and associative binary operator.
   #'
   #' @param .f Commutative and associative function to apply on elements
-  #'             of the RDD.
+  #'           of the RDD.
   #' @examples
   #'\dontrun{
   #' spark_session()

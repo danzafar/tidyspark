@@ -29,7 +29,7 @@ join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
   cols_x <- get_jc_cols(xDF)[by_x]
   cols_y <- get_jc_cols(yDF)[by_y]
 
-  op <- if (on_nulls) SparkR:::`%<=>%` else `==`
+  op <- if (on_nulls) SparkR::`%<=>%` else `==`
   cols = mapply(function(x, y) op(x, y), cols_x, cols_y, SIMPLIFY = F)
   joinExpr = Reduce(function(x, y) x & y, cols)
 

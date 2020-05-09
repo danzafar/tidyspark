@@ -4,7 +4,7 @@
 \alias{n_partitions}
 \title{Get the Number of Partitions in a \code{spark_tbl}}
 \usage{
-n_partitions(...)
+n_partitions(.data)
 }
 \arguments{
 \item{.data}{a spark_tbl}

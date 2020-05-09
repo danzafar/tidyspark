@@ -7,7 +7,7 @@ test_that("n_context is correctly bound", {
   expect_equal(
     get("..group_size", dplyr:::context_env) %>% deparse,
     call_static("org.apache.spark.sql.functions", "count", "*") %>%
-      SparkR:::column() %>%
+      SparkR::column() %>%
       deparse
   )
 })

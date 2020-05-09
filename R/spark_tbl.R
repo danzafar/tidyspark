@@ -127,6 +127,7 @@ limit <- function (.data, n) {
 
 #' @rdname limit
 #' @export
+#' @importFrom utils head
 head.spark_tbl <- function(.data, n) {
   limit(.data, n)
 }
@@ -217,6 +218,7 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 #'
 #' @return
 #' @export
+#' @importFrom dplyr explain
 explain.spark_tbl <- function(x, extended = F) {
   invisible(
     call_method(attr(x, "jc"), "explain", extended)
@@ -262,7 +264,7 @@ explain.spark_tbl <- function(x, extended = F) {
 #' @param .data a spark_tbl
 #'
 #' @export
-n_partitions <- function(...) {
+n_partitions <- function(.data) {
   UseMethod("n_partitions")
 }
 
@@ -301,17 +303,13 @@ coalesce.spark_tbl <- function(.data, n_partitions) {
   new_spark_tbl(sdf)
 }
 
-#' @export
-repartition <- function(x, ...) {
-  UseMethod("repartition")
-}
-
 #' Repartition a \code{spark_tbl}
 #'
 #' @description Repartitions a spark_tbl. Optionally allos for vector of
 #' columns to be used for partitioning.
 #'
-#' @param partitions number of partitions. Must be numeric.
+#' @param .data a data frame to be repartitioned
+#' @param n_partitions integer, the target number of partitions
 #' @param partition_by vector of column names used for partitioning, only
 #' supported for Spark 2.0+
 #'
@@ -325,6 +323,11 @@ repartition <- function(x, ...) {
 #' df %>% n_partitions() # 5
 #'
 #' df_repartitioned <- df %>% repartition(5, c("cyl"))
+repartition <- function(.data, n_partitions, partition_by) {
+  UseMethod("repartition")
+}
+
+#' @export
 repartition.spark_tbl <- function(.data, n_partitions = NULL,
                                   partition_by = NULL) {
 

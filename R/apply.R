@@ -235,9 +235,13 @@ spark_lapply <- function (.l, .f) {
     .f <- rlang::as_function(.f)
     .f <- unclass(.f)
   }
-  sc <- SparkR:::getSparkContext()
-  rdd <- SparkR:::parallelize(sc, .l, length(.l))
-  results <- SparkR:::map(rdd, .f)
-  SparkR:::collectRDD(results)
+  # sc <- SparkR:::getSparkContext()
+  # rdd <- SparkR:::parallelize(sc, .l, length(.l))
+  # results <- SparkR:::map(rdd, .f)
+  # SparkR:::collectRDD(results)
+  sc$
+    parallelize(.l, length(.l))$
+    map(.f)$
+    collect()
 }
 

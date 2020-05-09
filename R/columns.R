@@ -39,6 +39,7 @@ sort.Column <- function(x) {
 }
 
 ### type conversions
+
 #' @export
 as.character.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "string"))
@@ -447,21 +448,23 @@ as_Column <- function(.x) lit(.x)
 #' @description Coalesces any number of Columns where precedence of the values is taken
 #' as the order of the inputs.
 #'
+#' @param ... Column objects to be coalesces
+#'
 #' @return a Column object
 #' @export
 coalesce.Column <- function(...) {
 
-  dots <- rlang:::enquos(...)
+  dots <- rlang::enquos(...)
 
   if (rlang::is_empty(dots)) {
        abort("At least one argument must be supplied")
   }
 
-  x = rlang:::eval_tidy(dots[[1]])
+  x = rlang::eval_tidy(dots[[1]])
   dots = dots[-1]
 
   for (i in seq_along(dots)) {
-     jcols <- c(x@jc, rlang:::eval_tidy(dots[[i]])@jc)
+     jcols <- c(x@jc, rlang::eval_tidy(dots[[i]])@jc)
      jc <- call_static("org.apache.spark.sql.functions", "coalesce", jcols)
      x = new("Column", jc)
   }

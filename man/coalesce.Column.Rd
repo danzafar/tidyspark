@@ -6,6 +6,9 @@
 \usage{
 \method{coalesce}{Column}(...)
 }
+\arguments{
+\item{...}{Column objects to be coalesces}
+}
 \value{
 a Column object
 }
