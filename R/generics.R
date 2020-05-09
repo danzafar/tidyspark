@@ -939,9 +939,9 @@ setGeneric("dayofyear", function(x) { standardGeneric("dayofyear") })
 #' @name NULL
 setGeneric("decode", function(x, charset) { standardGeneric("decode") })
 
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("dense_rank", function(x = "missing") { standardGeneric("dense_rank") })
+#' #' @rdname column_window_functions
+#' #' @name NULL
+#' setGeneric("dense_rank", function(x = "missing") { standardGeneric("dense_rank") })
 
 #' @rdname column_collection_functions
 #' @name NULL
@@ -1143,9 +1143,9 @@ setGeneric("rand", function(seed) { standardGeneric("rand") })
 #' @name NULL
 setGeneric("randn", function(seed) { standardGeneric("randn") })
 
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("rank", function(x, ...) { standardGeneric("rank") })
+#' #' @rdname column_window_functions
+#' #' @name NULL
+#' setGeneric("rank", function(x, ...) { standardGeneric("rank") })
 
 #' @rdname column_string_functions
 #' @name NULL

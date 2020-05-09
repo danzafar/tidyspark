@@ -27,8 +27,7 @@ Imports:
     rlang
 Depends: 
     dplyr (>= 0.8.0),
-    utils,
-    lubridate
+    lubridate (>= 1.7.4),
     R (>= 3.1)
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
@@ -37,6 +36,7 @@ Collate:
     'base.R'
     'columns.R'
     'dplyr.R'
+    'dplyr_triple_colon.R'
     'fix_dot.R'
     'generics.R'
     'functions.R'
@@ -53,4 +53,5 @@ Collate:
     'spark_new.R'
     'spark_tbl.R'
     'test-pivot.R'
+    'tibble_triple_colon.R'
     'utils.R'
