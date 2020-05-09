@@ -221,6 +221,39 @@ coalesce.default <- function(...) {
 }
 
 #' @export
+count <- function(...) {
+  UseMethod("count")
+}
+
+#' @importFrom dplyr count
+count.default <- function(...) {
+  # TODO: how to add an base R option here? Do we want default to be dplyr?
+  dplyr::count(...)
+}
+
+#' @importFrom dplyr count
+count.Column <- function(x, ...){
+  jc <- call_static("org.apache.spark.sql.functions", "count", x@jc)
+  new("Column", jc)
+}
+
+#' @export
+n <- function(...) {
+  UseMethod(" ")
+}
+
+#' @importFrom dplyr n
+n.default <- function(...) {
+  dplyr::count(...)
+}
+
+#' @importFrom dplyr n
+n.Column <- function(x, ...){
+  tidyspark::count(x)
+}
+
+
+#' @export
 #' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 

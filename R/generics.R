@@ -383,31 +383,27 @@ setGeneric("value", function(bcast) { standardGeneric("value") })
 #
 # #' @rdname columns
 # setGeneric("columns", function(x) {standardGeneric("columns") })
-#
-# #' @param x a GroupedData or Column.
-# #' @rdname count
-# setGeneric("count", function(x) { standardGeneric("count") })
-#
-# #' @rdname cov
-# #' @param x a Column or a SparkDataFrame.
-# #' @param ... additional argument(s). If \code{x} is a Column, a Column
-# #'        should be provided. If \code{x} is a SparkDataFrame, two column names should
-# #'        be provided.
-# setGeneric("cov", function(x, ...) {standardGeneric("cov") })
-#
-# #' @rdname corr
-# #' @param x a Column or a SparkDataFrame.
-# #' @param ... additional argument(s). If \code{x} is a Column, a Column
-# #'        should be provided. If \code{x} is a SparkDataFrame, two column names should
-# #'        be provided.
-# setGeneric("corr", function(x, ...) {standardGeneric("corr") })
-#
-# #' @rdname cov
-# setGeneric("covar_samp", function(col1, col2) {standardGeneric("covar_samp") })
-#
-# #' @rdname cov
-# setGeneric("covar_pop", function(col1, col2) {standardGeneric("covar_pop") })
-#
+
+#' @rdname cov
+#' @param x a Column or a SparkDataFrame.
+#' @param ... additional argument(s). If \code{x} is a Column, a Column
+#'        should be provided. If \code{x} is a SparkDataFrame, two column names should
+#'        be provided.
+setGeneric("cov", function(x, ...) {standardGeneric("cov") })
+
+#' @rdname corr
+#' @param x a Column or a SparkDataFrame.
+#' @param ... additional argument(s). If \code{x} is a Column, a Column
+#'        should be provided. If \code{x} is a SparkDataFrame, two column names should
+#'        be provided.
+setGeneric("corr", function(x, ...) {standardGeneric("corr") })
+
+#' @rdname cov_samp
+setGeneric("covar_samp", function(col1, col2) {standardGeneric("covar_samp") })
+
+#' @rdname cov_pop
+setGeneric("covar_pop", function(col1, col2) {standardGeneric("covar_pop") })
+
 # #' @rdname createOrReplaceTempView
 # setGeneric("createOrReplaceTempView",
 #            function(x, viewName) {
@@ -483,10 +479,10 @@ setGeneric("value", function(bcast) { standardGeneric("value") })
 #
 # #' @rdname filter
 # setGeneric("filter", function(x, condition) { standardGeneric("filter") })
-#
-# #' @rdname first
-# setGeneric("first", function(x, ...) { standardGeneric("first") })
-#
+
+#' @rdname first
+setGeneric("first", function(x, ...) { standardGeneric("first") })
+
 # #' @rdname groupBy
 # setGeneric("group_by", function(x, ...) { standardGeneric("group_by") })
 #
@@ -723,12 +719,12 @@ setGeneric("rlike", function(x, ...) { standardGeneric("rlike") })
 #' @rdname startsWith
 setGeneric("startsWith", function(x, prefix) { standardGeneric("startsWith") })
 
-# #' @rdname column_nonaggregate_functions
-# #' @name NULL
-# setGeneric("when", function(condition, value) { standardGeneric("when") })
-#
-# #' @rdname otherwise
-# setGeneric("otherwise", function(x, value) { standardGeneric("otherwise") })
+#' @rdname column_nonaggregate_functions
+#' @name NULL
+setGeneric("when", function(condition, value) { standardGeneric("when") })
+
+#' @rdname otherwise
+setGeneric("otherwise", function(x, value) { standardGeneric("otherwise") })
 
 #' @rdname over
 setGeneric("over", function(x, window) { standardGeneric("over") })
@@ -907,7 +903,6 @@ setGeneric("current_date", function(x = "missing") { standardGeneric("current_da
 #' @name NULL
 setGeneric("current_timestamp", function(x = "missing") { standardGeneric("current_timestamp") })
 
-
 #' @rdname column_datetime_diff_functions
 #' @name NULL
 setGeneric("datediff", function(y, x) { standardGeneric("datediff") })
@@ -1008,10 +1003,6 @@ setGeneric("grouping_id", function(x, ...) { standardGeneric("grouping_id") })
 #' @name NULL
 setGeneric("hex", function(x) { standardGeneric("hex") })
 
-#' @rdname column_datetime_functions
-#' @name NULL
-setGeneric("hour", function(x) { standardGeneric("hour") })
-
 #' @rdname column_math_functions
 #' @name NULL
 setGeneric("hypot", function(y, x) { standardGeneric("hypot") })
@@ -1096,25 +1087,14 @@ setGeneric("map_values", function(x) { standardGeneric("map_values") })
 #' @name NULL
 setGeneric("md5", function(x) { standardGeneric("md5") })
 
-#' @rdname column_datetime_functions
-#' @name NULL
-setGeneric("minute", function(x) { standardGeneric("minute") })
-
 #' @rdname column_nonaggregate_functions
 #' @name NULL
 setGeneric("monotonically_increasing_id",
            function(x = "missing") { standardGeneric("monotonically_increasing_id") })
 
-#' @rdname column_datetime_functions
-#' @name NULL
-setGeneric("month", function(x) { standardGeneric("month") })
-
 #' @rdname column_datetime_diff_functions
 #' @name NULL
 setGeneric("months_between", function(y, x) { standardGeneric("months_between") })
-
-#' @rdname count
-setGeneric("n", function(x) { standardGeneric("n") })
 
 #' @rdname column_nonaggregate_functions
 #' @name NULL
@@ -1154,10 +1134,6 @@ setGeneric("posexplode", function(x) { standardGeneric("posexplode") })
 #' @rdname column_collection_functions
 #' @name NULL
 setGeneric("posexplode_outer", function(x) { standardGeneric("posexplode_outer") })
-
-#' @rdname column_datetime_functions
-#' @name NULL
-setGeneric("quarter", function(x) { standardGeneric("quarter") })
 
 #' @rdname column_nonaggregate_functions
 #' @name NULL
@@ -1207,10 +1183,6 @@ setGeneric("rtrim", function(x, trimString) { standardGeneric("rtrim") })
 #' @rdname column_aggregate_functions
 #' @name NULL
 setGeneric("sd", function(x, na.rm = FALSE) { standardGeneric("sd") })
-
-#' @rdname column_datetime_functions
-#' @name NULL
-setGeneric("second", function(x) { standardGeneric("second") })
 
 #' @rdname column_misc_functions
 #' @name NULL
@@ -1363,10 +1335,6 @@ setGeneric("weekofyear", function(x) { standardGeneric("weekofyear") })
 #' @rdname column_datetime_functions
 #' @name NULL
 setGeneric("window", function(x, ...) { standardGeneric("window") })
-
-#' @rdname column_datetime_functions
-#' @name NULL
-setGeneric("year", function(x) { standardGeneric("year") })
 
 # Going to let young stern handle this one
 # ###################### Spark.ML Methods ##########################

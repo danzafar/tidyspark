@@ -175,7 +175,7 @@ is.logical.Column <- function(x) {
   df_schema[str_name] == c("BooleanType")
 }
 
-
+#TODO: fix?
 #' #' @export
 #' setMethod("is.logical", signature(x = "Column"),
 #'           function(x) {
@@ -465,6 +465,16 @@ coalesce.Column <- function(...) {
      jc <- call_static("org.apache.spark.sql.functions", "coalesce", jcols)
      x = new("Column", jc)
   }
+
+  #TODO: optimize this
+  # function(x, ...) {
+  #   jcols <- lapply(list(x, ...), function(x) {
+  #     stopifnot(class(x) == "Column")
+  #     x@jc
+  #   })
+  #   jc <- call_static("org.apache.spark.sql.functions", "coalesce", jcols)
+  #   new("Column", jc)
+  # })
 
   return(x)
 }

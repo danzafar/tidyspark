@@ -22,3 +22,25 @@ Depends:
     lubridate
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
+Collate: 
+    'apply.R'
+    'base.R'
+    'columns.R'
+    'dplyr.R'
+    'fix_dot.R'
+    'generics.R'
+    'functions.R'
+    'if_else.R'
+    'joins.R'
+    'lubridate.R'
+    'n_context.R'
+    'rank_function_classes.R'
+    'rdd.R'
+    'read-write.R'
+    'schema.R'
+    'spark.R'
+    'sparkContext.R'
+    'spark_new.R'
+    'spark_tbl.R'
+    'test-pivot.R'
+    'utils.R'

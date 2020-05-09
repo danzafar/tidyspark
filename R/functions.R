@@ -1,263 +1,246 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
-#' @include generics.R column.R
+#' @include generics.R
 NULL
 
-#' Aggregate functions for Column operations
+#' #' Aggregate functions for Column operations
+#' #'
+#' #' Aggregate functions defined for \code{Column}.
+#' #'
+#' #' @param x Column to compute on.
+#' #' @param y,na.rm,use currently not used.
+#' #' @param ... additional argument(s). For example, it could be used to pass additional Columns.
+#' #' @name column_aggregate_functions
+#' #' @rdname column_aggregate_functions
+#' #' @family aggregate functions
+#' #' @examples
+#' #' \dontrun{
+#' #' # Dataframe used throughout this doc
+#' #' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))}
+#' NULL
 #'
-#' Aggregate functions defined for \code{Column}.
+#' #' Date time functions for Column operations
+#' #'
+#' #' Date time functions defined for \code{Column}.
+#' #'
+#' #' @param x Column to compute on. In \code{window}, it must be a time Column of
+#' #'          \code{TimestampType}. This is not used with \code{current_date} and
+#' #'          \code{current_timestamp}
+#' #' @param format The format for the given dates or timestamps in Column \code{x}. See the
+#' #'               format used in the following methods:
+#' #'               \itemize{
+#' #'               \item \code{to_date} and \code{to_timestamp}: it is the string to use to parse
+#' #'                    Column \code{x} to DateType or TimestampType.
+#' #'               \item \code{trunc}: it is the string to use to specify the truncation method.
+#' #'                    For example, "year", "yyyy", "yy" for truncate by year, or "month", "mon",
+#' #'                    "mm" for truncate by month.
+#' #'               \item \code{date_trunc}: it is similar with \code{trunc}'s but additionally
+#' #'                    supports "day", "dd", "second", "minute", "hour", "week" and "quarter".
+#' #'               }
+#' #' @param ... additional argument(s).
+#' #' @name column_datetime_functions
+#' #' @rdname column_datetime_functions
+#' #' @family data time functions
+#' #' @examples
+#' #' \dontrun{
+#' #' dts <- c("2005-01-02 18:47:22",
+#' #'         "2005-12-24 16:30:58",
+#' #'         "2005-10-28 07:30:05",
+#' #'         "2005-12-28 07:01:05",
+#' #'         "2006-01-24 00:01:10")
+#' #' y <- c(2.0, 2.2, 3.4, 2.5, 1.8)
+#' #' df <- createDataFrame(data.frame(time = as.POSIXct(dts), y = y))}
+#' NULL
 #'
-#' @param x Column to compute on.
-#' @param y,na.rm,use currently not used.
-#' @param ... additional argument(s). For example, it could be used to pass additional Columns.
-#' @name column_aggregate_functions
-#' @rdname column_aggregate_functions
-#' @family aggregate functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))}
-NULL
-
-#' Date time functions for Column operations
+#' #' Date time arithmetic functions for Column operations
+#' #'
+#' #' Date time arithmetic functions defined for \code{Column}.
+#' #'
+#' #' @param y Column to compute on.
+#' #' @param x For class \code{Column}, it is the column used to perform arithmetic operations
+#' #'          with column \code{y}. For class \code{numeric}, it is the number of months or
+#' #'          days to be added to or subtracted from \code{y}. For class \code{character}, it is
+#' #'          \itemize{
+#' #'          \item \code{date_format}: date format specification.
+#' #'          \item \code{from_utc_timestamp}, \code{to_utc_timestamp}: time zone to use.
+#' #'          \item \code{next_day}: day of the week string.
+#' #'          }
+#' #'
+#' #' @name column_datetime_diff_functions
+#' #' @rdname column_datetime_diff_functions
+#' #' @family data time functions
+#' #' @examples
+#' #' \dontrun{
+#' #' dts <- c("2005-01-02 18:47:22",
+#' #'         "2005-12-24 16:30:58",
+#' #'         "2005-10-28 07:30:05",
+#' #'         "2005-12-28 07:01:05",
+#' #'         "2006-01-24 00:01:10")
+#' #' y <- c(2.0, 2.2, 3.4, 2.5, 1.8)
+#' #' df <- createDataFrame(data.frame(time = as.POSIXct(dts), y = y))}
+#' NULL
 #'
-#' Date time functions defined for \code{Column}.
+#' #' Math functions for Column operations
+#' #'
+#' #' Math functions defined for \code{Column}.
+#' #'
+#' #' @param x Column to compute on. In \code{shiftLeft}, \code{shiftRight} and
+#' #'          \code{shiftRightUnsigned}, this is the number of bits to shift.
+#' #' @param y Column to compute on.
+#' #' @param ... additional argument(s).
+#' #' @name column_math_functions
+#' #' @rdname column_math_functions
+#' #' @family math functions
+#' #' @examples
+#' #' \dontrun{
+#' #' # Dataframe used throughout this doc
+#' #' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
+#' #' tmp <- mutate(df, v1 = log(df$mpg), v2 = cbrt(df$disp),
+#' #'                   v3 = bround(df$wt, 1), v4 = bin(df$cyl),
+#' #'                   v5 = hex(df$wt), v6 = toDegrees(df$gear),
+#' #'                   v7 = atan2(df$cyl, df$am), v8 = hypot(df$cyl, df$am),
+#' #'                   v9 = pmod(df$hp, df$cyl), v10 = shiftLeft(df$disp, 1),
+#' #'                   v11 = conv(df$hp, 10, 16), v12 = sign(df$vs - 0.5),
+#' #'                   v13 = sqrt(df$disp), v14 = ceil(df$wt))
+#' #' head(tmp)}
+#' NULL
 #'
-#' @param x Column to compute on. In \code{window}, it must be a time Column of
-#'          \code{TimestampType}. This is not used with \code{current_date} and
-#'          \code{current_timestamp}
-#' @param format The format for the given dates or timestamps in Column \code{x}. See the
-#'               format used in the following methods:
-#'               \itemize{
-#'               \item \code{to_date} and \code{to_timestamp}: it is the string to use to parse
-#'                    Column \code{x} to DateType or TimestampType.
-#'               \item \code{trunc}: it is the string to use to specify the truncation method.
-#'                    For example, "year", "yyyy", "yy" for truncate by year, or "month", "mon",
-#'                    "mm" for truncate by month.
-#'               \item \code{date_trunc}: it is similar with \code{trunc}'s but additionally
-#'                    supports "day", "dd", "second", "minute", "hour", "week" and "quarter".
-#'               }
-#' @param ... additional argument(s).
-#' @name column_datetime_functions
-#' @rdname column_datetime_functions
-#' @family data time functions
-#' @examples
-#' \dontrun{
-#' dts <- c("2005-01-02 18:47:22",
-#'         "2005-12-24 16:30:58",
-#'         "2005-10-28 07:30:05",
-#'         "2005-12-28 07:01:05",
-#'         "2006-01-24 00:01:10")
-#' y <- c(2.0, 2.2, 3.4, 2.5, 1.8)
-#' df <- createDataFrame(data.frame(time = as.POSIXct(dts), y = y))}
-NULL
-
-#' Date time arithmetic functions for Column operations
+#' #' String functions for Column operations
+#' #'
+#' #' String functions defined for \code{Column}.
+#' #'
+#' #' @param x Column to compute on except in the following methods:
+#' #'      \itemize{
+#' #'      \item \code{instr}: \code{character}, the substring to check. See 'Details'.
+#' #'      \item \code{format_number}: \code{numeric}, the number of decimal place to
+#' #'           format to. See 'Details'.
+#' #'      }
+#' #' @param y Column to compute on.
+#' #' @param ... additional Columns.
+#' #' @name column_string_functions
+#' #' @rdname column_string_functions
+#' #' @family string functions
+#' #' @examples
+#' #' \dontrun{
+#' #' # Dataframe used throughout this doc
+#' #' df <- createDataFrame(as.data.frame(Titanic, stringsAsFactors = FALSE))}
+#' NULL
 #'
-#' Date time arithmetic functions defined for \code{Column}.
+#' #' Non-aggregate functions for Column operations
+#' #'
+#' #' Non-aggregate functions defined for \code{Column}.
+#' #'
+#' #' @param x Column to compute on. In \code{lit}, it is a literal value or a Column.
+#' #'          In \code{expr}, it contains an expression character object to be parsed.
+#' #' @param y Column to compute on.
+#' #' @param ... additional Columns.
+#' #' @name column_nonaggregate_functions
+#' #' @rdname column_nonaggregate_functions
+#' #' @seealso coalesce,SparkDataFrame-method
+#' #' @family non-aggregate functions
+#' #' @examples
+#' #' \dontrun{
+#' #' # Dataframe used throughout this doc
+#' #' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))}
+#' NULL
 #'
-#' @param y Column to compute on.
-#' @param x For class \code{Column}, it is the column used to perform arithmetic operations
-#'          with column \code{y}. For class \code{numeric}, it is the number of months or
-#'          days to be added to or subtracted from \code{y}. For class \code{character}, it is
-#'          \itemize{
-#'          \item \code{date_format}: date format specification.
-#'          \item \code{from_utc_timestamp}, \code{to_utc_timestamp}: time zone to use.
-#'          \item \code{next_day}: day of the week string.
-#'          }
+#' #' Miscellaneous functions for Column operations
+#' #'
+#' #' Miscellaneous functions defined for \code{Column}.
+#' #'
+#' #' @param x Column to compute on. In \code{sha2}, it is one of 224, 256, 384, or 512.
+#' #' @param y Column to compute on.
+#' #' @param ... additional Columns.
+#' #' @name column_misc_functions
+#' #' @rdname column_misc_functions
+#' #' @family misc functions
+#' #' @examples
+#' #' \dontrun{
+#' #' # Dataframe used throughout this doc
+#' #' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars)[, 1:2])
+#' #' tmp <- mutate(df, v1 = crc32(df$model), v2 = hash(df$model),
+#' #'                   v3 = hash(df$model, df$mpg), v4 = md5(df$model),
+#' #'                   v5 = sha1(df$model), v6 = sha2(df$model, 256))
+#' #' head(tmp)}
+#' NULL
 #'
-#' @name column_datetime_diff_functions
-#' @rdname column_datetime_diff_functions
-#' @family data time functions
-#' @examples
-#' \dontrun{
-#' dts <- c("2005-01-02 18:47:22",
-#'         "2005-12-24 16:30:58",
-#'         "2005-10-28 07:30:05",
-#'         "2005-12-28 07:01:05",
-#'         "2006-01-24 00:01:10")
-#' y <- c(2.0, 2.2, 3.4, 2.5, 1.8)
-#' df <- createDataFrame(data.frame(time = as.POSIXct(dts), y = y))}
-NULL
-
-#' Math functions for Column operations
+#' #' Collection functions for Column operations
+#' #'
+#' #' Collection functions defined for \code{Column}.
+#' #'
+#' #' @param x Column to compute on. Note the difference in the following methods:
+#' #'          \itemize{
+#' #'          \item \code{to_json}: it is the column containing the struct, array of the structs,
+#' #'              the map or array of maps.
+#' #'          \item \code{from_json}: it is the column containing the JSON string.
+#' #'          }
+#' #' @param y Column to compute on.
+#' #' @param value A value to compute on.
+#' #'          \itemize{
+#' #'          \item \code{array_contains}: a value to be checked if contained in the column.
+#' #'          \item \code{array_position}: a value to locate in the given array.
+#' #'          \item \code{array_remove}: a value to remove in the given array.
+#' #'          }
+#' #' @param ... additional argument(s). In \code{to_json} and \code{from_json}, this contains
+#' #'            additional named properties to control how it is converted, accepts the same
+#' #'            options as the JSON data source.  In \code{arrays_zip}, this contains additional
+#' #'            Columns of arrays to be merged.
+#' #' @name column_collection_functions
+#' #' @rdname column_collection_functions
+#' #' @family collection functions
+#' #' @examples
+#' #' \dontrun{
+#' #' # Dataframe used throughout this doc
+#' #' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
+#' #' tmp <- mutate(df, v1 = create_array(df$mpg, df$cyl, df$hp))
+#' #' head(select(tmp, array_contains(tmp$v1, 21), size(tmp$v1), shuffle(tmp$v1)))
+#' #' head(select(tmp, array_max(tmp$v1), array_min(tmp$v1), array_distinct(tmp$v1)))
+#' #' head(select(tmp, array_position(tmp$v1, 21), array_repeat(df$mpg, 3), array_sort(tmp$v1)))
+#' #' head(select(tmp, flatten(tmp$v1), reverse(tmp$v1), array_remove(tmp$v1, 21)))
+#' #' tmp2 <- mutate(tmp, v2 = explode(tmp$v1))
+#' #' head(tmp2)
+#' #' head(select(tmp, posexplode(tmp$v1)))
+#' #' head(select(tmp, slice(tmp$v1, 2L, 2L)))
+#' #' head(select(tmp, sort_array(tmp$v1)))
+#' #' head(select(tmp, sort_array(tmp$v1, asc = FALSE)))
+#' #' tmp3 <- mutate(df, v3 = create_map(df$model, df$cyl))
+#' #' head(select(tmp3, map_keys(tmp3$v3), map_values(tmp3$v3)))
+#' #' head(select(tmp3, element_at(tmp3$v3, "Valiant")))
+#' #' tmp4 <- mutate(df, v4 = create_array(df$mpg, df$cyl), v5 = create_array(df$cyl, df$hp))
+#' #' head(select(tmp4, concat(tmp4$v4, tmp4$v5), arrays_overlap(tmp4$v4, tmp4$v5)))
+#' #' head(select(tmp4, array_except(tmp4$v4, tmp4$v5), array_intersect(tmp4$v4, tmp4$v5)))
+#' #' head(select(tmp4, array_union(tmp4$v4, tmp4$v5)))
+#' #' head(select(tmp4, arrays_zip(tmp4$v4, tmp4$v5), map_from_arrays(tmp4$v4, tmp4$v5)))
+#' #' head(select(tmp, concat(df$mpg, df$cyl, df$hp)))
+#' #' tmp5 <- mutate(df, v6 = create_array(df$model, df$model))
+#' #' head(select(tmp5, array_join(tmp5$v6, "#"), array_join(tmp5$v6, "#", "NULL")))}
+#' NULL
 #'
-#' Math functions defined for \code{Column}.
-#'
-#' @param x Column to compute on. In \code{shiftLeft}, \code{shiftRight} and
-#'          \code{shiftRightUnsigned}, this is the number of bits to shift.
-#' @param y Column to compute on.
-#' @param ... additional argument(s).
-#' @name column_math_functions
-#' @rdname column_math_functions
-#' @family math functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
-#' tmp <- mutate(df, v1 = log(df$mpg), v2 = cbrt(df$disp),
-#'                   v3 = bround(df$wt, 1), v4 = bin(df$cyl),
-#'                   v5 = hex(df$wt), v6 = toDegrees(df$gear),
-#'                   v7 = atan2(df$cyl, df$am), v8 = hypot(df$cyl, df$am),
-#'                   v9 = pmod(df$hp, df$cyl), v10 = shiftLeft(df$disp, 1),
-#'                   v11 = conv(df$hp, 10, 16), v12 = sign(df$vs - 0.5),
-#'                   v13 = sqrt(df$disp), v14 = ceil(df$wt))
-#' head(tmp)}
-NULL
-
-#' String functions for Column operations
-#'
-#' String functions defined for \code{Column}.
-#'
-#' @param x Column to compute on except in the following methods:
-#'      \itemize{
-#'      \item \code{instr}: \code{character}, the substring to check. See 'Details'.
-#'      \item \code{format_number}: \code{numeric}, the number of decimal place to
-#'           format to. See 'Details'.
-#'      }
-#' @param y Column to compute on.
-#' @param ... additional Columns.
-#' @name column_string_functions
-#' @rdname column_string_functions
-#' @family string functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(as.data.frame(Titanic, stringsAsFactors = FALSE))}
-NULL
-
-#' Non-aggregate functions for Column operations
-#'
-#' Non-aggregate functions defined for \code{Column}.
-#'
-#' @param x Column to compute on. In \code{lit}, it is a literal value or a Column.
-#'          In \code{expr}, it contains an expression character object to be parsed.
-#' @param y Column to compute on.
-#' @param ... additional Columns.
-#' @name column_nonaggregate_functions
-#' @rdname column_nonaggregate_functions
-#' @seealso coalesce,SparkDataFrame-method
-#' @family non-aggregate functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))}
-NULL
-
-#' Miscellaneous functions for Column operations
-#'
-#' Miscellaneous functions defined for \code{Column}.
-#'
-#' @param x Column to compute on. In \code{sha2}, it is one of 224, 256, 384, or 512.
-#' @param y Column to compute on.
-#' @param ... additional Columns.
-#' @name column_misc_functions
-#' @rdname column_misc_functions
-#' @family misc functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars)[, 1:2])
-#' tmp <- mutate(df, v1 = crc32(df$model), v2 = hash(df$model),
-#'                   v3 = hash(df$model, df$mpg), v4 = md5(df$model),
-#'                   v5 = sha1(df$model), v6 = sha2(df$model, 256))
-#' head(tmp)}
-NULL
-
-#' Collection functions for Column operations
-#'
-#' Collection functions defined for \code{Column}.
-#'
-#' @param x Column to compute on. Note the difference in the following methods:
-#'          \itemize{
-#'          \item \code{to_json}: it is the column containing the struct, array of the structs,
-#'              the map or array of maps.
-#'          \item \code{from_json}: it is the column containing the JSON string.
-#'          }
-#' @param y Column to compute on.
-#' @param value A value to compute on.
-#'          \itemize{
-#'          \item \code{array_contains}: a value to be checked if contained in the column.
-#'          \item \code{array_position}: a value to locate in the given array.
-#'          \item \code{array_remove}: a value to remove in the given array.
-#'          }
-#' @param ... additional argument(s). In \code{to_json} and \code{from_json}, this contains
-#'            additional named properties to control how it is converted, accepts the same
-#'            options as the JSON data source.  In \code{arrays_zip}, this contains additional
-#'            Columns of arrays to be merged.
-#' @name column_collection_functions
-#' @rdname column_collection_functions
-#' @family collection functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
-#' tmp <- mutate(df, v1 = create_array(df$mpg, df$cyl, df$hp))
-#' head(select(tmp, array_contains(tmp$v1, 21), size(tmp$v1), shuffle(tmp$v1)))
-#' head(select(tmp, array_max(tmp$v1), array_min(tmp$v1), array_distinct(tmp$v1)))
-#' head(select(tmp, array_position(tmp$v1, 21), array_repeat(df$mpg, 3), array_sort(tmp$v1)))
-#' head(select(tmp, flatten(tmp$v1), reverse(tmp$v1), array_remove(tmp$v1, 21)))
-#' tmp2 <- mutate(tmp, v2 = explode(tmp$v1))
-#' head(tmp2)
-#' head(select(tmp, posexplode(tmp$v1)))
-#' head(select(tmp, slice(tmp$v1, 2L, 2L)))
-#' head(select(tmp, sort_array(tmp$v1)))
-#' head(select(tmp, sort_array(tmp$v1, asc = FALSE)))
-#' tmp3 <- mutate(df, v3 = create_map(df$model, df$cyl))
-#' head(select(tmp3, map_keys(tmp3$v3), map_values(tmp3$v3)))
-#' head(select(tmp3, element_at(tmp3$v3, "Valiant")))
-#' tmp4 <- mutate(df, v4 = create_array(df$mpg, df$cyl), v5 = create_array(df$cyl, df$hp))
-#' head(select(tmp4, concat(tmp4$v4, tmp4$v5), arrays_overlap(tmp4$v4, tmp4$v5)))
-#' head(select(tmp4, array_except(tmp4$v4, tmp4$v5), array_intersect(tmp4$v4, tmp4$v5)))
-#' head(select(tmp4, array_union(tmp4$v4, tmp4$v5)))
-#' head(select(tmp4, arrays_zip(tmp4$v4, tmp4$v5), map_from_arrays(tmp4$v4, tmp4$v5)))
-#' head(select(tmp, concat(df$mpg, df$cyl, df$hp)))
-#' tmp5 <- mutate(df, v6 = create_array(df$model, df$model))
-#' head(select(tmp5, array_join(tmp5$v6, "#"), array_join(tmp5$v6, "#", "NULL")))}
-NULL
-
-#' Window functions for Column operations
-#'
-#' Window functions defined for \code{Column}.
-#'
-#' @param x In \code{lag} and \code{lead}, it is the column as a character string or a Column
-#'          to compute on. In \code{ntile}, it is the number of ntile groups.
-#' @param offset In \code{lag}, the number of rows back from the current row from which to obtain
-#'               a value. In \code{lead}, the number of rows after the current row from which to
-#'               obtain a value. If not specified, the default is 1.
-#' @param defaultValue (optional) default to use when the offset row does not exist.
-#' @param ... additional argument(s).
-#' @name column_window_functions
-#' @rdname column_window_functions
-#' @family window functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
-#' ws <- orderBy(windowPartitionBy("am"), "hp")
-#' tmp <- mutate(df, dist = over(cume_dist(), ws), dense_rank = over(dense_rank(), ws),
-#'               lag = over(lag(df$mpg), ws), lead = over(lead(df$mpg, 1), ws),
-#'               percent_rank = over(percent_rank(), ws),
-#'               rank = over(rank(), ws), row_number = over(row_number(), ws))
-#' # Get ntile group id (1-4) for hp
-#' tmp <- mutate(tmp, ntile = over(ntile(4), ws))
-#' head(tmp)}
-NULL
+#' #' Window functions for Column operations
+#' #'
+#' #' Window functions defined for \code{Column}.
+#' #'
+#' #' @param x In \code{lag} and \code{lead}, it is the column as a character string or a Column
+#' #'          to compute on. In \code{ntile}, it is the number of ntile groups.
+#' #' @param offset In \code{lag}, the number of rows back from the current row from which to obtain
+#' #'               a value. In \code{lead}, the number of rows after the current row from which to
+#' #'               obtain a value. If not specified, the default is 1.
+#' #' @param defaultValue (optional) default to use when the offset row does not exist.
+#' #' @param ... additional argument(s).
+#' #' @name column_window_functions
+#' #' @rdname column_window_functions
+#' #' @family window functions
+#' #' @examples
+#' #' \dontrun{
+#' #' # Dataframe used throughout this doc
+#' #' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
+#' #' ws <- orderBy(windowPartitionBy("am"), "hp")
+#' #' tmp <- mutate(df, dist = over(cume_dist(), ws), dense_rank = over(dense_rank(), ws),
+#' #'               lag = over(lag(df$mpg), ws), lead = over(lead(df$mpg, 1), ws),
+#' #'               percent_rank = over(percent_rank(), ws),
+#' #'               rank = over(rank(), ws), row_number = over(row_number(), ws))
+#' #' # Get ntile group id (1-4) for hp
+#' #' tmp <- mutate(tmp, ntile = over(ntile(4), ws))
+#' #' head(tmp)}
+# NULL
 
 # #' @details
 # #' \code{lit}: A new Column is created to represent the literal value.
@@ -485,23 +468,6 @@ setMethod("ceiling",
             ceil(x)
           })
 
-#' @details
-#' \code{coalesce}: Returns the first column that is not NA, or NA if all inputs are.
-#'
-#' @rdname column_nonaggregate_functions
-#' @aliases coalesce,Column-method
-#' @note coalesce(Column) since 2.1.1
-setMethod("coalesce",
-          signature(x = "Column"),
-          function(x, ...) {
-            jcols <- lapply(list(x, ...), function(x) {
-              stopifnot(class(x) == "Column")
-              x@jc
-            })
-            jc <- call_static("org.apache.spark.sql.functions", "coalesce", jcols)
-            new("Column", jc)
-          })
-
 #' Though scala functions has "col" function, we don't expose it in SparkR
 #' because we don't want to conflict with the "col" function in the R base
 #' package and we also have "column" function exported which is an alias of "col".
@@ -638,24 +604,6 @@ setMethod("cosh",
           signature(x = "Column"),
           function(x) {
             jc <- call_static("org.apache.spark.sql.functions", "cosh", x@jc)
-            new("Column", jc)
-          })
-
-#' Returns the number of items in a group
-#'
-#' This can be used as a column aggregate function with \code{Column} as input,
-#' and returns the number of items in a group.
-#'
-#' @rdname count
-#' @name count
-#' @family aggregate functions
-#' @aliases count,Column-method
-#' @examples \dontrun{count(df$c)}
-#' @note count since 1.4.0
-setMethod("count",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "count", x@jc)
             new("Column", jc)
           })
 
@@ -797,18 +745,19 @@ setMethod("expm1",
             new("Column", jc)
           })
 
-#' @details
-#' \code{factorial}: Computes the factorial of the given value.
-#'
-#' @rdname column_math_functions
-#' @aliases factorial factorial,Column-method
-#' @note factorial since 1.5.0
-setMethod("factorial",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "factorial", x@jc)
-            new("Column", jc)
-          })
+# TODO:
+#' #' @details
+#' #' \code{factorial}: Computes the factorial of the given value.
+#' #'
+#' #' @rdname column_math_functions
+#' #' @aliases factorial factorial,Column-method
+#' #' @note factorial since 1.5.0
+#' setMethod("factorial",
+#'           signature(x = "Column"),
+#'           function(x) {
+#'             jc <- call_static("org.apache.spark.sql.functions", "factorial", x@jc)
+#'             new("Column", jc)
+#'           })
 
 #' first
 #'
@@ -867,26 +816,6 @@ setMethod("hex",
           signature(x = "Column"),
           function(x) {
             jc <- call_static("org.apache.spark.sql.functions", "hex", x@jc)
-            new("Column", jc)
-          })
-
-#' @details
-#' \code{hour}: Extracts the hour as an integer from a given date/timestamp/string.
-#'
-#' @rdname column_datetime_functions
-#' @aliases hour hour,Column-method
-#' @examples
-#'
-#' \dontrun{
-#' head(select(df, hour(df$time), minute(df$time), second(df$time)))
-#' head(agg(groupBy(df, dayofmonth(df$time)), avg(df$y)))
-#' head(agg(groupBy(df, hour(df$time)), avg(df$y)))
-#' head(agg(groupBy(df, minute(df$time)), avg(df$y)))}
-#' @note hour since 1.5.0
-setMethod("hour",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "hour", x@jc)
             new("Column", jc)
           })
 
@@ -1193,19 +1122,6 @@ setMethod("min",
           })
 
 #' @details
-#' \code{minute}: Extracts the minute as an integer from a given date/timestamp/string.
-#'
-#' @rdname column_datetime_functions
-#' @aliases minute minute,Column-method
-#' @note minute since 1.5.0
-setMethod("minute",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "minute", x@jc)
-            new("Column", jc)
-          })
-
-#' @details
 #' \code{monotonically_increasing_id}: Returns a column that generates monotonically increasing
 #' 64-bit integers. The generated ID is guaranteed to be monotonically increasing and unique,
 #' but not consecutive. The current implementation puts the partition ID in the upper 31 bits,
@@ -1230,18 +1146,7 @@ setMethod("monotonically_increasing_id",
             new("Column", jc)
           })
 
-#' @details
-#' \code{month}: Extracts the month as an integer from a given date/timestamp/string.
-#'
-#' @rdname column_datetime_functions
-#' @aliases month month,Column-method
-#' @note month since 1.5.0
-setMethod("month",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "month", x@jc)
-            new("Column", jc)
-          })
+
 
 #' @details
 #' \code{negate}: Unary minus, i.e. negate the expression.
@@ -1253,19 +1158,6 @@ setMethod("negate",
           signature(x = "Column"),
           function(x) {
             jc <- call_static("org.apache.spark.sql.functions", "negate", x@jc)
-            new("Column", jc)
-          })
-
-#' @details
-#' \code{quarter}: Extracts the quarter as an integer from a given date/timestamp/string.
-#'
-#' @rdname column_datetime_functions
-#' @aliases quarter quarter,Column-method
-#' @note quarter since 1.5.0
-setMethod("quarter",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "quarter", x@jc)
             new("Column", jc)
           })
 
@@ -1368,19 +1260,6 @@ setMethod("sd",
           function(x) {
             # In R, sample standard deviation is calculated with the sd() function.
             stddev_samp(x)
-          })
-
-#' @details
-#' \code{second}: Extracts the second as an integer from a given date/timestamp/string.
-#'
-#' @rdname column_datetime_functions
-#' @aliases second second,Column-method
-#' @note second since 1.5.0
-setMethod("second",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "second", x@jc)
-            new("Column", jc)
           })
 
 #' @details
@@ -1891,18 +1770,7 @@ setMethod("weekofyear",
             new("Column", jc)
           })
 
-#' @details
-#' \code{year}: Extracts the year as an integer from a given date/timestamp/string.
-#'
-#' @rdname column_datetime_functions
-#' @aliases year year,Column-method
-#' @note year since 1.5.0
-setMethod("year",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "year", x@jc)
-            new("Column", jc)
-          })
+
 
 #' @details
 #' \code{atan2}: Returns the angle theta from the conversion of rectangular coordinates
@@ -2130,15 +1998,6 @@ setMethod("n_distinct", signature(x = "Column"),
             countDistinct(x, ...)
           })
 
-#' @rdname count
-#' @name n
-#' @aliases n,Column-method
-#' @examples \dontrun{n(df$c)}
-#' @note n since 1.4.0
-setMethod("n", signature(x = "Column"),
-          function(x) {
-            count(x)
-          })
 
 #' @details
 #' \code{date_format}: Converts a date/timestamp/string to a value of string in the format
