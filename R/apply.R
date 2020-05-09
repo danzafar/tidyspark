@@ -35,7 +35,7 @@
 #' # but if you want to use a library, you need to load it in the UDF
 #' iris_tbl %>%
 #'   spark_udf(function(.df) {
-#'     require(magrittr)
+#'     require(dplyr)
 #'     .df %>%
 #'       head(my_var)
 #'   }, schema(iris_tbl)) %>%

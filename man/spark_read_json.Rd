@@ -20,6 +20,3 @@ https://docs.databricks.com/data/data-sources/read-json.html#multi-line-mode}
 \description{
 Read a JSON file into a \code{spark_tbl}.
 }
-\examples{
-TODO example of specifiying a schema and reading nested data
-}

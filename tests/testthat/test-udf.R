@@ -6,7 +6,9 @@ test_that("spark_udf works", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df) head(.df, 1), schema(iris_tbl)) %>%
+      spark_udf(function(.df) {
+        utils::head(.df, 1)
+        }, schema(iris_tbl)) %>%
       collect,
     iris_fix %>% head(1)
   )
@@ -14,8 +16,7 @@ test_that("spark_udf works", {
   expect_equal(
     iris_tbl %>%
       spark_udf(function(.df) {
-        require(dplyr)
-        .df %>% head(1)
+        utils::head(.df, 1)
       },
       schema(iris_tbl)) %>%
       collect,
@@ -32,12 +33,13 @@ test_that("spark_udf works with dplyr/purrr formulas", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(~ head(., 1), schema(iris_tbl)) %>%
+      spark_udf(~ utils::head(., 1), schema(iris_tbl)) %>%
       collect,
     iris_fix %>% head(1)
   )
 })
 
+### spark_udf broadcasts values ---------------------------------------------------
 test_that("spark_udf broadcasts values", {
   iris_tbl <- spark_tbl(iris)
   iris_fix <- iris %>%
@@ -49,7 +51,7 @@ test_that("spark_udf broadcasts values", {
   expect_equal(
     iris_tbl %>%
       spark_udf(function(.df) {
-          head(.df, .some_int)
+          utils::head(.df, .some_int)
         }, schema(iris_tbl)) %>%
       collect,
     iris_fix %>% head(3)
@@ -69,8 +71,8 @@ test_that("spark_udf docs are sound", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df) head(.df, my_var),
-                schema(iris_tbl)) %>%
+      spark_udf(function(.df) utils::head(.df, my_var),
+      schema(iris_tbl)) %>%
       collect,
     head(iris_fix, my_var)
   )
@@ -79,10 +81,8 @@ test_that("spark_udf docs are sound", {
   # but if you want to use a library, you need to load it in the UDF
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df) {
-        require(magrittr)
-        .df %>%
-          head(my_var)
+      spark_udf(function(.df)  {
+        utils::head(.df, my_var)
       }, schema(iris_tbl)) %>%
       collect,
     head(iris_fix, my_var)

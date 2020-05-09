@@ -192,10 +192,8 @@ spark_read_parquet <- function(path, ...) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
-#' TODO example of specifiying a schema and reading nested data
 spark_read_json <- function (path, multiline = F, ...) {
+  # TODO example of specifiying a schema and reading nested data
   sparkSession <- get_spark_session()
   options <- SparkR:::varargsToStrEnv(...)
   options$multiline <- ifelse(multiline, "true", "false")
@@ -651,6 +649,7 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
 #' @param bucket_by list, format \code{list(n = <integer>, cols = <string>)}")specifying
 #' the number of buckets and strings to bucket on. Use with caution. Not currently working.
 #' @param sort_by string, if bucketed, column names to sort by.
+#' @param ... additional named arguements pased to the spark writer.
 #'
 #' @details In the case the table already exists, behavior of this function
 #' depends on the save mode, specified by the mode function (default to throwing

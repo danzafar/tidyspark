@@ -28,6 +28,8 @@ spark_write_table(
 the number of buckets and strings to bucket on. Use with caution. Not currently working.}
 
 \item{sort_by}{string, if bucketed, column names to sort by.}
+
+\item{...}{additional named arguements pased to the spark writer.}
 }
 \description{
 Saves the content of the \code{spark_tbl} as the specified

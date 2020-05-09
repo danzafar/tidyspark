@@ -176,13 +176,6 @@ is.logical.Column <- function(x) {
   df_schema[str_name] == c("BooleanType")
 }
 
-
-#' #' @export
-#' setMethod("is.logical", signature(x = "Column"),
-#'           function(x) {
-#'             T
-#'           })
-
 is.character.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain

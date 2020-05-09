@@ -13,14 +13,20 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
+    arrow,
     testthat (>= 2.1.0),
     knitr,
-    rmarkdown
-Depends: 
+    rmarkdown,
+    nycflights13,
+    Lahman
+Imports:
     SparkR,
-    dplyr (>= 0.8.0),
-    utils,
+    R6,
     methods,
-    R6
+    utils,
+    rlang
+Depends: 
+    R (>= 3.1),
+    dplyr (>= 0.8.0)
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
