@@ -8,7 +8,7 @@ Authors@R: c(
 Maintainer: S Daniel Zafar <dan.zafar@databricks.com>
 Description: Provides a familiar interface for Spark, following tidyverse 
     syntax. Designed to be easy to understand and contribute to. Also 
-    implements the lower-level Spark API using pyspark-style R6 classes. 
+    implements the lower-level Spark API using pyspark-style R6 classes.  
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
