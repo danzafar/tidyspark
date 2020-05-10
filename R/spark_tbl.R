@@ -18,7 +18,11 @@ new_spark_tbl <- function(sdf, ...) {
   spk_tbl <- structure(get_jc_cols(sdf),
                        class = c("spark_tbl", "list"),
                        jc = sdf)
-  tibble:::update_tibble_attrs(spk_tbl, ...)
+  attribs <- list(...)
+  if (rlang::has_length(attribs)) {
+    attributes(spk_tbl)[names(attribs)] <- attribs
+  }
+  spk_tbl
 }
 
 #' Create a \code{spark_tbl}
@@ -205,7 +209,7 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
                 is.character(vars))
 
   if (is.list(vars)) {
-    vars <- dplyr:::deparse_names(vars)
+    vars <- deparse_names(vars)
   }
 
   new_spark_tbl(attr(data, "jc"), groups = vars)
@@ -289,7 +293,11 @@ dim.spark_tbl <- function(.data) {
 #'
 #' @export
 #' @importFrom dplyr coalesce
-coalesce.spark_tbl <- function(.data, n_partitions) {
+coalesce.spark_tbl <- function(...) {
+
+  .l <- list(...)
+  .data <- .l[[1]]
+  n_partitions <- .l[[2]]
 
   sdf <- attr(.data, "jc")
 

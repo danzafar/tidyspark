@@ -436,6 +436,18 @@ as.Column <- function(.x) lit(.x)
 #' @export
 as_Column <- function(.x) lit(.x)
 
+
+#' @export
+coalesce <- function(...) {
+  UseMethod("coalesce")
+}
+
+#' @export
+#' @importFrom dplyr coalesce
+coalesce.default <- function(...) {
+  dplyr::coalesce(...)
+}
+
 #' Coalesce \code{Columns}
 #'
 #' @description Coalesces any number of Columns where precedence of the values is taken

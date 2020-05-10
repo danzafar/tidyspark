@@ -203,13 +203,13 @@ if_else.default <- function(...) dplyr::if_else(...)
 #'
 #' @export
 case_when <- function(...) {
-  fs <- dplyr:::compact_null(rlang::list2(...))
+  fs <- compact_null(rlang::list2(...))
   if (length(fs) == 0) {
     abort("No cases provided")
   }
 
   quos_pairs <- mapply(function(x, y) {
-    dplyr:::validate_formula(x, y, default_env, current_env())
+    validate_formula(x, y, default_env, current_env())
   }, fs, seq_along(fs),
   SIMPLIFY = F)
 
@@ -224,7 +224,7 @@ case_when <- function(...) {
 }
 
 case_when.Column <- function (...) {
-  fs <- dplyr:::compact_null(rlang::list2(...))
+  fs <- compact_null(rlang::list2(...))
   n <- length(fs)
   if (n == 0) {
     abort("No cases provided")
@@ -234,7 +234,7 @@ case_when.Column <- function (...) {
   default_env <- rlang::caller_env()
 
   quos_pairs <- mapply(function(x, y) {
-    dplyr:::validate_formula(x, y, default_env, current_env())},
+    validate_formula(x, y, default_env, current_env())},
                        fs, seq_along(fs),
     SIMPLIFY = F)
 

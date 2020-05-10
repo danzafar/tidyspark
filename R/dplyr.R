@@ -51,9 +51,9 @@ rename.spark_tbl <- function(.data, ...) {
 distinct.spark_tbl <- function(.data, ...) {
   # we use the distinct tools from dplyr
   dist <- dplyr::distinct_prepare(.data, enquos(...), .keep_all = FALSE)
-  vars <- tbl_vars(.data)[dplyr:::match_vars(dist$vars, dist$data)]
+  vars <- tbl_vars(.data)[match_vars(dist$vars, dist$data)]
   # consider adding in .keep_all = T functionality at some point
-  # keep <- dplyr:::match_vars(dist$keep, dist$data)
+  # keep <- match_vars(dist$keep, dist$data)
 
   # manage the grouping columns
   groups <- attr(.data, "groups")
@@ -209,16 +209,6 @@ mutate.spark_tbl <- function(.data, ...) {
   }
 
   new_spark_tbl(sdf, groups = attr(.data, "groups"))
-}
-
-#' @export
-coalesce <- function(...) {
-  UseMethod("coalesce")
-}
-
-#' @importFrom dplyr coalesce
-coalesce.default <- function(...) {
-  dplyr::coalesce(...)
 }
 
 #' @export

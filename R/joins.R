@@ -19,7 +19,7 @@ join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
   suffix <- dplyr:::check_suffix(suffix)
   na_matches <- check_na_matches(na_matches)
   y <- auto_copy(x, y, copy = copy)
-  vars <- dplyr:::join_vars(tbl_vars(x), tbl_vars(y), by, suffix)
+  vars <- join_vars(tbl_vars(x), tbl_vars(y), by, suffix)
   by_x <- vars$idx$x$by
   by_y <- vars$idx$y$by
 
