@@ -28,7 +28,7 @@ test_that("group_by, summarise, filter on flights_tbl", {
                  mutate(delay = round(delay, 16)),
                nycflights13::flights %>%
                  group_by(tailnum) %>%
-                 summarise(count = as.numeric(n()),
+                 summarise(count = as.numeric(dplyr::n()),
                            dist = mean(distance),
                            delay = round(mean(arr_delay, na.rm = T), 16)) %>%
                  filter(count > 20, dist < 2000, !is.na(delay)) %>%
