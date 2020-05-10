@@ -14,6 +14,8 @@ check_ifelse <- function(x) {
     stop('`ifelse` is not defined in tidyspark! Consider `if_else`.')
   } else {
     lapply(rlang::call_args(x), check_ifelse)
+  }
+}
 
 getStorageLevel <- function(newLevel = c("DISK_ONLY", "DISK_ONLY_2",
                                          "MEMORY_AND_DISK", "MEMORY_AND_DISK_2",
