@@ -62,7 +62,7 @@ spark_session <- function (master = "", app_name = "tidyspark",
     }
     do.call(rlang::env_bind, c(sparkConfigMap, namedParams))
   }
-  deployMode <- ""
+  deploy_mode <- ""
   if (exists("spark.submit.deployMode", envir = sparkConfigMap)) {
     deploy_mode <- sparkConfigMap[["spark.submit.deployMode"]]
   }

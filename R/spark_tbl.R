@@ -160,13 +160,13 @@ show <- function(.data, n = NULL) {
 
 #' @export
 #' @importFrom dplyr glimpse
-glimpse.spark_tbl <- function(x, n = NULL) {
+glimpse.spark_tbl <- function(.data, n = NULL) {
 
   rows <- if (is.null(n)) {
     getOption("tibble.print_min", getOption("dplyr.print_min", 10))
   } else n
 
-  tibble:::glimpse.tbl(as_tibble(SparkR::take(attr(x, "jc"), rows)))
+  dplyr::glimpse(as_tibble(take(.data, rows)))
 
 }
 

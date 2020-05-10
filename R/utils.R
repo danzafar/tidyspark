@@ -186,29 +186,51 @@ hashCode <- function (key) {
 
 #### Startup-Related -----------------------------------------------------------
 
+isSparkRShell <- function() {
+  grepl(".*shell\\.R$", Sys.getenv("R_PROFILE_USER"), perl = TRUE)
+}
+
+isMasterLocal <- function(master) {
+  grepl("^local(\\[([0-9]+|\\*)\\])?$", master, perl = TRUE)
+}
+
+isClientMode <- function(master) {
+  grepl("([a-z]+)-client$", master, perl = TRUE)
+}
+
+installInstruction <- function (mode) {
+  if (mode == "remote") {
+    paste0(
+      "Connecting to a remote Spark master. ",
+      "Please make sure Spark package is also installed in this machine.\n",
+      "- If there is one, set the path in sparkHome parameter or ",
+      "environment variable SPARK_HOME.\n",
+      "- If not, you may run install.spark function to do the job. ",
+      "Please make sure the Spark and the Hadoop versions ",
+      "match the versions on the cluster. ",
+      "SparkR package is compatible with Spark ",
+      packageVersion("SparkR"), ".", "If you need further help, ",
+      "contact the administrators of the cluster.")
+  } else {
+    stop(paste0("No instruction found for ", mode, " mode."))
+  }
+}
+
 check_spark_install <- function (spark_home, master, deploy_mode, verbose = F) {
-  if (!SparkR:::isSparkRShell()) {
+  if (!isSparkRShell()) {
     if (!is.na(file.info(spark_home)$isdir)) {
       if (verbose) message("Spark package found in SPARK_HOME: ", spark_home)
       NULL
-    }
-    else {
+    } else {
       if (interactive() || isMasterLocal(master)) {
         if (verbose) message("Spark not found in SPARK_HOME: ", spark_home)
         packageLocalDir <- SparkR::install.spark()
         packageLocalDir
-      }
-      else if (isClientMode(master) || deployMode == "client") {
+      } else if (isClientMode(master) || deploy_mode == "client") {
         msg <- paste0("Spark not found in SPARK_HOME: ",
                       spark_home, "\n", installInstruction("remote"))
         stop(msg)
-      }
-      else {
-        NULL
-      }
+      } else NULL
     }
-  }
-  else {
-    NULL
-  }
+  } else NULL
 }
