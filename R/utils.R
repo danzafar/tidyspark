@@ -226,7 +226,7 @@ check_spark_install <- function (spark_home, master, deploy_mode, verbose = F) {
         if (verbose) message("Spark not found in SPARK_HOME: ", spark_home)
         packageLocalDir <- SparkR::install.spark()
         packageLocalDir
-      } else if (isClientMode(master) || deployMode == "client") {
+      } else if (isClientMode(master) || deploy_mode == "client") {
         msg <- paste0("Spark not found in SPARK_HOME: ",
                       spark_home, "\n", installInstruction("remote"))
         stop(msg)
