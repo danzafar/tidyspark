@@ -174,12 +174,6 @@ glimpse.spark_tbl <- function(.data, n = NULL) {
 
 }
 
-n <- function() {
-  if (!exists(".sparkRCon", SparkR:::.sparkREnv)) return(NULL)
-  jc <- call_static("org.apache.spark.sql.functions", "count", "*")
-  new("Column", jc)
-}
-
 #' @export
 #' @importFrom dplyr collect
 collect.spark_tbl <- function(x) {

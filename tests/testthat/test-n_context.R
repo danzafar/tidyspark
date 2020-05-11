@@ -17,7 +17,7 @@ test_that("n() works with summarise", {
       summarise(n = as.integer(n())) %>%
       collect,
     iris_fix %>%
-      summarise(n = dplyr::n())
+      summarise(n = n())
   )
 })
 
@@ -29,7 +29,7 @@ test_that("n() works with grouped summarise", {
       collect,
     iris_fix %>%
       group_by(Species) %>%
-      summarise(n = dplyr::n())
+      summarise(n = n())
   )
 })
 
@@ -41,6 +41,6 @@ test_that("n() works with mutate", {
       collect,
     iris_fix %>%
       group_by(Species) %>%
-      mutate(n = as.numeric(dplyr::n()))
+      mutate(n = as.numeric(n()))
   )
 })

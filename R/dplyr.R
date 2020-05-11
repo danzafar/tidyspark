@@ -178,7 +178,11 @@ mutate.spark_tbl <- function(.data, ...) {
     check_ifelse(dot)
 
     df_cols <- get_jc_cols(sdf)
-    eval <- rlang::eval_tidy(dot, df_cols)
+
+    # add our .n() to the eval environment
+    eval_env <- rlang::caller_env()
+    rlang::env_bind(eval_env, n = .n)
+    eval <- rlang::eval_tidy(dot, df_cols, eval_env)
 
     if (is_agg_expr(eval)) {
 
@@ -250,7 +254,10 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     sdf <- .counter_env$sdf
 
     df_cols_update <- get_jc_cols(sdf)
-    cond <- rlang::eval_tidy(quo_sub, df_cols_update)
+
+    eval_env <- rlang::caller_env()
+    rlang::env_bind(eval_env, n = .n)
+    cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
     conds[[i]] <- cond
 
   }
@@ -327,7 +334,10 @@ summarise.spark_tbl <- function(.data, ...) {
     check_ifelse(dot)
     new_df_cols <- lapply(names(agg), function(x) agg[[x]])
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
-    agg[[name]] <- rlang::eval_tidy(dot, updated_cols)
+
+    eval_env <- rlang::caller_env()
+    rlang::env_bind(eval_env, n = .n)
+    agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
   }
 
   for (i in names(agg)) {
