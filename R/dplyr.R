@@ -179,9 +179,10 @@ mutate.spark_tbl <- function(.data, ...) {
 
     df_cols <- get_jc_cols(sdf)
 
-    # add our .n() to the eval environment
+    # add our .n() and others to the eval environment
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env, n = .n)
+    rlang::env_bind(eval_env,  n = .n,
+                    if_else = .if_else, case_when = .case_when)
     eval <- rlang::eval_tidy(dot, df_cols, eval_env)
 
     if (is_agg_expr(eval)) {
@@ -256,7 +257,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     df_cols_update <- get_jc_cols(sdf)
 
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env, n = .n)
+    rlang::env_bind(eval_env, n = .n,
+                    if_else = .if_else, case_when = .case_when)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
     conds[[i]] <- cond
 
@@ -336,7 +338,8 @@ summarise.spark_tbl <- function(.data, ...) {
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
 
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env, n = .n)
+    rlang::env_bind(eval_env, n = .n,
+                    if_else = .if_else, case_when = .case_when)
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
   }
 
