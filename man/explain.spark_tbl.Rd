@@ -4,7 +4,7 @@
 \alias{explain.spark_tbl}
 \title{Explain Plan}
 \usage{
-\method{explain}{spark_tbl}(x, extended = F)
+\method{explain}{spark_tbl}(x, extended = F, ...)
 }
 \arguments{
 \item{x}{a \code{spark_tbl}}

@@ -9,7 +9,7 @@
 \usage{
 limit(.data, n)
 
-\method{head}{spark_tbl}(.data, n)
+\method{head}{spark_tbl}(x, ...)
 
 take(.data, n)
 

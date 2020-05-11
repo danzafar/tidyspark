@@ -5,18 +5,21 @@ for (.f in other_functions) {
 }
 
 #' @export
+#' @importFrom methods new
 setMethod("is.na", signature(x = "Column"),
           function(x) {
             new("Column", call_method(x@jc, "isNull"))
           })
 
 #' @export
+#' @importFrom methods new
 setMethod("is.nan", signature(x = "Column"),
           function(x) {
             new("Column", call_method(x@jc, "isNaN"))
           })
 
 #' @export
+#' @importFrom methods new
 setMethod("mean", signature(x = "Column"),
           function(x) {
             jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
@@ -27,13 +30,13 @@ setMethod("mean", signature(x = "Column"),
 setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
 #' @export
-unique.Column <- function(x) {
+unique.Column <- function(x, ...) {
   stop("Cannot call `unique` on spark Column, try calling `distinct`
        on the spark_tbl")
 }
 
 #' @export
-sort.Column <- function(x) {
+sort.Column <- function(x, decreasing, ...) {
   stop("Cannot call `sort` on spark Column, try calling `arrange`
        on the spark_tbl or `sort_array` on the Column")
 }
@@ -41,66 +44,85 @@ sort.Column <- function(x) {
 ### type conversions
 
 #' @export
-as.character.Column <- function(x) {
+as.character.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "string"))
 }
 
 #' @export
-as.numeric.Column <- function(x) {
+as.numeric.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "double"))
 }
 
+#' Float Vectors
+#'
+#' @description Coerces objects of type \code{float}.
+#'
+#' @param x object to be coerced or tested.
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @export
+#' @rdname float-type
 as.float <- function (x, ...)  .Primitive("as.float")
 
+#' @rdname float-type
 #' @export
-as.float.Column <- function(x) {
+as.float.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "float"))
 }
 
 #' @export
-as.integer.Column <- function(x) {
+as.integer.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "integer"))
 }
 
 #' @export
-as.logical.Column <- function(x) {
+as.logical.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "boolean"))
 }
 
 # provide a few ways of converting to timestamp
 #' @export
-as.POSIXct.Column <- function(x) {
+as.POSIXct.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
+#' @importFrom lubridate as_datetime
 #' @export
-as_datetime.Column <- function(x) {
+as_datetime.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
+#' Timestamp Vectors
+#'
+#' @description Coerces objects of type \code{timestamp}.
+#'
+#' @param x object to be coerced or tested.
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @export
+#' @rdname ts-type
 as.timestamp <- function (x, ...)  .Primitive("as.timestamp")
 
 #' @export
-as.timestamp.Column <- function(x) {
+#' @rdname ts-type
+as.timestamp.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
 # dates
 #' @export
-as.Date.Column <- function(x) {
+as.Date.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
 # lists
 #' @export
-as.array.Column <- function(x) {
+as.array.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "array"))
 }
 
 #' @export
-as.list.Column <- function(x) {
+as.list.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "array"))
 }
 
@@ -437,6 +459,19 @@ as.Column <- function(.x) lit(.x)
 as_Column <- function(.x) lit(.x)
 
 
+#' Reduce partitions OR Find first non-missing element
+#'
+#' @description \code{coalesce} is used twice in Spark. The first use case is
+#' to reduce the number of partitions of a Spark \code{DataFrame} without
+#' a shuffle stage (in contrast to \code{repartition} which requires a shuffle).
+#' The other use case is for ETL where it can be used on a Column object to
+#' find the first non-missing element. See \code{?dplyr::coalese} for more info.
+#'
+#' @param ... For the ETL case, this is the olumn or objects coercible to
+#' Column to be coalesced. For the partition reducing case the first argument
+#' should be a \code{spark_tbl} and the second should be an integer specifing
+#' the number of partitions to reduce to.
+#'
 #' @export
 coalesce <- function(...) {
   UseMethod("coalesce")

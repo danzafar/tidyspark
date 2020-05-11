@@ -1,3 +1,4 @@
+#' @importFrom utils write.table
 persist_read_csv <- function(df) {
   hash <- digest::digest(df, algo = "sha256")
   filename <- paste("spark_serialize_", hash, ".csv", sep = "")
@@ -103,6 +104,7 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
 #' # with specified schema
 #' csv_schema <- SparkR::schema(SparkR::createDataFrame(iris_fix))
 #' spark_read_csv(path_csv, csv_schema, header = T) %>% collect
+#' @importFrom utils read.csv
 spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
                            delim = ",", guess_max = 1000, ...) {
   if (is.null(schema)) {
@@ -269,7 +271,7 @@ spark_read_jdbc <- function(url, table, partition_col = NULL,
   if (!is.null(partition_col)) {
     if (is.null(num_partitions) || num_partitions == 0) {
       sc <- call_method(sparkSession, "sparkContext")
-      num_partitions <- callJMethod(sc, "defaultParallelism")
+      num_partitions <- call_method(sc, "defaultParallelism")
     }
     else {
       num_partitions <- numToInt(num_partitions)

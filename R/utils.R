@@ -133,6 +133,24 @@ sortKeyValueList <- function(kv_list, decreasing = FALSE) {
   kv_list[order(keys, decreasing = decreasing)]
 }
 
+#' Compute the hashCode of an object
+#'
+#' @description Java-style function to compute the hashCode for the given
+#' object. Returns an integer value.
+#'
+#' @param key the object to be hashed
+#'
+#' @details This only works for integer, numeric and character types.
+#'
+#' @examples
+#'
+#' ## Not run:
+#' hashCode(1L) # 1
+#' hashCode(1.0) # 1072693248
+#' hashCode("1") # 49
+#'
+#' ## End(Not run)
+#'
 #' @export
 hashCode <- function (key) {
 
@@ -198,6 +216,7 @@ isClientMode <- function(master) {
   grepl("([a-z]+)-client$", master, perl = TRUE)
 }
 
+#' @importFrom utils packageVersion
 installInstruction <- function (mode) {
   if (mode == "remote") {
     paste0(

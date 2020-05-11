@@ -4,7 +4,7 @@
 \alias{coalesce.spark_tbl}
 \title{Coalesce the number of partitions in a \code{spark_tbl}}
 \usage{
-\method{coalesce}{spark_tbl}(.data, n_partitions)
+\method{coalesce}{spark_tbl}(...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}

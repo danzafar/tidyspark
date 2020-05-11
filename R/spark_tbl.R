@@ -33,18 +33,18 @@ new_spark_tbl <- function(sdf, ...) {
 #' @return an object of class \code{spark_tbl}
 #' @export
 #'
+#' @rdname spark-tbl
 #' @examples
 #' spark_tbl(iris)
 #' spark_tbl(tibble(x = 1:10, y = 10:1))
 #' spark_tbl(SparkR::as.DataFrame(iris))
-spark_tbl <- function(x, ...) {
+spark_tbl <- function(.df, ...) {
   UseMethod("spark_tbl")
 }
 
-# create a method for data.frame (in memory) objects
-# sparklyr also supports the ability to copy large data to disk
-# and then read it back in, which supports larger files
 #' @export
+#' @rdname spark-tbl
+#' @importFrom utils object.size
 spark_tbl.data.frame <- function(.df, ...) {
 
   # sanitize the incoming table names, SparkR does it...raucously
@@ -71,13 +71,15 @@ spark_tbl.data.frame <- function(.df, ...) {
 }
 
 #' @export
+#' @rdname spark-tbl
 spark_tbl.SparkDataFrame <- function(.df, ...) {
   new_spark_tbl(.df@sdf, ...)
 }
 
 #' @export
-is.spark_tbl <- function(x) {
-  inherits(x, "spark_tbl")
+#' @rdname spark-tbl
+is.spark_tbl <- function(.df) {
+  inherits(.df, "spark_tbl")
 }
 
 # let's give it a print statement, pretty similar to
@@ -85,7 +87,7 @@ is.spark_tbl <- function(x) {
 # I want to avoid printing rows, it's just spark to avoid collects
 
 #' @export
-print.spark_tbl <- function(x) {
+print.spark_tbl <- function(x, ...) {
   cols <- lapply(dtypes(x),
                  function(l) {
                    paste0(paste(l, collapse = " <"), ">")
@@ -132,8 +134,8 @@ limit <- function (.data, n) {
 #' @rdname limit
 #' @export
 #' @importFrom utils head
-head.spark_tbl <- function(.data, n) {
-  limit(.data, n)
+head.spark_tbl <- function(x, ...) {
+  limit(.data, ...)
 }
 
 #' @param .data a \code{spark_tbl}
@@ -176,22 +178,41 @@ glimpse.spark_tbl <- function(.data, n = NULL) {
 
 #' @export
 #' @importFrom dplyr collect
-collect.spark_tbl <- function(x) {
+collect.spark_tbl <- function(x, ...) {
   as_tibble(SparkR::collect(as_SparkDataFrame(x)))
 }
 
+#' Convert to a SparkR \code{SparkDataFrame}
+#'
+#' @param x a \code{spark_tbl} or \code{jobj} representing a \code{DataFrame}
+#' @param ... additional arguments passed on to methods, currently unused
+#'
+#' @rdname as-sdf
 #' @export
-as_SparkDataFrame <- function(x) {
+#'
+#' @examples
+#'
+#' spark_session()
+#'
+#' df <- spark_tbl(iris)
+#' as_SparkDataFrame(df)
+#'
+#' df_jobj <- attr(df, "jc")
+#' as_SparkDataFrame(df_jobj)
+#'
+as_SparkDataFrame <- function(x, ...) {
   UseMethod("as_SparkDataFrame")
 }
 
 #' @export
-as_SparkDataFrame.spark_tbl <- function(x) {
+#' @rdname as-sdf
+as_SparkDataFrame.spark_tbl <- function(x, ...) {
   new("SparkDataFrame", attr(x, "jc"), F)
 }
 
 #' @export
-as_SparkDataFrame.jobj <- function(x) {
+#' @rdname as-sdf
+as_SparkDataFrame.jobj <- function(x, ...) {
   new("SparkDataFrame", x, F)
 }
 
@@ -202,7 +223,6 @@ as_SparkDataFrame.jobj <- function(x) {
 # of course, it won't work just like dplyr because the grouping strucuture
 # will be more high-level, see 'attributes(group_by(iris, Species))'
 
-#' @export
 grouped_spark_tbl <- function (data, vars, drop = FALSE) {
   assertthat::assert_that(is.spark_tbl(data),
               (is.list(vars) && all(sapply(vars, is.name))) ||
@@ -223,7 +243,7 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 #' @return
 #' @export
 #' @importFrom dplyr explain
-explain.spark_tbl <- function(x, extended = F) {
+explain.spark_tbl <- function(x, extended = F, ...) {
   invisible(
     call_method(attr(x, "jc"), "explain", extended)
   )
@@ -277,10 +297,10 @@ n_partitions.spark_tbl <- function(.data) {
 }
 
 #' @export
-dim.spark_tbl <- function(.data) {
-  sdf <- attr(.data, "jc")
+dim.spark_tbl <- function(x) {
+  sdf <- attr(x, "jc")
   rows <- as.integer(call_method(sdf, "count"))
-  columns <- length(call_method(attr(.data, "jc"), "columns"))
+  columns <- length(call_method(attr(x, "jc"), "columns"))
   c(rows, columns)
 }
 

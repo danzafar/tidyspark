@@ -6,6 +6,7 @@ tbl_vars.spark_tbl <- function(x) {
 
 #' @export
 #' @importFrom dplyr select
+#' @importFrom stats setNames
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
 
@@ -48,6 +49,7 @@ rename.spark_tbl <- function(.data, ...) {
 
 #' @export
 #' @importFrom dplyr distinct
+#' @importFrom stats setNames
 distinct.spark_tbl <- function(.data, ...) {
   # we use the distinct tools from dplyr
   dist <- dplyr::distinct_prepare(.data, enquos(...), .keep_all = FALSE)
@@ -224,7 +226,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   dots <- rlang::enquos(...)
   if (any(rlang::have_name(dots))) {
     bad <- dots[rlang::have_name(dots)]
-    dplyr:::bad_eq_ops(bad, "must not be named, do you need `==`?")
+    stop("Arguments to `filter` must not be named, do you need `==`?")
   }
   else if (rlang::is_empty(dots)) return(.data)
 
@@ -302,8 +304,8 @@ group_by.spark_tbl <- function(.data, ..., add = FALSE,
 
 #' @export
 #' @importFrom dplyr ungroup
-ungroup.spark_tbl <- function(.data, ...) {
-  new_spark_tbl(attr(.data, "jc"))
+ungroup.spark_tbl <- function(x, ...) {
+  new_spark_tbl(attr(x, "jc"))
 }
 
 group_spark_data <- function(.data) {
@@ -319,6 +321,7 @@ group_spark_data <- function(.data) {
 # TODO implement sub wndw functionality so `new_col = max(rank(Species))` works
 #' @export
 #' @importFrom dplyr summarise
+#' @importFrom stats setNames
 summarise.spark_tbl <- function(.data, ...) {
   dots <- rlang::enquos(..., .named = TRUE)
 

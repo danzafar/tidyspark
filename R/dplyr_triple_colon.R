@@ -124,24 +124,76 @@ validate_formula <- function (x, i, default_env, dots_env) {
        rhs = rlang::new_quosure(rlang::f_rhs(x), env))
 }
 
+# check_suffix -----------------------------------------------------------------
+
+friendly_type_of <- function(x) {
+  if (is.object(x)) {
+    sprintf("a `%s` object", fmt_classes(x))
+  } else {
+    as_friendly_type(typeof(x))
+  }
+}
+
+as_friendly_type <- function(type) {
+  switch(type,
+         logical = "a logical vector",
+         integer = "an integer vector",
+         numeric = ,
+         double = "a double vector",
+         complex = "a complex vector",
+         character = "a character vector",
+         raw = "a raw vector",
+         string = "a string",
+         list = "a list",
+         NULL = "NULL",
+         environment = "an environment",
+         externalptr = "a pointer",
+         weakref = "a weak reference",
+         S4 = "an S4 object",
+         name = ,
+         symbol = "a symbol",
+         language = "a call",
+         pairlist = "a pairlist node",
+         expression = "an expression vector",
+         quosure = "a quosure",
+         formula = "a formula",
+         char = "an internal string",
+         promise = "an internal promise",
+         ... = "an internal dots object",
+         any = "an internal `any` object",
+         bytecode = "an internal bytecode object",
+         primitive = ,
+         builtin = ,
+         special = "a primitive function",
+         closure = "a function",
+         type
+  )
+}
+
+bad_args <- function(header, ...) {
+  text <- paste0(...)
+  if (!rlang::is_null(header))
+    text <- paste0(header, " ", text)
+  stop(text)
+}
+
+check_suffix <- function(x) {
+  if (!is.character(x) || length(x) != 2) {
+    browser
+    bad_args("suffix", "must be a character vector of length 2, ",
+             "not ", friendly_type_of(x), " of length ", length(x))
+  }
+  if (any(is.na(x))) {
+    bad_args("suffix", "can't be NA")
+  }
+  if (all(x == "")) {
+    bad_args("suffix", "can't be empty string for both `x` and `y` suffixes")
+  }
+  list(x = x[[1]], y = x[[2]])
+}
 
 # bad_eq_ops <- function (named_calls, ..., .envir = parent.frame()) {
 #     glubort(fmt_wrong_eq_ops(named_calls), ..., .envir = .envir)
-# }
-#
-#
-# check_suffix <- function (x) {
-#     if (!is.character(x) || length(x) != 2) {
-#         bad_args("suffix", "must be a character vector of length 2, ",
-#             "not {friendly_type_of(x)} of length {length(x)}")
-#     }
-#     if (any(is.na(x))) {
-#         bad_args("suffix", "can't be NA")
-#     }
-#     if (all(x == "")) {
-#         bad_args("suffix", "can't be empty string for both `x` and `y` suffixes")
-#     }
-#     list(x = x[[1]], y = x[[2]])
 # }
 #
 # check_valid_names <- function (names, warn_only = FALSE) {
@@ -277,51 +329,4 @@ validate_formula <- function (x, i, default_env, dots_env) {
 # }
 #
 #
-# # From rlang
-# friendly_type_of <- function(x) {
-#   if (is.object(x)) {
-#     sprintf("a `%s` object", fmt_classes(x))
-#   } else {
-#     as_friendly_type(typeof(x))
-#   }
-# }
-# as_friendly_type <- function(type) {
-#   switch(type,
-#     logical = "a logical vector",
-#     integer = "an integer vector",
-#     numeric = ,
-#     double = "a double vector",
-#     complex = "a complex vector",
-#     character = "a character vector",
-#     raw = "a raw vector",
-#     string = "a string",
-#     list = "a list",
-#
-#     NULL = "NULL",
-#     environment = "an environment",
-#     externalptr = "a pointer",
-#     weakref = "a weak reference",
-#     S4 = "an S4 object",
-#
-#     name = ,
-#     symbol = "a symbol",
-#     language = "a call",
-#     pairlist = "a pairlist node",
-#     expression = "an expression vector",
-#     quosure = "a quosure",
-#     formula = "a formula",
-#
-#     char = "an internal string",
-#     promise = "an internal promise",
-#     ... = "an internal dots object",
-#     any = "an internal `any` object",
-#     bytecode = "an internal bytecode object",
-#
-#     primitive = ,
-#     builtin = ,
-#     special = "a primitive function",
-#     closure = "a function",
-#
-#     type
-#   )
-# }
+
