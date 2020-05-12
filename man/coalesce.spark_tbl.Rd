@@ -4,12 +4,14 @@
 \alias{coalesce.spark_tbl}
 \title{Coalesce the number of partitions in a \code{spark_tbl}}
 \usage{
-\method{coalesce}{spark_tbl}(...)
+\method{coalesce}{spark_tbl}(.data, n_partitions, ...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}
 
 \item{n_partitions}{integer, the number of partitions to resize to}
+
+\item{...}{additional argument(s), currently unused}
 }
 \description{
 Returns the newly coalesced spark_tbl.

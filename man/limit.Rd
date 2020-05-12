@@ -19,9 +19,13 @@ show(.data, n = NULL)
 \item{.data}{a \code{spark_tbl}}
 
 \item{n}{numeric, the number of rows to collect}
+
+\item{x}{a \code{spark_tbl}}
+
+\item{...}{other arguments passed, currently unused}
 }
 \value{
-a \code{spark_tbl}, invisibly
+a \code{spark_tbl}
 }
 \description{
 Limit or show a sample of a \code{spark_tbl}

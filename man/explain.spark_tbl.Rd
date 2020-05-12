@@ -10,6 +10,8 @@
 \item{x}{a \code{spark_tbl}}
 
 \item{extended}{\code{boolean} whether to print the extended plan}
+
+\item{...}{other arguments to explain, currently unused}
 }
 \value{
 

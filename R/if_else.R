@@ -61,14 +61,14 @@
   fs <- compact_null(rlang::list2(...))
   n <- length(fs)
   if (n == 0) {
-    abort("No cases provided")
+    stop("No cases provided")
   }
   query <- vector("list", n)
   value <- vector("list", n)
   default_env <- rlang::caller_env()
 
   quos_pairs <- mapply(function(x, y) {
-    validate_formula(x, y, default_env, current_env())},
+    validate_formula(x, y, default_env, rlang::current_env())},
     fs, seq_along(fs),
     SIMPLIFY = F)
 

@@ -16,9 +16,9 @@ spark_tbl(.df, ...)
 is.spark_tbl(.df)
 }
 \arguments{
-\item{...}{any other arguments passed to \code{spark_tbl}, currently unused}
+\item{.df}{object coercible to \code{spark_tbl}}
 
-\item{x}{object coercible to \code{spark_tbl}}
+\item{...}{any other arguments passed to \code{spark_tbl}, currently unused}
 }
 \value{
 an object of class \code{spark_tbl}

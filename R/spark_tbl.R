@@ -27,7 +27,7 @@ new_spark_tbl <- function(sdf, ...) {
 
 #' Create a \code{spark_tbl}
 #'
-#' @param x object coercible to \code{spark_tbl}
+#' @param .df object coercible to \code{spark_tbl}
 #' @param ... any other arguments passed to \code{spark_tbl}, currently unused
 #'
 #' @return an object of class \code{spark_tbl}
@@ -103,9 +103,11 @@ print.spark_tbl <- function(x, ...) {
 #' Limit or show a sample of a \code{spark_tbl}
 #'
 #' @param .data a \code{spark_tbl}
+#' @param x a \code{spark_tbl}
 #' @param n numeric, the number of rows to collect
+#' @param ... other arguments passed, currently unused
 #'
-#' @return a \code{spark_tbl}, invisibly
+#' @return a \code{spark_tbl}
 #' @export
 #'
 #' @details \code{limit} and \code{head} just gets the top \code{n} rows
@@ -135,7 +137,7 @@ limit <- function (.data, n) {
 #' @export
 #' @importFrom utils head
 head.spark_tbl <- function(x, ...) {
-  limit(.data, ...)
+  limit(x, ...)
 }
 
 #' @param .data a \code{spark_tbl}
@@ -151,6 +153,7 @@ take <- function (.data, n) {
 #' @param n numeric, the number of rows to collect
 #' @export
 #' @rdname limit
+#' @importFrom dplyr as_tibble
 show <- function(.data, n = NULL) {
 
   rows <- if (is.null(n)) {
@@ -166,6 +169,7 @@ show <- function(.data, n = NULL) {
 
 #' @export
 #' @importFrom dplyr glimpse
+#' @importFrom dplyr as_tibble
 glimpse.spark_tbl <- function(.data, n = NULL) {
 
   rows <- if (is.null(n)) {
@@ -177,7 +181,7 @@ glimpse.spark_tbl <- function(.data, n = NULL) {
 }
 
 #' @export
-#' @importFrom dplyr collect
+#' @importFrom dplyr collect as_tibble
 collect.spark_tbl <- function(x, ...) {
   as_tibble(SparkR::collect(as_SparkDataFrame(x)))
 }
@@ -224,11 +228,11 @@ as_SparkDataFrame.jobj <- function(x, ...) {
 # will be more high-level, see 'attributes(group_by(iris, Species))'
 
 grouped_spark_tbl <- function (data, vars, drop = FALSE) {
-  assertthat::assert_that(is.spark_tbl(data),
-              (is.list(vars) && all(sapply(vars, is.name))) ||
-                is.character(vars))
+  if (!(is.spark_tbl(data) &&
+        (is.list(vars) && all(sapply(vars, is.name))) ||
+        is.character(vars))) stop("Incorrect inputs to 'group_spark_tbl'")
 
-  if (is.list(vars)) {
+    if (is.list(vars)) {
     vars <- deparse_names(vars)
   }
 
@@ -239,6 +243,7 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 #'
 #' @param x a \code{spark_tbl}
 #' @param extended \code{boolean} whether to print the extended plan
+#' @param ... other arguments to explain, currently unused
 #'
 #' @return
 #' @export
@@ -310,14 +315,15 @@ dim.spark_tbl <- function(x) {
 #'
 #' @param .data a \code{spark_tbl}
 #' @param n_partitions integer, the number of partitions to resize to
+#' @param ... additional argument(s), currently unused
 #'
 #' @export
 #' @importFrom dplyr coalesce
-coalesce.spark_tbl <- function(...) {
+coalesce.spark_tbl <- function(.data, n_partitions, ...) {
 
-  .l <- list(...)
-  .data <- .l[[1]]
-  n_partitions <- .l[[2]]
+  # .l <- list(...)
+  # .data <- .l[[1]]
+  # n_partitions <- .l[[2]]
 
   sdf <- attr(.data, "jc")
 

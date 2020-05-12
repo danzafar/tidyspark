@@ -41,6 +41,18 @@ getStorageLevel <- function(newLevel = c("DISK_ONLY", "DISK_ONLY_2",
   storageLevel
 }
 
+isInstanceOf <- function (jobj, className) {
+  stopifnot(class(jobj) == "jobj")
+  cls <- call_static("java.lang.Class", "forName", className)
+  call_method(cls, "isInstance", jobj)
+}
+
+readRowList <- function (obj) {
+  rawObj <- rawConnection(obj, "r+")
+  on.exit(close(rawObj))
+  SparkR:::readObject(rawObj)
+}
+
 convertJListToRList <- function (jList, flatten, logicalUpperBound = NULL,
                                  serializedMode = "byte") {
   arrSize <- call_method(jList, "size")
@@ -121,11 +133,6 @@ convertEnvsToList <- function (keys, vals) {
   lapply(ls(keys), function(name) {
     list(keys[[name]], vals[[name]])
   })
-}
-
-close_tidyspark <- function() {
-  spark_session_stop()
-  rstudioapi::restartSession()
 }
 
 sortKeyValueList <- function(kv_list, decreasing = FALSE) {
@@ -252,4 +259,11 @@ check_spark_install <- function (spark_home, master, deploy_mode, verbose = F) {
       } else NULL
     }
   } else NULL
+}
+
+# SparkR-related ---------------------------------------------------------------
+getDefaultSqlSource <- function () {
+  l <- SparkR::sparkR.conf("spark.sql.sources.default",
+                           "org.apache.spark.sql.parquet")
+  l[["spark.sql.sources.default"]]
 }

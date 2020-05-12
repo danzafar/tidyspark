@@ -7,6 +7,7 @@ tbl_vars.spark_tbl <- function(x) {
 #' @export
 #' @importFrom dplyr select
 #' @importFrom stats setNames
+#' @importFrom tidyselect vars_select
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
 
@@ -34,6 +35,7 @@ select.spark_tbl <- function(.data, ...) {
 
 #' @export
 #' @importFrom dplyr rename
+#' @importFrom tidyselect vars_select
 rename.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_rename(names(.data), !!!enquos(...))
   cols <- lapply(unclass(vars), function(c) {
@@ -154,7 +156,7 @@ chop_wndw <- function(col) {
   ))
 
   descending <- sub("(-)?(.*)#.*", "\\1", wndw_str) == "-"
-  if (descending) col_obj <- desc(col_obj)
+  if (descending) col_obj <- dplyr::desc(col_obj)
 
   # apply the column
   wndw_ordr <- call_static(
@@ -292,7 +294,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 #' @export
 #' @importFrom dplyr group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
-                               .drop = group_by_drop_default(.data)) {
+                               .drop = dplyr::group_by_drop_default(.data)) {
   groups <- dplyr::group_by_prepare(.data, ..., add = add)
   valid <- groups$group_names %in% tbl_vars(.data)
   if (!all(valid)) {
@@ -385,7 +387,8 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 # pivots
 
 #' @export
-piv_wider <- function(data, id_cols = NULL, names_from, values_from) {
+#' @importFrom rlang enquo
+piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
   # these become the new col names
   group_var <- enquo(names_from)
   # these are currently aggregated but maybe not
@@ -415,6 +418,8 @@ piv_wider <- function(data, id_cols = NULL, names_from, values_from) {
 
 
 #' @export
+#' @importFrom tidyselect vars_select
+#' @importFrom rlang enquo
 piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
   #idk I copied from tidyr
   cols <- unname(tidyselect::vars_select(unique(names(data)),

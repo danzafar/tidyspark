@@ -10,6 +10,7 @@ auto_copy.spark_tbl <- function(x, y, copy = FALSE, ...) {
   else y
 }
 
+#' @importFrom dplyr common_by
 join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
                              na_matches, type) {
 

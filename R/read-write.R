@@ -1,4 +1,5 @@
 #' @importFrom utils write.table
+#' @importFrom digest digest
 persist_read_csv <- function(df) {
   hash <- digest::digest(df, algo = "sha256")
   filename <- paste("spark_serialize_", hash, ".csv", sep = "")
@@ -274,12 +275,12 @@ spark_read_jdbc <- function(url, table, partition_col = NULL,
       num_partitions <- call_method(sc, "defaultParallelism")
     }
     else {
-      num_partitions <- numToInt(num_partitions)
+      num_partitions <- num_to_int(num_partitions)
     }
     sdf <- call_method_handled(
       read, "jdbc", url, table,
-      as.character(partition_col), numToInt(lower_bound),
-      numToInt(upper_bound), num_partitions, jprops)
+      as.character(partition_col), num_to_int(lower_bound),
+      num_to_int(upper_bound), num_partitions, jprops)
   }
   else if (length(predicates) > 0) {
     sdf <- call_method_handled(

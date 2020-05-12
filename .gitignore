@@ -9,3 +9,4 @@ logs/*
 spark-warehouse
 del
 inst/doc
+.travis.yml
