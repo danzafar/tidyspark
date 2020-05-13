@@ -1,4 +1,4 @@
-### The RDD Class --------------------------------------------------------------
+
 #' @title The \code{RDD} Class
 #'
 #' @name RDD
@@ -7,11 +7,19 @@
 #' should be similar, though \code{$} is used instead of \code{.} to call
 #' methods. It is implemented in the R6 OO system.
 #'
-#' @details RDD can be created using functions like \code{sc$parallelize},
-#' \code{sc$textFile} etc. Robust documentation is provided for each method
-#' in this class. Check it out!
+#' @details RDD can be created using functions like
+#' \code{spark$sparkContext$parallelize}, \code{spark$sparkContext$textFile}
+#' etc. Robust documentation is provided for each method in this class.
+#' Check it out!
 #'
-#' @importFrom R6 R6Class
+#' @examples
+#'
+#' spark <- spark_session()
+#'
+#' rdd <- spark$
+#'   sparkContext$
+#'   parallelize(1:10, 2)
+#'
 RDD <- R6::R6Class("RDD", list(
   env = NULL,
   jrdd = NULL,
@@ -46,8 +54,10 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10, 2L)
+  #' spark <- spark_session()
+  #' rdd <- spark$
+  #'   sparkContext$
+  #'   parallelize(1:10, 2L)
   #' rdd$cache
   #'}
   #' @rdname cache-methods
@@ -67,8 +77,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @param newLevel The new storage level to be assigned
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10, 2L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10, 2L)
   #' rdd$persist("MEMORY_AND_DISK")
   #'}
   persist = function(newLevel = "MEMORY_ONLY") {
@@ -84,8 +94,8 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10, 2L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10, 2L)
   #' rdd$cache # rdd$env$isCached == TRUE
   #' rdd$unpersist # rdd$env$isCached == FALSE
   #'}
@@ -105,9 +115,9 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' sc$setCheckpointDir("checkpoint")
-  #' rdd <- sc$parallelize(1:10, 2L)$checkpoint
+  #' spark <- spark_session()
+  #' spark$sparkContext$setCheckpointDir("checkpoint")
+  #' rdd <- spark$sparkContext$parallelize(1:10, 2L)$checkpoint
   #'}
   checkpoint = function() {
     call_method(self$jrdd, "checkpoint")
@@ -120,8 +130,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @return the number of partitions of rdd as an integer.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10, 2L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10, 2L)
   #' rdd$getNumPartitions  # 2L
   #'}
   getNumPartitions = function() {
@@ -149,8 +159,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(list(1, 2), list(3, 4)), 2L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(list(1, 2), list(3, 4)), 2L)
   #' rdd$collectAsMap # list(`1` = 2, `3` = 4)
   #'}
   # nolint end
@@ -174,8 +184,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @return a list containing elements in the RDD
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' sc$parallelize(1:10, 2L)
+  #' spark <- spark_session()
+  #' spark$sparkContext$parallelize(1:10, 2L)
   #' rdd$collect # list from 1 to 10
   #' rdd$collectPartition(0L) # list from 1 to 5
   #'}
@@ -192,8 +202,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @return number of elements in the RDD.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$count() # 10
   #' length(rdd) # Same as count
   #'}
@@ -219,8 +229,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(c(1,2,3,2,1))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(c(1,2,3,2,1))
   #' rdd$countByValue() # (1,2L), (2,2L), (3,1L)
   #'}
   # nolint end
@@ -243,8 +253,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @aliases lapply
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$
   #'   map(~ . * 2)$
   #'   collect()
@@ -266,8 +276,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @return a new RDD created by the transformation.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize 1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize 1:10)
   #' rdd$
   #'   flatMap(~ list(.*2, .*10))$
   #'   collect()
@@ -286,8 +296,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @return a new RDD created by the transformation.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$
   #'   mapPartitions(~ Reduce("+", .))$
   #'   collect() # 15, 40
@@ -303,20 +313,21 @@ RDD <- R6::R6Class("RDD", list(
   #' while tracking the index of the original partition.
   #'
   #' @param .f the transformation to apply on each partition; takes the
-  #'        partition index and a list of elements in the particular partition.
-  #' @return a new RDD created by the transformation.
+  #' partition index and a list of elements in the particular partition.
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10, 5L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10, 5L)
   #' rdd$
-  #'   mapPartitionsWithIndex(
-  #'     function(partIndex, part) partIndex * Reduce(`+`, part)
-  #'   )$
+  #'   mapPartitionsWithIndex(function(partIndex, part) {
+  #'     partIndex * Reduce(`+`, part)
+  #'     })$
   #'   collect(flatten = FALSE)
-  #' # 0, 7, 22, 45, 76
   #'}
+  #'
+  #' @return a new RDD created by the transformation.
+  #'
   mapPartitionsWithIndex = function(.f) {
     .f <- prepare_func(.f)
     PipelinedRDD$new(self, unclass(.f), NULL)
@@ -330,8 +341,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$
   #'   filter(~ . < 3)$
   #'   collect() %>%
@@ -353,8 +364,8 @@ RDD <- R6::R6Class("RDD", list(
   #'           of the RDD.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$reduce(`+`) # 55
   #'}
   #' @rdname reduce
@@ -369,8 +380,8 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$max() # 10
   #'}
   max = function() self$reduce(max),
@@ -379,8 +390,8 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$min() # 1
   #'}
   min = function() self$reduce(min),
@@ -389,8 +400,8 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$sum() # 55
   #'}
   sum = function() self$reduce(`+`),
@@ -401,8 +412,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @return invisible NULL.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$foreach(~ save(., file=...) )
   #'}
   #' @rdname foreach
@@ -421,8 +432,8 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' foreachPartition(rdd, function(part) { save(part, file=...); NULL })
   #' rdd$foreachPartition(
   #'   function(part) {
@@ -445,8 +456,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$take(2L) # list(1, 2)
   #'}
   # nolint end
@@ -489,11 +500,12 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$first()
   #'}
   # nolint end
+  #' @return the first row in memory
   first = function() {
     self$take(1)[[1]]
   },
@@ -507,8 +519,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(c(1,2,2,3,3,3))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(c(1,2,2,3,3,3))
   #' rdd$
   #'   distinct()$
   #'   collect() %>%
@@ -517,6 +529,7 @@ RDD <- R6::R6Class("RDD", list(
   #' # c(1, 2, 3)
   #'}
   # nolint end
+  #' @return a new RDD created by the transformation.
   distinct = function(numPartitions = self$getNumPartitions()) {
     self$
       map(~ list(., NULL))$
@@ -534,8 +547,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @param seed Randomness seed value
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$
   #'   sample(FALSE, 0.5, 1618L)$
   #'   collect()
@@ -587,8 +600,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @param seed Randomness seed value
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:100)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:100)
   #' # exactly 5 elements sampled, which may not be distinct
   #' rdd$takeSample(TRUE, 5L, 1618L)
   #' # exactly 5 distinct elements sampled
@@ -644,8 +657,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(1, 2, 3))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(1, 2, 3))
   #' rdd$
   #'   keyBy(~ .*.)$
   #'   collect()
@@ -670,8 +683,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @seealso coalesce
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(1, 2, 3, 4, 5, 6, 7), 4L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(1, 2, 3, 4, 5, 6, 7), 4L)
   #' rdd$getNumPartitions()                   # 4
   #' rdd$repartition(2L)$getNumPartitions()   # 2
   #'}
@@ -691,8 +704,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @seealso repartition
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(1, 2, 3, 4, 5), 3L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(1, 2, 3, 4, 5), 3L)
   #' rdd$getNumPartitions()              # 3
   #' rdd$coalesce(1L)$getNumPartitions() # 1
   #'}
@@ -724,8 +737,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @seealso objectFile
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:3)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:3)
   #' rdd$saveAsObjectFile("/tmp/sparkR-tmp")
   #'}
   saveAsObjectFile = function(path) {
@@ -744,8 +757,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @param path The directory where the partitions of the text file are saved
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:3)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:3)
   #' rdd$saveAsTextFile("/tmp/sparkR-tmp")
   #'}
   saveAsTextFile = function(path) {
@@ -767,8 +780,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(3, 2, 1))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(3, 2, 1))
   #' rdd$sortBy(~ .)$collect() # list (1, 2, 3)
   #'}
   # nolint end
@@ -788,8 +801,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(10, 1, 2, 9, 3, 4, 5, 6, 7))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(10, 1, 2, 9, 3, 4, 5, 6, 7))
   #' rdd$takeOrdered(6L) # list(1, 2, 3, 4, 5, 6)
   #'}
   # nolint end
@@ -805,8 +818,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(10, 1, 2, 9, 3, 4, 5, 6, 7))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(10, 1, 2, 9, 3, 4, 5, 6, 7))
   #' rdd$top(6L) # list(10, 9, 7, 6, 5, 4)
   #'}
   # nolint end
@@ -826,8 +839,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @seealso reduce
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(1, 2, 3, 4, 5))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(1, 2, 3, 4, 5))
   #' rdd$fold( 0, `+`) # 15
   #'}
   fold = function(zeroValue, op) {
@@ -849,8 +862,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(1, 2, 3, 4))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(1, 2, 3, 4))
   #' zeroValue <- list(0, 0)
   #' seqOp <- function(x, y) list(x[[1]] + y, x[[2]] + 1)
   #' combOp <- function(x, y) list(x[[1]] + y[[1]], x[[2]] + y[[2]])
@@ -872,15 +885,15 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @param command The command to fork an external process.
   #' @param env A named list to set environment variables of the external process.
-  #' @return A new RDD created by piping all elements to a forked external process.
   #' @rdname pipeRDD
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' rdd$pipe("more")
   #' Output: c("1", "2", ..., "10")
   #'}
+  #' @return A new RDD created by piping all elements to a forked external process.
   pipe = function(command, env = list()) {
     self$
       mapPartitions(
@@ -899,24 +912,25 @@ RDD <- R6::R6Class("RDD", list(
   #' @rdname name
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(1,2,3))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(1,2,3))
   #' rdd$name() # NULL (if not set before)
   #'}
+  #' @return a string
   name = function() call_method(self$getJRDD(), "name"),
 
   #' Set an RDD's name.
   #'
   #' @param name The RDD name to be set.
-  #' @return a new RDD renamed.
   #' @rdname setName
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(1,2,3))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(1,2,3))
   #' rdd$setName("myRDD")
   #' rdd$name() # "myRDD"
   #'}
+  #' @return a new RDD renamed.
   setName = function(name) {
     call_method(self$getJRDD(), "setName", name)
     self
@@ -934,8 +948,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list("a", "b", "c", "d"), 3L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list("a", "b", "c", "d"), 3L)
   #' rdd$
   #'   zipWithUniqueId()$
   #'   collect()
@@ -973,8 +987,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list("a", "b", "c", "d"), 3L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list("a", "b", "c", "d"), 3L)
   #' rdd$
   #'   zipWithIndex()$
   #'   collect()
@@ -1017,8 +1031,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(as.list(1:4), 2L)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(as.list(1:4), 2L)
   #' rdd$
   #'   glom()$
   #'   collect()
@@ -1038,8 +1052,8 @@ RDD <- R6::R6Class("RDD", list(
   #' (witout removing duplicates) of two input RDDs.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:3)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:3)
   #' rdd$union(rdd)$collect() # 1, 2, 3, 1, 2, 3
   #'}
   union = function(y) {
@@ -1071,9 +1085,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(0:3)
-  #' rdd2 <- sc$parallelize(1000:1003)
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(0:3)
+  #' rdd2 <- spark$sparkContext$parallelize(1000:1003)
   #' rdd1$
   #'   zip(rdd2)$
   #'   collect()
@@ -1107,8 +1121,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:2)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:2)
   #' rdd$
   #'   cartesian(rdd)$
   #'   sortByKey()$
@@ -1135,9 +1149,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(1, 1, 2, 2, 3, 4))
-  #' rdd2 <- sc$parallelize(list(2, 4))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(list(1, 1, 2, 2, 3, 4))
+  #' rdd2 <- spark$sparkContext$parallelize(list(2, 4))
   #' rdd1$
   #'   subtract(rdd2)$
   #'   collect()
@@ -1162,13 +1176,12 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' @param other An RDD.
   #' @param numPartitions The number of partitions in the result RDD.
-  #' @return An RDD which is the intersection of these two RDDs.
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(1, 10, 2, 3, 4, 5))
-  #' rdd2 <- sc$parallelize(list(1, 6, 2, 3, 7, 8))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(list(1, 10, 2, 3, 4, 5))
+  #' rdd2 <- spark$sparkContext$parallelize(list(1, 6, 2, 3, 7, 8))
   #' rdd1$
   #'   intersection(rdd2)$
   #'   sortBy(~ .)$
@@ -1176,6 +1189,7 @@ RDD <- R6::R6Class("RDD", list(
   #' # list(1, 2, 3)
   #'}
   # nolint end
+  #' @return An RDD which is the intersection of these two RDDs.
   intersection = function(other, numPartitions = self$getNumPartitions()) {
     rdd1 <- self$map(~ list(., NA))
     rdd2 <- other$map(~ list(., NA))
@@ -1210,10 +1224,10 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(1:2, 2L)  # 1, 2
-  #' rdd2 <- sc$parallelize(1:4, 2L)  # 1:2, 3:4
-  #' rdd3 <- sc$parallelize(1:6, 2L)  # 1:3, 4:6
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(1:2, 2L)  # 1, 2
+  #' rdd2 <- spark$sparkContext$parallelize(1:4, 2L)  # 1:2, 3:4
+  #' rdd3 <- spark$sparkContext$parallelize(1:6, 2L)  # 1:3, 4:6
   #' rdd1$
   #'   zipPartitions(rdd2, rdd3,
   #'                 .f = ~ list(list(..1, ..2, ..3)))$
@@ -1258,9 +1272,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
+  #' spark <- spark_session()
   #' pairs <- list(c(1, 1), c(2, 2), c(1, 3))
-  #' rdd <- sc$parallelize(pairs)
+  #' rdd <- spark$sparkContext$parallelize(pairs)
   #' rdd$lookup(1) # list(1, 3)
   #'}
   # nolint end
@@ -1284,8 +1298,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(c("a", 1), c("b", 1), c("a", 1)))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(c("a", 1), c("b", 1), c("a", 1)))
   #' rdd$countByKey() # ("a", 2L), ("b", 1L)
   #'}
   # nolint end
@@ -1300,8 +1314,10 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(list(1, 2), list(3, 4)))
+  #' spark <- spark_session()
+  #' rdd <- spark$
+  #'   sparkContext$
+  #'   parallelize(list(list(1, 2), list(3, 4)))
   #' rdd$keys()$collect() # list(1, 3)
   #'}
   # nolint end
@@ -1314,11 +1330,12 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(list(1, 2), list(3, 4)))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(list(1, 2), list(3, 4)))
   #' rdd$values()$collect() # list(2, 4)
   #'}
   # nolint end
+  #' @return an RDD object
   values = function() self$map(~ .[[2]]),
 
   #' Applies a function to all values of the elements,
@@ -1327,17 +1344,17 @@ RDD <- R6::R6Class("RDD", list(
   #' The same as `mapValues()' in Spark.
   #'
   #' @param .f the transformation to apply on the value of each element.
-  #' @return a new RDD created by the transformation.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:10)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:10)
   #' makePairs <- rdd$map(~ list(., .))
   #' makePairs$
   #'   mapValues(~ . * 2)$
   #'   collect()
   #' Output: list(list(1,2), list(2,4), list(3,6), ...)
   #'}
+  #' @return a new RDD created by the transformation.
   mapValues = function(.f) {
     .f <- prepare_func(.f)
     self$map(~ list(.[[1]], .f(.[[2]])))
@@ -1353,8 +1370,10 @@ RDD <- R6::R6Class("RDD", list(
   #' @return a new RDD created by the transformation.
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(list(1, c(1,2)), list(2, c(3,4))))
+  #' spark <- spark_session()
+  #' rdd <- spark$
+  #'   sparkContext$
+  #'   parallelize(list(list(1, c(1,2)), list(2, c(3,4))))
   #' rdd$
   #'   flatMapValues(~ .)$
   #'   collect()
@@ -1380,9 +1399,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @return An RDD partitioned using the specified partitioner.
   #' @examples
   #'\dontrun{
-  #' spark_session()
+  #' spark <- spark_session()
   #' pairs <- list(list(1, 2), list(1.1, 3), list(1, 4))
-  #' rdd <- sc$parallelize(pairs)
+  #' rdd <- spark$sparkContext$parallelize(pairs)
   #' rdd$partitionBy(2L)$collectPartition(0L)
   #' # First partition should contain list(1, 2) and list(1, 4)
   #'}
@@ -1439,9 +1458,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @seealso reduceByKey
   #' @examples
   #'\dontrun{
-  #' spark_session()
+  #' spark <- spark_session()
   #' pairs <- list(list(1, 2), list(1.1, 3), list(1, 4))
-  #' rdd <- sc$parallelize(pairs)
+  #' rdd <- spark$sparkContext$parallelize(pairs)
   #' parts <- rdd$
   #'   groupByKey(2L)$
   #'   collect() %>%
@@ -1497,9 +1516,9 @@ RDD <- R6::R6Class("RDD", list(
   #'         value
   #' @examples
   #'\dontrun{
-  #' spark_session()
+  #' spark <- spark_session()
   #' pairs <- list(list(1, 2), list(1.1, 3), list(1, 4))
-  #' reduced <- sc$
+  #' reduced <- spark$sparkContext$
   #'   parallelize(pairs)$
   #'   reduceByKey(`+`, 2L)$
   #'   collect()
@@ -1533,18 +1552,18 @@ RDD <- R6::R6Class("RDD", list(
   #' immediately to the driver as an R list.
   #'
   #' @param .f The associative and commutative reduce function to use.
-  #' @return A list of elements of type list(K, V') where V' is the merged
-  #' value for each key
   #' @seealso reduceByKey
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
+  #' spark <- spark_session()
   #' pairs <- list(list(1, 2), list(1.1, 3), list(1, 4))
-  #' rdd <- sc$parallelize(pairs)
+  #' rdd <- spark$sparkContext$parallelize(pairs)
   #' rdd$reduceByKeyLocally(`+`)
   #'}
   # nolint end
+  #' @return A list of elements of type list(K, V') where V' is the merged
+  #' value for each key
   reduceByKeyLocally = function(.f) {
     .f <- prepare_func(.f)
 
@@ -1599,20 +1618,20 @@ RDD <- R6::R6Class("RDD", list(
   #' @param mergeValue Merge the given value (V) with an existing combiner (C)
   #' @param mergeCombiners Merge two combiners and return a new combiner
   #' @param numPartitions Number of partitions to create.
-  #' @return An RDD where each element is list(K, C) and C is the combined type
   #' @seealso groupByKey, reduceByKey
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
+  #' spark <- spark_session()
   #' pairs <- list(list(1, 2), list(1.1, 3), list(1, 4))
-  #' rdd <- sc$parallelize(pairs)
+  #' rdd <- spark$sparkContext$parallelize(pairs)
   #' combined <- rdd$
   #'   combineByKey(~ ., `+`, `+`, 2L)$
   #'   collect()
   #' combined[[1]] # Should be a list(1, 6)
   #'}
   # nolint end
+  #' @return An RDD where each element is list(K, C) and C is the combined type
   combineByKey = function(createCombiner, mergeValue,
                           mergeCombiners, numPartitions) {
     stopifnot(is.numeric(numPartitions))
@@ -1672,8 +1691,10 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(list(1, 1), list(1, 2), list(2, 3), list(2, 4)))
+  #' spark <- spark_session()
+  #' rdd <- spark$
+  #'   sparkContext$
+  #'   parallelize(list(list(1, 1), list(1, 2), list(2, 3), list(2, 4)))
   #' zeroValue <- list(0, 0)
   #' seqOp <- function(x, y) list(x[[1]] + y, x[[2]] + 1)
   #' combOp <- function(x, y) list(x[[1]] + y[[1]], x[[2]] + y[[2]])
@@ -1709,9 +1730,11 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(list(1, 1), list(1, 2),
-  #'                            list(2, 3), list(2, 4)))
+  #' spark <- spark_session()
+  #' rdd <- spark$
+  #'   sparkContext$
+  #'   parallelize(list(list(1, 1), list(1, 2),
+  #'                    list(2, 3), list(2, 4)))
   #' rdd$
   #'   foldByKey(0, `+`, 2L)$
   #'   collect()
@@ -1739,9 +1762,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(list(1, 1), list(2, 4)))
-  #' rdd2 <- sc$parallelize(list(list(1, 2), list(1, 3)))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(list(list(1, 1), list(2, 4)))
+  #' rdd2 <- spark$sparkContext$parallelize(list(list(1, 2), list(1, 3)))
   #' rdd1$
   #'   join(rdd2, 2L)$
   #'   collect()
@@ -1775,9 +1798,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(list(1, 1), list(2, 4)))
-  #' rdd2 <- sc$parallelize(list(list(1, 2), list(1, 3)))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(list(list(1, 1), list(2, 4)))
+  #' rdd2 <- spark$sparkContext$parallelize(list(list(1, 2), list(1, 3)))
   #' rdd1$
   #'   leftOuterJoin(rdd2, 2L)$
   #'   collect()
@@ -1811,9 +1834,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(list(1, 2), list(1, 3)))
-  #' rdd2 <- sc$parallelize(list(list(1, 1), list(2, 4)))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(list(list(1, 2), list(1, 3)))
+  #' rdd2 <- spark$sparkContext$parallelize(list(list(1, 1), list(2, 4)))
   #' rdd1$
   #'   rightOuterJoin(rdd2, 2L)$
   #'   collect()
@@ -1849,9 +1872,11 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(list(1, 2), list(1, 3), list(3, 3)))
-  #' rdd2 <- sc$parallelize(list(list(1, 1), list(2, 4)))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$
+  #'   sparkContext$
+  #'   parallelize(list(list(1, 2), list(1, 3), list(3, 3)))
+  #' rdd2 <- spark$sparkContext$parallelize(list(list(1, 1), list(2, 4)))
   #' rdd1$
   #'   fullOuterJoin(rdd2, 2L)$
   #'   collect()
@@ -1882,9 +1907,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(list(1, 1), list(2, 4)))
-  #' rdd2 <- sc$parallelize(list(list(1, 2), list(1, 3)))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(list(list(1, 1), list(2, 4)))
+  #' rdd2 <- spark$sparkContext$parallelize(list(list(1, 2), list(1, 3)))
   #' rdd1$cogroup(rdd2, numPartitions = 2L)$collect()
   #' # list(list(1, list(1, list(2, 3))), list(2, list(list(4), list()))
   #'}
@@ -1928,8 +1953,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(list(list(3, 1), list(2, 2), list(1, 3)))
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(list(list(3, 1), list(2, 2), list(1, 3)))
   #' rdd$sortByKey()$collect()
   #' # list (list(1, 3), list(2, 2), list(3, 1))
   #'}
@@ -1998,10 +2023,10 @@ RDD <- R6::R6Class("RDD", list(
   #' @examples
   # nolint start
   #'\dontrun{
-  #' spark_session()
-  #' rdd1 <- sc$parallelize(list(list("a", 1), list("b", 4),
-  #'                             list("b", 5), list("a", 2)))
-  #' rdd2 <- sc$parallelize(list(list("a", 3), list("c", 1)))
+  #' spark <- spark_session()
+  #' rdd1 <- spark$sparkContext$parallelize(list(list("a", 1), list("b", 4),
+  #'                                             list("b", 5), list("a", 2)))
+  #' rdd2 <- spark$sparkContext$parallelize(list(list("a", 3), list("c", 1)))
   #' rdd1$
   #'   subtractByKey(rdd2)$
   #'   collect()
@@ -2031,8 +2056,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @param seed Randomness seed value
   #' @examples
   #'\dontrun{
-  #' spark_session()
-  #' rdd <- sc$parallelize(1:3000)
+  #' spark <- spark_session()
+  #' rdd <- spark$sparkContext$parallelize(1:3000)
   #' pairs <- rdd$map(function(x) { if (x %% 3 == 0) list("a", x)
   #'                                else { if (x %% 3 == 1) list("b", x)
   #'                                       else list("c", x) }})
