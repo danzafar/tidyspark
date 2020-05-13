@@ -26,15 +26,19 @@ SparkSession <- R6::R6Class("SparkSession", list(
   #' @field conf get the \code{RuntimeConfig}
   conf = NULL,
 
+  #' @field sparkContext the sparkContext associated with the session
+  sparkContext = NULL,
+
   #' @description
   #' Create a new \code{SparkSession}
-  #' @param sc optional, can instatiate with another sparkContext's jobj.
+  #' @param session_jobj the session's jobj
   initialize = function(session_jobj) {
     self$jobj <- session_jobj
     self$conf <- RuntimeConfig$new(call_method(self$jobj, "conf"))
+    self$sparkContext = get_spark_context()
   },
 
-  #' @description print \code{sparkContext}
+  #' @description print \code{SparkSession}
   print = function() {
     cat("<tidyspark SparkSession>\n")
     invisible(self)
@@ -77,12 +81,6 @@ SparkSession <- R6::R6Class("SparkSession", list(
     new_spark_tbl(call_method(sdf, "toDF"))
   },
 
-  #' @description return the associated SparkContext object
-  sparkContext = function() {
-    jobj <- call_method(self$jobj, "sparkContext")
-    sparkContext$new(jobj)
-    },
-
   #' SQL
   #'
   #' @description Executes a SQL query using Spark, returning the result as a
@@ -100,7 +98,7 @@ SparkSession <- R6::R6Class("SparkSession", list(
   #'
   #' @description Returns the specified table/view as a DataFrame.
   #'
-  #' @param string, is either a qualified or unqualified name that designates
+  #' @param tableName is either a qualified or unqualified name that designates
   #' a table or view. If a database is specified, it identifies the table/view
   #' from the database. Otherwise, it first attempts to find a temporary view
   #' with the given name and then match the table/view from the current
@@ -123,14 +121,12 @@ SparkSession <- R6::R6Class("SparkSession", list(
 
 RuntimeConfig <- R6::R6Class("RuntimeConfig", list(
 
-  #' @field jobj \code{SparkSession} java object
   jobj = NULL,
 
   initialize = function(jobj) {
     self$jobj <- jobj
   },
 
-  #' @description print \code{RuntimeConfig}
   print = function() {
     cat("<tidyspark RuntimeConfig>\n")
     invisible(self)

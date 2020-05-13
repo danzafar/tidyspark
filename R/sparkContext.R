@@ -2,12 +2,12 @@
 
 # The SparkContext class -------------------------------------------------------
 
-#' @title The \code{sparkConext} Class
+#' @title The \code{SparkContext} Class
 #'
-#' @name sparkContext
+#' @name SparkContext
 #'
 #' @description This class was designed as a thin wrapper around Spark's
-#' \code{sparkContext}. It is initialized when \code{spark_submit} is called
+#' \code{SparkContext}. It is initialized when \code{spark_submit} is called
 #' and inserted into the workspace as \code{sc}. Note, running
 #' \code{sc$stop} will end your session. For information on methods and types
 #' requirements, refer to the Javadoc:
@@ -25,26 +25,28 @@
 #' an_rdd <- sc$parallelize(list(1:10), 4)
 #' sc$getConf$get("spark.submit.deployMode")
 #'
-sparkContext <- R6::R6Class("sparkContext", list(
+SparkContext <- R6::R6Class("SparkContext", list(
 
-  #' @field jobj \code{sparkContext} java object
+  #' @field jobj \code{SparkContext} java object
   jobj = NULL,
 
   #' @field getConf get the \code{SparkConf}
   getConf = NULL,
 
   #' @description
-  #' Create a new \code{sparkContext} note, one is generated when you run
-  #' \code{spark_session()} and inserted to workspace as \code{sc}
-  #' @param sc optional, can instatiate with another sparkContext's jobj.
+  #' Create a new \code{SparkContext}
+  #' @param sc optional, can instatiate with another SparkContext's jobj.
   initialize = function(sc = NULL) {
-    self$jobj <- if (is.null(sc)) SparkR:::getSparkContext() else sc
+    self$jobj <- if (is.null(sc)) {
+      message("jobj not supplied, attempting to use existing spark context.")
+      get_spark_context()
+      } else sc
     self$getConf <- getConf$new(call_method(self$jobj, "getConf"))
   },
 
-  #' @description print \code{sparkContext}
+  #' @description print \code{SparkContext}
   print = function() {
-    cat("<tidyspark sparkContext>\n")
+    cat("<tidyspark SparkContext>\n")
     invisible(self)
   },
 

@@ -403,6 +403,6 @@ as.RDD.spark_tbl <- function(.data) {
 }
 
 as.RDD.list <- function(.l, numSlices = 1L) {
-  context <- get("sc", envir = as.environment(".GlobalEnv"))
+  context <- get(".sparkRjsc", envir = SparkR:::.sparkREnv)
   context$parallelize(.l, numSlices)
 }

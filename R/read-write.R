@@ -197,7 +197,7 @@ spark_read_parquet <- function(path, ...) {
 #' @export
 spark_read_json <- function (path, multiline = F, ...) {
   # TODO example of specifiying a schema and reading nested data
-  sparkSession <- get_spark_session()
+  sparkSession <- get_spark_session()$jobj
   options <- SparkR:::varargsToStrEnv(...)
   options$multiline <- ifelse(multiline, "true", "false")
   paths <- as.list(suppressWarnings(normalizePath(path)))
@@ -267,11 +267,11 @@ spark_read_jdbc <- function(url, table, partition_col = NULL,
                             lower_bound = NULL, upper_bound = NULL,
                             num_partitions = 0L, predicates = list(), ...) {
   jprops <- SparkR:::varargsToJProperties(...)
-  sparkSession <- SparkR:::getSparkSession()
+  sparkSession <- get_spark_session()$jobj
   read <- call_method(sparkSession, "read")
   if (!is.null(partition_col)) {
     if (is.null(num_partitions) || num_partitions == 0) {
-      sc <- call_method(sparkSession, "sparkContext")
+      sc <- get_spark_context()$jobj
       num_partitions <- call_method(sc, "defaultParallelism")
     }
     else {

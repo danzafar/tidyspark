@@ -1,4 +1,7 @@
 
+
+# The RDD class ----------------------------------------------------------------
+
 #' @title The \code{RDD} Class
 #'
 #' @name RDD
@@ -20,9 +23,21 @@
 #'   sparkContext$
 #'   parallelize(1:10, 2)
 #'
+#' rdd
 RDD <- R6::R6Class("RDD", list(
+
+  #' @field env the \code{RDD} environment
   env = NULL,
+
+  #' @field jrdd the \code{RDD} java object
   jrdd = NULL,
+
+  #' @description
+  #' Create a new \code{RDD}
+  #' @param jrdd a java object referencing an RDD.
+  #' @param serializedMode optional, the serialization mode to use.
+  #' @param isCached optional, whether the RDD is cached.
+  #' @param isCheckpointed optional, whether the RDD is checkpointed.
   initialize = function(jrdd, serializedMode = "byte",
                         isCached = F, isCheckpointed = F) {
     stopifnot(class(serializedMode) == "character")
@@ -37,14 +52,18 @@ RDD <- R6::R6Class("RDD", list(
     self
 
   },
+
+  #' @description print an \code{RDD}
   print = function() {
     cat("<tidyspark RDD>\n")
     cat(paste0(call_method(self$jrdd, "toString"), "\n"))
     invisible(self)
   },
 
+  #' @description get the serialized mode
   getSerializedMode = function() self$env$serializedMode,
 
+  #' @description get the associated java object from the RDD
   getJRDD = function() self$jrdd,
 
   #' @title Cache an RDD

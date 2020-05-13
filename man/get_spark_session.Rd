@@ -7,11 +7,11 @@
 get_spark_session()
 }
 \value{
-a \code{jobj} of the spark session
+a SparkSession object
 }
 \description{
 Get Spark Session
 }
 \examples{
-get_spark_session()
+spark <- get_spark_session()
 }
