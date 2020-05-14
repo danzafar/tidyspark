@@ -22,13 +22,13 @@ call_method <- function(jobj, method, ...) {
     stop("Invalid jobj ", jobj$id, ". If 'spark_session' was restarted,
     Spark operations need to be re-executed.")
   }
-  SparkR:::invokeJava(isStatic = FALSE, jobj$id, method, ...)
+  invokeJava(isStatic = FALSE, jobj$id, method, ...)
 }
 
 #' @rdname javacall
 #' @export
 call_static <- function(class, method, ...) {
-  SparkR:::invokeJava(isStatic = TRUE, class, method, ...)
+  invokeJava(isStatic = TRUE, class, method, ...)
 }
 
 #' @rdname javacall
@@ -43,7 +43,7 @@ call_method_handled <- function(jobj, method, ...) {
 #' @rdname javacall
 #' @export
 new_jobj <- function(class, ...) {
-  SparkR:::invokeJava(isStatic = TRUE, class, methodName = "<init>",  ...)
+  invokeJava(isStatic = TRUE, class, methodName = "<init>",  ...)
 }
 
 #' @rdname javacall

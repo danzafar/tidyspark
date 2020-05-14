@@ -152,15 +152,15 @@ spark_context <- function(master = "", app_name = "tidyspark",
       stop("JVM is not ready after 10 seconds")
     }
     f <- file(path, open = "rb")
-    backendPort <- SparkR:::readInt(f)
-    monitorPort <- SparkR:::readInt(f)
-    rLibPath <- SparkR:::readString(f)
-    connectionTimeout <- SparkR:::readInt(f)
-    authSecretLen <- SparkR:::readInt(f)
+    backendPort <- readInt(f)
+    monitorPort <- readInt(f)
+    rLibPath <- readString(f)
+    connectionTimeout <- readInt(f)
+    authSecretLen <- readInt(f)
     if (length(authSecretLen) == 0 || authSecretLen == 0) {
       stop("Unexpected EOF in JVM connection data. Mismatched versions?")
     }
-    authSecret <- SparkR:::readStringData(f, authSecretLen)
+    authSecret <- readStringData(f, authSecretLen)
     close(f)
     file.remove(path)
     if (length(backendPort) == 0 || backendPort == 0 || length(monitorPort) ==

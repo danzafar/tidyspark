@@ -80,7 +80,8 @@ spark_udf <- function (.data, .f, schema) {
     schema <- StructType(schema)
   }
   if (rlang::is_formula(.f)) .f <- rlang::as_function(.f)
-  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]], connection = NULL)
+  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]],
+                              connection = NULL)
   .broadcast_arr <- lapply(ls(SparkR:::.broadcastNames), function(name) {
     get(name, .broadcastNames)
   })
@@ -195,14 +196,15 @@ spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
     group_spark_data(group_by(.data, !!!rlang::syms(cols)))
   } else group_spark_data(.data)
 
-  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]], connection = NULL)
+  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]],
+                              connection = NULL)
   .broadcast_arr <- lapply(ls(SparkR:::.broadcastNames), function(name) {
     get(name, .broadcastNames)
   })
 
   schema <- if (inherits(schema, "StructType")) schema$jobj else NULL
   sdf <- call_static("org.apache.spark.sql.api.r.SQLUtils",
-                     "gapply", sgd@sgd,
+                     "gapply", sgd,
                      serialize(SparkR:::cleanClosure(.f), connection = NULL),
                      .package_names, .broadcast_arr, schema)
   new_spark_tbl(sdf)

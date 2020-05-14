@@ -316,8 +316,7 @@ group_spark_data <- function(.data) {
 
   sdf <- attr(.data, "jc")
   jcol <- lapply(tbl_groups, function(x) call_method(sdf, "col", x))
-  sgd <- call_method(sdf, "groupBy", jcol)
-  SparkR:::groupedData(sgd)
+  call_method(sdf, "groupBy", jcol)
 }
 
 # TODO implement sub wndw functionality so `new_col = max(rank(Species))` works
@@ -363,7 +362,7 @@ summarise.spark_tbl <- function(.data, ...) {
   }
 
   jcols <- setNames(lapply(seq_along(agg), function(x) agg[[x]]@jc), names(agg))
-  sdf <- call_method(sgd@sgd, "agg", jcols[[1]], jcols[-1])
+  sdf <- call_method(sgd, "agg", jcols[[1]], jcols[-1])
   new_spark_tbl(sdf)
 }
 
@@ -407,7 +406,7 @@ piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
   } else {
     sgd_in <-
       SparkR::agg(SparkR::pivot(
-        group_spark_data(group_by(.data, !!id_var)),
+        group_spark_data(group_by(.data, !!id_var)), # group_spark_data is diff now
         rlang::as_name(group_var)),
         SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
   }

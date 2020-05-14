@@ -50,7 +50,7 @@ isInstanceOf <- function (jobj, className) {
 readRowList <- function (obj) {
   rawObj <- rawConnection(obj, "r+")
   on.exit(close(rawObj))
-  SparkR:::readObject(rawObj)
+  readObject(rawObj)
 }
 
 convertJListToRList <- function (jList, flatten, logicalUpperBound = NULL,
@@ -93,6 +93,66 @@ convertJListToRList <- function (jList, flatten, logicalUpperBound = NULL,
   } else list()
   if (flatten) as.list(unlist(results, recursive = FALSE))
   else as.list(results)
+}
+
+# I was considering replacing SparkR:::varargsToStrEnv with this,
+# but SparkR:::varargsToStrEnv does some nice error handling.
+# varargsToStrEnv <- function(...) {
+#   quos <- rlang::enquos(...)
+#   args <- lapply(as.list(quos), rlang::quo_name)
+#   as.environment(args)
+# }
+
+varargsToStrEnv <- function (...) {
+  pairs <- list(...)
+  nameList <- names(pairs)
+  env <- new.env()
+  ignoredNames <- list()
+  if (is.null(nameList)) {
+    ignoredNames <- pairs
+  } else {
+    for (i in seq_along(pairs)) {
+      name <- nameList[i]
+      value <- pairs[i]
+      if (identical(name, "")) {
+        ignoredNames <- append(ignoredNames, value)
+      } else {
+        value <- pairs[[name]]
+        if (!(is.logical(value) || is.numeric(value) ||
+              is.character(value) || is.null(value))) {
+          stop(paste0(
+            "Unsupported type for ", name, " : ", class(value),
+            ". Supported types are logical, numeric, character and NULL."),
+            call. = FALSE)
+        }
+        if (is.logical(value)) {
+          env[[name]] <- tolower(as.character(value))
+        } else if (is.null(value)) {
+          env[[name]] <- value
+        } else {
+          env[[name]] <- as.character(value)
+        }
+      }
+    }
+  }
+  if (length(ignoredNames) != 0) {
+    warning(paste0("Unnamed arguments ignored: ",
+                   paste(ignoredNames, collapse = ", "), "."),
+            call. = FALSE)
+  }
+  env
+}
+
+varargsToJProperties <- function (...) {
+  pairs <- list(...)
+  props <- new_jobj("java.util.Properties")
+  if (length(pairs) > 0) {
+    lapply(ls(pairs), function(k) {
+      call_method(props, "setProperty", as.character(k),
+                  as.character(pairs[[k]]))
+    })
+  }
+  props
 }
 
 # Utility function to validate that the incoming oject is a function or

@@ -59,7 +59,7 @@ spark_tbl.data.frame <- function(.df, ...) {
 
   # convert the data frame
   df <- if (all(dim(.df) == c(0, 0))) {
-    spark <- SparkR:::getSparkSession()
+    spark <- get_spark_session()$jobj
     sdf <- call_method(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
   # TODO: We should update this to spark.r.maxAllocationLimit or 200MB, as per SparkR

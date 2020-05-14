@@ -12,13 +12,6 @@ persist_read_csv <- function(df) {
   SparkR::read.df(tempfile, "csv", SparkR::schema(sample))
 }
 
-# I was considering replacing SparkR:::varargsToStrEnv with this,
-# but SparkR:::varargsToStrEnv does some nice error handling.
-# args_to_env <- function(...) {
-#   quos <- rlang::enquos(...)
-#   args <- lapply(as.list(quos), rlang::quo_name)
-#   as.environment(args)
-# }
 
 ### READ ----------------------------------------------------------------------
 
@@ -46,8 +39,8 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
     na.strings <- na.strings[1]
     warning("More than one 'na.string' value found, using first value, ", na.strings)
   }
-  sparkSession <- SparkR:::getSparkSession()
-  options <- SparkR:::varargsToStrEnv(...)
+  sparkSession <- get_spark_session()$jobj
+  options <- varargsToStrEnv(...)
   if (!is.null(path)) {
     options[["path"]] <- path
   }
@@ -198,7 +191,7 @@ spark_read_parquet <- function(path, ...) {
 spark_read_json <- function (path, multiline = F, ...) {
   # TODO example of specifiying a schema and reading nested data
   sparkSession <- get_spark_session()$jobj
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   options$multiline <- ifelse(multiline, "true", "false")
   paths <- as.list(suppressWarnings(normalizePath(path)))
   read <- call_method(sparkSession, "read")
@@ -266,7 +259,7 @@ spark_read_json <- function (path, multiline = F, ...) {
 spark_read_jdbc <- function(url, table, partition_col = NULL,
                             lower_bound = NULL, upper_bound = NULL,
                             num_partitions = 0L, predicates = list(), ...) {
-  jprops <- SparkR:::varargsToJProperties(...)
+  jprops <- varargsToJProperties(...)
   sparkSession <- get_spark_session()$jobj
   read <- call_method(sparkSession, "read")
   if (!is.null(partition_col)) {
@@ -351,7 +344,7 @@ spark_write_source <- function(.data, path, source = NULL, mode = "error",
     source <- getDefaultSqlSource()
   }
 
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   if (!is.null(options$partitionBy)) {
     stop("'partitionBy' argument suppied, 'partiton_by' expected")
   }
@@ -611,7 +604,7 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
     stop("mode should be character or omitted. It is 'error' by default.")
   }
 
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   if (!is.null(options$partitionBy)) {
     stop("'partitionBy' argument suppied, 'partiton_by' expected")
   }
@@ -714,7 +707,7 @@ spark_write_table <- function(.data, table, mode = "error",
     source <- getDefaultSqlSource()
   }
 
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   if (!is.null(options$partitionBy)) {
     stop("'partitionBy' argument suppied, 'partiton_by' expected")
   }
