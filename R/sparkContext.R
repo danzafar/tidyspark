@@ -39,7 +39,7 @@ SparkContext <- R6::R6Class("SparkContext", list(
   initialize = function(sc = NULL) {
     self$jobj <- if (is.null(sc)) {
       message("jobj not supplied, attempting to use existing spark context.")
-      get_spark_context()
+      get_spark_context()$jobj
       } else sc
     self$getConf <- getConf$new(call_method(self$jobj, "getConf"))
   },
