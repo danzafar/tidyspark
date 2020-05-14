@@ -271,39 +271,39 @@ MapType <- function (key, value, nullable) {
 
 #' @rdname schema-types
 #' @export
-ByteType = function() "byte"
+ByteType = "byte"
 
 #' @rdname schema-types
 #' @export
-IntegerType = function() "integer"
+IntegerType = "integer"
 
 #' @rdname schema-types
 #' @export
-FloatType = function() "float"
+FloatType = "float"
 
 #' @rdname schema-types
 #' @export
-DoubleType = function() "double"
+DoubleType = "double"
 
 #' @rdname schema-types
 #' @export
-StringType = function() "string"
+StringType = "string"
 
 #' @rdname schema-types
 #' @export
-BinaryType = function() "binary"
+BinaryType = "binary"
 
 #' @rdname schema-types
 #' @export
-BooleanType = function() "boolean"
+BooleanType = "boolean"
 
 #' @rdname schema-types
 #' @export
-TimestampType = function() "timestamp"
+TimestampType = "timestamp"
 
 #' @rdname schema-types
 #' @export
-DateType = function() "date"
+DateType = "date"
 
 
 #' Get schema object

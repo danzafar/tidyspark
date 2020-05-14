@@ -65,7 +65,6 @@ call_static_handled <- function(class, method, ...) {
 #' @examples
 #' spark_session_stop()
 spark_session_stop <- function() {
-  if (exists("sc")) rm(sc, envir = as.environment(".GlobalEnv"))
   SparkR::sparkR.session.stop()
 }
 
@@ -84,15 +83,32 @@ spark_session_reset <- function(master = "", app_name = "SparkR",
 
 #' Get Spark Session
 #'
-#' @return a \code{jobj} of the spark session
+#' @return a SparkSession object
 #' @export
 #'
 #' @examples
-#' get_spark_session()
+#' spark <- get_spark_session()
 get_spark_session <- function() {
-  if (exists(".sparkRsession", envir = SparkR:::.sparkREnv)) {
+  jobj <- if (exists(".sparkRsession", envir = SparkR:::.sparkREnv)) {
     get(".sparkRsession", envir = SparkR:::.sparkREnv)
   } else stop("spark_session not initialized")
+
+  SparkSession$new(jobj)
+}
+
+#' Get Spark Context
+#'
+#' @return a SparkContext object
+#' @export
+#'
+#' @examples
+#' sc <- get_spark_context()
+get_spark_context <- function () {
+  if (!exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
+    stop("Spark has not been initialized. Please call spark_session()")
+  }
+  jobj <- get(".sparkRjsc", envir = SparkR:::.sparkREnv)
+  SparkContext$new(jobj)
 }
 
 validate_jobj <- function (jobj) {
@@ -115,7 +131,7 @@ validate_jobj <- function (jobj) {
 #' iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 #' iris_preview %>% collect
 spark_sql <- function(expr) {
-  sdf <- call_method(get_spark_session(), "sql", expr)
+  sdf <- call_method(get_spark_session()$jobj, "sql", expr)
   new_spark_tbl(sdf)
   }
 
