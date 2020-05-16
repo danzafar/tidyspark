@@ -83,7 +83,9 @@ spark_session_reset <- function(master = "", app_name = "SparkR",
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' spark <- get_spark_session()
+#' }
 get_spark_session <- function() {
   jobj <- if (exists(".sparkRsession", envir = SparkR:::.sparkREnv)) {
     get(".sparkRsession", envir = SparkR:::.sparkREnv)
@@ -98,7 +100,9 @@ get_spark_session <- function() {
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' sc <- get_spark_context()
+#' }
 get_spark_context <- function () {
   if (!exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
     stop("Spark has not been initialized. Please call spark_session()")
@@ -123,9 +127,11 @@ validate_jobj <- function (jobj) {
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' spark_tbl(iris) %>% register_temp_view("iris")
 #' iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 #' iris_preview %>% collect
+#' }
 spark_sql <- function(expr) {
   sdf <- call_method(get_spark_session()$jobj, "sql", expr)
   new_spark_tbl(sdf)
@@ -145,9 +151,11 @@ spark_sql <- function(expr) {
 #' @export
 #'
 #' @examples
-#' #' spark_tbl(iris) %>% register_temp_view("iris")
+#'\dontrun{
+#' spark_tbl(iris) %>% register_temp_view("iris")
 #' iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 #' iris_preview %>% collect
+#' }
 register_temp_view <- function(.data, name) {
   sdf <- attr(.data, "jc")
   call_method(sdf, "createOrReplaceTempView", name)

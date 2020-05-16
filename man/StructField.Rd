@@ -29,11 +29,11 @@ a StructField object
 StructField
 }
 \examples{
-## Not run:
+\dontrun{
 schema <- StructType(
   StructField("a", "integer"),
   StructField("c", "string"),
   StructField("avg", "double")
   )
-## End(Not run)
+}
 }

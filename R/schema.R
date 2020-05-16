@@ -13,11 +13,13 @@
 #'
 #' @rdname StructType
 #' @examples
+#'\dontrun{
 #' schema <- StructType(
 #'   StructField("a", "integer"),
 #'   StructField("c", "string"),
 #'   StructField("avg", "double")
 #'   )
+#'}
 StructType <- function(x, ...) {
   UseMethod("StructType", x)
 }
@@ -101,13 +103,13 @@ print.StructType <- function (x, ...) {
 #'
 #' @rdname StructField
 #' @examples
-#' ## Not run:
+#'\dontrun{
 #' schema <- StructType(
 #'   StructField("a", "integer"),
 #'   StructField("c", "string"),
 #'   StructField("avg", "double")
 #'   )
-#' ## End(Not run)
+#'}
 StructField <- function (x, ...) {
   UseMethod("StructField", x)
 }
@@ -214,6 +216,7 @@ print.StructField <- function (x, ...) {
 #' @rdname schema-types
 #'
 #' @examples
+#'\dontrun{
 #' StructType(
 #'   StructField("int", IntegerType, TRUE),
 #'   StructField("string", StringType, TRUE)
@@ -228,7 +231,7 @@ print.StructField <- function (x, ...) {
 #'   StructField("int", IntegerType, TRUE),
 #'   StructField("string", StringType, TRUE)
 #'   )
-#'
+#'}
 ArrayType <- function(type, nullable) {
   type <- if (inherits(type, "character")) {
     spark_type <- tidyspark_types[type]

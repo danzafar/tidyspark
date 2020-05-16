@@ -13,5 +13,7 @@ a SparkContext object
 Get Spark Context
 }
 \examples{
+\dontrun{
 sc <- get_spark_context()
+}
 }

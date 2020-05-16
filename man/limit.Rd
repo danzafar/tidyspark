@@ -37,7 +37,7 @@ a \code{limit} and then \code{collect}s. \code{show} displays
 the result of \code{take}, but invisbly returns a \code{spark_tbl}.
 }
 \examples{
-
+\dontrun{
 # limit returns a spark_tbl
 spark_tbl(mtcars) \%>\% limit(15)
 
@@ -47,4 +47,5 @@ spark_tbl(mtcars) \%>\% take(15)
 # show displays the tibble, but returns a spark_tbl
 spark_tbl(iris) \%>\% show
 spark_tbl(mtcars) \%>\% show(15)
+}
 }
