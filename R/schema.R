@@ -96,7 +96,7 @@ print.StructType <- function (x, ...) {
 #' @param nullable boolean, whether or not the field is nullable
 #' @param ... additional argument(s) passed to the method.
 #'
-#' @return
+#' @return a StructField object
 #' @export
 #'
 #' @rdname StructField

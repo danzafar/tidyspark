@@ -11,9 +11,6 @@ register_temp_view(.data, name)
 
 \item{name}{a \code{string} of the name to store the table as}
 }
-\value{
-
-}
 \description{
 similar to Spark's \code{createOrReplaceTemporaryView} method,
 this function registers the DAG at a given point in the lineage as a temp view

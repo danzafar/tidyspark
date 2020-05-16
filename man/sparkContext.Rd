@@ -17,13 +17,15 @@ and tidyspark best practice usage conflicts. If you need to use a method not
 included, try calling it using \code{call_method(sc$jobj, <yourMethod>)}.
 }
 \examples{
-
-spark_session()
-
+\dontrun{
+spark <- spark_session()
+sc <- spark$sparkContext
 sc$defaultParallelism()
 an_rdd <- sc$parallelize(list(1:10), 4)
 sc$getConf$get("spark.submit.deployMode")
 
+spark_session_stop()
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

@@ -18,13 +18,15 @@
 #' included, try calling it using \code{call_method(sc$jobj, <yourMethod>)}.
 #'
 #' @examples
-#'
-#' spark_session()
-#'
+#'\dontrun{
+#' spark <- spark_session()
+#' sc <- spark$sparkContext
 #' sc$defaultParallelism()
 #' an_rdd <- sc$parallelize(list(1:10), 4)
 #' sc$getConf$get("spark.submit.deployMode")
 #'
+#' spark_session_stop()
+#'}
 SparkContext <- R6::R6Class("SparkContext", list(
 
   #' @field jobj \code{SparkContext} java object
@@ -213,7 +215,7 @@ SparkContext <- R6::R6Class("SparkContext", list(
         port <- call_method(jserver, "port")
         conn <- socketConnection(port = port, blocking = TRUE,
                                  open = "wb", timeout = 1500)
-        SparkR:::doServerAuth(conn, authSecret)
+        doServerAuth(conn, authSecret)
         SparkR:::writeToConnection(serializedSlices, conn)
         jrdd <- call_method(jserver, "getResult")
       }

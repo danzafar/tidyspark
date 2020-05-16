@@ -38,7 +38,7 @@ one partition should be in the form of a SQL query string, see example.}
 \item{...}{additional JDBC database connection named properties.}
 }
 \value{
-
+a \code{spark_tbl}
 }
 \description{
 Create spark_tbl from JDBC connection

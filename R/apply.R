@@ -17,7 +17,7 @@
 #' function being passed and automatically broadcast any values from the
 #' \code{.GlobalEnv} that are being referenced.
 #'
-#' @return
+#' @return a \code{spark_tbl}
 #' @export
 #'
 #' @examples

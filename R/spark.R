@@ -35,9 +35,7 @@ call_static <- function(class, method, ...) {
 #' @export
 call_method_handled <- function(jobj, method, ...) {
   tryCatch(call_method(jobj, method, ...),
-           error = function(e) {
-             SparkR:::captureJVMException(e, method)
-           })
+           error = function(e) captureJVMException(e, method))
 }
 
 #' @rdname javacall
@@ -50,9 +48,7 @@ new_jobj <- function(class, ...) {
 #' @export
 call_static_handled <- function(class, method, ...) {
   tryCatch(call_static(class, method, ...),
-           error = function(e) {
-             SparkR:::captureJVMException(e, method)
-           })
+           error = function(e) captureJVMException(e, method))
 }
 
 #' Stop the Spark Session and Spark Context
@@ -145,7 +141,7 @@ spark_sql <- function(expr) {
 #' @param .data a \code{spark_tbl} to be registered
 #' @param name a \code{string} of the name to store the table as
 #'
-#' @return
+#' @return NULL
 #' @export
 #'
 #' @examples

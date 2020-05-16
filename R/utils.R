@@ -327,3 +327,76 @@ getDefaultSqlSource <- function () {
                            "org.apache.spark.sql.parquet")
   l[["spark.sql.sources.default"]]
 }
+
+captureJVMException <- function (e, method) {
+  rawmsg <- as.character(e)
+  if (any(grep("^Error in .*?: ", rawmsg))) {
+    stacktrace <- strsplit(rawmsg, "Error in .*?: ")[[1]]
+    rmsg <- paste("Error in", method, ":")
+    stacktrace <- paste(rmsg[1], stacktrace[2])
+  } else {
+    stacktrace <- rawmsg
+  }
+  if (any(grep("org.apache.spark.sql.streaming.StreamingQueryException: ",
+               stacktrace))) {
+    msg <- strsplit(stacktrace,
+                    "org.apache.spark.sql.streaming.StreamingQueryException: ",
+                    fixed = TRUE)[[1]]
+    rmsg <- msg[1]
+    first <- strsplit(msg[2], "\r?\n\tat")[[1]][1]
+    stop(paste0(rmsg, "streaming query error - ", first),
+         call. = FALSE)
+  }
+  else if (any(grep("java.lang.IllegalArgumentException: ",
+                    stacktrace))) {
+    msg <- strsplit(stacktrace, "java.lang.IllegalArgumentException: ",
+                    fixed = TRUE)[[1]]
+    rmsg <- msg[1]
+    first <- strsplit(msg[2], "\r?\n\tat")[[1]][1]
+    stop(paste0(rmsg, "illegal argument - ", first), call. = FALSE)
+  }
+  else if (any(grep("org.apache.spark.sql.AnalysisException: ",
+                    stacktrace))) {
+    msg <- strsplit(stacktrace, "org.apache.spark.sql.AnalysisException: ",
+                    fixed = TRUE)[[1]]
+    rmsg <- msg[1]
+    first <- strsplit(msg[2], "\r?\n\tat")[[1]][1]
+    stop(paste0(rmsg, "analysis error - ", first), call. = FALSE)
+  }
+  else if (any(grep(
+    "org.apache.spark.sql.catalyst.analysis.NoSuchDatabaseException: ",
+    stacktrace))) {
+    msg <- strsplit(
+      stacktrace,
+      "org.apache.spark.sql.catalyst.analysis.NoSuchDatabaseException: ",
+      fixed = TRUE)[[1]]
+    rmsg <- msg[1]
+    first <- strsplit(msg[2], "\r?\n\tat")[[1]][1]
+    stop(paste0(rmsg, "no such database - ", first), call. = FALSE)
+  }
+  else if (any(grep(
+    "org.apache.spark.sql.catalyst.analysis.NoSuchTableException: ",
+    stacktrace))) {
+    msg <- strsplit(
+      stacktrace,
+      "org.apache.spark.sql.catalyst.analysis.NoSuchTableException: ",
+      fixed = TRUE)[[1]]
+    rmsg <- msg[1]
+    first <- strsplit(msg[2], "\r?\n\tat")[[1]][1]
+    stop(paste0(rmsg, "no such table - ", first), call. = FALSE)
+  }
+  else if (any(grep(
+    "org.apache.spark.sql.catalyst.parser.ParseException: ",
+    stacktrace))) {
+    msg <- strsplit(
+      stacktrace,
+      "org.apache.spark.sql.catalyst.parser.ParseException: ",
+      fixed = TRUE)[[1]]
+    rmsg <- msg[1]
+    first <- strsplit(msg[2], "\r?\n\tat")[[1]][1]
+    stop(paste0(rmsg, "parse error - ", first), call. = FALSE)
+  }
+  else {
+    stop(stacktrace, call. = FALSE)
+  }
+}

@@ -382,6 +382,13 @@ readEnv <- function(con) {
   env
 }
 
+listToStruct <- function (list) {
+  stopifnot(class(list) == "list")
+  stopifnot(!is.null(names(list)))
+  class(list) <- "struct"
+  list
+}
+
 # Read a field of StructType from SparkDataFrame
 # into a named list in R whose class is "struct"
 readStruct <- function(con) {

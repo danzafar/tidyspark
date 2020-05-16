@@ -60,8 +60,8 @@ print.jobj <- function(x, ...) {
 }
 
 getClassName.jobj <- function(x) {
-  cls <- callJMethod(x, "getClass")
-  callJMethod(cls, "getName")
+  cls <- call_method(x, "getClass")
+  call_method(cls, "getName")
 }
 
 cleanup.jobj <- function(jobj) {

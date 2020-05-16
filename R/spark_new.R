@@ -116,8 +116,8 @@ spark_context <- function(master = "", app_name = "tidyspark",
 
     return(get(".sparkRjsc", envir = SparkR:::.sparkREnv))
   }
-  jars <- SparkR:::processSparkJars(spark_jars)
-  packages <- SparkR:::processSparkPackages(spark_packages)
+  jars <- processSparkJars(spark_jars)
+  packages <- processSparkPackages(spark_packages)
   existingPort <- Sys.getenv("EXISTING_SPARKR_BACKEND_PORT", "")
   connectionTimeout <- as.numeric(Sys.getenv("SPARKR_BACKEND_CONNECTION_TIMEOUT",
                                              "6000"))
@@ -135,9 +135,9 @@ spark_context <- function(master = "", app_name = "tidyspark",
   }
   else {
     path <- tempfile(pattern = "backend_port")
-    submitOps <- SparkR:::getClientModeSparkSubmitOpts(
+    submitOps <- getClientModeSparkSubmitOpts(
       Sys.getenv("SPARKR_SUBMIT_ARGS", "sparkr-shell"), spark_env_map)
-    invisible(SparkR:::checkJavaVersion())
+    invisible(checkJavaVersion())
     launch_backend(args = path, sparkHome = spark_home, jars = jars,
                   sparkSubmitOpts = submitOps, packages = packages, verbose)
     wait <- 0.1
@@ -170,7 +170,7 @@ spark_context <- function(master = "", app_name = "tidyspark",
     }
     monitorConn <- socketConnection(port = monitorPort, blocking = TRUE,
                                     timeout = connectionTimeout, open = "wb")
-    SparkR:::doServerAuth(monitorConn, authSecret)
+    doServerAuth(monitorConn, authSecret)
     assign(".monitorConn", monitorConn, envir = SparkR:::.sparkREnv)
     assign(".backendLaunched", 1, envir = SparkR:::.sparkREnv)
     if (rLibPath != "") {
@@ -180,9 +180,9 @@ spark_context <- function(master = "", app_name = "tidyspark",
   }
   assign("backendPort", backendPort, SparkR:::.sparkREnv)
   tryCatch({
-    SparkR:::connectBackend("localhost", backendPort,
-                            timeout = connectionTimeout,
-                            authSecret = authSecret)
+    connectBackend("localhost", backendPort,
+                   timeout = connectionTimeout,
+                   authSecret = authSecret)
   }, error = function(err) {
     stop("Failed to connect JVM\n")
   })
@@ -220,23 +220,5 @@ spark_context <- function(master = "", app_name = "tidyspark",
 
   sc_obj
 
-}
-
-launch_backend <- function(args, sparkHome, jars, sparkSubmitOpts,
-                           packages, verbose) {
-  sparkSubmitBinName <- SparkR:::determineSparkSubmitBin()
-  if (sparkHome != "") {
-    sparkSubmitBin <- file.path(sparkHome, "bin", sparkSubmitBinName)
-  }
-  else {
-    sparkSubmitBin <- sparkSubmitBinName
-  }
-  combinedArgs <- SparkR:::generateSparkSubmitArgs(
-    args, sparkHome, jars, sparkSubmitOpts, packages)
-  if (verbose) {
-    cat("Launching java with spark-submit command", sparkSubmitBin,
-        combinedArgs, "\n")
-  }
-  invisible(SparkR:::launchScript(sparkSubmitBin, combinedArgs))
 }
 

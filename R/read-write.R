@@ -186,7 +186,7 @@ spark_read_parquet <- function(path, ...) {
 #' https://docs.databricks.com/data/data-sources/read-json.html#multi-line-mode
 #' @param ... named list, optional arguments to the reader
 #'
-#' @return
+#' @return a \code{spark_tbl}
 #' @export
 spark_read_json <- function (path, multiline = F, ...) {
   # TODO example of specifiying a schema and reading nested data
@@ -230,7 +230,7 @@ spark_read_json <- function (path, multiline = F, ...) {
 #'   \item to filter out rows before reading, use the \code{predicates} argument
 #' }
 #'
-#' @return
+#' @return a \code{spark_tbl}
 #' @export
 #'
 #' @examples

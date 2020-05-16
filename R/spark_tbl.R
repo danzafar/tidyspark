@@ -241,11 +241,13 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 
 #' Explain Plan
 #'
+#' @description Get the explain plan of a spark_tbl
+#'
 #' @param x a \code{spark_tbl}
 #' @param extended \code{boolean} whether to print the extended plan
 #' @param ... other arguments to explain, currently unused
 #'
-#' @return
+#' @return a string representing the explain plan
 #' @export
 #' @importFrom dplyr explain
 explain.spark_tbl <- function(x, extended = F, ...) {

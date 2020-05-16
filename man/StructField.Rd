@@ -23,7 +23,7 @@ https://spark.apache.org/docs/latest/sparkr.html#data-type-mapping-between-r-and
 \item{nullable}{boolean, whether or not the field is nullable}
 }
 \value{
-
+a StructField object
 }
 \description{
 StructField
