@@ -221,16 +221,6 @@ mutate.spark_tbl <- function(.data, ...) {
 }
 
 #' @export
-coalesce <- function(...) {
-  UseMethod("coalesce")
-}
-
-#' @importFrom dplyr coalesce
-coalesce.default <- function(...) {
-  dplyr::coalesce(...)
-}
-
-#' @export
 count <- function(...) {
   UseMethod("count")
 }
