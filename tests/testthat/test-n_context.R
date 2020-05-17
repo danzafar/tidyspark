@@ -3,14 +3,14 @@ iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
 
-test_that("n_context is correctly bound", {
-  expect_equal(
-    get("..group_size", dplyr:::context_env) %>% deparse,
-    call_static("org.apache.spark.sql.functions", "count", "*") %>%
-      SparkR::column() %>%
-      deparse
-  )
-})
+# test_that("n_context is correctly bound", {
+#   expect_equal(
+#     get("..group_size", dplyr:::context_env) %>% deparse,
+#     call_static("org.apache.spark.sql.functions", "count", "*") %>%
+#       SparkR::column() %>%
+#       deparse
+#   )
+# })
 test_that("n() works with summarise", {
   expect_equal(
     spark_tbl(iris) %>%

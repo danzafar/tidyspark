@@ -32,14 +32,14 @@ test_that("read/write delta in DDL", {
   spark_write_delta(iris_sdf, mode = "overwrite", path = path_pqt)
 
   suppressWarnings(spark_sql(
-    paste0("CREATE TABLE iris_ddl USING DELTA LOCATION '", path_pqt, "'"))
+    paste0("CREATE TABLE default.iris_ddl USING DELTA LOCATION '", path_pqt, "'"))
     )
 
   # read with DDL
   expect_equal(
-    spark_sql("SELECT * FROM iris_ddl") %>%
+    spark_sql("SELECT * FROM default.iris_ddl") %>%
       collect,
     iris_fix)
 
-  invisible(spark_sql(paste0("DROP TABLE iris_ddl")))
+  invisible(spark_sql(paste0("DROP TABLE default.iris_ddl")))
 })

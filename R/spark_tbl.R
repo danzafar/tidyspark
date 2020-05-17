@@ -18,29 +18,33 @@ new_spark_tbl <- function(sdf, ...) {
   spk_tbl <- structure(get_jc_cols(sdf),
                        class = c("spark_tbl", "list"),
                        jc = sdf)
-  tibble:::update_tibble_attrs(spk_tbl, ...)
+  attribs <- list(...)
+  if (rlang::has_length(attribs)) {
+    attributes(spk_tbl)[names(attribs)] <- attribs
+  }
+  spk_tbl
 }
 
 #' Create a \code{spark_tbl}
 #'
-#' @param x object coercible to \code{spark_tbl}
+#' @param .df object coercible to \code{spark_tbl}
 #' @param ... any other arguments passed to \code{spark_tbl}, currently unused
 #'
 #' @return an object of class \code{spark_tbl}
 #' @export
 #'
+#' @rdname spark-tbl
 #' @examples
 #' spark_tbl(iris)
 #' spark_tbl(tibble(x = 1:10, y = 10:1))
 #' spark_tbl(SparkR::as.DataFrame(iris))
-spark_tbl <- function(x, ...) {
+spark_tbl <- function(.df, ...) {
   UseMethod("spark_tbl")
 }
 
-# create a method for data.frame (in memory) objects
-# sparklyr also supports the ability to copy large data to disk
-# and then read it back in, which supports larger files
 #' @export
+#' @rdname spark-tbl
+#' @importFrom utils object.size
 spark_tbl.data.frame <- function(.df, ...) {
 
   # sanitize the incoming table names, SparkR does it...raucously
@@ -67,13 +71,15 @@ spark_tbl.data.frame <- function(.df, ...) {
 }
 
 #' @export
+#' @rdname spark-tbl
 spark_tbl.SparkDataFrame <- function(.df, ...) {
   new_spark_tbl(.df@sdf, ...)
 }
 
 #' @export
-is.spark_tbl <- function(x) {
-  inherits(x, "spark_tbl")
+#' @rdname spark-tbl
+is.spark_tbl <- function(.df) {
+  inherits(.df, "spark_tbl")
 }
 
 # let's give it a print statement, pretty similar to
@@ -81,7 +87,7 @@ is.spark_tbl <- function(x) {
 # I want to avoid printing rows, it's just spark to avoid collects
 
 #' @export
-print.spark_tbl <- function(x) {
+print.spark_tbl <- function(x, ...) {
   cols <- lapply(dtypes(x),
                  function(l) {
                    paste0(paste(l, collapse = " <"), ">")
@@ -97,9 +103,11 @@ print.spark_tbl <- function(x) {
 #' Limit or show a sample of a \code{spark_tbl}
 #'
 #' @param .data a \code{spark_tbl}
+#' @param x a \code{spark_tbl}
 #' @param n numeric, the number of rows to collect
+#' @param ... other arguments passed, currently unused
 #'
-#' @return a \code{spark_tbl}, invisibly
+#' @return a \code{spark_tbl}
 #' @export
 #'
 #' @details \code{limit} and \code{head} just gets the top \code{n} rows
@@ -128,8 +136,8 @@ limit <- function (.data, n) {
 #' @rdname limit
 #' @export
 #' @importFrom utils head
-head.spark_tbl <- function(.data, n) {
-  limit(.data, n)
+head.spark_tbl <- function(x, ...) {
+  limit(x, ...)
 }
 
 #' @param .data a \code{spark_tbl}
@@ -145,6 +153,7 @@ take <- function (.data, n) {
 #' @param n numeric, the number of rows to collect
 #' @export
 #' @rdname limit
+#' @importFrom dplyr as_tibble
 show <- function(.data, n = NULL) {
 
   rows <- if (is.null(n)) {
@@ -160,34 +169,54 @@ show <- function(.data, n = NULL) {
 
 #' @export
 #' @importFrom dplyr glimpse
-glimpse.spark_tbl <- function(x, n = NULL) {
+#' @importFrom dplyr as_tibble
+glimpse.spark_tbl <- function(.data, n = NULL) {
 
   rows <- if (is.null(n)) {
     getOption("tibble.print_min", getOption("dplyr.print_min", 10))
   } else n
 
-  tibble:::glimpse.tbl(as_tibble(SparkR::take(attr(x, "jc"), rows)))
+  dplyr::glimpse(as_tibble(take(.data, rows)))
 
 }
 
 #' @export
-#' @importFrom dplyr collect
-collect.spark_tbl <- function(x) {
+#' @importFrom dplyr collect as_tibble
+collect.spark_tbl <- function(x, ...) {
   as_tibble(SparkR::collect(as_SparkDataFrame(x)))
 }
 
+#' Convert to a SparkR \code{SparkDataFrame}
+#'
+#' @param x a \code{spark_tbl} or \code{jobj} representing a \code{DataFrame}
+#' @param ... additional arguments passed on to methods, currently unused
+#'
+#' @rdname as-sdf
 #' @export
-as_SparkDataFrame <- function(x) {
+#'
+#' @examples
+#'
+#' spark_session()
+#'
+#' df <- spark_tbl(iris)
+#' as_SparkDataFrame(df)
+#'
+#' df_jobj <- attr(df, "jc")
+#' as_SparkDataFrame(df_jobj)
+#'
+as_SparkDataFrame <- function(x, ...) {
   UseMethod("as_SparkDataFrame")
 }
 
 #' @export
-as_SparkDataFrame.spark_tbl <- function(x) {
+#' @rdname as-sdf
+as_SparkDataFrame.spark_tbl <- function(x, ...) {
   new("SparkDataFrame", attr(x, "jc"), F)
 }
 
 #' @export
-as_SparkDataFrame.jobj <- function(x) {
+#' @rdname as-sdf
+as_SparkDataFrame.jobj <- function(x, ...) {
   new("SparkDataFrame", x, F)
 }
 
@@ -198,14 +227,13 @@ as_SparkDataFrame.jobj <- function(x) {
 # of course, it won't work just like dplyr because the grouping strucuture
 # will be more high-level, see 'attributes(group_by(iris, Species))'
 
-#' @export
 grouped_spark_tbl <- function (data, vars, drop = FALSE) {
-  assertthat::assert_that(is.spark_tbl(data),
-              (is.list(vars) && all(sapply(vars, is.name))) ||
-                is.character(vars))
+  if (!(is.spark_tbl(data) &&
+        (is.list(vars) && all(sapply(vars, is.name))) ||
+        is.character(vars))) stop("Incorrect inputs to 'group_spark_tbl'")
 
-  if (is.list(vars)) {
-    vars <- dplyr:::deparse_names(vars)
+    if (is.list(vars)) {
+    vars <- deparse_names(vars)
   }
 
   new_spark_tbl(attr(data, "jc"), groups = vars)
@@ -215,11 +243,12 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 #'
 #' @param x a \code{spark_tbl}
 #' @param extended \code{boolean} whether to print the extended plan
+#' @param ... other arguments to explain, currently unused
 #'
 #' @return
 #' @export
 #' @importFrom dplyr explain
-explain.spark_tbl <- function(x, extended = F) {
+explain.spark_tbl <- function(x, extended = F, ...) {
   invisible(
     call_method(attr(x, "jc"), "explain", extended)
   )
@@ -273,10 +302,10 @@ n_partitions.spark_tbl <- function(.data) {
 }
 
 #' @export
-dim.spark_tbl <- function(.data) {
-  sdf <- attr(.data, "jc")
+dim.spark_tbl <- function(x) {
+  sdf <- attr(x, "jc")
   rows <- as.integer(call_method(sdf, "count"))
-  columns <- length(call_method(attr(.data, "jc"), "columns"))
+  columns <- length(call_method(attr(x, "jc"), "columns"))
   c(rows, columns)
 }
 
@@ -286,10 +315,15 @@ dim.spark_tbl <- function(.data) {
 #'
 #' @param .data a \code{spark_tbl}
 #' @param n_partitions integer, the number of partitions to resize to
+#' @param ... additional argument(s), currently unused
 #'
 #' @export
 #' @importFrom dplyr coalesce
-coalesce.spark_tbl <- function(.data, n_partitions) {
+coalesce.spark_tbl <- function(.data, n_partitions, ...) {
+
+  # .l <- list(...)
+  # .data <- .l[[1]]
+  # n_partitions <- .l[[2]]
 
   sdf <- attr(.data, "jc")
 
@@ -369,6 +403,6 @@ as.RDD.spark_tbl <- function(.data) {
 }
 
 as.RDD.list <- function(.l, numSlices = 1L) {
-  context <- get("sc", envir = as.environment(".GlobalEnv"))
+  context <- get(".sparkRjsc", envir = SparkR:::.sparkREnv)
   context$parallelize(.l, numSlices)
 }

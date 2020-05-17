@@ -1,39 +1,72 @@
+
+
 other_functions <- c("like", "rlike", "getField", "getItem", "asc") #, "contains"
 
 for (.f in other_functions) {
   assign(.f, getFromNamespace(.f, "SparkR"))
 }
 
+#' @name Column-missing
+#'
+#' @title
+#' Check missing values in Column objects
+#'
+#' @param x a Column object
+#'
+#' @rdname Column-missing
+NULL
+
+
 #' @export
+#' @rdname Column-missing
+#' @importFrom methods new
 setMethod("is.na", signature(x = "Column"),
           function(x) {
             new("Column", call_method(x@jc, "isNull"))
           })
 
 #' @export
+#' @rdname Column-missing
+#' @importFrom methods new
 setMethod("is.nan", signature(x = "Column"),
           function(x) {
             new("Column", call_method(x@jc, "isNaN"))
           })
 
+#' @name Column-functions
+#'
+#' @title Column Functions
+#'
+#' @description a collection of functions for Column objects
+#'
+#' @param x a Column object
+#'
+#' @return a Column object
+#'
+#' @rdname Column-functions
+NULL
+
 #' @export
+#' @rdname Column-functions
+#' @importFrom methods new
 setMethod("mean", signature(x = "Column"),
           function(x) {
             jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
             new("Column", jc)
           })
 
+#' @rdname Column-functions
 #' @export
 setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
 #' @export
-unique.Column <- function(x) {
+unique.Column <- function(x, ...) {
   stop("Cannot call `unique` on spark Column, try calling `distinct`
        on the spark_tbl")
 }
 
 #' @export
-sort.Column <- function(x) {
+sort.Column <- function(x, decreasing, ...) {
   stop("Cannot call `sort` on spark Column, try calling `arrange`
        on the spark_tbl or `sort_array` on the Column")
 }
@@ -41,66 +74,94 @@ sort.Column <- function(x) {
 ### type conversions
 
 #' @export
-as.character.Column <- function(x) {
+as.character.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "string"))
 }
 
 #' @export
-as.numeric.Column <- function(x) {
+as.numeric.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "double"))
 }
 
+#' Float Vectors
+#'
+#' @description Coerces objects of type \code{float}.
+#'
+#' @param x object to be coerced or tested.
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @export
+#' @rdname float-type
 as.float <- function (x, ...)  .Primitive("as.float")
 
+#' @rdname float-type
 #' @export
-as.float.Column <- function(x) {
+as.float.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "float"))
 }
 
 #' @export
-as.integer.Column <- function(x) {
+as.integer.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "integer"))
 }
 
 #' @export
-as.logical.Column <- function(x) {
+as.logical.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "boolean"))
 }
 
 # provide a few ways of converting to timestamp
 #' @export
-as.POSIXct.Column <- function(x) {
+as.POSIXct.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
+#' Convert to datetime
+#'
+#' @description this function casts a Spark Column to timestamp type
+#'
+#' @param x a Column object
+#' @param ... other argument(s), currently unused.
+#'
+#' @return a Column object
+#'
+#' @importFrom lubridate as_datetime
 #' @export
-as_datetime.Column <- function(x) {
+as_datetime.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
+#' Timestamp Vectors
+#'
+#' @description Coerces objects of type \code{timestamp}.
+#'
+#' @param x object to be coerced or tested.
+#' @param ... further arguments passed to or from other methods.
+#'
 #' @export
+#' @rdname ts-type
 as.timestamp <- function (x, ...)  .Primitive("as.timestamp")
 
 #' @export
-as.timestamp.Column <- function(x) {
+#' @rdname ts-type
+as.timestamp.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
 # dates
 #' @export
-as.Date.Column <- function(x) {
+as.Date.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
 # lists
 #' @export
-as.array.Column <- function(x) {
+as.array.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "array"))
 }
 
 #' @export
-as.list.Column <- function(x) {
+as.list.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "array"))
 }
 
@@ -215,166 +276,210 @@ is.list.Column <- function(x) {
 
 ### Set up S3 methods for the operators
 
+#' @name operations
+#'
+#' @title Column Operations
+#'
+#' @description Various Column operations
+#'
+#' @param e1 the LHS of the operation
+#' @param e2 the RHS of the operation
+#'
+#' @return an object of class \code{Column]}
+#'
+#' @rdname operations
+NULL
+
 # plus
+#' @rdname operations
 setMethod("+", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "plus", e2))
           })
 
+#' @rdname operations
 setMethod("+", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "plus", e1))
           })
 
 # minus
+#' @rdname operations
 setMethod("-", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "minus", e2))
           })
 
+#' @rdname operations
 setMethod("-", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "minus", e1))
           })
 
 # multiply
+#' @rdname operations
 setMethod("*", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "multiply", e2))
           })
 
+#' @rdname operations
 setMethod("*", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "multiply", e1))
           })
 
 # divide
+#' @rdname operations
 setMethod("/", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "divide", e2))
           })
 
+#' @rdname operations
 setMethod("/", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "divide", e1))
           })
 
 # modulo
+#' @rdname operations
 setMethod("%%", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "mod", e2))
           })
 
+#' @rdname operations
 setMethod("%%", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "mod", e1))
           })
 
 # equal (numeric)
+#' @rdname operations
 setMethod("==", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
+#' @rdname operations
 setMethod("==", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "equalTo", e1))
           })
 
 # equal (string)
+#' @rdname operations
 setMethod("==", signature(e1 = "Column", e2 = "character"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
+#' @rdname operations
 setMethod("==", signature(e1 = "character", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "equalTo", e1))
           })
 
 # equal (boolean)
+#' @rdname operations
 setMethod("==", signature(e1 = "Column", e2 = "logical"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
+#' @rdname operations
 setMethod("==", signature(e1 = "logical", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "equalTo", e1))
           })
 
 # gt
+#' @rdname operations
 setMethod(">", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "gt", e2))
           })
 
+#' @rdname operations
 setMethod(">", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "lt", e1))
           })
 
 # lt
+#' @rdname operations
 setMethod("<", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "lt", e2))
           })
 
+#' @rdname operations
 setMethod("<", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "gt", e1))
           })
 
 # notEqual (numeric)
+#' @rdname operations
 setMethod("!=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
+#' @rdname operations
 setMethod("!=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "notEqual", e1))
           })
 
 # notEqual (string)
+#' @rdname operations
 setMethod("!=", signature(e1 = "Column", e2 = "character"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
+#' @rdname operations
 setMethod("!=", signature(e1 = "character", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "notEqual", e1))
           })
 
 # notEqual (logical)
+#' @rdname operations
 setMethod("!=", signature(e1 = "Column", e2 = "logical"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
+#' @rdname operations
 setMethod("!=", signature(e1 = "logical", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "notEqual", e1))
           })
 
 # leq
+#' @rdname operations
 setMethod("<=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "leq", e2))
           })
 
+#' @rdname operations
 setMethod("<=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "geq", e1))
           })
 
 # geq
+#' @rdname operations
 setMethod(">=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "geq", e2))
           })
 
+#' @rdname operations
 setMethod(">=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
             new("Column", call_method(e2@jc, "leq", e1))
@@ -400,12 +505,20 @@ any.Column <- function(x, ...) {
   new("Column", call_method(jc, "equalTo", true_jc))
 }
 
+#' Size
+#'
+#' @description [under construction]
+#'
+#' @param x Column to compute on
+#' @param ... additional argument(s)
+#'
 #' @export
 size <- function(x, ...) {
   UseMethod("size")
 }
 
-size.Column <- function(x) {
+#' @export
+size.Column <- function(x, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "size", x@jc)
   new("Column", jc)
 }
@@ -443,6 +556,31 @@ as.Column <- function(.x) lit(.x)
 #' @export
 as_Column <- function(.x) lit(.x)
 
+
+#' Reduce partitions OR Find first non-missing element
+#'
+#' @description \code{coalesce} is used twice in Spark. The first use case is
+#' to reduce the number of partitions of a Spark \code{DataFrame} without
+#' a shuffle stage (in contrast to \code{repartition} which requires a shuffle).
+#' The other use case is for ETL where it can be used on a Column object to
+#' find the first non-missing element. See \code{?dplyr::coalese} for more info.
+#'
+#' @param ... For the ETL case, this is the olumn or objects coercible to
+#' Column to be coalesced. For the partition reducing case the first argument
+#' should be a \code{spark_tbl} and the second should be an integer specifing
+#' the number of partitions to reduce to.
+#'
+#' @export
+coalesce <- function(...) {
+  UseMethod("coalesce")
+}
+
+#' @export
+#' @importFrom dplyr coalesce
+coalesce.default <- function(...) {
+  dplyr::coalesce(...)
+}
+
 #' Coalesce \code{Columns}
 #'
 #' @description Coalesces any number of Columns where precedence of the values is taken
@@ -457,7 +595,7 @@ coalesce.Column <- function(...) {
   dots <- rlang::enquos(...)
 
   if (rlang::is_empty(dots)) {
-       abort("At least one argument must be supplied")
+       stop("At least one argument must be supplied")
   }
 
   x = rlang::eval_tidy(dots[[1]])

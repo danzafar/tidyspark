@@ -1,3 +1,5 @@
+#' @importFrom utils write.table
+#' @importFrom digest digest
 persist_read_csv <- function(df) {
   hash <- digest::digest(df, algo = "sha256")
   filename <- paste("spark_serialize_", hash, ".csv", sep = "")
@@ -103,6 +105,7 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
 #' # with specified schema
 #' csv_schema <- SparkR::schema(SparkR::createDataFrame(iris_fix))
 #' spark_read_csv(path_csv, csv_schema, header = T) %>% collect
+#' @importFrom utils read.csv
 spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
                            delim = ",", guess_max = 1000, ...) {
   if (is.null(schema)) {
@@ -194,7 +197,7 @@ spark_read_parquet <- function(path, ...) {
 #' @export
 spark_read_json <- function (path, multiline = F, ...) {
   # TODO example of specifiying a schema and reading nested data
-  sparkSession <- get_spark_session()
+  sparkSession <- get_spark_session()$jobj
   options <- SparkR:::varargsToStrEnv(...)
   options$multiline <- ifelse(multiline, "true", "false")
   paths <- as.list(suppressWarnings(normalizePath(path)))
@@ -264,20 +267,20 @@ spark_read_jdbc <- function(url, table, partition_col = NULL,
                             lower_bound = NULL, upper_bound = NULL,
                             num_partitions = 0L, predicates = list(), ...) {
   jprops <- SparkR:::varargsToJProperties(...)
-  sparkSession <- SparkR:::getSparkSession()
+  sparkSession <- get_spark_session()$jobj
   read <- call_method(sparkSession, "read")
   if (!is.null(partition_col)) {
     if (is.null(num_partitions) || num_partitions == 0) {
-      sc <- call_method(sparkSession, "sparkContext")
-      num_partitions <- callJMethod(sc, "defaultParallelism")
+      sc <- get_spark_context()$jobj
+      num_partitions <- call_method(sc, "defaultParallelism")
     }
     else {
-      num_partitions <- numToInt(num_partitions)
+      num_partitions <- num_to_int(num_partitions)
     }
     sdf <- call_method_handled(
       read, "jdbc", url, table,
-      as.character(partition_col), numToInt(lower_bound),
-      numToInt(upper_bound), num_partitions, jprops)
+      as.character(partition_col), num_to_int(lower_bound),
+      num_to_int(upper_bound), num_partitions, jprops)
   }
   else if (length(predicates) > 0) {
     sdf <- call_method_handled(

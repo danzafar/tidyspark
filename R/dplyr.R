@@ -6,6 +6,8 @@ tbl_vars.spark_tbl <- function(x) {
 
 #' @export
 #' @importFrom dplyr select
+#' @importFrom stats setNames
+#' @importFrom tidyselect vars_select
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
 
@@ -33,6 +35,7 @@ select.spark_tbl <- function(.data, ...) {
 
 #' @export
 #' @importFrom dplyr rename
+#' @importFrom tidyselect vars_select
 rename.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_rename(names(.data), !!!enquos(...))
   cols <- lapply(unclass(vars), function(c) {
@@ -48,12 +51,13 @@ rename.spark_tbl <- function(.data, ...) {
 
 #' @export
 #' @importFrom dplyr distinct
+#' @importFrom stats setNames
 distinct.spark_tbl <- function(.data, ...) {
   # we use the distinct tools from dplyr
   dist <- dplyr::distinct_prepare(.data, enquos(...), .keep_all = FALSE)
-  vars <- tbl_vars(.data)[dplyr:::match_vars(dist$vars, dist$data)]
+  vars <- tbl_vars(.data)[match_vars(dist$vars, dist$data)]
   # consider adding in .keep_all = T functionality at some point
-  # keep <- dplyr:::match_vars(dist$keep, dist$data)
+  # keep <- match_vars(dist$keep, dist$data)
 
   # manage the grouping columns
   groups <- attr(.data, "groups")
@@ -152,7 +156,7 @@ chop_wndw <- function(col) {
   ))
 
   descending <- sub("(-)?(.*)#.*", "\\1", wndw_str) == "-"
-  if (descending) col_obj <- desc(col_obj)
+  if (descending) col_obj <- dplyr::desc(col_obj)
 
   # apply the column
   wndw_ordr <- call_static(
@@ -178,7 +182,12 @@ mutate.spark_tbl <- function(.data, ...) {
     check_ifelse(dot)
 
     df_cols <- get_jc_cols(sdf)
-    eval <- rlang::eval_tidy(dot, df_cols)
+
+    # add our .n() and others to the eval environment
+    eval_env <- rlang::caller_env()
+    rlang::env_bind(eval_env,  n = .n,
+                    if_else = .if_else, case_when = .case_when)
+    eval <- rlang::eval_tidy(dot, df_cols, eval_env)
 
     if (is_agg_expr(eval)) {
 
@@ -253,7 +262,6 @@ n.Column <- function(x, ...){
   tidyspark::count(x)
 }
 
-
 #' @export
 #' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
@@ -262,7 +270,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
   dots <- rlang::enquos(...)
   if (any(rlang::have_name(dots))) {
     bad <- dots[rlang::have_name(dots)]
-    dplyr:::bad_eq_ops(bad, "must not be named, do you need `==`?")
+    stop("Arguments to `filter` must not be named, do you need `==`?")
   }
   else if (rlang::is_empty(dots)) return(.data)
 
@@ -293,7 +301,11 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     sdf <- .counter_env$sdf
 
     df_cols_update <- get_jc_cols(sdf)
-    cond <- rlang::eval_tidy(quo_sub, df_cols_update)
+
+    eval_env <- rlang::caller_env()
+    rlang::env_bind(eval_env, n = .n,
+                    if_else = .if_else, case_when = .case_when)
+    cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
     conds[[i]] <- cond
 
   }
@@ -324,7 +336,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 #' @export
 #' @importFrom dplyr group_by
 group_by.spark_tbl <- function(.data, ..., add = FALSE,
-                               .drop = group_by_drop_default(.data)) {
+                               .drop = dplyr::group_by_drop_default(.data)) {
   groups <- dplyr::group_by_prepare(.data, ..., add = add)
   valid <- groups$group_names %in% tbl_vars(.data)
   if (!all(valid)) {
@@ -336,8 +348,8 @@ group_by.spark_tbl <- function(.data, ..., add = FALSE,
 
 #' @export
 #' @importFrom dplyr ungroup
-ungroup.spark_tbl <- function(.data, ...) {
-  new_spark_tbl(attr(.data, "jc"))
+ungroup.spark_tbl <- function(x, ...) {
+  new_spark_tbl(attr(x, "jc"))
 }
 
 group_spark_data <- function(.data) {
@@ -353,6 +365,7 @@ group_spark_data <- function(.data) {
 # TODO implement sub wndw functionality so `new_col = max(rank(Species))` works
 #' @export
 #' @importFrom dplyr summarise
+#' @importFrom stats setNames
 summarise.spark_tbl <- function(.data, ...) {
   dots <- rlang::enquos(..., .named = TRUE)
 
@@ -370,7 +383,11 @@ summarise.spark_tbl <- function(.data, ...) {
     check_ifelse(dot)
     new_df_cols <- lapply(names(agg), function(x) agg[[x]])
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
-    agg[[name]] <- rlang::eval_tidy(dot, updated_cols)
+
+    eval_env <- rlang::caller_env()
+    rlang::env_bind(eval_env, n = .n,
+                    if_else = .if_else, case_when = .case_when)
+    agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
   }
 
   for (i in names(agg)) {
@@ -412,7 +429,8 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 # pivots
 
 #' @export
-piv_wider <- function(data, id_cols = NULL, names_from, values_from) {
+#' @importFrom rlang enquo
+piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
   # these become the new col names
   group_var <- enquo(names_from)
   # these are currently aggregated but maybe not
@@ -442,6 +460,8 @@ piv_wider <- function(data, id_cols = NULL, names_from, values_from) {
 
 
 #' @export
+#' @importFrom tidyselect vars_select
+#' @importFrom rlang enquo
 piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
   #idk I copied from tidyr
   cols <- unname(tidyselect::vars_select(unique(names(data)),

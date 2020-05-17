@@ -21,10 +21,13 @@ Suggests:
     Lahman
 Imports:
     SparkR,
+    rlang,
+    lubridate,
+    tidyselect,
+    digest,
     R6,
     methods,
-    utils,
-    rlang
+    utils
 Depends: 
     dplyr (>= 0.8.0),
     lubridate (>= 1.7.4),

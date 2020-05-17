@@ -5,21 +5,20 @@ same_src.spark_tbl <- function (x, y) identical(class(x),class(y))
 
 #' @export
 #' @importFrom dplyr auto_copy
-auto_copy.spark_tbl <- function(x, y, copy = FALSE) {
+auto_copy.spark_tbl <- function(x, y, copy = FALSE, ...) {
   if (copy) spark_tbl(y)
   else y
 }
 
+#' @importFrom dplyr common_by
 join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
                              na_matches, type) {
 
-  dplyr:::check_valid_names(tbl_vars(x))
-  dplyr:::check_valid_names(tbl_vars(y))
   by <- common_by(by, x, y)
-  suffix <- dplyr:::check_suffix(suffix)
+  suffix <- check_suffix(suffix)
   na_matches <- check_na_matches(na_matches)
   y <- auto_copy(x, y, copy = copy)
-  vars <- dplyr:::join_vars(tbl_vars(x), tbl_vars(y), by, suffix)
+  vars <- join_vars(tbl_vars(x), tbl_vars(y), by, suffix)
   by_x <- vars$idx$x$by
   by_y <- vars$idx$y$by
 
@@ -50,9 +49,10 @@ join_spark_tbl <- function(x, y, by, on_nulls, copy, suffix,
 
 #' @export
 #' @importFrom dplyr inner_join
-inner_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
-                                  copy = FALSE, suffix = c("_x", "_y"),
-                                  na_matches = pkgconfig::get_config("dplyr::na_matches")) {
+inner_join.spark_tbl <- function (x, y, by = NULL, copy = FALSE,
+                                  suffix = c("_x", "_y"), on_nulls = T,
+                                  na_matches = pkgconfig::get_config("dplyr::na_matches"),
+                                  ...) {
 
   join_spark_tbl(x, y, by, on_nulls, copy, suffix, na_matches, "inner")
 
@@ -60,9 +60,10 @@ inner_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 #' @export
 #' @importFrom dplyr left_join
-left_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
-                                 copy = FALSE, suffix = c("_x", "_y"),
-                                 na_matches = pkgconfig::get_config("dplyr::na_matches")) {
+left_join.spark_tbl <- function (x, y, by = NULL, copy = FALSE,
+                                 suffix = c("_x", "_y"), on_nulls = T,
+                                 na_matches = pkgconfig::get_config("dplyr::na_matches"),
+                                 ...) {
 
   join_spark_tbl(x, y, by, on_nulls, copy, suffix, na_matches, "left")
 
@@ -70,9 +71,10 @@ left_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 #' @export
 #' @importFrom dplyr right_join
-right_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
-                                  copy = FALSE, suffix = c("_x", "_y"),
-                                  na_matches = pkgconfig::get_config("dplyr::na_matches")) {
+right_join.spark_tbl <- function (x, y, by = NULL, copy = FALSE,
+                                  suffix = c("_x", "_y"), on_nulls = T,
+                                  na_matches = pkgconfig::get_config("dplyr::na_matches"),
+                                  ...) {
 
   join_spark_tbl(x, y, by, on_nulls, copy, suffix, na_matches, "right")
 
@@ -80,9 +82,10 @@ right_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 #' @export
 #' @importFrom dplyr full_join
-full_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
-                                 copy = FALSE, suffix = c("_x", "_y"),
-                                 na_matches = pkgconfig::get_config("dplyr::na_matches")) {
+full_join.spark_tbl <- function (x, y, by = NULL, copy = FALSE,
+                                 suffix = c("_x", "_y"), on_nulls = T,
+                                 na_matches = pkgconfig::get_config("dplyr::na_matches"),
+                                 ...) {
 
   join_spark_tbl(x, y, by, on_nulls, copy, suffix, na_matches, "full")
 
@@ -90,9 +93,10 @@ full_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 #' @export
 #' @importFrom dplyr semi_join
-semi_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
-                                 copy = FALSE, suffix = c("_x", "_y"),
-                                 na_matches = pkgconfig::get_config("dplyr::na_matches")) {
+semi_join.spark_tbl <- function (x, y, by = NULL, copy = FALSE,
+                                 suffix = c("_x", "_y"), on_nulls = T,
+                                 na_matches = pkgconfig::get_config("dplyr::na_matches"),
+                                 ...) {
 
   join_spark_tbl(x, y, by, on_nulls, copy, suffix, na_matches, "leftsemi")
 
@@ -100,9 +104,10 @@ semi_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
 
 #' @export
 #' @importFrom dplyr anti_join
-anti_join.spark_tbl <- function (x, y, by = NULL, on_nulls = T,
-                                 copy = FALSE, suffix = c("_x", "_y"),
-                                 na_matches = pkgconfig::get_config("dplyr::na_matches")) {
+anti_join.spark_tbl <- function (x, y, by = NULL, copy = FALSE,
+                                 on_nulls = T, suffix = c("_x", "_y"),
+                                 na_matches = pkgconfig::get_config("dplyr::na_matches"),
+                                 ...) {
 
   join_spark_tbl(x, y, by, on_nulls, copy, suffix, na_matches, "leftanti")
 

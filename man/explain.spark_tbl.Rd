@@ -4,12 +4,14 @@
 \alias{explain.spark_tbl}
 \title{Explain Plan}
 \usage{
-\method{explain}{spark_tbl}(x, extended = F)
+\method{explain}{spark_tbl}(x, extended = F, ...)
 }
 \arguments{
 \item{x}{a \code{spark_tbl}}
 
 \item{extended}{\code{boolean} whether to print the extended plan}
+
+\item{...}{other arguments to explain, currently unused}
 }
 \value{
 

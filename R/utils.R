@@ -41,6 +41,18 @@ getStorageLevel <- function(newLevel = c("DISK_ONLY", "DISK_ONLY_2",
   storageLevel
 }
 
+isInstanceOf <- function (jobj, className) {
+  stopifnot(class(jobj) == "jobj")
+  cls <- call_static("java.lang.Class", "forName", className)
+  call_method(cls, "isInstance", jobj)
+}
+
+readRowList <- function (obj) {
+  rawObj <- rawConnection(obj, "r+")
+  on.exit(close(rawObj))
+  SparkR:::readObject(rawObj)
+}
+
 convertJListToRList <- function (jList, flatten, logicalUpperBound = NULL,
                                  serializedMode = "byte") {
   arrSize <- call_method(jList, "size")
@@ -123,16 +135,29 @@ convertEnvsToList <- function (keys, vals) {
   })
 }
 
-close_tidyspark <- function() {
-  spark_session_stop()
-  rstudioapi::restartSession()
-}
-
 sortKeyValueList <- function(kv_list, decreasing = FALSE) {
   keys <- sapply(kv_list, function(x) x[[1]])
   kv_list[order(keys, decreasing = decreasing)]
 }
 
+#' Compute the hashCode of an object
+#'
+#' @description Java-style function to compute the hashCode for the given
+#' object. Returns an integer value.
+#'
+#' @param key the object to be hashed
+#'
+#' @details This only works for integer, numeric and character types.
+#'
+#' @examples
+#'
+#' ## Not run:
+#' hashCode(1L) # 1
+#' hashCode(1.0) # 1072693248
+#' hashCode("1") # 49
+#'
+#' ## End(Not run)
+#'
 #' @export
 hashCode <- function (key) {
 
@@ -186,29 +211,59 @@ hashCode <- function (key) {
 
 #### Startup-Related -----------------------------------------------------------
 
+isSparkRShell <- function() {
+  grepl(".*shell\\.R$", Sys.getenv("R_PROFILE_USER"), perl = TRUE)
+}
+
+isMasterLocal <- function(master) {
+  grepl("^local(\\[([0-9]+|\\*)\\])?$", master, perl = TRUE)
+}
+
+isClientMode <- function(master) {
+  grepl("([a-z]+)-client$", master, perl = TRUE)
+}
+
+#' @importFrom utils packageVersion
+installInstruction <- function (mode) {
+  if (mode == "remote") {
+    paste0(
+      "Connecting to a remote Spark master. ",
+      "Please make sure Spark package is also installed in this machine.\n",
+      "- If there is one, set the path in sparkHome parameter or ",
+      "environment variable SPARK_HOME.\n",
+      "- If not, you may run install.spark function to do the job. ",
+      "Please make sure the Spark and the Hadoop versions ",
+      "match the versions on the cluster. ",
+      "SparkR package is compatible with Spark ",
+      packageVersion("SparkR"), ".", "If you need further help, ",
+      "contact the administrators of the cluster.")
+  } else {
+    stop(paste0("No instruction found for ", mode, " mode."))
+  }
+}
+
 check_spark_install <- function (spark_home, master, deploy_mode, verbose = F) {
-  if (!SparkR:::isSparkRShell()) {
+  if (!isSparkRShell()) {
     if (!is.na(file.info(spark_home)$isdir)) {
       if (verbose) message("Spark package found in SPARK_HOME: ", spark_home)
       NULL
-    }
-    else {
+    } else {
       if (interactive() || isMasterLocal(master)) {
         if (verbose) message("Spark not found in SPARK_HOME: ", spark_home)
         packageLocalDir <- SparkR::install.spark()
         packageLocalDir
-      }
-      else if (isClientMode(master) || deployMode == "client") {
+      } else if (isClientMode(master) || deploy_mode == "client") {
         msg <- paste0("Spark not found in SPARK_HOME: ",
                       spark_home, "\n", installInstruction("remote"))
         stop(msg)
-      }
-      else {
-        NULL
-      }
+      } else NULL
     }
-  }
-  else {
-    NULL
-  }
+  } else NULL
+}
+
+# SparkR-related ---------------------------------------------------------------
+getDefaultSqlSource <- function () {
+  l <- SparkR::sparkR.conf("spark.sql.sources.default",
+                           "org.apache.spark.sql.parquet")
+  l[["spark.sql.sources.default"]]
 }

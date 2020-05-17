@@ -68,7 +68,6 @@ StructType.StructType <- function (x, ...) {
   x
 }
 
-#' @export
 tidyspark_types <- c(
   "byte" = "ByteType", "integer" = "IntegerType",
   "float" = "FloatType", "double" = "DoubleType",
@@ -200,7 +199,36 @@ print.StructField <- function (x, ...) {
             sep = ""))
 }
 
-#' @export
+#'
+#' @title
+#' \code{tidyspark} Schema Types
+#'
+#' @description
+#' Schema types that can be used in specifiying schemas in tidyspark. These
+#' are typically used in the creation of `StructField` objects.
+#'
+#' @param type a schema object or valid string
+#' @param nullable logical, if the field allows null values
+#'
+#' @return a string or if it's a nested type a \code{jobj}
+#' @rdname schema-types
+#'
+#' @examples
+#' StructType(
+#'   StructField("int", IntegerType, TRUE),
+#'   StructField("string", StringType, TRUE)
+#' )
+#'
+#' StructType(
+#'   StructField("array", ArrayType(IntegerType, TRUE), TRUE),
+#'   StructField("dict", StructType(
+#'     StructField("extra_key", StringType, TRUE),
+#'     StructField("key", StringType, TRUE)
+#'   ), TRUE),
+#'   StructField("int", IntegerType, TRUE),
+#'   StructField("string", StringType, TRUE)
+#'   )
+#'
 ArrayType <- function(type, nullable) {
   type <- if (inherits(type, "character")) {
     spark_type <- tidyspark_types[type]
@@ -214,6 +242,11 @@ ArrayType <- function(type, nullable) {
                        "createArrayType", type, nullable)
 }
 
+#' @param key a schema object or string representing the key's type
+#' @param value a schema object or string representing the value's type
+#' @param nullable logical, if the field allows null values
+#'
+#' @rdname schema-types
 #' @export
 MapType <- function (key, value, nullable) {
   key <- if (inherits(key, "character")) {
@@ -236,30 +269,42 @@ MapType <- function (key, value, nullable) {
                        "createMapType", key, value, nullable)
 }
 
-# .onAttach <- function(...) {
-#   rlang::env_bind_lazy(
-#     as.environment("package:tidyspark"),
-#     ByteType = new_jobj("org.apache.spark.sql.types.ByteType"),
-#     IntegerType = new_jobj("org.apache.spark.sql.types.IntegerType"),
-#     FloatType = new_jobj("org.apache.spark.sql.types.FloatType"),
-#     DoubleType = new_jobj("org.apache.spark.sql.types.DoubleType"),
-#     LongType = new_jobj("org.apache.spark.sql.types.LongType"),
-#     StringType = new_jobj("org.apache.spark.sql.types.StringType"),
-#     BooleanType = new_jobj("org.apache.spark.sql.types.BooleanType"),
-#     BinaryType = new_jobj("org.apache.spark.sql.types.BinaryType"),
-#     TimestampType = new_jobj("org.apache.spark.sql.types.TimestampType"),
-#     DateType = new_jobj("org.apache.spark.sql.types.DateType"))
-# }
-
+#' @rdname schema-types
+#' @export
 ByteType = "byte"
+
+#' @rdname schema-types
+#' @export
 IntegerType = "integer"
+
+#' @rdname schema-types
+#' @export
 FloatType = "float"
+
+#' @rdname schema-types
+#' @export
 DoubleType = "double"
+
+#' @rdname schema-types
+#' @export
 StringType = "string"
+
+#' @rdname schema-types
+#' @export
 BinaryType = "binary"
+
+#' @rdname schema-types
+#' @export
 BooleanType = "boolean"
+
+#' @rdname schema-types
+#' @export
 TimestampType = "timestamp"
+
+#' @rdname schema-types
+#' @export
 DateType = "date"
+
 
 #' Get schema object
 #'
