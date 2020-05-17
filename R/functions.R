@@ -2727,25 +2727,25 @@ setMethod("cume_dist",
             new("Column", jc)
           })
 
-#' @details
-#' \code{dense_rank}: Returns the rank of rows within a window partition, without any gaps.
-#' The difference between rank and dense_rank is that dense_rank leaves no gaps in ranking
-#' sequence when there are ties. That is, if you were ranking a competition using dense_rank
-#' and had three people tie for second place, you would say that all three were in second
-#' place and that the next person came in third. Rank would give me sequential numbers, making
-#' the person that came in third place (after the ties) would register as coming in fifth.
-#' This is equivalent to the \code{DENSE_RANK} function in SQL.
-#' The method should be used with no argument.
-#'
-#' @rdname column_window_functions
-#' @aliases dense_rank dense_rank,missing-method
-#' @note dense_rank since 1.6.0
-setMethod("dense_rank",
-          signature("missing"),
-          function() {
-            jc <- call_static("org.apache.spark.sql.functions", "dense_rank")
-            new("Column", jc)
-          })
+#' #' @details
+#' #' \code{dense_rank}: Returns the rank of rows within a window partition, without any gaps.
+#' #' The difference between rank and dense_rank is that dense_rank leaves no gaps in ranking
+#' #' sequence when there are ties. That is, if you were ranking a competition using dense_rank
+#' #' and had three people tie for second place, you would say that all three were in second
+#' #' place and that the next person came in third. Rank would give me sequential numbers, making
+#' #' the person that came in third place (after the ties) would register as coming in fifth.
+#' #' This is equivalent to the \code{DENSE_RANK} function in SQL.
+#' #' The method should be used with no argument.
+#' #'
+#' #' @rdname column_window_functions
+#' #' @aliases dense_rank dense_rank,missing-method
+#' #' @note dense_rank since 1.6.0
+#' setMethod("dense_rank",
+#'           signature("missing"),
+#'           function() {
+#'             jc <- call_static("org.apache.spark.sql.functions", "dense_rank")
+#'             new("Column", jc)
+#'           })
 
 #' @details
 #' \code{lag}: Returns the value that is \code{offset} rows before the current row, and
@@ -2827,33 +2827,33 @@ setMethod("percent_rank",
             new("Column", jc)
           })
 
-#' @details
-#' \code{rank}: Returns the rank of rows within a window partition.
-#' The difference between rank and dense_rank is that dense_rank leaves no gaps in ranking
-#' sequence when there are ties. That is, if you were ranking a competition using dense_rank
-#' and had three people tie for second place, you would say that all three were in second
-#' place and that the next person came in third. Rank would give me sequential numbers, making
-#' the person that came in third place (after the ties) would register as coming in fifth.
-#' This is equivalent to the \code{RANK} function in SQL.
-#' The method should be used with no argument.
+#' #' @details
+#' #' \code{rank}: Returns the rank of rows within a window partition.
+#' #' The difference between rank and dense_rank is that dense_rank leaves no gaps in ranking
+#' #' sequence when there are ties. That is, if you were ranking a competition using dense_rank
+#' #' and had three people tie for second place, you would say that all three were in second
+#' #' place and that the next person came in third. Rank would give me sequential numbers, making
+#' #' the person that came in third place (after the ties) would register as coming in fifth.
+#' #' This is equivalent to the \code{RANK} function in SQL.
+#' #' The method should be used with no argument.
+#' #'
+#' #' @rdname column_window_functions
+#' #' @aliases rank rank,missing-method
+#' #' @note rank since 1.6.0
+#' setMethod("rank",
+#'           signature(x = "missing"),
+#'           function() {
+#'             jc <- call_static("org.apache.spark.sql.functions", "rank")
+#'             new("Column", jc)
+#'           })
 #'
-#' @rdname column_window_functions
-#' @aliases rank rank,missing-method
-#' @note rank since 1.6.0
-setMethod("rank",
-          signature(x = "missing"),
-          function() {
-            jc <- call_static("org.apache.spark.sql.functions", "rank")
-            new("Column", jc)
-          })
-
-#' @rdname column_window_functions
-#' @aliases rank,ANY-method
-setMethod("rank",
-          signature(x = "ANY"),
-          function(x, ...) {
-            base::rank(x, ...)
-          })
+#' #' @rdname column_window_functions
+#' #' @aliases rank,ANY-method
+#' setMethod("rank",
+#'           signature(x = "ANY"),
+#'           function(x, ...) {
+#'             base::rank(x, ...)
+#'           })
 
 #' @details
 #' \code{row_number}: Returns a sequential number starting at 1 within a window partition.

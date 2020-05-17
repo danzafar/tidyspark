@@ -4,7 +4,7 @@
 \alias{size}
 \title{Size}
 \usage{
-size(x, ...)
+size(x)
 }
 \arguments{
 \item{x}{Column to compute on}

@@ -35,6 +35,7 @@ Depends:
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 Collate: 
+    'SparkSession.R'
     'apply.R'
     'base.R'
     'columns.R'
@@ -47,6 +48,7 @@ Collate:
     'joins.R'
     'lubridate.R'
     'n_context.R'
+    'package-related.R'
     'rank_function_classes.R'
     'rdd.R'
     'read-write.R'
@@ -56,5 +58,4 @@ Collate:
     'spark_new.R'
     'spark_tbl.R'
     'test-pivot.R'
-    'tibble_triple_colon.R'
     'utils.R'

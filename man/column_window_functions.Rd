@@ -4,8 +4,6 @@
 \name{cume_dist,missing-method}
 \alias{cume_dist,missing-method}
 \alias{cume_dist}
-\alias{dense_rank,missing-method}
-\alias{dense_rank}
 \alias{lag,characterOrColumn-method}
 \alias{lag}
 \alias{lead,characterOrColumn,numeric-method}
@@ -14,13 +12,30 @@
 \alias{ntile}
 \alias{percent_rank,missing-method}
 \alias{percent_rank}
-\alias{rank,missing-method}
-\alias{rank}
-\alias{rank,ANY-method}
 \alias{row_number,missing-method}
 \alias{row_number}
+\alias{rank}
+\alias{dense_rank}
 \alias{min_rank}
-\title{Rank}
+\title{#' @details
+#' \code{dense_rank}: Returns the rank of rows within a window partition, without any gaps.
+#' The difference between rank and dense_rank is that dense_rank leaves no gaps in ranking
+#' sequence when there are ties. That is, if you were ranking a competition using dense_rank
+#' and had three people tie for second place, you would say that all three were in second
+#' place and that the next person came in third. Rank would give me sequential numbers, making
+#' the person that came in third place (after the ties) would register as coming in fifth.
+#' This is equivalent to the \code{DENSE_RANK} function in SQL.
+#' The method should be used with no argument.
+#'
+#' @rdname column_window_functions
+#' @aliases dense_rank dense_rank,missing-method
+#' @note dense_rank since 1.6.0
+setMethod("dense_rank",
+          signature("missing"),
+          function() {
+            jc <- call_static("org.apache.spark.sql.functions", "dense_rank")
+            new("Column", jc)
+          })}
 \usage{
 cume_dist(x = "missing")
 
@@ -36,8 +51,6 @@ row_number(x = "missing")
 
 \S4method{cume_dist}{missing}()
 
-\S4method{dense_rank}{missing}()
-
 \S4method{lag}{characterOrColumn}(x, offset = 1, defaultValue = NULL)
 
 \S4method{lead}{characterOrColumn,numeric}(x, offset = 1, defaultValue = NULL)
@@ -46,15 +59,11 @@ row_number(x = "missing")
 
 \S4method{percent_rank}{missing}()
 
-\S4method{rank}{missing}()
-
-\S4method{rank}{ANY}(x, ...)
-
 \S4method{row_number}{missing}()
 
 rank(x, ...)
 
-dense_rank(x = "missing")
+dense_rank(x, ...)
 
 min_rank(x, ...)
 }
@@ -64,22 +73,19 @@ min_rank(x, ...)
 \item{...}{additional arguments to \code{base::rank}}
 }
 \description{
-Rank
+#' @rdname column_window_functions
+#' @aliases rank,ANY-method
+setMethod("rank",
+          signature(x = "ANY"),
+          function(x, ...) {
+            base::rank(x, ...)
+          })
 }
 \details{
 \code{cume_dist}: Returns the cumulative distribution of values within a window partition,
 i.e. the fraction of rows that are below the current row:
 (number of values before and including x) / (total number of rows in the partition).
 This is equivalent to the \code{CUME_DIST} function in SQL.
-The method should be used with no argument.
-
-\code{dense_rank}: Returns the rank of rows within a window partition, without any gaps.
-The difference between rank and dense_rank is that dense_rank leaves no gaps in ranking
-sequence when there are ties. That is, if you were ranking a competition using dense_rank
-and had three people tie for second place, you would say that all three were in second
-place and that the next person came in third. Rank would give me sequential numbers, making
-the person that came in third place (after the ties) would register as coming in fifth.
-This is equivalent to the \code{DENSE_RANK} function in SQL.
 The method should be used with no argument.
 
 \code{lag}: Returns the value that is \code{offset} rows before the current row, and
@@ -104,23 +110,12 @@ This is computed by: (rank of row in its partition - 1) / (number of rows in the
 This is equivalent to the \code{PERCENT_RANK} function in SQL.
 The method should be used with no argument.
 
-\code{rank}: Returns the rank of rows within a window partition.
-The difference between rank and dense_rank is that dense_rank leaves no gaps in ranking
-sequence when there are ties. That is, if you were ranking a competition using dense_rank
-and had three people tie for second place, you would say that all three were in second
-place and that the next person came in third. Rank would give me sequential numbers, making
-the person that came in third place (after the ties) would register as coming in fifth.
-This is equivalent to the \code{RANK} function in SQL.
-The method should be used with no argument.
-
 \code{row_number}: Returns a sequential number starting at 1 within a window partition.
 This is equivalent to the \code{ROW_NUMBER} function in SQL.
 The method should be used with no argument.
 }
 \note{
 cume_dist since 1.6.0
-
-dense_rank since 1.6.0
 
 lag since 1.6.0
 
@@ -129,8 +124,6 @@ lead since 1.6.0
 ntile since 1.6.0
 
 percent_rank since 1.6.0
-
-rank since 1.6.0
 
 row_number since 1.6.0
 }
