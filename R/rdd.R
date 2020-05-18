@@ -1428,7 +1428,7 @@ RDD <- R6::R6Class("RDD", list(
     stopifnot(is.numeric(numPartitions))
 
     .f <- prepare_func(.f)
-    .f <- SparkR:::cleanClosure(.f)
+    .f <- cleanClosure(.f)
     serializedHashFuncBytes <- serialize(.f, connection = NULL)
 
     packageNamesArr <- serialize(SparkR:::.sparkREnv$.packages,
@@ -2328,7 +2328,7 @@ PipelinedRDD <- R6::R6Class("PipelinedRDD", inherit = RDD, list(
 
     if (!inherits(prev, "PipelinedRDD") || !isPipelinable(prev)) {
       # This transformation is the first in its stage:
-      self$func <- SparkR:::cleanClosure(func) # <------------------------------ Uh Oh
+      self$func <- cleanClosure(func) # <------------------------------ Uh Oh
       self$prev_jrdd <- prev$getJRDD()
       self$env$prev_serializedMode <- prev$env$serializedMode
       # NOTE: We use prev_serializedMode to track the serialization
@@ -2339,7 +2339,7 @@ PipelinedRDD <- R6::R6Class("PipelinedRDD", inherit = RDD, list(
         f <- prev$func
         func(partIndex, f(partIndex, part))
       }
-      self$func <- SparkR:::cleanClosure(pipelinedFunc)
+      self$func <- cleanClosure(pipelinedFunc)
       self$prev_jrdd <- prev$prev_jrdd # maintain the pipeline
       # Get the serialization mode of the parent RDD
       self$env$prev_serializedMode <- prev$env$prev_serializedMode

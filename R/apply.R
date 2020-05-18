@@ -89,7 +89,7 @@ spark_udf <- function (.data, .f, schema) {
   schema <- if (is.null(schema)) schema else schema$jobj
   sdf <- call_static("org.apache.spark.sql.api.r.SQLUtils",
                      "dapply", attr(.data, "jc"),
-                     serialize(SparkR:::cleanClosure(.f), connection = NULL),
+                     serialize(cleanClosure(.f), connection = NULL),
                      .package_names, .broadcast_arr, schema)
   new_spark_tbl(sdf)
 }
@@ -206,7 +206,7 @@ spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
   schema <- if (inherits(schema, "StructType")) schema$jobj else NULL
   sdf <- call_static("org.apache.spark.sql.api.r.SQLUtils",
                      "gapply", sgd,
-                     serialize(SparkR:::cleanClosure(.f), connection = NULL),
+                     serialize(cleanClosure(.f), connection = NULL),
                      .package_names, .broadcast_arr, schema)
   new_spark_tbl(sdf)
 }
