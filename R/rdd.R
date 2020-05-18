@@ -280,9 +280,9 @@ RDD <- R6::R6Class("RDD", list(
   #' # 2,4,6...
   #'}
   map = function(.f) {
-    .f <- prepare_func(.f)
+    .f_map <- prepare_func(.f)
     self$mapPartitionsWithIndex(
-      function(partIndex, part) lapply(part, .f)
+      function(partIndex, part) lapply(part, .f_map)
       )
   },
 
@@ -2365,8 +2365,8 @@ PipelinedRDD <- R6::R6Class("PipelinedRDD", inherit = RDD, list(
     packageNamesArr <- serialize(SparkR:::.sparkREnv[[".packages"]],
                                  connection = NULL)
 
-    broadcastArr <- lapply(ls(SparkR:::.broadcastNames),
-                           function(name) get(name, SparkR:::.broadcastNames)
+    broadcastArr <- lapply(ls(.broadcastNames),
+                           function(name) get(name, .broadcastNames)
                            )
 
     serializedFuncArr <- serialize(self$func, connection = NULL)

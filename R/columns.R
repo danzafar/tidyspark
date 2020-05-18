@@ -529,12 +529,12 @@ size.Column <- function(x, ...) {
 #'
 #' @rdname lit
 #' @examples
-#'
+#'\dontrun{
 #' # these do the same thing:
 #' as.Column("derpin'")
 #' as_Column("all day")
 #' lit("long")
-#'
+#'}
 lit <- function(.x) {
   jc <- call_static("org.apache.spark.sql.functions", "lit",
                     if (inherits(.x, "Column")) .x@jc else .x)

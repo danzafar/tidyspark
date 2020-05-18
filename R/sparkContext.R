@@ -81,6 +81,19 @@ SparkContext <- R6::R6Class("SparkContext", list(
   #' get the App name
   appName = function() call_method(self$jobj, "appName"),
 
+  #' Broadcast
+  #'
+  #' @description
+  #' Broadcast a vairable to executors.
+  broadcast = function(value) {
+    objName <- paste0(as.character(substitute(value)), collapse = "-")
+    serializedObj <- serialize(value, connection = NULL)
+    jBroadcast <- call_method(self$jobj, "broadcast", serializedObj)
+    id <- as.character(call_method(jBroadcast, "id"))
+
+    Broadcast$new(id, value, jBroadcast, objName)
+  },
+
   #' cancelAllJobs
   #'
   #' @description
@@ -433,3 +446,50 @@ getConf <- R6::R6Class("getConf", list(
   }
 )
 )
+
+# The Broadcast class ----------------------------------------------------------
+# This class keeps track of variables that have been broadcasted, but
+# sc$broadcast() does the actual broadcasting. Rememba!
+
+.broadcastNames <- new.env()
+.broadcastValues <- new.env()
+.broadcastIdToName <- new.env()
+
+Broadcast <- R6::R6Class("Broadcast", list(
+  id = NULL,
+  jobj = NULL,
+  value = NULL,
+  persisted = T,
+  initialize = function(id, value, jBroadcastRef, objName) {
+    .broadcastValues[[id]] <- value
+    .broadcastNames[[as.character(objName)]] <- jBroadcastRef
+    .broadcastIdToName[[id]] <- as.character(objName)
+    self$id <- id
+    self$jobj <- jBroadcastRef
+    self$value <- value
+  },
+
+  print = function() {
+    cat("<tidyspark Broadcast variable:", self$id, ">\n")
+    cat("  Retrieve using `your_var$value`")
+    invisible(self)
+  },
+
+  # value = function(bcast) {
+  #   if (!self$persisted) {
+  #     warning("This variable is no longer persisted on workers")
+  #   }
+  #   if (exists(self$id, envir = .broadcastValues)) {
+  #     get(self$id, envir = .broadcastValues)
+  #   } else {
+  #     NULL
+  #   }
+  # },
+
+  unpersist = function() {
+    call_method(self$jobj, "unpersist")
+    self$persisted = F
+    invisible()
+  }
+
+))

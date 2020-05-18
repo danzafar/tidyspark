@@ -22,6 +22,7 @@
 #'
 #' @examples
 #'
+#'\dontrun{
 #' iris_tbl <- spark_tbl(iris)
 #'
 #' # note, my_var will be broadcasted if we include it in the function
@@ -74,7 +75,7 @@
 #'   },
 #'   schema) %>%
 #'   collect
-#'
+#'}
 spark_udf <- function (.data, .f, schema) {
   if (is.character(schema)) {
     schema <- StructType(schema)
@@ -118,7 +119,7 @@ spark_udf <- function (.data, .f, schema) {
 #'
 #' @examples
 #'
-#' ## Not run:
+#'\dontrun{
 #' # Computes the arithmetic mean of the second column by grouping
 #' # on the first and third columns. Output the grouping values and the average.
 #'
@@ -175,7 +176,7 @@ spark_udf <- function (.data, .f, schema) {
 #'     data.frame(t(coef(m)))
 #'   }, schema) %>%
 #'   collect
-#'
+#'}
 #' # # A tibble: 3 x 4
 #' #   `(Intercept)` Sepal_Width Petal_Length Petal_Width
 #' #           <dbl>       <dbl>        <dbl>       <dbl>
@@ -225,13 +226,13 @@ spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
 #' @export
 #'
 #' @examples
-#'
+#'\dontrun{
 #' spark_session()
 #' doubled <- spark_lapply(1:10, function(x) {2 * x})
 #'
 #' # or using tidyverse style lamdas
 #' doubled <- spark_lapply(1:10, ~ 2 * .)
-#'
+#'}
 spark_lapply <- function (.l, .f) {
   if (rlang::is_formula(.f)) {
     .f <- rlang::as_function(.f)

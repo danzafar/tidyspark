@@ -33,6 +33,7 @@ function being passed and automatically broadcast any values from the
 }
 \examples{
 
+\dontrun{
 iris_tbl <- spark_tbl(iris)
 
 # note, my_var will be broadcasted if we include it in the function
@@ -85,5 +86,5 @@ df \%>\%
   },
   schema) \%>\%
   collect
-
+}
 }

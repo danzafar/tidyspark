@@ -59,7 +59,7 @@ For specifing partitioning, the following rules apply:
 }
 }
 \examples{
-## Not run:
+\dontrun{
 spark_session(sparkPackages=c("mysql:mysql-connector-java:5.1.48"))
 
 url <- "jdbc:mysql://localhost:3306/databasename"
@@ -80,5 +80,5 @@ iris_jdbc <- spark_read_jdbc(url = "jdbc:postgresql://localhost/databasename",
 
 spark_session_stop()
 
-## End(Not run)
+}
 }

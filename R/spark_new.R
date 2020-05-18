@@ -32,7 +32,7 @@
 #' @export
 #' @rdname spark_session
 #' @examples
-#' ## Not run:
+#'\dontrun{
 #' spark_session()
 #' df <- spark_read_json(path)
 #'
@@ -43,7 +43,7 @@
 #'                c("com.databricks:spark-avro_2.11:2.0.1"))
 #' spark_session(spark.master = "yarn-client", spark.executor.memory = "4g")
 #'
-#' ## End(Not run)
+#'}
 spark_session <- function (master = "", app_name = "tidyspark",
                            spark_home = Sys.getenv("SPARK_HOME"),
                            spark_config = list(), spark_jars = "",
