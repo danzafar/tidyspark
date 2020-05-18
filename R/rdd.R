@@ -108,8 +108,8 @@ RDD <- R6::R6Class("RDD", list(
 
   #' Unpersist an RDD
   #'
-  #' Mark the RDD as non-persistent, and remove all blocks for it from memory and
-  #' disk.
+  #' Mark the RDD as non-persistent, and remove all blocks for it from memory
+  #' and disk.
   #'
   #' @examples
   #'\dontrun{
@@ -128,9 +128,10 @@ RDD <- R6::R6Class("RDD", list(
   #'
   #' Mark this RDD for checkpointing. It will be saved to a file inside the
   #' checkpoint directory set with setCheckpointDir() and all references to its
-  #' parent RDDs will be removed. This function must be called before any job has
-  #' been executed on this RDD. It is strongly recommended that this RDD is
-  #' persisted in memory, otherwise saving it on a file will require recomputation.
+  #' parent RDDs will be removed. This function must be called before any job
+  #' has been executed on this RDD. It is strongly recommended that this RDD is
+  #' persisted in memory, otherwise saving it on a file will require
+  #' recomputation.
   #'
   #' @examples
   #'\dontrun{
@@ -173,8 +174,8 @@ RDD <- R6::R6Class("RDD", list(
   },
 
   #' @description
-  #' \code{collectAsMap} returns a named list as a map that contains all of the elements
-  #' in a key-value pair RDD.
+  #' \code{collectAsMap} returns a named list as a map that contains all of the
+  #' elements in a key-value pair RDD.
   #' @examples
   # nolint start
   #'\dontrun{
@@ -196,7 +197,8 @@ RDD <- R6::R6Class("RDD", list(
   #' Collect elements of an RDD
   #'
   #' @description
-  #' \code{collect} returns a list that contains all of the elements in this RDD.
+  #' \code{collect} returns a list that contains all of the elements in this
+  #' RDD.
   #'
   #' @param flatten FALSE if the list should not flattened
   #'
@@ -866,7 +868,7 @@ RDD <- R6::R6Class("RDD", list(
     self$aggregate(zeroValue, op, op)
   },
 
-  #' Aggregate an RDD using the given combine functions and a neutral "zero value".
+  #' Aggregate an RDD using the given combine functions and a "zero value".
   #'
   #' Aggregate the elements of each partition, and then the results for all the
   #' partitions, using given combine functions and a neutral "zero value".
@@ -903,7 +905,8 @@ RDD <- R6::R6Class("RDD", list(
   #' The same as 'pipe()' in Spark.
   #'
   #' @param command The command to fork an external process.
-  #' @param env A named list to set environment variables of the external process.
+  #' @param env A named list to set environment variables of the external
+  #' process.
   #' @rdname pipeRDD
   #' @examples
   #'\dontrun{
@@ -912,7 +915,8 @@ RDD <- R6::R6Class("RDD", list(
   #' rdd$pipe("more")
   #' Output: c("1", "2", ..., "10")
   #'}
-  #' @return A new RDD created by piping all elements to a forked external process.
+  #' @return A new RDD created by piping all elements to a forked external
+  #' process.
   pipe = function(command, env = list()) {
     self$
       mapPartitions(
@@ -1262,7 +1266,7 @@ RDD <- R6::R6Class("RDD", list(
     }
     nPart <- sapply(rrdds, function(x) x$getNumPartitions())
     if (length(unique(nPart)) != 1) {
-      stop("Can only zipPartitions RDDs which have the same number of partitions.")
+      stop("Can only zipPartitions RDDs which have same number of partitions.")
     }
 
     rrdds <- lapply(rrdds, function(rdd) {
@@ -1318,7 +1322,9 @@ RDD <- R6::R6Class("RDD", list(
   # nolint start
   #'\dontrun{
   #' spark <- spark_session()
-  #' rdd <- spark$sparkContext$parallelize(list(c("a", 1), c("b", 1), c("a", 1)))
+  #' rdd <- spark$sparkContext$parallelize(list(c("a", 1),
+  #'                                            c("b", 1),
+  #'                                            c("a", 1)))
   #' rdd$countByKey() # ("a", 2L), ("b", 1L)
   #'}
   # nolint end
@@ -1495,19 +1501,19 @@ RDD <- R6::R6Class("RDD", list(
       keys <- new.env()
       pred <- function(item) exists(item$hash, keys)
       appendList <- function(acc, i) {
-        SparkR:::addItemToAccumulator(acc, i)
+        addItemToAccumulator(acc, i)
         acc
       }
       makeList <- function(i) {
-        acc <- SparkR:::initAccumulator()
-        SparkR:::addItemToAccumulator(acc, i)
+        acc <- initAccumulator()
+        addItemToAccumulator(acc, i)
         acc
       }
       # Each item in the partition is list of (K, V)
       lapply(part,
              function(item) {
-               item$hash <- as.character(SparkR:::hashCode(item[[1]]))
-               SparkR:::updateOrCreatePair(item, keys, vals, pred,
+               item$hash <- as.character(hashCode(item[[1]]))
+               updateOrCreatePair(item, keys, vals, pred,
                                            appendList, makeList)
              })
       # extract out data field
@@ -1518,7 +1524,7 @@ RDD <- R6::R6Class("RDD", list(
                      })
       # Every key in the environment contains a list
       # Convert that to list(K, Seq[V])
-      SparkR:::convertEnvsToList(keys, vals)
+      convertEnvsToList(keys, vals)
     }
     shuffled$mapPartitions(groupVals)
   },
@@ -1551,11 +1557,11 @@ RDD <- R6::R6Class("RDD", list(
       pred <- function(item) exists(item$hash, keys)
       lapply(part,
              function(item) {
-               item$hash <- as.character(SparkR:::hashCode(item[[1]]))
-               SparkR:::updateOrCreatePair(item, keys, vals,
+               item$hash <- as.character(hashCode(item[[1]]))
+               updateOrCreatePair(item, keys, vals,
                                            pred, .f, identity)
              })
-      SparkR:::convertEnvsToList(keys, vals)
+      convertEnvsToList(keys, vals)
     }
     self$
       mapPartitions(reduceVals)$
@@ -1592,8 +1598,8 @@ RDD <- R6::R6Class("RDD", list(
       pred <- function(item) exists(item$hash, keys)
       lapply(part,
              function(item) {
-               item$hash <- as.character(SparkR:::hashCode(item[[1]]))
-               SparkR:::updateOrCreatePair(item, keys, vals,
+               item$hash <- as.character(hashCode(item[[1]]))
+               updateOrCreatePair(item, keys, vals,
                                            pred, combineFunc, identity)
              })
       list(list(keys, vals)) # return hash to avoid re-compute in merge
@@ -1606,7 +1612,7 @@ RDD <- R6::R6Class("RDD", list(
              function(name) {
                item <- list(x[[1]][[name]], x[[2]][[name]])
                item$hash <- name
-               SparkR:::updateOrCreatePair(item, accum[[1]], accum[[2]],
+               updateOrCreatePair(item, accum[[1]], accum[[2]],
                                            pred, combineFunc, identity)
              })
       accum
@@ -1664,11 +1670,11 @@ RDD <- R6::R6Class("RDD", list(
       pred <- function(item) exists(item$hash, keys)
       lapply(part,
              function(item) {
-               item$hash <- as.character(SparkR:::hashCode(item[[1]]))
-               SparkR:::updateOrCreatePair(item, keys, combiners, pred,
+               item$hash <- as.character(hashCode(item[[1]]))
+               updateOrCreatePair(item, keys, combiners, pred,
                                            mergeValue, createCombiner)
              })
-      SparkR:::convertEnvsToList(keys, combiners)
+      convertEnvsToList(keys, combiners)
     }
 
     shuffled <- self$
@@ -1681,11 +1687,11 @@ RDD <- R6::R6Class("RDD", list(
       pred <- function(item) exists(item$hash, keys)
       lapply(part,
              function(item) {
-               item$hash <- as.character(SparkR:::hashCode(item[[1]]))
-               SparkR:::updateOrCreatePair(item, keys, combiners, pred,
+               item$hash <- as.character(hashCode(item[[1]]))
+               updateOrCreatePair(item, keys, combiners, pred,
                                            mergeCombiners, identity)
              })
-      SparkR:::convertEnvsToList(keys, combiners)
+      convertEnvsToList(keys, combiners)
     }
     shuffled$mapPartitions(mergeAfterShuffle)
   },
@@ -1693,13 +1699,13 @@ RDD <- R6::R6Class("RDD", list(
   #' Aggregate a pair RDD by each key.
   #'
   #' Aggregate the values of each key in an RDD, using given combine functions
-  #' and a neutral "zero value". This function can return a different result type,
-  #' U, than the type of the values in this RDD, V. Thus, we need one operation
-  #' for merging a V into a U and one operation for merging two U's, The former
-  #' operation is used for merging values within a partition, and the latter is
-  #' used for merging values between partitions. To avoid memory allocation, both
-  #' of these functions are allowed to modify and return their first argument
-  #' instead of creating a new U.
+  #' and a neutral "zero value". This function can return a different result
+  #' type, U, than the type of the values in this RDD, V. Thus, we need one
+  #' operation for merging a V into a U and one operation for merging two U's,
+  #' The former operation is used for merging values within a partition, and
+  #' the latter is used for merging values between partitions. To avoid memory
+  #' allocation, both of these functions are allowed to modify and return their
+  #' first argument instead of creating a new U.
   #'
   #' @param zeroValue A neutral "zero value".
   #' @param seqOp A function to aggregate the values of each key. It may return
@@ -1798,7 +1804,7 @@ RDD <- R6::R6Class("RDD", list(
     xTagged$
       union(yTagged)$
       groupByKey(numPartitions)$
-      flatMapValues(~ SparkR:::joinTaggedList(., list(FALSE, FALSE)))
+      flatMapValues(~ joinTaggedList(., list(FALSE, FALSE)))
   },
 
   #' Left outer join two RDDs
@@ -1811,9 +1817,9 @@ RDD <- R6::R6Class("RDD", list(
   #' @param y An RDD to be joined. Should be an RDD where each element is
   #'             list(K, V).
   #' @param numPartitions Number of partitions to create.
-  #' @return For each element (k, v) in x, the resulting RDD will either contain
-  #'         all pairs (k, (v, w)) for (k, w) in rdd2, or the pair (k, (v, NULL))
-  #'         if no elements in rdd2 have key k.
+  #' @return For each element (k, v) in x, the resulting RDD will either
+  #'         contain all pairs (k, (v, w)) for (k, w) in rdd2, or the pair
+  #'         (k, (v, NULL)) if no elements in rdd2 have key k.
   #' @examples
   # nolint start
   #'\dontrun{
@@ -1834,7 +1840,7 @@ RDD <- R6::R6Class("RDD", list(
     xTagged$
       union(yTagged)$
       groupByKey(numPartitions)$
-      flatMapValues(~ SparkR:::joinTaggedList(., list(FALSE, TRUE)))
+      flatMapValues(~ joinTaggedList(., list(FALSE, TRUE)))
   },
 
   #' Right outer join two RDDs
@@ -1870,14 +1876,15 @@ RDD <- R6::R6Class("RDD", list(
     xTagged$
       union(yTagged)$
       groupByKey(numPartitions)$
-      flatMapValues(~ SparkR:::joinTaggedList(., list(TRUE, FALSE)))
+      flatMapValues(~ joinTaggedList(., list(TRUE, FALSE)))
   },
 
   #' Full outer join two RDDs
   #'
   #' @description
-  #' \code{fullouterjoin} This function full-outer-joins two RDDs where every element is of
-  #' the form list(K, V). The key types of the two RDDs should be the same.
+  #' \code{fullouterjoin} This function full-outer-joins two RDDs where every
+  #' element is of the form list(K, V). The key types of the two RDDs should be
+  #' the same.
   #'
   #' @param x An RDD to be joined. Should be an RDD where each element is
   #'             list(K, V).
@@ -1886,8 +1893,8 @@ RDD <- R6::R6Class("RDD", list(
   #' @param numPartitions Number of partitions to create.
   #' @return For each element (k, v) in x and (k, w) in y, the resulting RDD
   #'         will contain all pairs (k, (v, w)) for both (k, v) in x and
-  #'         (k, w) in y, or the pair (k, (NULL, w))/(k, (v, NULL)) if no elements
-  #'         in x/y have key k.
+  #'         (k, w) in y, or the pair (k, (NULL, w))/(k, (v, NULL)) if no
+  #'         elements in x/y have key k.
   #' @examples
   # nolint start
   #'\dontrun{
@@ -1913,7 +1920,7 @@ RDD <- R6::R6Class("RDD", list(
     xTagged$
       union(yTagged)$
       groupByKey(numPartitions)$
-      flatMapValues(~ SparkR:::joinTaggedList(., list(TRUE, TRUE)))
+      flatMapValues(~ joinTaggedList(., list(TRUE, TRUE)))
   },
 
   #' For each key k in several RDDs, return a resulting RDD that
@@ -1948,9 +1955,9 @@ RDD <- R6::R6Class("RDD", list(
         acc <- res[[i]]
         # Create an accumulator.
         if (is.null(acc)) {
-          acc <- SparkR:::initAccumulator()
+          acc <- initAccumulator()
         }
-        SparkR:::addItemToAccumulator(acc, x[[2]])
+        addItemToAccumulator(acc, x[[2]])
         res[[i]] <- acc
       }
       lapply(res, function(acc) {
@@ -1973,7 +1980,9 @@ RDD <- R6::R6Class("RDD", list(
   # nolint start
   #'\dontrun{
   #' spark <- spark_session()
-  #' rdd <- spark$sparkContext$parallelize(list(list(3, 1), list(2, 2), list(1, 3)))
+  #' rdd <- spark$sparkContext$parallelize(list(list(3, 1),
+  #'                                            list(2, 2),
+  #'                                            list(1, 3)))
   #' rdd$sortByKey()$collect()
   #' # list (list(1, 3), list(2, 2), list(3, 1))
   #'}
@@ -2024,7 +2033,7 @@ RDD <- R6::R6Class("RDD", list(
     }
 
     partitionFunc <- function(part) {
-      SparkR:::sortKeyValueList(part, decreasing = !ascending)
+      sortKeyValueList(part, decreasing = !ascending)
     }
 
     self$
@@ -2067,8 +2076,9 @@ RDD <- R6::R6Class("RDD", list(
   #' Return a subset of this RDD sampled by key.
   #'
   #' @description
-  #' \code{sampleByKey} Create a sample of this RDD using variable sampling rates
-  #' for different keys as specified by fractions, a key to sampling rate map.
+  #' \code{sampleByKey} Create a sample of this RDD using variable sampling
+  #' rates for different keys as specified by fractions, a key to sampling
+  #' rate map.
   #'
   #' @param withReplacement Sampling with replacement or not
   #' @param fraction The (rough) sample target fraction
@@ -2097,6 +2107,7 @@ RDD <- R6::R6Class("RDD", list(
   #'   collect()
   #' # RUNS! Key "d" ignored
   #' fractions <- list(a = 0.2, b = 0.1)
+  #' # does NOT RUN!
   #' sample <- pairs$
   #'   sampleByKey(FALSE, fractions, 1618L)$
   #'   collect()
@@ -2188,7 +2199,7 @@ RDD <- R6::R6Class("RDD", list(
           }
 
           if (!zip) {
-            return(SparkR:::mergeCompactLists(keys, values))
+            return(mergeCompactLists(keys, values))
           }
         } else {
           keys <- part[c(TRUE, FALSE)]
@@ -2208,7 +2219,7 @@ RDD <- R6::R6Class("RDD", list(
     PipelinedRDD$new(self, partitionFunc, NULL)
   }
 
-# #### Active methods ------------------------------------------------------------
+# #### Active methods ----------------------------------------------------------
 # ), active = list(
 #
 #   # TODO use active classes to make the jrdd/env protected from modification
@@ -2234,7 +2245,8 @@ RDD <- R6::R6Class("RDD", list(
         function(part) {
           if (num < length(part)) {
             # R limitation: order works only on primitive types!
-            ord <- order(unlist(part, recursive = FALSE), decreasing = !ascending)
+            ord <- order(unlist(part, recursive = FALSE),
+                         decreasing = !ascending)
             part[ord[1:num]]
           } else {
             part
@@ -2281,13 +2293,14 @@ RDD <- R6::R6Class("RDD", list(
   appendPartitionLengths = function(other) {
     if (self$getSerializedMode() != other$getSerializedMode() ||
         self$getSerializedMode() == "byte") {
-      # Append the number of elements in each partition to that partition so that we can later
-      # know the boundary of elements from x and other.
+      # Append the number of elements in each partition to that partition so
+      # that we can later know the boundary of elements from x and other.
       #
-      # Note that this appending also serves the purpose of reserialization, because even if
-      # any RDD is serialized, we need to reserialize it to make sure its partitions are encoded
-      # as a single byte array. For example, partitions of an RDD generated from partitionBy()
-      # may be encoded as multiple byte arrays.
+      # Note that this appending also serves the purpose of reserialization,
+      # because even if any RDD is serialized, we need to reserialize it to
+      # make sure its partitions are encoded as a single byte array. For
+      # example, partitions of an RDD generated from partitionBy() may be
+      # encoded as multiple byte arrays.
       appendLength <- function(part) {
         len <- length(part)
         part[[len + 1]] <- len + 1
@@ -2328,7 +2341,7 @@ PipelinedRDD <- R6::R6Class("PipelinedRDD", inherit = RDD, list(
 
     if (!inherits(prev, "PipelinedRDD") || !isPipelinable(prev)) {
       # This transformation is the first in its stage:
-      self$func <- cleanClosure(func) # <------------------------------ Uh Oh
+      self$func <- cleanClosure(func)
       self$prev_jrdd <- prev$getJRDD()
       self$env$prev_serializedMode <- prev$env$serializedMode
       # NOTE: We use prev_serializedMode to track the serialization

@@ -83,6 +83,8 @@ SparkContext <- R6::R6Class("SparkContext", list(
 
   #' Broadcast
   #'
+  #' @param value the variable to broadcast.
+  #'
   #' @description
   #' Broadcast a vairable to executors.
   broadcast = function(value) {
@@ -229,11 +231,11 @@ SparkContext <- R6::R6Class("SparkContext", list(
         conn <- socketConnection(port = port, blocking = TRUE,
                                  open = "wb", timeout = 1500)
         doServerAuth(conn, authSecret)
-        SparkR:::writeToConnection(serializedSlices, conn)
+        writeToConnection(serializedSlices, conn)
         jrdd <- call_method(jserver, "getResult")
       }
       else {
-        fileName <- SparkR:::writeToTempFile(serializedSlices)
+        fileName <- writeToTempFile(serializedSlices)
         jrdd <- tryCatch(call_static("org.apache.spark.api.r.RRDD",
                                      "createRDDFromFile", self$jobj,
                                      fileName, as.integer(numSlices)),
@@ -474,17 +476,17 @@ Broadcast <- R6::R6Class("Broadcast", list(
     cat("  Retrieve using `your_var$value`")
     invisible(self)
   },
-
-  # value = function(bcast) {
-  #   if (!self$persisted) {
-  #     warning("This variable is no longer persisted on workers")
-  #   }
-  #   if (exists(self$id, envir = .broadcastValues)) {
-  #     get(self$id, envir = .broadcastValues)
-  #   } else {
-  #     NULL
-  #   }
-  # },
+#
+#   value = function(bcast) {
+#     if (!self$persisted) {
+#       warning("This variable is no longer persisted on workers")
+#     }
+#     if (exists(self$id, envir = .broadcastValues)) {
+#       get(self$id, envir = .broadcastValues)
+#     } else {
+#       NULL
+#     }
+#   },
 
   unpersist = function() {
     call_method(self$jobj, "unpersist")

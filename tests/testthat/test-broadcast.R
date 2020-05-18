@@ -8,8 +8,7 @@ test_that("using broadcast variable", {
   randomMatBr <- sc$broadcast(randomMat)
 
   useBroadcast <- function(x) {
-    r4 <- randomMatBr
-    sum(r4$value * x)
+    sum(randomMatBr$value * x)
   }
   actual <- rrdd$
     map(useBroadcast)$

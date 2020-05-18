@@ -170,6 +170,79 @@ prepare_func <- function(some_function) {
   some_function
 }
 
+# Helper function used to wrap a 'numeric' value to integer bounds.
+# Useful for implementing C-like integer arithmetic
+wrapInt <- function(value) {
+  if (value > .Machine$integer.max) {
+    value <- value - 2 * .Machine$integer.max - 2
+  } else if (value < -1 * .Machine$integer.max) {
+    value <- 2 * .Machine$integer.max + value + 2
+  }
+  value
+}
+
+# Multiply `val` by 31 and add `addVal` to the result. Ensures that
+# integer-overflows are handled at every step.
+#
+# TODO: this function does not handle integer overflow well
+mult31AndAdd <- function(val, addVal) {
+  vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
+  vec[is.na(vec)] <- 0
+  Reduce(function(a, b) {
+    wrapInt(as.numeric(a) + as.numeric(b))
+  },
+  vec)
+}
+
+#' Compute the hashCode of an object
+#'
+#' @description Java-style function to compute the hashCode for the given
+#' object. Returns an integer value.
+#'
+#' @param key the object to be hashed
+#'
+#' @details This only works for integer, numeric and character types.
+#'
+#' @examples
+#'
+#' ## Not run:
+#' hashCode(1L) # 1
+#' hashCode(1.0) # 1072693248
+#' hashCode("1") # 49
+#'
+#' ## End(Not run)
+#'
+hashCode <- function (key) {
+  if (class(key) == "integer") {
+    as.integer(key[[1]])
+  }
+  else if (class(key) == "numeric") {
+    rawVec <- writeBin(key[[1]], con = raw())
+    intBits <- packBits(rawToBits(rawVec), "integer")
+    as.integer(bitwXor(intBits[2], intBits[1]))
+  }
+  else if (class(key) == "character") {
+    n <- nchar(key)
+    if (n == 0) {
+      0L
+    }
+    else {
+      asciiVals <- sapply(charToRaw(key), function(x) {
+        strtoi(x, 16L)
+      })
+      hashC <- 0
+      for (k in seq_len(length(asciiVals))) {
+        hashC <- mult31AndAdd(hashC, asciiVals[k])
+      }
+      as.integer(hashC)
+    }
+  }
+  else {
+    warning(paste("Could not hash object, returning 0", sep = ""))
+    as.integer(0)
+  }
+}
+
 #### Closure-related -----------------------------------------------------------
 
 # Fast append to list by using an accumulator.
@@ -378,73 +451,78 @@ sortKeyValueList <- function(kv_list, decreasing = FALSE) {
   kv_list[order(keys, decreasing = decreasing)]
 }
 
-#' Compute the hashCode of an object
-#'
-#' @description Java-style function to compute the hashCode for the given
-#' object. Returns an integer value.
-#'
-#' @param key the object to be hashed
-#'
-#' @details This only works for integer, numeric and character types.
-#'
-#' @examples
-#'
-#' ## Not run:
-#' hashCode(1L) # 1
-#' hashCode(1.0) # 1072693248
-#' hashCode("1") # 49
-#'
-#' ## End(Not run)
-#'
-#' @export
-hashCode <- function (key) {
+writeToConnection <- function(serializedSlices, conn) {
+  tryCatch({
+    for (slice in serializedSlices) {
+      writeBin(as.integer(length(slice)), conn, endian = "big")
+      writeBin(slice, conn, endian = "big")
+    }
+  }, finally = {
+    close(conn)
+  })
+}
 
-  wrapInt <- function (value) {
-    if (value > .Machine$integer.max) {
-      value <- value - 2 * .Machine$integer.max - 2
-    }
-    else if (value < -1 * .Machine$integer.max) {
-      value <- 2 * .Machine$integer.max + value + 2
-    }
-    value
-  }
+writeToTempFile <- function(serializedSlices) {
+  fileName <- tempfile()
+  conn <- file(fileName, "wb")
+  writeToConnection(serializedSlices, conn)
+  fileName
+}
 
-  mult31AndAdd <- function (val, addVal) {
-    vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
-    vec[is.na(vec)] <- 0
-    Reduce(function(a, b) {
-      wrapInt(as.numeric(a) + as.numeric(b))
-    }, vec)
-  }
-
-  if (class(key) == "integer") {
-    as.integer(key[[1]])
-  }
-  else if (class(key) == "numeric") {
-    rawVec <- writeBin(key[[1]], con = raw())
-    intBits <- packBits(rawToBits(rawVec), "integer")
-    as.integer(bitwXor(intBits[2], intBits[1]))
-  }
-  else if (class(key) == "character") {
-    n <- nchar(key)
-    if (n == 0) {
-      0L
-    }
-    else {
-      asciiVals <- sapply(charToRaw(key), function(x) {
-        strtoi(x, 16L)
-      })
-      hashC <- 0
-      for (k in seq_len(length(asciiVals))) {
-        hashC <- mult31AndAdd(hashC, asciiVals[k])
-      }
-      as.integer(hashC)
-    }
+updateOrCreatePair <- function (pair, keys, vals, updateOrCreatePred,
+                                updateFn, createFn) {
+  hashVal <- pair$hash
+  key <- pair[[1]]
+  val <- pair[[2]]
+  if (updateOrCreatePred(pair)) {
+    assign(hashVal, do.call(updateFn, list(get(hashVal, envir = vals),
+                                           val)), envir = vals)
   }
   else {
-    warning(paste("Could not hash object, returning 0", sep = ""))
-    as.integer(0)
+    assign(hashVal, do.call(createFn, list(val)), envir = vals)
+    assign(hashVal, key, envir = keys)
   }
+}
+
+# Utility function to generate compact R lists from grouped rdd
+# Used in Join-family functions
+# param:
+#   tagged_list R list generated via groupByKey with tags(1L, 2L, ...)
+#   cnull Boolean list where each element determines whether the corresponding
+#         list should be converted to list(NULL)
+genCompactLists <- function(tagged_list, cnull) {
+  len <- length(tagged_list)
+  lists <- list(vector("list", len), vector("list", len))
+  index <- list(1, 1)
+
+  for (x in tagged_list) {
+    tag <- x[[1]]
+    idx <- index[[tag]]
+    lists[[tag]][[idx]] <- x[[2]]
+    index[[tag]] <- idx + 1
+  }
+
+  len <- lapply(index, function(x) x - 1)
+  for (i in (1:2)) {
+    if (cnull[[i]] && len[[i]] == 0) {
+      lists[[i]] <- list(NULL)
+    } else {
+      length(lists[[i]]) <- len[[i]]
+    }
+  }
+
+  lists
+}
+
+# Utility function to wrapper above two operations
+# Used in Join-family functions
+# param (same as genCompactLists):
+#   tagged_list R list generated via groupByKey with tags(1L, 2L, ...)
+#   cnull Boolean list where each element determines whether the corresponding
+#         list should be converted to list(NULL)
+joinTaggedList <- function(tagged_list, cnull) {
+  lists <- genCompactLists(tagged_list, cnull)
+  mergeCompactLists(lists[[1]], lists[[2]])
 }
 
 #### Startup-Related -----------------------------------------------------------
