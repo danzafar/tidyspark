@@ -2658,55 +2658,55 @@ setMethod("unix_timestamp", signature(x = "Column", format = "character"),
             new("Column", jc)
           })
 
-#' @details
-#' \code{when}: Evaluates a list of conditions and returns one of multiple possible result
-#' expressions. For unmatched expressions null is returned.
-#'
-#' @rdname column_nonaggregate_functions
-#' @param condition the condition to test on. Must be a Column expression.
-#' @param value result expression.
-#' @aliases when when,Column-method
-#' @examples
-#'
-#' \dontrun{
-#' tmp <- mutate(df, mpg_na = otherwise(when(df$mpg > 20, df$mpg), lit(NaN)),
-#'                   mpg2 = ifelse(df$mpg > 20 & df$am > 0, 0, 1),
-#'                   mpg3 = ifelse(df$mpg > 20, df$mpg, 20.0))
-#' head(tmp)
-#' tmp <- mutate(tmp, ind_na1 = is.nan(tmp$mpg_na), ind_na2 = isnan(tmp$mpg_na))
-#' head(select(tmp, coalesce(tmp$mpg_na, tmp$mpg)))
-#' head(select(tmp, nanvl(tmp$mpg_na, tmp$hp)))}
-#' @note when since 1.5.0
-setMethod("when", signature(condition = "Column", value = "ANY"),
-          function(condition, value) {
-            condition <- condition@jc
-            value <- if (class(value) == "Column") { value@jc } else { value }
-            jc <- call_static("org.apache.spark.sql.functions", "when", condition, value)
-            new("Column", jc)
-          })
-
-#' @details
-#' \code{ifelse}: Evaluates a list of conditions and returns \code{yes} if the conditions are
-#' satisfied. Otherwise \code{no} is returned for unmatched conditions.
-#'
-#' @rdname column_nonaggregate_functions
-#' @param test a Column expression that describes the condition.
-#' @param yes return values for \code{TRUE} elements of test.
-#' @param no return values for \code{FALSE} elements of test.
-#' @aliases ifelse ifelse,Column-method
-#' @note ifelse since 1.5.0
-setMethod("ifelse",
-          signature(test = "Column", yes = "ANY", no = "ANY"),
-          function(test, yes, no) {
-            test <- test@jc
-            yes <- if (class(yes) == "Column") { yes@jc } else { yes }
-            no <- if (class(no) == "Column") { no@jc } else { no }
-            jc <- call_method(call_static("org.apache.spark.sql.functions",
-                                          "when",
-                                          test, yes),
-                              "otherwise", no)
-            new("Column", jc)
-          })
+# #' @details
+# #' \code{when}: Evaluates a list of conditions and returns one of multiple possible result
+# #' expressions. For unmatched expressions null is returned.
+# #'
+# #' @rdname column_nonaggregate_functions
+# #' @param condition the condition to test on. Must be a Column expression.
+# #' @param value result expression.
+# #' @aliases when when,Column-method
+# #' @examples
+# #'
+# #' \dontrun{
+# #' tmp <- mutate(df, mpg_na = otherwise(when(df$mpg > 20, df$mpg), lit(NaN)),
+# #'                   mpg2 = ifelse(df$mpg > 20 & df$am > 0, 0, 1),
+# #'                   mpg3 = ifelse(df$mpg > 20, df$mpg, 20.0))
+# #' head(tmp)
+# #' tmp <- mutate(tmp, ind_na1 = is.nan(tmp$mpg_na), ind_na2 = isnan(tmp$mpg_na))
+# #' head(select(tmp, coalesce(tmp$mpg_na, tmp$mpg)))
+# #' head(select(tmp, nanvl(tmp$mpg_na, tmp$hp)))}
+# #' @note when since 1.5.0
+# setMethod("when", signature(condition = "Column", value = "ANY"),
+#           function(condition, value) {
+#             condition <- condition@jc
+#             value <- if (class(value) == "Column") { value@jc } else { value }
+#             jc <- call_static("org.apache.spark.sql.functions", "when", condition, value)
+#             new("Column", jc)
+#           })
+#
+# #' @details
+# #' \code{ifelse}: Evaluates a list of conditions and returns \code{yes} if the conditions are
+# #' satisfied. Otherwise \code{no} is returned for unmatched conditions.
+# #'
+# #' @rdname column_nonaggregate_functions
+# #' @param test a Column expression that describes the condition.
+# #' @param yes return values for \code{TRUE} elements of test.
+# #' @param no return values for \code{FALSE} elements of test.
+# #' @aliases ifelse ifelse,Column-method
+# #' @note ifelse since 1.5.0
+# setMethod("ifelse",
+#           signature(test = "Column", yes = "ANY", no = "ANY"),
+#           function(test, yes, no) {
+#             test <- test@jc
+#             yes <- if (class(yes) == "Column") { yes@jc } else { yes }
+#             no <- if (class(no) == "Column") { no@jc } else { no }
+#             jc <- call_method(call_static("org.apache.spark.sql.functions",
+#                                           "when",
+#                                           test, yes),
+#                               "otherwise", no)
+#             new("Column", jc)
+#           })
 
 ###################### Window functions######################
 
