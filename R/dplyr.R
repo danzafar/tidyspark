@@ -406,7 +406,7 @@ piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
   } else {
     sgd_in <-
       SparkR::agg(SparkR::pivot(
-        group_spark_data(group_by(.data, !!id_var)), # group_spark_data is diff now
+        group_spark_data(group_by(.data, !!id_var)), # DZ: group_spark_data is diff now
         rlang::as_name(group_var)),
         SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
   }

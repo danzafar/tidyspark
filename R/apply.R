@@ -83,7 +83,7 @@ spark_udf <- function (.data, .f, schema) {
   if (rlang::is_formula(.f)) .f <- rlang::as_function(.f)
   .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]],
                               connection = NULL)
-  .broadcast_arr <- lapply(ls(SparkR:::.broadcastNames), function(name) {
+  .broadcast_arr <- lapply(ls(.broadcastNames), function(name) {
     get(name, .broadcastNames)
   })
   schema <- if (is.null(schema)) schema else schema$jobj
@@ -199,7 +199,7 @@ spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
 
   .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]],
                               connection = NULL)
-  .broadcast_arr <- lapply(ls(SparkR:::.broadcastNames), function(name) {
+  .broadcast_arr <- lapply(ls(.broadcastNames), function(name) {
     get(name, .broadcastNames)
   })
 

@@ -1433,7 +1433,7 @@ RDD <- R6::R6Class("RDD", list(
 
     packageNamesArr <- serialize(SparkR:::.sparkREnv$.packages,
                                  connection = NULL)
-    broadcastArr <- lapply(ls(SparkR:::.broadcastNames),
+    broadcastArr <- lapply(ls(.broadcastNames),
                            function(name) get(name, .broadcastNames))
     jrdd <- self$getJRDD()
 
