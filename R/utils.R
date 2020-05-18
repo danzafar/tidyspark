@@ -342,11 +342,20 @@ processClosure <- function(node, oldEnv, defVars, checkedFuncs, newEnv) {
       # environments above the global or namespace environment that is not
       # SparkR below the global, as they are assumed to be loaded on workers.
       while (!identical(func.env, topEnv)) {
+
+        a_tidyspark_unexport <- (
+          isNamespace(func.env) &&
+            getNamespaceName(func.env) == "tidyspark" &&
+            nodeChar %in% getNamespaceExports("tidyspark")
+          )
+
         # Namespaces other than "SparkR" will not be searched.
+        # if it's not a namespace or if it's the SparkR
         if (!isNamespace(func.env) ||
             (getNamespaceName(func.env) == "SparkR" &&
-             !(nodeChar %in% getNamespaceExports("SparkR")))) {
-          # Only include SparkR internals.
+             !(nodeChar %in% getNamespaceExports("SparkR"))) ||
+            a_tidyspark_unexport) {
+          # Only include SparkRinternals.
 
           # Set parameter 'inherits' to FALSE since we do not need to search in
           # attached package environments.
