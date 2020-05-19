@@ -22,37 +22,33 @@ call_method <- function(jobj, method, ...) {
     stop("Invalid jobj ", jobj$id, ". If 'spark_session' was restarted,
     Spark operations need to be re-executed.")
   }
-  SparkR:::invokeJava(isStatic = FALSE, jobj$id, method, ...)
+  invokeJava(isStatic = FALSE, jobj$id, method, ...)
 }
 
 #' @rdname javacall
 #' @export
 call_static <- function(class, method, ...) {
-  SparkR:::invokeJava(isStatic = TRUE, class, method, ...)
+  invokeJava(isStatic = TRUE, class, method, ...)
 }
 
 #' @rdname javacall
 #' @export
 call_method_handled <- function(jobj, method, ...) {
   tryCatch(call_method(jobj, method, ...),
-           error = function(e) {
-             SparkR:::captureJVMException(e, method)
-           })
+           error = function(e) captureJVMException(e, method))
 }
 
 #' @rdname javacall
 #' @export
 new_jobj <- function(class, ...) {
-  SparkR:::invokeJava(isStatic = TRUE, class, methodName = "<init>",  ...)
+  invokeJava(isStatic = TRUE, class, methodName = "<init>",  ...)
 }
 
 #' @rdname javacall
 #' @export
 call_static_handled <- function(class, method, ...) {
   tryCatch(call_static(class, method, ...),
-           error = function(e) {
-             SparkR:::captureJVMException(e, method)
-           })
+           error = function(e) captureJVMException(e, method))
 }
 
 #' Stop the Spark Session and Spark Context
@@ -87,7 +83,9 @@ spark_session_reset <- function(master = "", app_name = "SparkR",
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' spark <- get_spark_session()
+#' }
 get_spark_session <- function() {
   jobj <- if (exists(".sparkRsession", envir = SparkR:::.sparkREnv)) {
     get(".sparkRsession", envir = SparkR:::.sparkREnv)
@@ -102,7 +100,9 @@ get_spark_session <- function() {
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' sc <- get_spark_context()
+#' }
 get_spark_context <- function () {
   if (!exists(".sparkRjsc", envir = SparkR:::.sparkREnv)) {
     stop("Spark has not been initialized. Please call spark_session()")
@@ -127,9 +127,11 @@ validate_jobj <- function (jobj) {
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' spark_tbl(iris) %>% register_temp_view("iris")
 #' iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 #' iris_preview %>% collect
+#' }
 spark_sql <- function(expr) {
   sdf <- call_method(get_spark_session()$jobj, "sql", expr)
   new_spark_tbl(sdf)
@@ -145,13 +147,15 @@ spark_sql <- function(expr) {
 #' @param .data a \code{spark_tbl} to be registered
 #' @param name a \code{string} of the name to store the table as
 #'
-#' @return
+#' @return NULL
 #' @export
 #'
 #' @examples
-#' #' spark_tbl(iris) %>% register_temp_view("iris")
+#'\dontrun{
+#' spark_tbl(iris) %>% register_temp_view("iris")
 #' iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 #' iris_preview %>% collect
+#' }
 register_temp_view <- function(.data, name) {
   sdf <- attr(.data, "jc")
   call_method(sdf, "createOrReplaceTempView", name)

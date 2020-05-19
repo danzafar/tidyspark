@@ -12,13 +12,6 @@ persist_read_csv <- function(df) {
   SparkR::read.df(tempfile, "csv", SparkR::schema(sample))
 }
 
-# I was considering replacing SparkR:::varargsToStrEnv with this,
-# but SparkR:::varargsToStrEnv does some nice error handling.
-# args_to_env <- function(...) {
-#   quos <- rlang::enquos(...)
-#   args <- lapply(as.list(quos), rlang::quo_name)
-#   as.environment(args)
-# }
 
 ### READ ----------------------------------------------------------------------
 
@@ -46,8 +39,8 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
     na.strings <- na.strings[1]
     warning("More than one 'na.string' value found, using first value, ", na.strings)
   }
-  sparkSession <- SparkR:::getSparkSession()
-  options <- SparkR:::varargsToStrEnv(...)
+  sparkSession <- get_spark_session()$jobj
+  options <- varargsToStrEnv(...)
   if (!is.null(path)) {
     options[["path"]] <- path
   }
@@ -91,6 +84,7 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' path_csv <- tempfile()
 #' iris_fix <- iris %>%
 #'   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
@@ -105,6 +99,7 @@ spark_read_source <- function(path = NULL, source = NULL, schema = NULL,
 #' # with specified schema
 #' csv_schema <- SparkR::schema(SparkR::createDataFrame(iris_fix))
 #' spark_read_csv(path_csv, csv_schema, header = T) %>% collect
+#' }
 #' @importFrom utils read.csv
 spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
                            delim = ",", guess_max = 1000, ...) {
@@ -137,6 +132,7 @@ spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' spark_session(sparkPackages = "io.delta:delta-core_2.11:0.5.0")
 #'
 #' iris_tbl <- spark_tbl(iris)
@@ -146,7 +142,7 @@ spark_read_csv <- function(path, schema = NULL, na = "NA", header = FALSE,
 #'
 #' spark_read_delta("/tmp/iris_tbl") %>%
 #'   collect
-#'
+#'}
 spark_read_delta <- function (path, version = NULL, timestamp = NULL, ...) {
   elipses <- rlang::enquos(...)
   filtered <- Filter(function(x) !is.null(x),
@@ -193,12 +189,12 @@ spark_read_parquet <- function(path, ...) {
 #' https://docs.databricks.com/data/data-sources/read-json.html#multi-line-mode
 #' @param ... named list, optional arguments to the reader
 #'
-#' @return
+#' @return a \code{spark_tbl}
 #' @export
 spark_read_json <- function (path, multiline = F, ...) {
   # TODO example of specifiying a schema and reading nested data
   sparkSession <- get_spark_session()$jobj
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   options$multiline <- ifelse(multiline, "true", "false")
   paths <- as.list(suppressWarnings(normalizePath(path)))
   read <- call_method(sparkSession, "read")
@@ -237,11 +233,11 @@ spark_read_json <- function (path, multiline = F, ...) {
 #'   \item to filter out rows before reading, use the \code{predicates} argument
 #' }
 #'
-#' @return
+#' @return a \code{spark_tbl}
 #' @export
 #'
 #' @examples
-#' ## Not run:
+#'\dontrun{
 #' spark_session(sparkPackages=c("mysql:mysql-connector-java:5.1.48"))
 #'
 #' url <- "jdbc:mysql://localhost:3306/databasename"
@@ -262,11 +258,11 @@ spark_read_json <- function (path, multiline = F, ...) {
 #'
 #' spark_session_stop()
 #'
-#' ## End(Not run)
+#'}
 spark_read_jdbc <- function(url, table, partition_col = NULL,
                             lower_bound = NULL, upper_bound = NULL,
                             num_partitions = 0L, predicates = list(), ...) {
-  jprops <- SparkR:::varargsToJProperties(...)
+  jprops <- varargsToJProperties(...)
   sparkSession <- get_spark_session()$jobj
   read <- call_method(sparkSession, "read")
   if (!is.null(partition_col)) {
@@ -307,11 +303,11 @@ spark_read_jdbc <- function(url, table, partition_col = NULL,
 #' @export
 #'
 #' @examples
-#'
+#'\dontrun{
 #' spark_read_table("iris")
 #' # same as
 #' spark.sql("SELECT * FROM iris")
-#'
+#'}
 spark_read_table <- function(table) {
   spark_sql(paste0("SELECT * FROM ", table))
 }
@@ -351,7 +347,7 @@ spark_write_source <- function(.data, path, source = NULL, mode = "error",
     source <- getDefaultSqlSource()
   }
 
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   if (!is.null(options$partitionBy)) {
     stop("'partitionBy' argument suppied, 'partiton_by' expected")
   }
@@ -431,6 +427,7 @@ spark_write_csv <- function(.data, path, mode = "error",
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' # here using open-source delta jar dropped in the $SPARK_HOME/lib dir
 #' spark_session(sparkPackages = "io.delta:delta-core_2.11:0.5.0")
 #'
@@ -442,7 +439,7 @@ spark_write_csv <- function(.data, path, mode = "error",
 #' # you can go further and add to hive metastore like this:
 #' spark_sql("CREATE TABLE iris_ddl USING DELTA LOCATION '/tmp/iris_tbl'")
 #' # right now this throws a warning, you can ignore it.
-#'
+#'}
 spark_write_delta <- function(.data, path, mode = "error",
                               partition_by = NULL, ...) {
   spark_write_source(.data, path, source = "delta", mode, partition_by, ...)
@@ -591,6 +588,7 @@ spark_write_text <- function(.data, path, mode = "error",
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' spark_session_reset(sparkPackages = c("org.postgresql:postgresql:42.2.12"))
 #'
 #' iris_tbl <- spark_tbl(iris)
@@ -602,6 +600,7 @@ spark_write_text <- function(.data, path, mode = "error",
 #'                    mode = "overwrite",
 #'                    user = "tidyspark_tester", password = "test4life",
 #'                    driver = "org.postgresql.Driver")
+#'}
 spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
                              partition_by = NULL, driver = NULL, ...) {
   if (!is.null(url) && !is.character(url)) {
@@ -611,7 +610,7 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
     stop("mode should be character or omitted. It is 'error' by default.")
   }
 
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   if (!is.null(options$partitionBy)) {
     stop("'partitionBy' argument suppied, 'partiton_by' expected")
   }
@@ -673,7 +672,7 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
 #' @export
 #'
 #' @examples
-#'
+#'\dontrun{
 #' iris_tbl <- spark_tbl(iris)
 #'
 #' # save as table
@@ -697,7 +696,7 @@ spark_write_jdbc <- function(.data, url, table = NULL,  mode = "error",
 #' # 7 # col_name              "data_type" "comment"
 #' # 8 Species                 "string"     NA
 #'
-#'
+#'}
 #'
 spark_write_table <- function(.data, table, mode = "error",
                               partition_by = NULL,
@@ -714,7 +713,7 @@ spark_write_table <- function(.data, table, mode = "error",
     source <- getDefaultSqlSource()
   }
 
-  options <- SparkR:::varargsToStrEnv(...)
+  options <- varargsToStrEnv(...)
   if (!is.null(options$partitionBy)) {
     stop("'partitionBy' argument suppied, 'partiton_by' expected")
   }

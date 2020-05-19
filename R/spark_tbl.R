@@ -35,9 +35,11 @@ new_spark_tbl <- function(sdf, ...) {
 #'
 #' @rdname spark-tbl
 #' @examples
+#'\dontrun{
 #' spark_tbl(iris)
 #' spark_tbl(tibble(x = 1:10, y = 10:1))
 #' spark_tbl(SparkR::as.DataFrame(iris))
+#' }
 spark_tbl <- function(.df, ...) {
   UseMethod("spark_tbl")
 }
@@ -59,7 +61,7 @@ spark_tbl.data.frame <- function(.df, ...) {
 
   # convert the data frame
   df <- if (all(dim(.df) == c(0, 0))) {
-    spark <- SparkR:::getSparkSession()
+    spark <- get_spark_session()$jobj
     sdf <- call_method(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
   # TODO: We should update this to spark.r.maxAllocationLimit or 200MB, as per SparkR
@@ -118,7 +120,7 @@ print.spark_tbl <- function(x, ...) {
 #' @rdname limit
 #'
 #' @examples
-#'
+#'\dontrun{
 #' # limit returns a spark_tbl
 #' spark_tbl(mtcars) %>% limit(15)
 #'
@@ -128,6 +130,7 @@ print.spark_tbl <- function(x, ...) {
 #' # show displays the tibble, but returns a spark_tbl
 #' spark_tbl(iris) %>% show
 #' spark_tbl(mtcars) %>% show(15)
+#' }
 limit <- function (.data, n) {
   res <- call_method(attr(.data, "jc"), "limit", as.integer(n))
   new_spark_tbl(res)
@@ -196,6 +199,7 @@ collect.spark_tbl <- function(x, ...) {
 #'
 #' @examples
 #'
+#'\dontrun{
 #' spark_session()
 #'
 #' df <- spark_tbl(iris)
@@ -203,6 +207,9 @@ collect.spark_tbl <- function(x, ...) {
 #'
 #' df_jobj <- attr(df, "jc")
 #' as_SparkDataFrame(df_jobj)
+#'
+#' spark_session_stop()
+#' }
 #'
 as_SparkDataFrame <- function(x, ...) {
   UseMethod("as_SparkDataFrame")
@@ -241,11 +248,13 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 
 #' Explain Plan
 #'
+#' @description Get the explain plan of a spark_tbl
+#'
 #' @param x a \code{spark_tbl}
 #' @param extended \code{boolean} whether to print the extended plan
 #' @param ... other arguments to explain, currently unused
 #'
-#' @return
+#' @return a string representing the explain plan
 #' @export
 #' @importFrom dplyr explain
 explain.spark_tbl <- function(x, extended = F, ...) {
@@ -349,6 +358,8 @@ coalesce.spark_tbl <- function(.data, n_partitions, ...) {
 #'
 #' @export
 #' @examples
+#'\dontrun{
+#' spark_session()
 #' df <- spark_tbl(mtcars)
 #'
 #' df %>% n_partitions() # 1
@@ -357,6 +368,9 @@ coalesce.spark_tbl <- function(.data, n_partitions, ...) {
 #' df %>% n_partitions() # 5
 #'
 #' df_repartitioned <- df %>% repartition(5, c("cyl"))
+#'
+#' spark_session_stop()
+#' }
 repartition <- function(.data, n_partitions, partition_by) {
   UseMethod("repartition")
 }

@@ -43,6 +43,7 @@ corresponding to standard transaction isolation levels defined by JDBC's Connect
 object, with default of "READ_UNCOMMITTED".
 }
 \examples{
+\dontrun{
 spark_session_reset(sparkPackages = c("org.postgresql:postgresql:42.2.12"))
 
 iris_tbl <- spark_tbl(iris)
@@ -54,4 +55,5 @@ iris_tbl \%>\%
                    mode = "overwrite",
                    user = "tidyspark_tester", password = "test4life",
                    driver = "org.postgresql.Driver")
+}
 }

@@ -17,13 +17,15 @@ and tidyspark best practice usage conflicts. If you need to use a method not
 included, try calling it using \code{call_method(sc$jobj, <yourMethod>)}.
 }
 \examples{
-
-spark_session()
-
+\dontrun{
+spark <- spark_session()
+sc <- spark$sparkContext
 sc$defaultParallelism()
 an_rdd <- sc$parallelize(list(1:10), 4)
 sc$getConf$get("spark.submit.deployMode")
 
+spark_session_stop()
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -42,6 +44,7 @@ sc$getConf$get("spark.submit.deployMode")
 \item \href{#method-addFile}{\code{SparkContext$addFile()}}
 \item \href{#method-addJar}{\code{SparkContext$addJar()}}
 \item \href{#method-appName}{\code{SparkContext$appName()}}
+\item \href{#method-broadcast}{\code{SparkContext$broadcast()}}
 \item \href{#method-cancelAllJobs}{\code{SparkContext$cancelAllJobs()}}
 \item \href{#method-cancelJobGroup}{\code{SparkContext$cancelJobGroup()}}
 \item \href{#method-clearJobGroup}{\code{SparkContext$clearJobGroup()}}
@@ -138,11 +141,29 @@ App Name}
 \if{latex}{\out{\hypertarget{method-appName}{}}}
 \subsection{Method \code{appName()}}{
 get the App name
-cancelAllJobs
+Broadcast
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SparkContext$appName()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-broadcast"></a>}}
+\if{latex}{\out{\hypertarget{method-broadcast}{}}}
+\subsection{Method \code{broadcast()}}{
+Broadcast a vairable to executors.
+cancelAllJobs
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SparkContext$broadcast(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{the variable to broadcast.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cancelAllJobs"></a>}}

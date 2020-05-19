@@ -1,3 +1,5 @@
+spark_session(master = "local[1]",
+              spark_packages = "io.delta:delta-core_2.11:0.5.0")
 
 test_that("read/write delta to file", {
   # write files to disk that can be used

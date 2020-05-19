@@ -19,7 +19,7 @@ is applied. It must match the output of func. Since Spark 2.3, the DDL-formatted
 string is also supported for the schema.}
 }
 \value{
-
+a \code{spark_tbl}
 }
 \description{
 Applies an R User-Defined Function (UDF) to each partition of
@@ -33,6 +33,7 @@ function being passed and automatically broadcast any values from the
 }
 \examples{
 
+\dontrun{
 iris_tbl <- spark_tbl(iris)
 
 # note, my_var will be broadcasted if we include it in the function
@@ -85,5 +86,5 @@ df \%>\%
   },
   schema) \%>\%
   collect
-
+}
 }

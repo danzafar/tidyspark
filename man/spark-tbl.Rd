@@ -27,7 +27,9 @@ an object of class \code{spark_tbl}
 Create a \code{spark_tbl}
 }
 \examples{
+\dontrun{
 spark_tbl(iris)
 spark_tbl(tibble(x = 1:10, y = 10:1))
 spark_tbl(SparkR::as.DataFrame(iris))
+}
 }

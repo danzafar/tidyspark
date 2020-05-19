@@ -15,13 +15,15 @@
 #' @details \code{spark_udf} is a re-implementation of \code{SparkR::dapply}.
 #' Importantly, \code{spark_udf} (and \code{SparkR::dapply}) will scan the
 #' function being passed and automatically broadcast any values from the
-#' \code{.GlobalEnv} that are being referenced.
+#' \code{.GlobalEnv} that are being referenced. Functions from \code{dplyr} are
+#' always availiable by default.
 #'
-#' @return
+#' @return a \code{spark_tbl}
 #' @export
 #'
 #' @examples
 #'
+#'\dontrun{
 #' iris_tbl <- spark_tbl(iris)
 #'
 #' # note, my_var will be broadcasted if we include it in the function
@@ -32,12 +34,13 @@
 #'             schema(iris_tbl)) %>%
 #'   collect
 #'
-#' # but if you want to use a library, you need to load it in the UDF
+#' # but if you want to use a library (other than dplyr), you need to load it
+#' # in the UDF
 #' iris_tbl %>%
 #'   spark_udf(function(.df) {
-#'     require(dplyr)
+#'     require(purrr)
 #'     .df %>%
-#'       head(my_var)
+#'       map_df(first)
 #'   }, schema(iris_tbl)) %>%
 #'   collect
 #'
@@ -55,7 +58,6 @@
 #'
 #' df %>%
 #'   spark_udf(function(x) {
-#'     library(dplyr)
 #'     x %>%
 #'       filter(a > 1) %>%
 #'       mutate(add = a + 1L)
@@ -67,27 +69,27 @@
 #' schema <- "a INT, d DOUBLE, c STRING, add INT"
 #' df %>%
 #'   spark_udf(function(x) {
-#'     library(dplyr)
 #'     x %>%
 #'       filter(a > 1) %>%
 #'       mutate(add = a + 1L)
 #'   },
 #'   schema) %>%
 #'   collect
-#'
+#'}
 spark_udf <- function (.data, .f, schema) {
   if (is.character(schema)) {
     schema <- StructType(schema)
   }
   if (rlang::is_formula(.f)) .f <- rlang::as_function(.f)
-  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]], connection = NULL)
-  .broadcast_arr <- lapply(ls(SparkR:::.broadcastNames), function(name) {
+  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]],
+                              connection = NULL)
+  .broadcast_arr <- lapply(ls(.broadcastNames), function(name) {
     get(name, .broadcastNames)
   })
   schema <- if (is.null(schema)) schema else schema$jobj
   sdf <- call_static("org.apache.spark.sql.api.r.SQLUtils",
                      "dapply", attr(.data, "jc"),
-                     serialize(SparkR:::cleanClosure(.f), connection = NULL),
+                     serialize(cleanClosure(.f), connection = NULL),
                      .package_names, .broadcast_arr, schema)
   new_spark_tbl(sdf)
 }
@@ -117,7 +119,7 @@ spark_udf <- function (.data, .f, schema) {
 #'
 #' @examples
 #'
-#' ## Not run:
+#'\dontrun{
 #' # Computes the arithmetic mean of the second column by grouping
 #' # on the first and third columns. Output the grouping values and the average.
 #'
@@ -174,7 +176,7 @@ spark_udf <- function (.data, .f, schema) {
 #'     data.frame(t(coef(m)))
 #'   }, schema) %>%
 #'   collect
-#'
+#'}
 #' # # A tibble: 3 x 4
 #' #   `(Intercept)` Sepal_Width Petal_Length Petal_Width
 #' #           <dbl>       <dbl>        <dbl>       <dbl>
@@ -195,15 +197,16 @@ spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
     group_spark_data(group_by(.data, !!!rlang::syms(cols)))
   } else group_spark_data(.data)
 
-  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]], connection = NULL)
-  .broadcast_arr <- lapply(ls(SparkR:::.broadcastNames), function(name) {
+  .package_names <- serialize(SparkR:::.sparkREnv[[".packages"]],
+                              connection = NULL)
+  .broadcast_arr <- lapply(ls(.broadcastNames), function(name) {
     get(name, .broadcastNames)
   })
 
   schema <- if (inherits(schema, "StructType")) schema$jobj else NULL
   sdf <- call_static("org.apache.spark.sql.api.r.SQLUtils",
-                     "gapply", sgd@sgd,
-                     serialize(SparkR:::cleanClosure(.f), connection = NULL),
+                     "gapply", sgd,
+                     serialize(cleanClosure(.f), connection = NULL),
                      .package_names, .broadcast_arr, schema)
   new_spark_tbl(sdf)
 }
@@ -223,13 +226,13 @@ spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
 #' @export
 #'
 #' @examples
-#'
+#'\dontrun{
 #' spark_session()
 #' doubled <- spark_lapply(1:10, function(x) {2 * x})
 #'
 #' # or using tidyverse style lamdas
 #' doubled <- spark_lapply(1:10, ~ 2 * .)
-#'
+#'}
 spark_lapply <- function (.l, .f) {
   if (rlang::is_formula(.f)) {
     .f <- rlang::as_function(.f)
