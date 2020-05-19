@@ -333,6 +333,9 @@ processClosure <- function(node, oldEnv, defVars, checkedFuncs, newEnv) {
              (typeof(node) == "symbol" || typeof(node) == "language")) {
     # Base case: current AST node is a leaf node and a symbol or a function call.
     nodeChar <- as.character(node)
+
+    # if (nodeChar == "filter") browser()
+
     if (!nodeChar %in% defVars$data) {
       # Not a function parameter or local variable.
       func.env <- oldEnv
@@ -350,7 +353,8 @@ processClosure <- function(node, oldEnv, defVars, checkedFuncs, newEnv) {
           )
 
         # Namespaces other than "SparkR" will not be searched.
-        # if it's not a namespace or if it's the SparkR
+        # if it's not a namespace or if it's the SparkR namespace AND
+        # the symbol is not in SparkR's exports
         if (!isNamespace(func.env) ||
             (getNamespaceName(func.env) == "SparkR" &&
              !(nodeChar %in% getNamespaceExports("SparkR"))) ||
@@ -396,6 +400,13 @@ processClosure <- function(node, oldEnv, defVars, checkedFuncs, newEnv) {
 
         # Continue to search in enclosure.
         func.env <- parent.env(func.env)
+
+        if (identical(func.env, topEnv) &&
+            nodeChar %in% getNamespaceExports("dplyr")) {
+          obj <- get(nodeChar, envir = as.environment("package:dplyr"))
+          assign(nodeChar, obj, envir = newEnv)
+          break
+        }
       }
     }
   }
