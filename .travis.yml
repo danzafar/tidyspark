@@ -14,6 +14,5 @@ script:
   R CMD check  --no-tests  *tar.gz
   cd tests
   export NOT_CRAN=true
-  R CMD INSTALL *.tar.gz
   travis_wait 35 Rscript ../.travis.R
   sleep 2
