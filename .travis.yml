@@ -7,3 +7,15 @@ warnings_are_errors: true
 
 jdk:
   - oraclejdk8
+
+install:
+- R -e 'devtools::install_deps(dep = T)'
+
+script:
+- |
+  R CMD build .
+  R CMD check  --no-tests  *tar.gz 
+  cd tests
+  export NOT_CRAN=true
+  travis_wait 35 Rscript ../.travis.R
+  sleep 2
