@@ -29,7 +29,8 @@ a \code{spark_tbl}.
 \code{spark_udf} is a re-implementation of \code{SparkR::dapply}.
 Importantly, \code{spark_udf} (and \code{SparkR::dapply}) will scan the
 function being passed and automatically broadcast any values from the
-\code{.GlobalEnv} that are being referenced.
+\code{.GlobalEnv} that are being referenced. Functions from \code{dplyr} are
+always availiable by default.
 }
 \examples{
 
@@ -44,12 +45,13 @@ iris_tbl \%>\%
             schema(iris_tbl)) \%>\%
   collect
 
-# but if you want to use a library, you need to load it in the UDF
+# but if you want to use a library (other than dplyr), you need to load it
+# in the UDF
 iris_tbl \%>\%
   spark_udf(function(.df) {
-    require(dplyr)
+    require(purrr)
     .df \%>\%
-      head(my_var)
+      map_df(first)
   }, schema(iris_tbl)) \%>\%
   collect
 
@@ -67,7 +69,6 @@ schema <- StructType(StructField("a", "integer"),
 
 df \%>\%
   spark_udf(function(x) {
-    library(dplyr)
     x \%>\%
       filter(a > 1) \%>\%
       mutate(add = a + 1L)
@@ -79,7 +80,6 @@ df \%>\%
 schema <- "a INT, d DOUBLE, c STRING, add INT"
 df \%>\%
   spark_udf(function(x) {
-    library(dplyr)
     x \%>\%
       filter(a > 1) \%>\%
       mutate(add = a + 1L)
