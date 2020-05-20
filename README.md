@@ -221,7 +221,7 @@ iris_preview %>% collect
  
  For example, to create an `rdd` the same commands can by used but with `.` replaced with `$`:
  
- ```
+ ``` r
  spark <- spark_session()
  sc <- spark$sparkContext
  
@@ -232,13 +232,13 @@ iris_preview %>% collect
  
  The rest of the RDD API is implemented similar to pyspark, and uses an unexported class `PipelinedRDD` to handle passed R functions, which can be anonymous functions. 
  
- ```
+ ``` r
  rdd$map(~ .*9/3)$
    collect()
  ```
  
  The RDD API is feature complete with regard to the PySpark API and supports joins, pairRDD operations, etc.:
- ```
+ ``` r
  rdd1 <- sc$parallelize(list(list("a", 1), list("b", 4), list("b", 5), list("a", 2)))
  rdd2 <- sc$parallelize(list(list("a", 3), list("c", 1)))
  rdd1$
