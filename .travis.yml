@@ -1,19 +1,16 @@
 language: r
+
 dist: trusty
+
+jdk:
+  - openjdk8
+
 sudo: false
 
 cache:
   packages: true
 
 warnings_are_errors: true
-
-env:
-  - SPARK_VERSION="2.4.3"
-  - JAVA_VERSION=openjdk8
-
-before_install:
-  - jdk_switcher use $JAVA_VERSION
-  - echo $JAVA_VERSION
 
 script:
 - |
