@@ -1,11 +1,15 @@
 language: r
+dist: trusty
+sudo: false
 
 cache:
   packages: true
 
 warnings_are_errors: true
 
-jdk: openjdk8
+before_install:
+  - jdk_switcher use openjdk8
+  - echo openjdk8
 
 script:
 - |
