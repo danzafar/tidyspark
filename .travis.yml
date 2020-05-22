@@ -13,7 +13,7 @@ cache:
 warnings_are_errors: true
 
 env:
-  - SPARK_LOCAL_IP=127.0.0.1
+  - SPARK_LOCAL_IP=localhost
 
 script:
 - |
