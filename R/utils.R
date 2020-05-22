@@ -182,7 +182,7 @@ wrapInt <- function(value) {
 }
 
 # Multiply `val` by 31 and add `addVal` to the result. Ensures that
-# integer-overflows are handled at every step.
+# integer overflows are handled at every step.
 #
 # TODO: this function does not handle integer overflow well
 mult31AndAdd <- function(val, addVal) {
