@@ -1,5 +1,6 @@
 # Partitioned data
-sc <- get_spark_context()
+spark <- spark_session(master = "local[1]")
+sc <- spark$sparkContext
 nums <- 1:2
 rrdd <- sc$parallelize(nums, 2L)
 
@@ -29,3 +30,5 @@ test_that("without using broadcast variable", {
   expected <- list(sum(randomMat) * 1, sum(randomMat) * 2)
   expect_equal(actual, expected)
 })
+
+spark_session_stop()

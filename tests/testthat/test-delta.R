@@ -45,3 +45,5 @@ test_that("read/write delta in DDL", {
 
   invisible(spark_sql(paste0("DROP TABLE default.iris_ddl")))
 })
+
+spark_session_stop()

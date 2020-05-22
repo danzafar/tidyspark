@@ -3,7 +3,7 @@
 other_functions <- c("like", "rlike", "getField", "getItem", "asc") #, "contains"
 
 for (.f in other_functions) {
-  assign(.f, getFromNamespace(.f, "SparkR"))
+  assign(.f, utils::getFromNamespace(.f, "SparkR"))
 }
 
 #' @name Column-missing
