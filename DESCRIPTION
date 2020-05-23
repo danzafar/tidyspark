@@ -57,5 +57,6 @@ Collate:
     'sparkContext.R'
     'spark_new.R'
     'spark_tbl.R'
+    'stats.R'
     'test-pivot.R'
     'utils.R'

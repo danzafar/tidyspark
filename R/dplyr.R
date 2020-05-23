@@ -230,6 +230,30 @@ coalesce.default <- function(...) {
   dplyr::coalesce(...)
 }
 
+#' #' @export
+#' lag <- function(...) {
+#'   UseMethod("lag")
+#' }
+#'
+#' #' @importFrom dplyr lag
+#' lag.default <- function(x, offset = 1, defaultValue = NULL) {
+#'   dplyr::lag(x, offset = 1, defaultValue = NULL)
+#' }
+#'
+#' #' @importFrom dplyr lag
+#' lag.Column <- function(x, offset = 1, defaultValue = NULL) {
+#'
+#'   col <- if (class(x) == "Column") {
+#'     x@jc
+#'   } else {
+#'     x
+#'   }
+#'
+#'   jc <- call_static("org.apache.spark.sql.functions", "lag", col, as.integer(offset), defaultValue)
+#'
+#'   new("Column", jc)
+#' }
+
 #' @export
 count <- function(...) {
   UseMethod("count")

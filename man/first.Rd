@@ -3,19 +3,7 @@
 \name{first}
 \alias{first}
 \alias{first,characterOrColumn-method}
-\title{#' @details
-#' \code{factorial}: Computes the factorial of the given value.
-#'
-#' @rdname column_math_functions
-#' @aliases factorial factorial,Column-method
-#' @note factorial since 1.5.0
-setMethod("factorial",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "factorial", x@jc)
-            new("Column", jc)
-          })
-first}
+\title{first}
 \usage{
 first(x, ...)
 
