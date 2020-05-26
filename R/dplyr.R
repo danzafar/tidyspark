@@ -384,8 +384,29 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 }
 
 # pivots
-
+#' Pivot data from long to wide
+#
+#' @description
+#' `piv_wider()` "widens" data, increasing the number of columns and
+#' decreasing the number of rows. The inverse transformation is
+#' [piv_longer()].oth these verbs emulate the tidyr pivot variants.
+#'
+#' @inheritParams pivot_longer
+#' @param id_cols <[`tidy-select`][tidyr_tidy_select]> A set of columns that
+#'   uniquely identifies each observation. Defaults to all columns in `data`
+#'   except for the columns specified in `names_from` and `values_from`.
+#'   Typically used when you have redundant variables, i.e. variables whose
+#'   values are perfectly correlated with existing variables.
+#' @param names_from,values_from <[`tidy-select`][tidyr_tidy_select]> A pair of
+#'   arguments describing which column (or columns) to get the name of the
+#'   output column (`names_from`), and which column (or columns) to get the
+#'   cell values from (`values_from`).
+#' @param ... Additional arguments passed on to methods.
 #' @export
+#' @examples
+#' fish_encounters
+#' fish_encounters %>%
+#'   pivot_wider(names_from = station, values_from = seen)
 #' @importFrom rlang enquo
 piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
   # these become the new col names
@@ -415,7 +436,34 @@ piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
 
 }
 
-
+#' Pivot data from wide to long
+#'
+#' @description
+#' `piv_longer()` "lengthens" data, increasing the number of rows and
+#' decreasing the number of columns. The inverse transformation is
+#' [piv_wider()]. Both these verbs emulate the tidyr pivot variants.
+#'
+#'
+#' @param data A data frame to pivot.
+#' @param cols <[`tidy-select`][tidyr_tidy_select]> Columns to pivot into
+#'   longer format.
+#' @param names_to A string specifying the name of the column to create
+#'   from the data stored in the column names of `data`.
+#'
+#' @param values_to A string specifying the name of the column to create
+#'   from the data stored in cell values. If `names_to` is a character
+#'   containing the special `.value` sentinel, this value will be ignored,
+#'   and the name of the value column will be derived from part of the
+#'   existing column names.
+#' @param ... Additional arguments passed on to methods.
+#' @export
+#' @examples
+#' # See vignette("pivot") for examples and explanation
+#'
+#' # Simplest case where column names are character data
+#' relig_income
+#' relig_income %>%
+#'   piv_longer(-religion, names_to = "income", values_to = "count")
 #' @export
 #' @importFrom tidyselect vars_select
 #' @importFrom rlang enquo
