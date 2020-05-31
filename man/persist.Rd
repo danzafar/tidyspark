@@ -23,7 +23,7 @@ storage_level(.data)
 \item{blocking}{boolean, whether to block until all blocks are deleted.}
 }
 \value{
-
+a \code{spark_tbl}
 }
 \description{
 Functions to manage the storage of \code{spark_tbl} objects.
@@ -32,7 +32,7 @@ Functions to manage the storage of \code{spark_tbl} objects.
 }
 \details{
 For details of the supported storage levels, refer to
-\code{\link{http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence}}.
+\href{http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence}{rdd-persistence}.
 }
 \examples{
 \dontrun{

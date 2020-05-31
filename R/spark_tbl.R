@@ -197,10 +197,10 @@ collect.spark_tbl <- function(x, ...) {
 #'
 #' @param .data
 #'
-#' @return
+#' @return a \code{spark_tbl}
 #'
 #' @details For details of the supported storage levels, refer to
-#' \code{\link{http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence}}.
+#' \href{http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence}{rdd-persistence}.
 #'
 #' @export
 #' @rdname persist
