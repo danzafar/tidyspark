@@ -189,6 +189,65 @@ collect.spark_tbl <- function(x, ...) {
   as_tibble(SparkR::collect(as_SparkDataFrame(x)))
 }
 
+#' Storage Functions
+#'
+#' @description Functions to manage the storage of \code{spark_tbl} objects.
+#' \code{persist} is capable of various storage modes (see details), and
+#' \code{cache} is shorthand for \code{"MEMORY_AND_DISK"} storage level.
+#'
+#' @param .data
+#'
+#' @return
+#'
+#' @details For details of the supported storage levels, refer to
+#' \code{\link{http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence}}.
+#'
+#' @export
+#' @rdname persist
+#' @examples
+#' \dontrun{
+#' spark_session()
+#' iris_tbl <- spark_tbl(iris)
+#'
+#' storage_level(iris_tbl)
+#'
+#' persist(iris_tbl, "MEMORY_AND_DISK")
+#' storage_level(iris_tbl)
+#'
+#' unpersist(iris_tbl)
+#' storage_level(iris_tbl)
+#' }
+cache <- function(.data) {
+  sdf <- call_method(attr(.data, "jc"), "cache")
+  new_spark_tbl(sdf)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @param newLevel storage level chosen for the persistence. See available options in the details.
+#' @export
+#' @rdname persist
+persist <- function (.data, newLevel) {
+  sdf <- call_method(attr(.data, "jc"), "persist", getStorageLevel(newLevel))
+  new_spark_tbl(sdf)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @param blocking boolean, whether to block until all blocks are deleted.
+#' @export
+#' @rdname persist
+unpersist <- function (.data, blocking = TRUE) {
+  sdf <- call_method(attr(.data, "jc"), "unpersist", blocking)
+  new_spark_tbl(sdf)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @export
+#' @rdname persist
+storage_level <- function(.data) {
+  level <- call_method(attr(.data, "jc"), "storageLevel")
+  storageLevelToString(level)
+}
+
 #' Convert to a SparkR \code{SparkDataFrame}
 #'
 #' @param x a \code{spark_tbl} or \code{jobj} representing a \code{DataFrame}
