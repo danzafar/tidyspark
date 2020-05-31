@@ -41,6 +41,72 @@ getStorageLevel <- function(newLevel = c("DISK_ONLY", "DISK_ONLY_2",
   storageLevel
 }
 
+storageLevelToString <- function (levelObj) {
+  useDisk <- call_method(levelObj, "useDisk")
+  useMemory <- call_method(levelObj, "useMemory")
+  useOffHeap <- call_method(levelObj, "useOffHeap")
+  deserialized <- call_method(levelObj, "deserialized")
+  replication <- call_method(levelObj, "replication")
+  shortName <- if (!useDisk && !useMemory && !useOffHeap &&
+                   !deserialized && replication == 1) {
+    "NONE"
+  }
+  else if (useDisk && !useMemory && !useOffHeap && !deserialized &&
+           replication == 1) {
+    "DISK_ONLY"
+  }
+  else if (useDisk && !useMemory && !useOffHeap && !deserialized &&
+           replication == 2) {
+    "DISK_ONLY_2"
+  }
+  else if (!useDisk && useMemory && !useOffHeap && deserialized &&
+           replication == 1) {
+    "MEMORY_ONLY"
+  }
+  else if (!useDisk && useMemory && !useOffHeap && deserialized &&
+           replication == 2) {
+    "MEMORY_ONLY_2"
+  }
+  else if (!useDisk && useMemory && !useOffHeap && !deserialized &&
+           replication == 1) {
+    "MEMORY_ONLY_SER"
+  }
+  else if (!useDisk && useMemory && !useOffHeap && !deserialized &&
+           replication == 2) {
+    "MEMORY_ONLY_SER_2"
+  }
+  else if (useDisk && useMemory && !useOffHeap && deserialized &&
+           replication == 1) {
+    "MEMORY_AND_DISK"
+  }
+  else if (useDisk && useMemory && !useOffHeap && deserialized &&
+           replication == 2) {
+    "MEMORY_AND_DISK_2"
+  }
+  else if (useDisk && useMemory && !useOffHeap && !deserialized &&
+           replication == 1) {
+    "MEMORY_AND_DISK_SER"
+  }
+  else if (useDisk && useMemory && !useOffHeap && !deserialized &&
+           replication == 2) {
+    "MEMORY_AND_DISK_SER_2"
+  }
+  else if (useDisk && useMemory && useOffHeap && !deserialized &&
+           replication == 1) {
+    "OFF_HEAP"
+  }
+  else {
+    NULL
+  }
+  fullInfo <- call_method(levelObj, "toString")
+  if (is.null(shortName)) {
+    fullInfo
+  }
+  else {
+    paste(shortName, "-", fullInfo)
+  }
+}
+
 isInstanceOf <- function (jobj, className) {
   stopifnot(class(jobj) == "jobj")
   cls <- call_static("java.lang.Class", "forName", className)
