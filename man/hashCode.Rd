@@ -18,12 +18,11 @@ This only works for integer, numeric and character types.
 }
 \examples{
 
-\dontrun{
-
+## Not run:
 hashCode(1L) # 1
 hashCode(1.0) # 1072693248
 hashCode("1") # 49
 
-}
+## End(Not run)
 
 }

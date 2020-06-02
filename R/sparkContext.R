@@ -10,22 +10,21 @@
 #' \code{SparkContext}. It is initialized when \code{spark_submit} is called
 #' and inserted into the workspace as \code{sc}. Note, running
 #' \code{sc$stop} will end your session. For information on methods and types
-#' requirements, refer to the \href{https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html}{javadoc}:
+#' requirements, refer to the Javadoc:
+#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html
 #'
 #' @details Not all methods are implemented due to compatability
 #' and tidyspark best practice usage conflicts. If you need to use a method not
 #' included, try calling it using \code{call_method(sc$jobj, <yourMethod>)}.
 #'
 #' @examples
-#'\dontrun{
-#' spark <- spark_session()
-#' sc <- spark$sparkContext
+#'
+#' spark_session()
+#'
 #' sc$defaultParallelism()
 #' an_rdd <- sc$parallelize(list(1:10), 4)
 #' sc$getConf$get("spark.submit.deployMode")
 #'
-#' spark_session_stop()
-#'}
 SparkContext <- R6::R6Class("SparkContext", list(
 
   #' @field jobj \code{SparkContext} java object
@@ -79,21 +78,6 @@ SparkContext <- R6::R6Class("SparkContext", list(
   #' @description
   #' get the App name
   appName = function() call_method(self$jobj, "appName"),
-
-  #' Broadcast
-  #'
-  #' @param value the variable to broadcast.
-  #'
-  #' @description
-  #' Broadcast a vairable to executors.
-  broadcast = function(value) {
-    objName <- paste0(as.character(substitute(value)), collapse = "-")
-    serializedObj <- serialize(value, connection = NULL)
-    jBroadcast <- call_method(self$jobj, "broadcast", serializedObj)
-    id <- as.character(call_method(jBroadcast, "id"))
-
-    Broadcast$new(id, value, jBroadcast, objName)
-  },
 
   #' cancelAllJobs
   #'
@@ -229,12 +213,12 @@ SparkContext <- R6::R6Class("SparkContext", list(
         port <- call_method(jserver, "port")
         conn <- socketConnection(port = port, blocking = TRUE,
                                  open = "wb", timeout = 1500)
-        doServerAuth(conn, authSecret)
-        writeToConnection(serializedSlices, conn)
+        SparkR:::doServerAuth(conn, authSecret)
+        SparkR:::writeToConnection(serializedSlices, conn)
         jrdd <- call_method(jserver, "getResult")
       }
       else {
-        fileName <- writeToTempFile(serializedSlices)
+        fileName <- SparkR:::writeToTempFile(serializedSlices)
         jrdd <- tryCatch(call_static("org.apache.spark.api.r.RRDD",
                                      "createRDDFromFile", self$jobj,
                                      fileName, as.integer(numSlices)),
@@ -447,50 +431,3 @@ getConf <- R6::R6Class("getConf", list(
   }
 )
 )
-
-# The Broadcast class ----------------------------------------------------------
-# This class keeps track of variables that have been broadcasted, but
-# sc$broadcast() does the actual broadcasting. Rememba!
-
-.broadcastNames <- new.env()
-.broadcastValues <- new.env()
-.broadcastIdToName <- new.env()
-
-Broadcast <- R6::R6Class("Broadcast", list(
-  id = NULL,
-  jobj = NULL,
-  value = NULL,
-  persisted = T,
-  initialize = function(id, value, jBroadcastRef, objName) {
-    .broadcastValues[[id]] <- value
-    .broadcastNames[[as.character(objName)]] <- jBroadcastRef
-    .broadcastIdToName[[id]] <- as.character(objName)
-    self$id <- id
-    self$jobj <- jBroadcastRef
-    self$value <- value
-  },
-
-  print = function() {
-    cat("<tidyspark Broadcast variable:", self$id, ">\n")
-    cat("  Retrieve using `your_var$value`")
-    invisible(self)
-  },
-#
-#   value = function(bcast) {
-#     if (!self$persisted) {
-#       warning("This variable is no longer persisted on workers")
-#     }
-#     if (exists(self$id, envir = .broadcastValues)) {
-#       get(self$id, envir = .broadcastValues)
-#     } else {
-#       NULL
-#     }
-#   },
-
-  unpersist = function() {
-    call_method(self$jobj, "unpersist")
-    self$persisted = F
-    invisible()
-  }
-
-))

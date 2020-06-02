@@ -22,11 +22,11 @@ using Spark. It is conceptually the same as the following
 code: \code{lapply(list, func)}
 }
 \examples{
-\dontrun{
+
 spark_session()
 doubled <- spark_lapply(1:10, function(x) {2 * x})
 
 # or using tidyverse style lamdas
 doubled <- spark_lapply(1:10, ~ 2 * .)
-}
+
 }

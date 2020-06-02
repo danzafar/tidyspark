@@ -37,7 +37,6 @@ For Delta, a few additional options can be specified using \code{...}:
 }
 }
 \examples{
-\dontrun{
 # here using open-source delta jar dropped in the $SPARK_HOME/lib dir
 spark_session(sparkPackages = "io.delta:delta-core_2.11:0.5.0")
 
@@ -49,5 +48,5 @@ iris_tbl \%>\%
 # you can go further and add to hive metastore like this:
 spark_sql("CREATE TABLE iris_ddl USING DELTA LOCATION '/tmp/iris_tbl'")
 # right now this throws a warning, you can ignore it.
-}
+
 }

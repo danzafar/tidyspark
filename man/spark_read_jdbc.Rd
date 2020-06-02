@@ -38,7 +38,7 @@ one partition should be in the form of a SQL query string, see example.}
 \item{...}{additional JDBC database connection named properties.}
 }
 \value{
-a \code{spark_tbl}
+
 }
 \description{
 Create spark_tbl from JDBC connection
@@ -59,7 +59,7 @@ For specifing partitioning, the following rules apply:
 }
 }
 \examples{
-\dontrun{
+## Not run:
 spark_session(sparkPackages=c("mysql:mysql-connector-java:5.1.48"))
 
 url <- "jdbc:mysql://localhost:3306/databasename"
@@ -80,5 +80,5 @@ iris_jdbc <- spark_read_jdbc(url = "jdbc:postgresql://localhost/databasename",
 
 spark_session_stop()
 
-}
+## End(Not run)
 }

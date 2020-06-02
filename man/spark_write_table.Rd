@@ -53,7 +53,7 @@ the opinion of many Spark experts that you are better off using Delta
 optimize/z-order.
 }
 \examples{
-\dontrun{
+
 iris_tbl <- spark_tbl(iris)
 
 # save as table
@@ -77,6 +77,6 @@ spark_sql("DESCRIBE iris_tbl") \%>\% collect
 # 7 # col_name              "data_type" "comment"
 # 8 Species                 "string"     NA
 
-}
+
 
 }

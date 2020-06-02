@@ -33,7 +33,7 @@ applies the R function to each group.
 }
 \examples{
 
-\dontrun{
+## Not run:
 # Computes the arithmetic mean of the second column by grouping
 # on the first and third columns. Output the grouping values and the average.
 
@@ -90,7 +90,7 @@ iris_tbl \%>\%
     data.frame(t(coef(m)))
   }, schema) \%>\%
   collect
-}
+
 # # A tibble: 3 x 4
 #   `(Intercept)` Sepal_Width Petal_Length Petal_Width
 #           <dbl>       <dbl>        <dbl>       <dbl>

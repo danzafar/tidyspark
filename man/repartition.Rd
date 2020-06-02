@@ -19,8 +19,6 @@ Repartitions a spark_tbl. Optionally allos for vector of
 columns to be used for partitioning.
 }
 \examples{
-\dontrun{
-spark_session()
 df <- spark_tbl(mtcars)
 
 df \%>\% n_partitions() # 1
@@ -29,7 +27,4 @@ df_repartitioned <- df \%>\% repartition(5)
 df \%>\% n_partitions() # 5
 
 df_repartitioned <- df \%>\% repartition(5, c("cyl"))
-
-spark_session_stop()
-}
 }

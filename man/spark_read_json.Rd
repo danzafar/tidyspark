@@ -15,7 +15,7 @@ https://docs.databricks.com/data/data-sources/read-json.html#multi-line-mode}
 \item{...}{named list, optional arguments to the reader}
 }
 \value{
-a \code{spark_tbl}
+
 }
 \description{
 Read a JSON file into a \code{spark_tbl}.

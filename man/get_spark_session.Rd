@@ -13,7 +13,5 @@ a SparkSession object
 Get Spark Session
 }
 \examples{
-\dontrun{
 spark <- get_spark_session()
-}
 }

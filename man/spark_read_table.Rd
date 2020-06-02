@@ -18,9 +18,9 @@ from the hive metastore without have to write any SQL. This is not a
 feature in Spark's Scala or Python API.
 }
 \examples{
-\dontrun{
+
 spark_read_table("iris")
 # same as
 spark.sql("SELECT * FROM iris")
-}
+
 }

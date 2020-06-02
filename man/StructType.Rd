@@ -33,11 +33,9 @@ Create a StructType object that contains the metadata for
 a SparkDataFrame. Intended for use with read functions and apply functions.
 }
 \examples{
-\dontrun{
 schema <- StructType(
   StructField("a", "integer"),
   StructField("c", "string"),
   StructField("avg", "double")
   )
-}
 }
