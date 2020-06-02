@@ -37,12 +37,12 @@ library(SparkR)
 drop(join(left, right, left$name == right$name, "left_outer"), left$name)
 ```
 
-Many R users seek refuge in RStudio's `sparklyr` package which is maintained by RStudio and adheres to tidy principles. `sparklyr` uses a backend similar to `dbconnect` where `dplyr` commands are translated into SQLsyntax and that is passed onto SparkSQL. `sparklyr` was origionally based on the RDD API and centers around theSpark Context as it's primary connection to Spark, though the RDD API will be deprecated with Spark 3.0.0. While usage of `sparklyr` has phenomenal syntax, it also creates another layer of complexity. As such, Spark experts complain of bug and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows more efficent execution plans which eventually leads to the question, **_choose one: syntax or functionality?_**.
+Many R users seek refuge in RStudio's `sparklyr` package which is maintained by RStudio and adheres to tidy principles. `sparklyr` uses a backend similar to `dbconnect` where `dplyr` commands are translated into SQL syntax and that is passed onto SparkSQL. `sparklyr` was originally based on the RDD API and centers around theSpark Context as it's primary connection to Spark, though unfortunetely the RDD API will be deprecated with Spark 3.0.0. While `sparklyr` has phenomenal and intuitive syntax, it is significantly more complex than SparkR. As such, Spark experts complain of bugs and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows more efficent execution plans which eventually leads to the question, **_choose one: syntax or functionality?_**.
 
 `tidyspark` was developed so that R users could have the "best of both worlds". The syntax of `sparklyr` but the backend of `SparkR`. In essence, the goal of `tidyspark` is to provide a tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. The principles are to minimize learning by modelling after `dplyr`/`sparklyr` syntax as much as possible, keep tidy wrappers thin and simple to foster contribution for years to come, and to avoid namespace conflicts with `tidyverse` packages.
 
 ### More Information
-For more information on the philosophy of `tidyspark` and technical information on how it works, please view the [Developer Guide](https://github.com/danzafar/tidyspark/blob/master/dev_guide.md)
+For more information on the philosophy of `tidyspark` and technical information on how it works, please view the [Developer Guide](https://github.com/danzafar/tidyspark/blob/master/vignettes/dev_guide.Rmd)
 
 ## Status
 Since the first code written Jan 23, 2020 some significant progress has been made to prove out the `tidyspark` principles. At this time, all of the major `dplyr` verbs are supported in `tidyspark`. By far the most complex are the window-affected verbs and their usage with rank function. One of the goals of the project will be to provide explanatory documentation for how these verb methods work to foster collaboration. Here are the verbs that are currently supported, though some edge cases are still being worked out:
@@ -214,3 +214,35 @@ iris_preview %>% collect
     ## 8           5.0         3.4          1.5         0.2  setosa
     ## 9           4.4         2.9          1.4         0.2  setosa
     ## 10          4.9         3.1          1.5         0.1  setosa
+    
+ ## The RDD API
+ 
+ `tidyspark` also supports working in the RDD API. Instead of defining the RDD API in an S3 context, which is idiomatic to much of the `tidyverse` we decided it would be more intuitive to use the `R6` object oriented framework to keep functionality simple, intuitive, and in line with native spark and pyspark documentation. This eases the barrier of entry for users of the RDD API because they can simply leverage the existing documentation from PySpark, which was referenced in creating this API. In line with `R6` and Spark convention, the RDD API is implemented in `UpperCamelCase`.
+ 
+ For example, to create an `rdd` the same commands can by used but with `.` replaced with `$`:
+ 
+ ``` r
+ spark <- spark_session()
+ sc <- spark$sparkContext
+ 
+ rdd <- sc$parallelize(1:10, 1)
+ ```
+ 
+ Please note that by convention the `spark` always should refer to the `SparkSession` R6 class and `sc` should always refer to the `SparkContext` R6 class. 
+ 
+ The rest of the RDD API is implemented similar to pyspark, and uses an unexported class `PipelinedRDD` to handle passed R functions, which can be anonymous functions. 
+ 
+ ``` r
+ rdd$map(~ .*9/3)$
+   collect()
+ ```
+ 
+ The RDD API is feature complete with regard to the PySpark API and supports joins, pairRDD operations, etc.:
+ ``` r
+ rdd1 <- sc$parallelize(list(list("a", 1), list("b", 4), list("b", 5), list("a", 2)))
+ rdd2 <- sc$parallelize(list(list("a", 3), list("c", 1)))
+ rdd1$
+   subtractByKey(rdd2)$
+   collect()
+ ```
+ 

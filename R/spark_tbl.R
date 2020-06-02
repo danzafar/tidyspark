@@ -1,13 +1,4 @@
 
-get_jc_cols <- function(jc) {
-  names <- call_method(jc, "columns")
-  .l <- lapply(names, function(x) {
-    jc <- call_method(jc, "col", x)
-    new("Column", jc)
-  })
-  setNames(.l, names)
-}
-
 # create a low-level constructor for an new S3 class called "spark_tbl"
 # following tidy guidelines here https://adv-r.hadley.nz/s3.html#constructors
 new_spark_tbl <- function(sdf, ...) {
@@ -35,9 +26,11 @@ new_spark_tbl <- function(sdf, ...) {
 #'
 #' @rdname spark-tbl
 #' @examples
+#'\dontrun{
 #' spark_tbl(iris)
 #' spark_tbl(tibble(x = 1:10, y = 10:1))
 #' spark_tbl(SparkR::as.DataFrame(iris))
+#' }
 spark_tbl <- function(.df, ...) {
   UseMethod("spark_tbl")
 }
@@ -59,7 +52,7 @@ spark_tbl.data.frame <- function(.df, ...) {
 
   # convert the data frame
   df <- if (all(dim(.df) == c(0, 0))) {
-    spark <- SparkR:::getSparkSession()
+    spark <- get_spark_session()$jobj
     sdf <- call_method(spark, "emptyDataFrame")
     new("SparkDataFrame", sdf, F)
   # TODO: We should update this to spark.r.maxAllocationLimit or 200MB, as per SparkR
@@ -118,7 +111,7 @@ print.spark_tbl <- function(x, ...) {
 #' @rdname limit
 #'
 #' @examples
-#'
+#'\dontrun{
 #' # limit returns a spark_tbl
 #' spark_tbl(mtcars) %>% limit(15)
 #'
@@ -128,6 +121,7 @@ print.spark_tbl <- function(x, ...) {
 #' # show displays the tibble, but returns a spark_tbl
 #' spark_tbl(iris) %>% show
 #' spark_tbl(mtcars) %>% show(15)
+#' }
 limit <- function (.data, n) {
   res <- call_method(attr(.data, "jc"), "limit", as.integer(n))
   new_spark_tbl(res)
@@ -186,6 +180,65 @@ collect.spark_tbl <- function(x, ...) {
   as_tibble(SparkR::collect(as_SparkDataFrame(x)))
 }
 
+#' Storage Functions
+#'
+#' @description Functions to manage the storage of \code{spark_tbl} objects.
+#' \code{persist} is capable of various storage modes (see details), and
+#' \code{cache} is shorthand for \code{"MEMORY_AND_DISK"} storage level.
+#'
+#' @param .data
+#'
+#' @return a \code{spark_tbl}
+#'
+#' @details For details of the supported storage levels, refer to
+#' \href{http://spark.apache.org/docs/latest/rdd-programming-guide.html#rdd-persistence}{rdd-persistence}.
+#'
+#' @export
+#' @rdname persist
+#' @examples
+#' \dontrun{
+#' spark_session()
+#' iris_tbl <- spark_tbl(iris)
+#'
+#' storage_level(iris_tbl)
+#'
+#' persist(iris_tbl, "MEMORY_AND_DISK")
+#' storage_level(iris_tbl)
+#'
+#' unpersist(iris_tbl)
+#' storage_level(iris_tbl)
+#' }
+cache <- function(.data) {
+  sdf <- call_method(attr(.data, "jc"), "cache")
+  new_spark_tbl(sdf)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @param newLevel storage level chosen for the persistence. See available options in the details.
+#' @export
+#' @rdname persist
+persist <- function (.data, newLevel) {
+  sdf <- call_method(attr(.data, "jc"), "persist", getStorageLevel(newLevel))
+  new_spark_tbl(sdf)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @param blocking boolean, whether to block until all blocks are deleted.
+#' @export
+#' @rdname persist
+unpersist <- function (.data, blocking = TRUE) {
+  sdf <- call_method(attr(.data, "jc"), "unpersist", blocking)
+  new_spark_tbl(sdf)
+}
+
+#' @param .data a \code{spark_tbl}
+#' @export
+#' @rdname persist
+storage_level <- function(.data) {
+  level <- call_method(attr(.data, "jc"), "storageLevel")
+  storageLevelToString(level)
+}
+
 #' Convert to a SparkR \code{SparkDataFrame}
 #'
 #' @param x a \code{spark_tbl} or \code{jobj} representing a \code{DataFrame}
@@ -196,6 +249,7 @@ collect.spark_tbl <- function(x, ...) {
 #'
 #' @examples
 #'
+#'\dontrun{
 #' spark_session()
 #'
 #' df <- spark_tbl(iris)
@@ -203,6 +257,9 @@ collect.spark_tbl <- function(x, ...) {
 #'
 #' df_jobj <- attr(df, "jc")
 #' as_SparkDataFrame(df_jobj)
+#'
+#' spark_session_stop()
+#' }
 #'
 as_SparkDataFrame <- function(x, ...) {
   UseMethod("as_SparkDataFrame")
@@ -241,11 +298,13 @@ grouped_spark_tbl <- function (data, vars, drop = FALSE) {
 
 #' Explain Plan
 #'
+#' @description Get the explain plan of a spark_tbl
+#'
 #' @param x a \code{spark_tbl}
 #' @param extended \code{boolean} whether to print the extended plan
 #' @param ... other arguments to explain, currently unused
 #'
-#' @return
+#' @return a string representing the explain plan
 #' @export
 #' @importFrom dplyr explain
 explain.spark_tbl <- function(x, extended = F, ...) {
@@ -349,6 +408,8 @@ coalesce.spark_tbl <- function(.data, n_partitions, ...) {
 #'
 #' @export
 #' @examples
+#'\dontrun{
+#' spark_session()
 #' df <- spark_tbl(mtcars)
 #'
 #' df %>% n_partitions() # 1
@@ -357,6 +418,9 @@ coalesce.spark_tbl <- function(.data, n_partitions, ...) {
 #' df %>% n_partitions() # 5
 #'
 #' df_repartitioned <- df %>% repartition(5, c("cyl"))
+#'
+#' spark_session_stop()
+#' }
 repartition <- function(.data, n_partitions, partition_by) {
   UseMethod("repartition")
 }

@@ -1,9 +1,25 @@
 language: r
 
+dist: trusty
+
+jdk:
+  - openjdk8
+
+sudo: false
+
 cache:
   packages: true
 
 warnings_are_errors: true
 
-jdk:
-  - oraclejdk8
+env:
+  - SPARK_LOCAL_IP=localhost
+
+script:
+- |
+  R CMD build .
+  R CMD check  --no-tests  *tar.gz
+  cd tests
+  export NOT_CRAN=true
+  travis_wait 10 Rscript ../.travis.R
+  sleep 2
