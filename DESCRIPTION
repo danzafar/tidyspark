@@ -30,7 +30,34 @@ Imports:
     methods,
     utils
 Depends: 
-    R (>= 3.1),
-    dplyr (>= 0.8.0)
+    dplyr (>= 0.8.0),
+    lubridate (>= 1.7.4),
+    R (>= 3.1)
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
+Collate: 
+    'SparkSession.R'
+    'apply.R'
+    'base.R'
+    'columns.R'
+    'dplyr.R'
+    'dplyr_triple_colon.R'
+    'fix_dot.R'
+    'generics.R'
+    'functions.R'
+    'if_else.R'
+    'joins.R'
+    'lubridate.R'
+    'n_context.R'
+    'package-related.R'
+    'rank_function_classes.R'
+    'rdd.R'
+    'read-write.R'
+    'schema.R'
+    'spark.R'
+    'sparkContext.R'
+    'spark_new.R'
+    'spark_tbl.R'
+    'stats.R'
+    'test-pivot.R'
+    'utils.R'

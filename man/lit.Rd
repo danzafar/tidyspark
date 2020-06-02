@@ -27,7 +27,7 @@ value
 \dontrun{
 # these do the same thing:
 as.Column("derpin'")
-as_Column("all day")
+sparkumn("all day")
 lit("long")
 }
 }

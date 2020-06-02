@@ -221,6 +221,72 @@ mutate.spark_tbl <- function(.data, ...) {
 }
 
 #' @export
+coalesce <- function(...) {
+  UseMethod("coalesce")
+}
+
+#' @importFrom dplyr coalesce
+coalesce.default <- function(...) {
+  dplyr::coalesce(...)
+}
+
+#' #' @export
+#' lag <- function(...) {
+#'   UseMethod("lag")
+#' }
+#'
+#' #' @importFrom dplyr lag
+#' lag.default <- function(x, offset = 1, defaultValue = NULL) {
+#'   dplyr::lag(x, offset = 1, defaultValue = NULL)
+#' }
+#'
+#' #' @importFrom dplyr lag
+#' lag.Column <- function(x, offset = 1, defaultValue = NULL) {
+#'
+#'   col <- if (class(x) == "Column") {
+#'     x@jc
+#'   } else {
+#'     x
+#'   }
+#'
+#'   jc <- call_static("org.apache.spark.sql.functions", "lag", col, as.integer(offset), defaultValue)
+#'
+#'   new("Column", jc)
+#' }
+
+#' @export
+count <- function(...) {
+  UseMethod("count")
+}
+
+#' @importFrom dplyr count
+count.default <- function(...) {
+  # TODO: how to add an base R option here? Do we want default to be dplyr?
+  dplyr::count(...)
+}
+
+#' @importFrom dplyr count
+count.Column <- function(x, ...){
+  jc <- call_static("org.apache.spark.sql.functions", "count", x@jc)
+  new("Column", jc)
+}
+
+#' @export
+n <- function(...) {
+  UseMethod("n")
+}
+
+#' @importFrom dplyr n
+n.default <- function(...) {
+  dplyr::count(...)
+}
+
+#' @importFrom dplyr n
+n.Column <- function(x, ...){
+  tidyspark::count(x)
+}
+
+#' @export
 #' @importFrom dplyr filter
 filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
 
