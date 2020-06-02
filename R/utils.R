@@ -1,3 +1,12 @@
+get_jc_cols <- function(jc) {
+  names <- call_method(jc, "columns")
+  .l <- lapply(names, function(x) {
+    jc <- call_method(jc, "col", x)
+    new("Column", jc)
+  })
+  setNames(.l, names)
+}
+
 num_to_int <- function(num) {
   if (as.integer(num) != num) {
     warning(paste("Coercing", as.list(sys.call())[[2]], "to integer."))
