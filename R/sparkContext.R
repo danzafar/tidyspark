@@ -10,8 +10,7 @@
 #' \code{SparkContext}. It is initialized when \code{spark_submit} is called
 #' and inserted into the workspace as \code{sc}. Note, running
 #' \code{sc$stop} will end your session. For information on methods and types
-#' requirements, refer to the Javadoc:
-#' https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html
+#' requirements, refer to the \href{https://spark.apache.org/docs/latest/api/java/org/apache/spark/SparkContext.html}{javadoc}:
 #'
 #' @details Not all methods are implemented due to compatability
 #' and tidyspark best practice usage conflicts. If you need to use a method not

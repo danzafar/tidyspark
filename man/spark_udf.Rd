@@ -15,8 +15,8 @@ spark_udf(.data, .f, schema)
 to each partition will be passed. The output of func should be an R data.frame.}
 
 \item{schema}{The schema of the resulting SparkDataFrame after the function
-is applied. It must match the output of func. Since Spark 2.3, the DDL-formatted
-string is also supported for the schema.}
+is applied. It must match the output of func. Since Spark 2.3, the
+DDL-formatted string is also supported for the schema.}
 }
 \value{
 a \code{spark_tbl}
