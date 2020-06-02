@@ -67,7 +67,7 @@ programming guide at
 http://spark.apache.org/docs/latest/sparkr.html#starting-up-sparksession.
 }
 \examples{
-\dontrun{
+## Not run:
 spark_session()
 df <- spark_read_json(path)
 
@@ -78,5 +78,5 @@ spark_session("yarn-client", "SparkR", "/home/spark",
                c("com.databricks:spark-avro_2.11:2.0.1"))
 spark_session(spark.master = "yarn-client", spark.executor.memory = "4g")
 
-}
+## End(Not run)
 }

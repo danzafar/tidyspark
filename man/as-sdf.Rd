@@ -22,7 +22,6 @@ Convert to a SparkR \code{SparkDataFrame}
 }
 \examples{
 
-\dontrun{
 spark_session()
 
 df <- spark_tbl(iris)
@@ -30,8 +29,5 @@ as_SparkDataFrame(df)
 
 df_jobj <- attr(df, "jc")
 as_SparkDataFrame(df_jobj)
-
-spark_session_stop()
-}
 
 }

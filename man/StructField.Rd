@@ -23,17 +23,17 @@ https://spark.apache.org/docs/latest/sparkr.html#data-type-mapping-between-r-and
 \item{nullable}{boolean, whether or not the field is nullable}
 }
 \value{
-a StructField object
+
 }
 \description{
 StructField
 }
 \examples{
-\dontrun{
+## Not run:
 schema <- StructType(
   StructField("a", "integer"),
   StructField("c", "string"),
   StructField("avg", "double")
   )
-}
+## End(Not run)
 }

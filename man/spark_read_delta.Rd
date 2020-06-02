@@ -30,7 +30,6 @@ For more information on \code{version} and \code{timestamp}, see
 https://docs.databricks.com/delta/delta-batch.html#dataframereader-options
 }
 \examples{
-\dontrun{
 spark_session(sparkPackages = "io.delta:delta-core_2.11:0.5.0")
 
 iris_tbl <- spark_tbl(iris)
@@ -40,5 +39,5 @@ iris_tbl \%>\%
 
 spark_read_delta("/tmp/iris_tbl") \%>\%
   collect
-}
+
 }

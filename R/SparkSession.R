@@ -16,14 +16,8 @@
 #' included, try calling it using \code{call_method(sc$jobj, <yourMethod>)}.
 #'
 #' @examples
-#'\dontrun{
 #'
 #' spark <- spark_session()
-#' rdd <- spark$range(1, 10)
-#' rdd$collect()
-#'
-#' spark_session_stop()
-#'}
 #'
 SparkSession <- R6::R6Class("SparkSession", list(
   #' @field jobj \code{SparkSession} java object

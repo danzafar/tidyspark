@@ -16,9 +16,7 @@ a \code{spark_tbl}
 Execute Spark SQL queries directly on the spark session
 }
 \examples{
-\dontrun{
 spark_tbl(iris) \%>\% register_temp_view("iris")
 iris_preview <- spark_sql("SELECT * FROM iris LIMIT 10")
 iris_preview \%>\% collect
-}
 }

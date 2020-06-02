@@ -14,8 +14,8 @@
 \item{...}{other arguments to explain, currently unused}
 }
 \value{
-a string representing the explain plan
+
 }
 \description{
-Get the explain plan of a spark_tbl
+Explain Plan
 }

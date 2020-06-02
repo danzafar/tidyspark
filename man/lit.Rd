@@ -24,10 +24,10 @@ Create a Column object out of character, numeric, or boolean
 value
 }
 \examples{
-\dontrun{
+
 # these do the same thing:
 as.Column("derpin'")
 sparkumn("all day")
 lit("long")
-}
+
 }

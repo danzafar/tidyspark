@@ -37,7 +37,6 @@ a \code{spark_tbl}
 Read a CSV file into a \code{spark_tbl}
 }
 \examples{
-\dontrun{
 path_csv <- tempfile()
 iris_fix <- iris \%>\%
   setNames(names(iris) \%>\% sub("[//.]", "_", .)) \%>\%
@@ -52,5 +51,4 @@ spark_read_csv(path_csv, header = T) \%>\% collect
 # with specified schema
 csv_schema <- SparkR::schema(SparkR::createDataFrame(iris_fix))
 spark_read_csv(path_csv, csv_schema, header = T) \%>\% collect
-}
 }

@@ -73,7 +73,6 @@ Schema types that can be used in specifiying schemas in tidyspark. These
 are typically used in the creation of `StructField` objects.
 }
 \examples{
-\dontrun{
 StructType(
   StructField("int", IntegerType, TRUE),
   StructField("string", StringType, TRUE)
@@ -88,6 +87,6 @@ StructType(
   StructField("int", IntegerType, TRUE),
   StructField("string", StringType, TRUE)
   )
-}
+
 }
 \keyword{datasets}

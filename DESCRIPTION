@@ -12,7 +12,6 @@ Description: Provides a familiar interface for Spark, following tidyverse
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-SystemRequirements: Java (>= 8, < 12)
 Suggests: 
     arrow,
     testthat (>= 2.1.0),
