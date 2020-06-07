@@ -1,3 +1,5 @@
+#' @include columns.R
+
 # This is the most complicated part of tidyspark so far. In order to break
 # up complicated expressions like:
 # max(Sepal_Length) > 3 & Petal_Width < 4 | max(Petal_Width) > 2 | ...

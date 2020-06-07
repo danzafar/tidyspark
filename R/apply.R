@@ -9,8 +9,8 @@
 #' \code{.f} should have only one parameter, to which a R data.frame corresponds
 #' to each partition will be passed. The output of func should be an R data.frame.
 #' @param schema The schema of the resulting SparkDataFrame after the function
-#' is applied. It must match the output of func. Since Spark 2.3, the DDL-formatted
-#' string is also supported for the schema.
+#' is applied. It must match the output of func. Since Spark 2.3, the
+#' DDL-formatted string is also supported for the schema.
 #'
 #' @details \code{spark_udf} is a re-implementation of \code{SparkR::dapply}.
 #' Importantly, \code{spark_udf} (and \code{SparkR::dapply}) will scan the

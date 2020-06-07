@@ -1,3 +1,4 @@
+#' @include columns.R
 
 get_jc_cols <- function(jc) {
   names <- call_method(jc, "columns")
@@ -78,6 +79,10 @@ spark_tbl.SparkDataFrame <- function(.df, ...) {
 
 #' @export
 #' @rdname spark-tbl
+createDataFrame <- function(.df, ...) spark_tbl(.df, ...)
+
+#' @export
+#' @rdname spark-tbl
 is.spark_tbl <- function(.df) {
   inherits(.df, "spark_tbl")
 }
@@ -149,10 +154,16 @@ take <- function (.data, n) {
   collect(limited)
 }
 
+#' show
+#'
+#' If eager evaluation is enabled and the Spark object is a SparkDataFrame, evaluate the
+#' SparkDataFrame and print top rows of the SparkDataFrame, otherwise, print the class
+#' and type information of the Spark object.
+#'
 #' @param .data a \code{spark_tbl}
 #' @param n numeric, the number of rows to collect
 #' @export
-#' @rdname limit
+#' @rdname show
 #' @importFrom dplyr as_tibble
 show <- function(.data, n = NULL) {
 
