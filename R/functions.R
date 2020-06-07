@@ -2028,11 +2028,12 @@ setMethod("n_distinct", signature(x = "Column"),
 
 
 #' @details
-#' \code{date_format}: Converts a date/timestamp/string to a value of string in the format
-#' specified by the date format given by the second argument. A pattern could be for instance
-#' \code{dd.MM.yyyy} and could return a string like '18.03.1993'. All
-#' pattern letters of \code{java.text.SimpleDateFormat} can be used.
-#' Note: Use when ever possible specialized functions like \code{year}. These benefit from a
+#' \code{date_format}: Converts a date/timestamp/string to a value of string in
+#' the format specified by the date format given by the second argument. A
+#' pattern could be for instance
+#' \code{dd.MM.yyyy} and could return a string like '18.03.1993'. All pattern
+#' letters of \code{java.text.SimpleDateFormat} can be used. Note: Use when
+#' ever possible specialized functions like \code{year}. These benefit from a
 #' specialized implementation.
 #'
 #' @rdname column_datetime_diff_functions
@@ -2051,14 +2052,17 @@ setClassUnion("characterOrStructTypeOrColumn",
 
 
 #' @details
-#' \code{from_json}: Parses a column containing a JSON string into a Column of \code{structType}
-#' with the specified \code{schema} or array of \code{structType} if \code{as.json.array} is set
-#' to \code{TRUE}. If the string is unparseable, the Column will contain the value NA.
+#' \code{from_json}: Parses a column containing a JSON string into a Column of
+#' \code{structType} with the specified \code{schema} or array of
+#' \code{structType} if \code{as.json.array} is set to \code{TRUE}. If the
+#' string is unparseable, the Column will contain the value NA.
 #'
 #' @rdname column_collection_functions
-#' @param schema a structType object to use as the schema to use when parsing the JSON string.
-#'               Since Spark 2.3, the DDL-formatted string is also supported for the schema.
-#' @param as.json.array indicating if input string is JSON array of objects or a single object.
+#' @param schema a structType object to use as the schema to use when parsing
+#'               the JSON string. Since Spark 2.3, the DDL-formatted string is
+#'               also supported for the schema.
+#' @param as.json.array indicating if input string is JSON array of objects or
+#'                      a single object.
 #' @aliases from_json from_json,Column,characterOrStructTypeOrColumn-method
 #' @examples
 #'
@@ -2074,7 +2078,8 @@ setClassUnion("characterOrStructTypeOrColumn",
 #' head(select(df2, from_json(df2$people_json, schema)))
 #' head(select(df2, from_json(df2$people_json, "name STRING")))}
 #' @note from_json since 2.2.0
-setMethod("from_json", signature(x = "Column", schema = "characterOrStructTypeOrColumn"),
+setMethod("from_json",
+          signature(x = "Column", schema = "characterOrStructTypeOrColumn"),
           function(x, schema, as.json.array = FALSE, ...) {
             if (is.character(schema)) {
               schema <- structType(schema)
@@ -2271,7 +2276,8 @@ setMethod("next_day", signature(y = "Column", x = "character"),
 #' @note to_utc_timestamp since 1.5.0
 setMethod("to_utc_timestamp", signature(y = "Column", x = "character"),
           function(y, x) {
-            jc <- call_static("org.apache.spark.sql.functions", "to_utc_timestamp", y@jc, x)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "to_utc_timestamp", y@jc, x)
             new("Column", jc)
           })
 
@@ -2498,7 +2504,8 @@ setMethod("format_string", signature(format = "character", x = "Column"),
 #' tmp <- mutate(df, to_unix = unix_timestamp(df$time),
 #'                   to_unix2 = unix_timestamp(df$time, 'yyyy-MM-dd HH'),
 #'                   from_unix = from_unixtime(unix_timestamp(df$time)),
-#'                   from_unix2 = from_unixtime(unix_timestamp(df$time), 'yyyy-MM-dd HH:mm'))
+#'                   from_unix2 = from_unixtime(unix_timestamp(df$time),
+#'                   'yyyy-MM-dd HH:mm'))
 #' head(tmp)}
 #' @note from_unixtime since 1.5.0
 setMethod("from_unixtime", signature(x = "Column"),
@@ -2510,41 +2517,47 @@ setMethod("from_unixtime", signature(x = "Column"),
           })
 
 #' @details
-#' \code{window}: Bucketizes rows into one or more time windows given a timestamp specifying column.
-#' Window starts are inclusive but the window ends are exclusive, e.g. 12:05 will be in the window
-#' [12:05,12:10) but not in [12:00,12:05). Windows can support microsecond precision. Windows in
-#' the order of months are not supported. It returns an output column of struct called 'window'
-#' by default with the nested columns 'start' and 'end'
+#' \code{window}: Bucketizes rows into one or more time windows given a
+#' timestamp specifying column. Window starts are inclusive but the window ends
+#' are exclusive, e.g. 12:05 will be in the window [12:05,12:10) but not in
+#' [12:00,12:05). Windows can support microsecond precision. Windows in the
+#' order of months are not supported. It returns an output column of struct
+#' called 'window' by default with the nested columns 'start' and 'end'
 #'
-#' @param windowDuration a string specifying the width of the window, e.g. '1 second',
-#'                       '1 day 12 hours', '2 minutes'. Valid interval strings are 'week',
-#'                       'day', 'hour', 'minute', 'second', 'millisecond', 'microsecond'. Note that
-#'                       the duration is a fixed length of time, and does not vary over time
-#'                       according to a calendar. For example, '1 day' always means 86,400,000
-#'                       milliseconds, not a calendar day.
-#' @param slideDuration a string specifying the sliding interval of the window. Same format as
-#'                      \code{windowDuration}. A new window will be generated every
-#'                      \code{slideDuration}. Must be less than or equal to
-#'                      the \code{windowDuration}. This duration is likewise absolute, and does not
-#'                      vary according to a calendar.
-#' @param startTime the offset with respect to 1970-01-01 00:00:00 UTC with which to start
-#'                  window intervals. For example, in order to have hourly tumbling windows
-#'                  that start 15 minutes past the hour, e.g. 12:15-13:15, 13:15-14:15... provide
+#' @param windowDuration a string specifying the width of the window, e.g.
+#'                       '1 second', '1 day 12 hours', '2 minutes'. Valid
+#'                       interval strings are 'week', 'day', 'hour', 'minute',
+#'                       'second', 'millisecond', 'microsecond'. Note that the
+#'                       duration is a fixed length of time, and does not vary
+#'                       over time according to a calendar. For example, '1 day'
+#'                       always means 86,400,000 milliseconds, not a calendar
+#'                       day.
+#' @param slideDuration a string specifying the sliding interval of the window.
+#'                      Same format as \code{windowDuration}. A new window will
+#'                      be generated every \code{slideDuration}. Must be less
+#'                      than or equal to the \code{windowDuration}. This
+#'                      duration is likewise absolute, and does not vary
+#'                      according to a calendar.
+#' @param startTime the offset with respect to 1970-01-01 00:00:00 UTC with
+#'                  which to start window intervals. For example, in order to
+#'                  have hourly tumbling windows that start 15 minutes past the
+#'                  hour, e.g. 12:15-13:15, 13:15-14:15... provide
 #'                  \code{startTime} as \code{"15 minutes"}.
 #' @rdname column_datetime_functions
 #' @aliases window window,Column-method
 #' @examples
 #'
 #' \dontrun{
-#' # One minute windows every 15 seconds 10 seconds after the minute, e.g. 09:00:10-09:01:10,
-#' # 09:00:25-09:01:25, 09:00:40-09:01:40, ...
+#' # One minute windows every 15 seconds 10 seconds after the minute, e.g.
+#' # 09:00:10-09:01:10, 09:00:25-09:01:25, 09:00:40-09:01:40, ...
 #' window(df$time, "1 minute", "15 seconds", "10 seconds")
 #'
-#' # One minute tumbling windows 15 seconds after the minute, e.g. 09:00:15-09:01:15,
-#' # 09:01:15-09:02:15...
+#' # One minute tumbling windows 15 seconds after the minute, e.g.
+#' # 09:00:15-09:01:15, 09:01:15-09:02:15...
 #' window(df$time, "1 minute", startTime = "15 seconds")
 #'
-#' # Thirty-second windows every 10 seconds, e.g. 09:00:00-09:00:30, 09:00:10-09:00:40, ...
+#' # Thirty-second windows every 10 seconds, e.g. 09:00:00-09:00:30,
+#' # 09:00:10-09:00:40, ...
 #' window(df$time, "30 seconds", "10 seconds")}
 #' @note window since 2.0.0
 #' @importFrom stats window
