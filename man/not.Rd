@@ -37,6 +37,7 @@ head(select(df, not(cast(df$flag, "boolean"))))
 }
 \seealso{
 Other non-aggregate functions: 
+\code{\link{column_nonaggregate_functions}},
 \code{\link{column}()}
 }
 \concept{non-aggregate functions}

@@ -33,9 +33,9 @@ first(df$c, TRUE)
 }
 \seealso{
 Other aggregate functions: 
+\code{\link{approxCountDistinct}()},
 \code{\link{avg}()},
 \code{\link{corr}()},
-\code{\link{cov}()},
 \code{\link{last}()}
 }
 \concept{aggregate functions}

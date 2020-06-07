@@ -13,8 +13,8 @@ corr(x, ...)
 \item{x}{a Column or a SparkDataFrame.}
 
 \item{...}{additional argument(s). If \code{x} is a Column, a Column
-should be provided. If \code{x} is a SparkDataFrame, two column names should
-be provided.}
+should be provided. If \code{x} is a SparkDataFrame, two column names
+should be provided.}
 
 \item{col2}{a (second) Column.}
 }
@@ -31,8 +31,8 @@ head(select(df, corr(df$mpg, df$hp)))}
 }
 \seealso{
 Other aggregate functions: 
+\code{\link{approxCountDistinct}()},
 \code{\link{avg}()},
-\code{\link{cov}()},
 \code{\link{first}()},
 \code{\link{last}()}
 }

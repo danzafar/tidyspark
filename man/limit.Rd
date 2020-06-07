@@ -4,7 +4,6 @@
 \alias{limit}
 \alias{head.spark_tbl}
 \alias{take}
-\alias{show}
 \title{Limit or show a sample of a \code{spark_tbl}}
 \usage{
 limit(.data, n)
@@ -12,8 +11,6 @@ limit(.data, n)
 \method{head}{spark_tbl}(x, ...)
 
 take(.data, n)
-
-show(.data, n = NULL)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}

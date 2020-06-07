@@ -27,7 +27,7 @@ value
 
 # these do the same thing:
 as.Column("derpin'")
-sparkumn("all day")
+as_Column("all day")
 lit("long")
 
 }

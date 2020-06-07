@@ -8,7 +8,7 @@ Authors@R: c(
 Maintainer: S Daniel Zafar <dan.zafar@databricks.com>
 Description: Provides a familiar interface for Spark, following tidyverse 
     syntax. Designed to be easy to understand and contribute to. Also 
-    implements the lower-level Spark API using pyspark-style R6 classes. 
+    implements the lower-level Spark API using PySpark-style R6 classes. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -20,9 +20,8 @@ Suggests:
     nycflights13,
     Lahman
 Imports:
-    SparkR,
     rlang,
-    lubridate,
+    tidyr,
     tidyselect,
     digest,
     R6,
@@ -38,25 +37,26 @@ Collate:
     'SparkSession.R'
     'apply.R'
     'base.R'
+    'generics.R'
     'columns.R'
     'dplyr.R'
     'dplyr_triple_colon.R'
     'fix_dot.R'
-    'generics.R'
+    'schema.R'
     'functions.R'
+    'hidden_functions.R'
     'if_else.R'
     'joins.R'
     'lubridate.R'
-    'n_context.R'
     'package-related.R'
     'rank_function_classes.R'
     'rdd.R'
     'read-write.R'
-    'schema.R'
     'spark.R'
     'sparkContext.R'
     'spark_new.R'
     'spark_tbl.R'
     'stats.R'
+    'streaming.R'
     'test-pivot.R'
     'utils.R'

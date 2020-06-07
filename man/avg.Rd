@@ -25,8 +25,8 @@ avg since 1.4.0
 }
 \seealso{
 Other aggregate functions: 
+\code{\link{approxCountDistinct}()},
 \code{\link{corr}()},
-\code{\link{cov}()},
 \code{\link{first}()},
 \code{\link{last}()}
 }
