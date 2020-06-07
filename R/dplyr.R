@@ -1,3 +1,5 @@
+#' @include columns.R
+
 #' @export
 #' @importFrom dplyr tbl_vars
 tbl_vars.spark_tbl <- function(x) {
@@ -185,8 +187,10 @@ mutate.spark_tbl <- function(.data, ...) {
 
     # add our .n() and others to the eval environment
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env,  n = .n,
-                    if_else = .if_else, case_when = .case_when)
+    rlang::env_bind(eval_env,
+                    n = .n, if_else = .if_else, case_when = .case_when,
+                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    lag = .lag, sd = .sd, var = .var)
     eval <- rlang::eval_tidy(dot, df_cols, eval_env)
 
     if (is_agg_expr(eval)) {
@@ -327,8 +331,10 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     df_cols_update <- get_jc_cols(sdf)
 
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env, n = .n,
-                    if_else = .if_else, case_when = .case_when)
+    rlang::env_bind(eval_env,
+                    n = .n, if_else = .if_else, case_when = .case_when,
+                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    lag = .lag, sd = .sd, var = .var)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
     conds[[i]] <- cond
 
@@ -409,8 +415,10 @@ summarise.spark_tbl <- function(.data, ...) {
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
 
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env, n = .n,
-                    if_else = .if_else, case_when = .case_when)
+    rlang::env_bind(eval_env,
+                    n = .n, if_else = .if_else, case_when = .case_when,
+                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    lag = .lag, sd = .sd, var = .var)
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
   }
 
@@ -454,42 +462,45 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 
 #' @export
 #' @importFrom rlang enquo
-piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
+#' @importFrom tidyr spread
+spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
+                             drop = TRUE, sep = NULL) {
   # these become the new col names
   group_var <- enquo(names_from)
   # these are currently aggregated but maybe not
   vals_var <-  enquo(values_from)
-  id_var   <-  enquo(id_cols) # this is how the data are id'd
+
+  # this aggreagates and drops everything else
+  sgd_in <- SparkR::agg(
+    call_method(group_spark_data(.data),
+                "pivot",
+                rlang::as_name(group_var)),
+    collect_list(lit(rlang::as_name(vals_var)))
+  )
 
 
-  if (is.null(id_cols)) {
-    # this aggreagates and drops everything else
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        SparkR::groupBy(attr(.data, "jc")),
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
-      )
-  } else {
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        group_spark_data(group_by(.data, !!id_var)),
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
-  }
 
   new_spark_tbl(sgd_in)
 
 }
 
-
 #' @export
 #' @importFrom tidyselect vars_select
 #' @importFrom rlang enquo
-piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
-  #idk I copied from tidyr
-  cols <- unname(tidyselect::vars_select(unique(names(data)),
-                                         !!enquo(cols)))
+#' @importFrom tidyr gather
+gather.spark_tbl <- function(data, key = "key", value = "value", ...,
+                             na.rm = FALSE, convert = FALSE,
+                             factor_key = FALSE) {
+  key_var <- as_string(ensym2(key))
+  value_var <- as_string(ensym2(value))
+  quos <- quos(...)
+
+  if (rlang::is_empty(quos)) {
+    gather_vars <- setdiff(names(data), c(key_var, value_var))
+  } else {
+    gather_vars <- unname(tidyselect::vars_select(tbl_vars(data),
+                                                  !!!quos))
+  }
 
   # names not being pivoted long
   non_pivot_cols <- names(data)[!(names(data) %in% cols)]
