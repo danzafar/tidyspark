@@ -1,9 +1,67 @@
 
+# Column Class
 
-other_functions <- c("like", "rlike", "getField", "getItem", "asc") #, "contains"
+#' @include generics.R
+NULL
 
-for (.f in other_functions) {
-  assign(.f, utils::getFromNamespace(.f, "SparkR"))
+#' S4 class that represents a SparkDataFrame column
+#'
+#' The column class supports unary, binary operations on SparkDataFrame columns
+#'
+#' @rdname column
+#'
+#' @slot jc reference to JVM SparkDataFrame column
+#' @note Column since 1.4.0
+setClass("Column",
+         slots = list(jc = "jobj"))
+
+#' A set of operations working with SparkDataFrame columns
+#' @rdname columnfunctions
+#' @name columnfunctions
+NULL
+
+setMethod("initialize", "Column", function(.Object, jc) {
+  .Object@jc <- jc
+  .Object
+})
+
+#' @rdname column
+#' @name column
+#' @aliases column,jobj-method
+setMethod("column",
+          signature(x = "jobj"),
+          function(x) {
+            new("Column", x)
+          })
+
+other_functions <- c("like", "rlike", "getField", "getItem")
+
+createColumnFunction1 <- function(name) {
+  setMethod(name,
+            signature(x = "Column"),
+            function(x) {
+              column(call_method(x@jc, name))
+            })
+}
+
+createColumnFunction2 <- function(name) {
+  setMethod(name,
+            signature(x = "Column"),
+            function(x, data) {
+              if (class(data) == "Column") {
+                data <- data@jc
+              }
+              jc <- call_method(x@jc, name, data)
+              new("Column", jc)
+            })
+}
+
+for (name in "asc") {
+  createColumnFunction1(name)
+}
+
+for (name in other_functions) {
+  createColumnFunction2(name)
 }
 
 #' @name Column-missing
