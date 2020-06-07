@@ -4,7 +4,7 @@
 \alias{as_datetime.Column}
 \title{Convert to datetime}
 \usage{
-as_datetime.Column(x, ...)
+as_datetime.Column(x)
 }
 \arguments{
 \item{x}{a Column object}

@@ -1,8 +1,10 @@
 
 # Column Class
 
-#' @include generics.R
+#' @include generics.R jobj.R
 NULL
+
+setOldClass("jobj")
 
 #' S4 class that represents a SparkDataFrame column
 #'
