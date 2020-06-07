@@ -1,4 +1,6 @@
 
+#' @include columns.R
+
 .if_else <- function(condition, true, false, ...) {
 
   if (inherits(condition, "Column")) {

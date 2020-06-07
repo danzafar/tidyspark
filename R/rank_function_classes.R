@@ -1,5 +1,6 @@
 # there's not much we can do in terms of avoiding namespace conflicts
 # with these functions, so instead we have to provide back-functionality
+#' @include columns.R
 
 #' Rank
 #'

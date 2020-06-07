@@ -1,3 +1,4 @@
+#' @include columns.R
 
 # create a low-level constructor for an new S3 class called "spark_tbl"
 # following tidy guidelines here https://adv-r.hadley.nz/s3.html#constructors
@@ -68,6 +69,10 @@ spark_tbl.data.frame <- function(.df, ...) {
 spark_tbl.SparkDataFrame <- function(.df, ...) {
   new_spark_tbl(.df@sdf, ...)
 }
+
+#' @export
+#' @rdname spark-tbl
+createDataFrame <- function(.df, ...) spark_tbl(.df, ...)
 
 #' @export
 #' @rdname spark-tbl
@@ -143,10 +148,16 @@ take <- function (.data, n) {
   collect(limited)
 }
 
+#' show
+#'
+#' If eager evaluation is enabled and the Spark object is a SparkDataFrame, evaluate the
+#' SparkDataFrame and print top rows of the SparkDataFrame, otherwise, print the class
+#' and type information of the Spark object.
+#'
 #' @param .data a \code{spark_tbl}
 #' @param n numeric, the number of rows to collect
 #' @export
-#' @rdname limit
+#' @rdname show
 #' @importFrom dplyr as_tibble
 show <- function(.data, n = NULL) {
 
