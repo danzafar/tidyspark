@@ -60,6 +60,8 @@
 \alias{tanh}
 \alias{toDegrees,Column-method}
 \alias{toDegrees}
+\alias{degrees,Column-method}
+\alias{degrees}
 \alias{toRadians,Column-method}
 \alias{toRadians}
 \alias{unhex,Column-method}
@@ -169,6 +171,8 @@ unhex(x)
 \S4method{tanh}{Column}(x)
 
 \S4method{toDegrees}{Column}(x)
+
+\S4method{degrees}{Column}(x)
 
 \S4method{toRadians}{Column}(x)
 
@@ -281,6 +285,9 @@ as if computed by \code{java.lang.Math.tanh()}.
 \code{toDegrees}: Converts an angle measured in radians to an approximately equivalent angle
 measured in degrees.
 
+\code{degrees}: Converts an angle measured in radians to an approximately equivalent angle
+measured in degrees.
+
 \code{toRadians}: Converts an angle measured in degrees to an approximately equivalent angle
 measured in radians.
 
@@ -364,6 +371,8 @@ tan since 1.5.0
 tanh since 1.5.0
 
 toDegrees since 1.4.0
+
+degrees since 3.0.0
 
 toRadians since 1.4.0
 

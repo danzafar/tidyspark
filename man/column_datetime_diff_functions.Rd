@@ -94,11 +94,12 @@ If \code{y} is later than \code{x}, then the result is positive. If \code{y} and
 are on the same day of month, or both are the last day of month, time of day will be ignored.
 Otherwise, the difference is calculated based on 31 days per month, and rounded to 8 digits.
 
-\code{date_format}: Converts a date/timestamp/string to a value of string in the format
-specified by the date format given by the second argument. A pattern could be for instance
-\code{dd.MM.yyyy} and could return a string like '18.03.1993'. All
-pattern letters of \code{java.text.SimpleDateFormat} can be used.
-Note: Use when ever possible specialized functions like \code{year}. These benefit from a
+\code{date_format}: Converts a date/timestamp/string to a value of string in
+the format specified by the date format given by the second argument. A
+pattern could be for instance
+\code{dd.MM.yyyy} and could return a string like '18.03.1993'. All pattern
+letters of \code{java.text.SimpleDateFormat} can be used. Note: Use when
+ever possible specialized functions like \code{year}. These benefit from a
 specialized implementation.
 
 \code{from_utc_timestamp}: This is a common function for databases

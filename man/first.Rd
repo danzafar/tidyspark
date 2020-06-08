@@ -10,6 +10,10 @@ first(x, ...)
 \S4method{first}{characterOrColumn}(x, na.rm = FALSE)
 }
 \arguments{
+\item{x}{a character or \code{Column} object}
+
+\item{...}{other arguments, currently unused}
+
 \item{na.rm}{a logical value indicating whether NA values should be stripped
 before the computation proceeds.}
 }

@@ -68,7 +68,7 @@ second.Column <- function(x, ...){
 
 #' @importFrom lubridate year
 week.Column <- function(x, ...){
-  tidyspark::date_trunc("week", x)
+  date_trunc("week", x)
 }
 
 #TODO: isoweek
@@ -76,7 +76,7 @@ week.Column <- function(x, ...){
 
 #' @importFrom lubridate quarter
 quarter.Column <- function(x, ...){
-  tidyspark::date_trunc("quarter", x)
+  date_trunc("quarter", x)
 }
 
 #TODO: semester

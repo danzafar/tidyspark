@@ -822,8 +822,10 @@ setMethod("expm1",
 #' Note: the function is non-deterministic because its results depends on order of rows which
 #' may be non-deterministic after a shuffle.
 #'
+#' @param x a character or \code{Column} object
 #' @param na.rm a logical value indicating whether NA values should be stripped
 #'        before the computation proceeds.
+#' @param ... other arguments, currently unused
 #'
 #' @rdname first
 #' @name first
@@ -1562,6 +1564,20 @@ setMethod("toDegrees",
           })
 
 #' @details
+#' \code{degrees}: Converts an angle measured in radians to an approximately equivalent angle
+#' measured in degrees.
+#'
+#' @rdname column_math_functions
+#' @aliases degrees degrees,Column-method
+#' @note degrees since 3.0.0
+setMethod("degrees",
+          signature(x = "Column"),
+          function(x) {
+            jc <- call_static("org.apache.spark.sql.functions", "degrees", x@jc)
+            new("Column", jc)
+          })
+
+#' @details
 #' \code{toRadians}: Converts an angle measured in degrees to an approximately equivalent angle
 #' measured in radians.
 #'
@@ -2082,7 +2098,7 @@ setMethod("from_json",
           signature(x = "Column", schema = "characterOrStructTypeOrColumn"),
           function(x, schema, as.json.array = FALSE, ...) {
             if (is.character(schema)) {
-              schema <- structType(schema)
+              schema <- StructType(schema)
             }
 
             if (as.json.array) {
@@ -2513,6 +2529,34 @@ setMethod("from_unixtime", signature(x = "Column"),
             jc <- call_static("org.apache.spark.sql.functions",
                               "from_unixtime",
                               x@jc, format)
+            new("Column", jc)
+          })
+
+#' @details
+#' \code{when}: Evaluates a list of conditions and returns one of multiple possible result
+#' expressions. For unmatched expressions null is returned.
+#'
+#' @rdname column_nonaggregate_functions
+#' @param condition the condition to test on. Must be a Column expression.
+#' @param value result expression.
+#' @aliases when when,Column-method
+#' @examples
+#'
+#' \dontrun{
+#' tmp <- mutate(df, mpg_na = otherwise(when(df$mpg > 20, df$mpg), lit(NaN)),
+#'                   mpg2 = ifelse(df$mpg > 20 & df$am > 0, 0, 1),
+#'                   mpg3 = ifelse(df$mpg > 20, df$mpg, 20.0))
+#' head(tmp)
+#' tmp <- mutate(tmp, ind_na1 = is.nan(tmp$mpg_na), ind_na2 = isnan(tmp$mpg_na))
+#' head(select(tmp, coalesce(tmp$mpg_na, tmp$mpg)))
+#' head(select(tmp, nanvl(tmp$mpg_na, tmp$hp)))}
+#' @note when since 1.5.0
+setMethod("when", signature(condition = "Column", value = "ANY"),
+          function(condition, value) {
+            condition <- condition@jc
+            value <- if (class(value) == "Column") { value@jc } else { value }
+            jc <- call_static("org.apache.spark.sql.functions", "when",
+                              condition, value)
             new("Column", jc)
           })
 
@@ -3703,7 +3747,8 @@ setMethod("split_string",
 setMethod("repeat_string",
           signature(x = "Column", n = "numeric"),
           function(x, n) {
-            jc <- call_static("org.apache.spark.sql.functions", "repeat", x@jc, numToInt(n))
+            jc <- call_static("org.apache.spark.sql.functions", "repeat",
+                              x@jc, num_to_int(n))
             new("Column", jc)
           })
 
@@ -3891,13 +3936,18 @@ setMethod("trunc",
 #' @examples
 #'
 #' \dontrun{
-#' head(select(df, df$time, date_trunc("hour", df$time), date_trunc("minute", df$time),
-#'             date_trunc("week", df$time), date_trunc("quarter", df$time)))}
+#' head(select(df, df$time,
+#'                 date_trunc("hour", df$time),
+#'                 date_trunc("minute", df$time),
+#'                 date_trunc("week", df$time),
+#'                 date_trunc("quarter", df$time)))
+#' }
 #' @note date_trunc since 2.3.0
 setMethod("date_trunc",
           signature(format = "character", x = "Column"),
           function(format, x) {
-            jc <- call_static("org.apache.spark.sql.functions", "date_trunc", format, x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "date_trunc",
+                              format, x@jc)
             new("Column", jc)
           })
 

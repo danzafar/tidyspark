@@ -189,7 +189,7 @@ schema_of_json(x, ...)
 
 shuffle(x)
 
-size(x, ...)
+size(x)
 
 slice(x, start, length)
 
@@ -366,8 +366,9 @@ into accumulator (the first argument).}
 
 \item{extraction}{index to check for in array or key to check for in map}
 
-\item{schema}{a structType object to use as the schema to use when parsing the JSON string.
-Since Spark 2.3, the DDL-formatted string is also supported for the schema.}
+\item{schema}{a structType object to use as the schema to use when parsing
+the JSON string. Since Spark 2.3, the DDL-formatted string is
+also supported for the schema.}
 
 \item{start}{the starting index}
 
@@ -377,7 +378,8 @@ Since Spark 2.3, the DDL-formatted string is also supported for the schema.}
 TRUE, sorting is in ascending order.
 FALSE, sorting is in descending order.}
 
-\item{as.json.array}{indicating if input string is JSON array of objects or a single object.}
+\item{as.json.array}{indicating if input string is JSON array of objects or
+a single object.}
 
 \item{finish}{an unary \code{function} \code{(Column) -> Column} used to
 apply final transformation on the accumulated data in \code{array_aggregate}.}
@@ -401,9 +403,10 @@ is encountered.
 \code{concat}: Concatenates multiple input columns together into a single column.
 The function works with strings, binary and compatible array columns.
 
-\code{from_json}: Parses a column containing a JSON string into a Column of \code{structType}
-with the specified \code{schema} or array of \code{structType} if \code{as.json.array} is set
-to \code{TRUE}. If the string is unparseable, the Column will contain the value NA.
+\code{from_json}: Parses a column containing a JSON string into a Column of
+\code{structType} with the specified \code{schema} or array of
+\code{structType} if \code{as.json.array} is set to \code{TRUE}. If the
+string is unparseable, the Column will contain the value NA.
 
 \code{schema_of_json}: Parses a JSON string and infers its schema in DDL format.
 

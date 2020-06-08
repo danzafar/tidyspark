@@ -36,35 +36,51 @@ setMethod("column",
             new("Column", x)
           })
 
-other_functions <- c("like", "rlike", "getField", "getItem")
+setMethod("asc",
+          signature(x = "Column"),
+          function(x) {
+            column(call_method(x@jc, "asc"))
+          })
 
-createColumnFunction1 <- function(name) {
-  setMethod(name,
-            signature(x = "Column"),
-            function(x) {
-              column(call_method(x@jc, name))
-            })
-}
+setMethod("like",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "like", data)
+            new("Column", jc)
+          })
 
-createColumnFunction2 <- function(name) {
-  setMethod(name,
-            signature(x = "Column"),
-            function(x, data) {
-              if (class(data) == "Column") {
-                data <- data@jc
-              }
-              jc <- call_method(x@jc, name, data)
-              new("Column", jc)
-            })
-}
+setMethod("rlike",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "rlike", data)
+            new("Column", jc)
+          })
 
-for (name in "asc") {
-  createColumnFunction1(name)
-}
+setMethod("getField",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "getField", data)
+            new("Column", jc)
+          })
 
-for (name in other_functions) {
-  createColumnFunction2(name)
-}
+setMethod("getItem",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "getItem", data)
+            new("Column", jc)
+          })
 
 #' @name Column-missing
 #'
@@ -85,14 +101,6 @@ setMethod("is.na", signature(x = "Column"),
             new("Column", call_method(x@jc, "isNull"))
           })
 
-#' @export
-#' @rdname Column-missing
-#' @importFrom methods new
-setMethod("is.nan", signature(x = "Column"),
-          function(x) {
-            new("Column", call_method(x@jc, "isNaN"))
-          })
-
 #' @name Column-functions
 #'
 #' @title Column Functions
@@ -105,15 +113,6 @@ setMethod("is.nan", signature(x = "Column"),
 #'
 #' @rdname Column-functions
 NULL
-
-#' @export
-#' @rdname Column-functions
-#' @importFrom methods new
-setMethod("mean", signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
-            new("Column", jc)
-          })
 
 #' @rdname Column-functions
 #' @export
@@ -556,24 +555,6 @@ any.Column <- function(x, ...) {
   true_jc <- call_static("org.apache.spark.sql.functions",
                                   "lit", T)
   new("Column", call_method(jc, "equalTo", true_jc))
-}
-
-#' Size
-#'
-#' @description [under construction]
-#'
-#' @param x Column to compute on
-#' @param ... additional argument(s)
-#'
-#' @export
-size <- function(x, ...) {
-  UseMethod("size")
-}
-
-#' @export
-size.Column <- function(x, ...) {
-  jc <- call_static("org.apache.spark.sql.functions", "size", x@jc)
-  new("Column", jc)
 }
 
 #' Create a Column of literal value

@@ -438,8 +438,8 @@ spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
 gather.spark_tbl <- function(data, key = "key", value = "value", ...,
                              na.rm = FALSE, convert = FALSE,
                              factor_key = FALSE) {
-  key_var <- as_string(ensym2(key))
-  value_var <- as_string(ensym2(value))
+  key_var <- rlang::as_string(ensym2(key))
+  value_var <- rlang::as_string(ensym2(value))
   quos <- quos(...)
 
   if (rlang::is_empty(quos)) {

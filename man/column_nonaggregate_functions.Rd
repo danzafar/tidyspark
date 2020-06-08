@@ -24,6 +24,8 @@
 \alias{least}
 \alias{expr,character-method}
 \alias{expr}
+\alias{when,Column-method}
+\alias{when}
 \alias{rand,missing-method}
 \alias{rand}
 \alias{rand,numeric-method}
@@ -92,6 +94,8 @@ struct(x, ...)
 
 \S4method{expr}{character}(x)
 
+\S4method{when}{Column}(condition, value)
+
 \S4method{rand}{missing}(seed)
 
 \S4method{rand}{numeric}(seed)
@@ -107,6 +111,10 @@ struct(x, ...)
 \S4method{input_file_name}{missing}()
 }
 \arguments{
+\item{condition}{the condition to test on. Must be a Column expression.}
+
+\item{value}{result expression.}
+
 \item{x}{Column to compute on. In \code{lit}, it is a literal value or a
 Column. In \code{expr}, it contains an expression character object
 to be parsed.}
@@ -161,6 +169,9 @@ This function takes at least 2 parameters. It will return null if all parameters
 \code{expr}: Parses the expression string into the column that it
 represents, similar to \code{SparkDataFrame.selectExpr}
 
+\code{when}: Evaluates a list of conditions and returns one of multiple possible result
+expressions. For unmatched expressions null is returned.
+
 \code{rand}: Generates a random column with independent and identically distributed (i.i.d.)
 samples from U[0.0, 1.0].
 Note: the function is non-deterministic in general case.
@@ -201,6 +212,8 @@ least since 1.5.0
 
 expr since 1.5.0
 
+when since 1.5.0
+
 rand since 1.5.0
 
 rand(numeric) since 1.5.0
@@ -232,6 +245,15 @@ tmp <- mutate(df, v1 = struct(df$mpg, df$cyl), v2 = struct("hp", "wt", "vs"),
                   v3 = create_array(df$mpg, df$cyl, df$hp),
                   v4 = create_map(lit("x"), lit(1.0), lit("y"), lit(-1.0)))
 head(tmp)}
+
+\dontrun{
+tmp <- mutate(df, mpg_na = otherwise(when(df$mpg > 20, df$mpg), lit(NaN)),
+                  mpg2 = ifelse(df$mpg > 20 & df$am > 0, 0, 1),
+                  mpg3 = ifelse(df$mpg > 20, df$mpg, 20.0))
+head(tmp)
+tmp <- mutate(tmp, ind_na1 = is.nan(tmp$mpg_na), ind_na2 = isnan(tmp$mpg_na))
+head(select(tmp, coalesce(tmp$mpg_na, tmp$mpg)))
+head(select(tmp, nanvl(tmp$mpg_na, tmp$hp)))}
 
 \dontrun{
 tmp <- mutate(df, r1 = rand(), r2 = rand(10), r3 = randn(), r4 = randn(10))

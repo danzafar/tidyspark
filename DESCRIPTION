@@ -21,12 +21,13 @@ Suggests:
     nycflights13,
     Lahman
 Imports:
-    rlang,
-    lubridate,
-    tidyselect,
     digest,
-    R6,
+    lubridate,
     methods,
+    R6,
+    rlang,
+    tidyr,
+    tidyselect,
     utils
 Depends: 
     R (>= 3.1),
