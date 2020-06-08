@@ -206,7 +206,7 @@ check_suffix <- function(x) {
 # tidyr-related ----------------------------------------------------------------
 ensym2 <- function (arg) {
   arg <- rlang::ensym(arg)
-  expr <- rlang::eval_bare(expr(enquo(!!arg)), rlang::caller_env())
+  expr <- rlang::eval_bare(rlang::expr(enquo(!!arg)), rlang::caller_env())
   expr <- rlang::quo_get_expr(expr)
   if (rlang::is_string(expr)) {
     rlang::sym(expr)

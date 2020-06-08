@@ -433,42 +433,39 @@ spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
 
 #' @export
 #' @importFrom tidyselect vars_select
-#' @importFrom rlang enquo
+#' @importFrom rlang enquo as_string
 #' @importFrom tidyr gather
-gather.spark_tbl <- function(data, key = "key", value = "value", ...,
+gather.spark_tbl <- function(.data, key = "key", value = "value", ...,
                              na.rm = FALSE, convert = FALSE,
                              factor_key = FALSE) {
-  key_var <- rlang::as_string(ensym2(key))
-  value_var <- rlang::as_string(ensym2(value))
+
+  key_var <- as_string(ensym2(key))
+  value_var <- as_string(ensym2(value))
   quos <- quos(...)
 
   if (rlang::is_empty(quos)) {
-    gather_vars <- setdiff(names(data), c(key_var, value_var))
+    cols <- setdiff(names(.data), c(key_var, value_var))
   } else {
-    gather_vars <- unname(tidyselect::vars_select(tbl_vars(data),
-                                                  !!!quos))
+    cols <- unname(vars_select(tbl_vars(.data), !!!quos))
   }
 
   # names not being pivoted long
-  non_pivot_cols <- names(data)[!(names(data) %in% cols)]
+  non_pivot_cols <- names(.data)[!(names(.data) %in% cols)]
   stack_fn_arg1 <- length(cols)
   cols_str <- shQuote(cols)
   stack_fn_arg2 <- c()
 
   for (i in 1:length(cols)) {
     arg <- paste(cols_str[i], cols[i], sep = ", ")
-
     stack_fn_arg2 <- c(stack_fn_arg2, arg)
   }
 
   stack_query <- paste0("stack(", stack_fn_arg1, ", ",
                         paste(stack_fn_arg2, collapse = ", "),
-                        ") as (", names_to, ", ", values_to, ")")
+                        ") as (", key_var, ", ", value_var, ")")
 
-  expr_list <- c(stack_query, non_pivot_cols)
-  sdf <- attr(data, "jc")
-  sdf_jc <- call_method(sdf@sdf, "selectExpr", as.list(expr_list))
-  sdf_out <- new("SparkDataFrame", sdf_jc, F)
-  new_spark_tbl(sdf_out)
+  expr_list <- c(non_pivot_cols, stack_query)
+  sdf <- call_method(attr(.data, "jc"), "selectExpr", as.list(expr_list))
+  new_spark_tbl(sdf)
 
 }
