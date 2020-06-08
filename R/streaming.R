@@ -189,3 +189,210 @@ setMethod("stopQuery",
           function(x) {
             invisible(call_method(x@ssq, "stop"))
           })
+
+#' Load a streaming SparkDataFrame
+#'
+#' Returns the dataset in a data source as a SparkDataFrame
+#'
+#' The data source is specified by the \code{source} and a set of options(...).
+#' If \code{source} is not specified, the default data source configured by
+#' "spark.sql.sources.default" will be used.
+#'
+#' @param source The name of external data source
+#' @param schema The data schema defined in structType or a DDL-formatted string, this is
+#'               required for file-based streaming data source
+#' @param ... additional external data source specific named options, for instance \code{path} for
+#'        file-based streaming data source. \code{timeZone} to indicate a timezone to be used to
+#'        parse timestamps in the JSON/CSV data sources or partition values; If it isn't set, it
+#'        uses the default value, session local timezone.
+#' @return SparkDataFrame
+#' @rdname read.stream
+#' @name read.stream
+#' @seealso \link{write.stream}
+#' @examples
+#'\dontrun{
+#' spark_session()
+#' df <- read_stream("socket", host = "localhost", port = 9999)
+#' q <- write_stream(df, "text", path = "/home/user/out", checkpointLocation = "/home/user/cp")
+#'
+#' df <- read_stream("json", path = jsonDir, schema = schema, maxFilesPerTrigger = 1)
+#' stringSchema <- "name STRING, info MAP<STRING, DOUBLE>"
+#' df1 <- read_stream("json", path = jsonDir, schema = stringSchema, maxFilesPerTrigger = 1)
+#' }
+#' @note read.stream since 2.2.0
+#' @note experimental
+read_stream <- function(source = NULL, schema = NULL, ...) {
+  sparkSession <- get_spark_session()
+  if (!is.null(source) && !is.character(source)) {
+    stop("source should be character, NULL or omitted. It is the data source specified ",
+         "in 'spark.sql.sources.default' configuration by default.")
+  }
+  if (is.null(source)) {
+    source <- getDefaultSqlSource()
+  }
+  options <- varargsToStrEnv(...)
+  read <- call_method(sparkSession, "readStream")
+  read <- call_method(read, "format", source)
+  if (!is.null(schema)) {
+    if (class(schema) == "structType") {
+      read <- call_method(read, "schema", schema$jobj)
+    } else if (is.character(schema)) {
+      read <- call_method(read, "schema", schema)
+    } else {
+      stop("schema should be structType or character.")
+    }
+  }
+  read <- call_method(read, "options", options)
+  sdf <- call_method_handled(read, "load")
+  new_spark_tbl(sdf)
+}
+
+#' isStreaming
+#'
+#' Returns TRUE if this SparkDataFrame contains one or more sources that continuously return data
+#' as it arrives. A dataset that reads data from a streaming source must be executed as a
+#' \code{StreamingQuery} using \code{write.stream}.
+#'
+#' @param .data a \code{spark_tbl}
+#' @return TRUE if this SparkDataFrame is from a streaming source
+#' @family SparkDataFrame functions
+#' @aliases isStreaming,SparkDataFrame-method
+#' @rdname isStreaming
+#' @name isStreaming
+#' @seealso \link{read.stream} \link{write.stream}
+#' @examples
+#'\dontrun{
+#' spark_session()
+#' df <- read_stream("socket", host = "localhost", port = 9999)
+#' is_Streaming(df)
+#' }
+#' @note isStreaming since 2.2.0
+#' @note experimental
+is_streaming <- function(.data) {
+  stopifnot(inherits(.data, "spark_tbl"))
+  call_method(attr(.data, "jc"), "isStreaming")
+}
+
+#' Write the streaming SparkDataFrame to a data source.
+#'
+#' The data source is specified by the \code{source} and a set of options (...).
+#' If \code{source} is not specified, the default data source configured by
+#' spark.sql.sources.default will be used.
+#'
+#' Additionally, \code{outputMode} specifies how data of a streaming SparkDataFrame is written to a
+#' output data source. There are three modes:
+#' \itemize{
+#'   \item append: Only the new rows in the streaming SparkDataFrame will be written out. This
+#'                 output mode can be only be used in queries that do not contain any aggregation.
+#'   \item complete: All the rows in the streaming SparkDataFrame will be written out every time
+#'                   there are some updates. This output mode can only be used in queries that
+#'                   contain aggregations.
+#'   \item update: Only the rows that were updated in the streaming SparkDataFrame will be written
+#'                 out every time there are some updates. If the query doesn't contain aggregations,
+#'                 it will be equivalent to \code{append} mode.
+#' }
+#'
+#' @param .data a \code{spark_tbl}
+#' @param source a name for external data source.
+#' @param outputMode one of 'append', 'complete', 'update'.
+#' @param partitionBy a name or a list of names of columns to partition the output by on the file
+#'        system. If specified, the output is laid out on the file system similar to Hive's
+#'        partitioning scheme.
+#' @param trigger.processingTime a processing time interval as a string, e.g. '5 seconds',
+#'        '1 minute'. This is a trigger that runs a query periodically based on the processing
+#'        time. If value is '0 seconds', the query will run as fast as possible, this is the
+#'        default. Only one trigger can be set.
+#' @param trigger.once a logical, must be set to \code{TRUE}. This is a trigger that processes only
+#'        one batch of data in a streaming query then terminates the query. Only one trigger can be
+#'        set.
+#' @param ... additional external data source specific named options.
+#'
+#' @family SparkDataFrame functions
+#' @seealso \link{read.stream}
+#' @aliases write.stream,SparkDataFrame-method
+#' @rdname write.stream
+#' @name write.stream
+#' @examples
+#'\dontrun{
+#' spark_session()
+#' df <- read_stream("socket", host = "localhost", port = 9999)
+#' is_streaming(df)
+#' wordCounts <- df %>%
+#'   group_by(df, value) %>%
+#'   count
+#'
+#' # console
+#' q <- write_stream(wordCounts, "console", outputMode = "complete")
+#' # text stream
+#' q <- write_stream(df, "text", path = "/home/user/out",
+#'                   checkpointLocation = "/home/user/cp"
+#'                   partitionBy = c("year", "month"),
+#'                   trigger.processingTime = "30 seconds")
+#' # memory stream
+#' q <- write_stream(wordCounts, "memory", queryName = "outs",
+#'                   outputMode = "complete")
+#' head(spark_sql("SELECT * from outs"))
+#' queryName(q)
+#'
+#' stopQuery(q)
+#' }
+#' @note write.stream since 2.2.0
+#' @note experimental
+write_stream <- function(.data, source = NULL, outputMode = NULL,
+                         partitionBy = NULL, trigger.processingTime = NULL,
+                         trigger.once = NULL, ...) {
+
+  stopifnot(inherits(.data, "spark_tbl"))
+
+  if (!is.null(source) && !is.character(source)) {
+    stop("source should be character, NULL or omitted. It is the ",
+         "data source specified in 'spark.sql.sources.default' ",
+         "configuration by default.")
+  }
+  if (!is.null(outputMode) && !is.character(outputMode)) {
+    stop("outputMode should be character or omitted.")
+  }
+  if (is.null(source)) {
+    source <- getDefaultSqlSource()
+  }
+  cols <- NULL
+  if (!is.null(partitionBy)) {
+    if (!all(sapply(partitionBy, function(c) { is.character(c) }))) {
+      stop("All partitionBy column names should be characters.")
+    }
+    cols <- as.list(partitionBy)
+  }
+  jtrigger <- NULL
+  if (!is.null(trigger.processingTime) && !is.na(trigger.processingTime)) {
+    if (!is.null(trigger.once)) {
+      stop("Multiple triggers not allowed.")
+    }
+    interval <- as.character(trigger.processingTime)
+    if (nchar(interval) == 0) {
+      stop("Value for trigger.processingTime must be a non-empty string.")
+    }
+    jtrigger <- call_static_handled("org.apache.spark.sql.streaming.Trigger",
+                                    "ProcessingTime",
+                                    interval)
+  } else if (!is.null(trigger.once) && !is.na(trigger.once)) {
+    if (!is.logical(trigger.once) || !trigger.once) {
+      stop("Value for trigger.once must be TRUE.")
+    }
+    jtrigger <- call_static("org.apache.spark.sql.streaming.Trigger", "Once")
+  }
+  options <- varargsToStrEnv(...)
+  write <- call_method_handled(attr(.data, "jc"), "writeStream")
+  write <- call_method(write, "format", source)
+  if (!is.null(outputMode)) {
+    write <- call_method(write, "outputMode", outputMode)
+  }
+  if (!is.null(cols)) {
+    write <- call_method(write, "partitionBy", cols)
+  }
+  if (!is.null(jtrigger)) {
+    write <- call_method(write, "trigger", jtrigger)
+  }
+  write <- call_method(write, "options", options)
+  ssq <- call_method_handled(write, "start")
+  streamingQuery(ssq)
+}
