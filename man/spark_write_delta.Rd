@@ -4,7 +4,8 @@
 \alias{spark_write_delta}
 \title{Write a \code{spark_tbl} to a Delta file}
 \usage{
-spark_write_delta(.data, path, mode = "error", partition_by = NULL, ...)
+spark_write_delta(.data, path, mode = "error", partition_by = NULL,
+  ...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}

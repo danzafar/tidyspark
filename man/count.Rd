@@ -19,14 +19,14 @@ lag.default <- function(x, offset = 1, defaultValue = NULL) {
 #' @importFrom dplyr lag
 lag.Column <- function(x, offset = 1, defaultValue = NULL) {
 
-  col <- if (class(x) == "Column") {
+col <- if (class(x) == "Column") {
     x@jc
   } else {
     x
   }
 
-  jc <- call_static("org.apache.spark.sql.functions", "lag", col, as.integer(offset), defaultValue)
+jc <- call_static("org.apache.spark.sql.functions", "lag", col, as.integer(offset), defaultValue)
 
-  new("Column", jc)
+new("Column", jc)
 }
 }
