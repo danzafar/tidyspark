@@ -59,7 +59,7 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 #' df <- spark_tbl(t)
 #' model <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian")
 #' summary(model)
-ml_glm <- function(data, formula, family = gaussian, tol = 1e-06,
+ml_glm <- function(data, formula, family = "gaussian", tol = 1e-06,
                        maxIter = 25, weightCol = NULL, regParam = 0, var.power = 0,
                        link.power = 1 - var.power, stringIndexerOrderType = c("frequencyDesc",
                                                                               "frequencyAsc", "alphabetDesc", "alphabetAsc"), offsetCol = NULL) {
@@ -1073,12 +1073,13 @@ ml_mlp <- function(data, formula, layers, blockSize = 128,
   new("MultilayerPerceptronClassificationModel", jobj = jobj)
 }
 
+#' importFrom("utils", "tail")
 setMethod("summary", signature(object = "MultilayerPerceptronClassificationModel"),
           function(object) {
             jobj <- object@jobj
             layers <- unlist(call_method(jobj, "layers"))
-            numOfInputs <- head(layers, n = 1)
-            numOfOutputs <- tail(layers, n = 1)
+            numOfInputs <- utils::head(layers, n = 1)
+            numOfOutputs <- utils::tail(layers, n = 1)
             weights <- call_method(jobj, "weights")
             list(numOfInputs = numOfInputs, numOfOutputs = numOfOutputs,
                  layers = layers, weights = weights)
