@@ -391,44 +391,31 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
   new_spark_tbl(sdf)
 }
 
-# pivots
-
 #' @export
 #' @importFrom rlang enquo
 #' @importFrom tidyr spread
 spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
                              drop = TRUE, sep = NULL) {
   # these become the new col names
-  group_var <- enquo(names_from)
+  group_var <- enquo(key)
   # these are currently aggregated but maybe not
-  vals_var <-  enquo(values_from)
+  vals_var <-  enquo(value)
 
-  # this aggreagates and drops everything else
-  sgd_in <- SparkR::agg(
-    call_method(group_spark_data(.data),
-                "pivot",
-                rlang::as_name(group_var)),
-    collect_list(lit(rlang::as_name(vals_var)))
-  )
+  # get the columns that don't spread
+  static <- names(.data)[!(names(.data) %in% c(rlang::quo_name(group_var),
+                                               rlang::quo_name(vals_var)))]
 
-  if (is.null(id_cols)) {
-    # this aggreagates and drops everything else
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        SparkR::groupBy(attr(.data, "jc")),
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
-      )
-  } else {
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        group_spark_data(group_by(.data, !!id_var)), # DZ: group_spark_data is diff now
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
-  }
+  sdf <-
+    call_method(
+      call_method(
+        call_method(
+          attr(.data, "jc"),
+          "groupBy", static[[1]], as.list(static[-1])),
+        "pivot", rlang::as_name(group_var)),
+      "agg", collect_list(collect_set(col(rlang::as_name(vals_var)))@jc,
+                         "getItem", 0L), list())
 
-  new_spark_tbl(sgd_in)
-
+  new_spark_tbl(sdf)
 }
 
 #' @export
