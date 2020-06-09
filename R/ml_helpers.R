@@ -9,5 +9,9 @@ approxQuantile <- function(x, cols, probabilities, relativeError) {
     else {
       quantiles
     }
-  }
+}
+
+predict_internal <- function(object, newData) {
+    new_spark_tbl(call_method(object@jobj, "transform", newData@sdf))
+}
 

@@ -52,6 +52,7 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 #' @return \code{spark.glm} returns a fitted generalized linear model.
 #' @rdname spark.glm
 #' @name spark.glm
+#' @importFrom stats gaussian
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -59,7 +60,8 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 #' df <- spark_tbl(t)
 #' model <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian")
 #' summary(model)
-ml_glm <- function(data, formula, family = gaussian, tol = 1e-06,
+#'
+ml_glm <- function(data, formula, family = "gaussian", tol = 1e-06,
                        maxIter = 25, weightCol = NULL, regParam = 0, var.power = 0,
                        link.power = 1 - var.power, stringIndexerOrderType = c("frequencyDesc",
                                                                               "frequencyAsc", "alphabetDesc", "alphabetAsc"), offsetCol = NULL) {
@@ -150,7 +152,7 @@ print.summary.GeneralizedLinearRegressionModel <- function(x, ...) {
   if (x$is.loaded) {
     cat("\nSaved-loaded model does not support output 'Deviance Residuals'.\n")
   } else {
-    x$deviance.resid <- setNames(unlist(SparkR::approxQuantile(x$deviance.resid, "devianceResiduals",
+    x$deviance.resid <- setNames(unlist(approxQuantile(x$deviance.resid, "devianceResiduals",
                                                        c(0.0, 0.25, 0.5, 0.75, 1.0), 0.01)), c("Min", "1Q", "Median", "3Q", "Max"))
     x$deviance.resid <- zapsmall(x$deviance.resid, 5L)
     cat("\nDeviance Residuals: \n")
@@ -1073,6 +1075,8 @@ ml_mlp <- function(data, formula, layers, blockSize = 128,
   new("MultilayerPerceptronClassificationModel", jobj = jobj)
 }
 
+#' importFrom("stats", "na.omit")
+#' importFrom("utils", "tail")
 setMethod("summary", signature(object = "MultilayerPerceptronClassificationModel"),
           function(object) {
             jobj <- object@jobj
