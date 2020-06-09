@@ -1,4 +1,6 @@
 
+spark_session(master = "local[1]")
+
 # CSV -------------------------------------------------------------------------
 test_that("read csvs", {
   # write files to disk that can be used
@@ -87,6 +89,8 @@ test_that("read/write orc", {
       collect,
     iris_fix)
 })
+#' @include columns.R
+NULL
 
 # PARQUET ---------------------------------------------------------------------
 test_that("read parquet", {
@@ -178,3 +182,5 @@ test_that("saveAsTable and insertInto work", {
     300
   )
 })
+
+spark_session_stop()

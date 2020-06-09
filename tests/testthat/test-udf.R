@@ -1,9 +1,11 @@
+spark_session(master = "local[1]")
+iris_tbl <- spark_tbl(iris)
+iris_fix <- iris %>%
+  setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+  mutate(Species = levels(Species)[Species])
 
+# spark_udf works --------------------------------------------------------------
 test_that("spark_udf works", {
-  iris_tbl <- spark_tbl(iris)
-  iris_fix <- iris %>%
-    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
-    mutate(Species = levels(Species)[Species])
 
   expect_equal(
     iris_tbl %>%
@@ -26,11 +28,8 @@ test_that("spark_udf works", {
 
 })
 
+# spark_udf works with dplyr/purrr formulas-------------------------------------
 test_that("spark_udf works with dplyr/purrr formulas", {
-  iris_tbl <- spark_tbl(iris)
-  iris_fix <- iris %>%
-    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
-    mutate(Species = levels(Species)[Species])
 
   expect_equal(
     iris_tbl %>%
@@ -40,12 +39,8 @@ test_that("spark_udf works with dplyr/purrr formulas", {
   )
 })
 
-### spark_udf broadcasts values ---------------------------------------------------
+### spark_udf broadcasts values ------------------------------------------------
 test_that("spark_udf broadcasts values", {
-  iris_tbl <- spark_tbl(iris)
-  iris_fix <- iris %>%
-    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
-    mutate(Species = levels(Species)[Species])
 
   .some_int <- 3
 
@@ -62,10 +57,6 @@ test_that("spark_udf broadcasts values", {
 
 ### spark_udf docs are sound ---------------------------------------------------
 test_that("spark_udf docs are sound", {
-  iris_tbl <- spark_tbl(iris)
-  iris_fix <- iris %>%
-    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
-    mutate(Species = levels(Species)[Species])
 
   # note, my_var will be broadcasted if we include it in the function
   my_var <- 1
@@ -195,3 +186,5 @@ test_that("spark_lapply docs are sound", {
                as.list((1:10) * 2))
 
 })
+
+spark_session_stop()

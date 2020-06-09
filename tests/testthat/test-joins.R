@@ -1,3 +1,5 @@
+spark_session(master = "local[1]")
+
 iris <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
@@ -126,3 +128,4 @@ test_that("joins matches NAs by default", {
   expect_equal(nrow(semi_join(df1, df2, by = "x") %>% collect), 1)
 })
 
+spark_session_stop()

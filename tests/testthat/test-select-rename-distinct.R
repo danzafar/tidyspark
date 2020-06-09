@@ -1,3 +1,5 @@
+spark_session(master = "local[1]")
+
 iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
   mutate(Species = levels(Species)[Species])
@@ -147,4 +149,5 @@ test_that("grouped distinct works", {
                  distinct)
 })
 
+spark_session_stop()
 

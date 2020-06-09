@@ -1,4 +1,6 @@
 
+spark_session(master = local[1])
+
 test_that("cache works", {
 
   iris_tbl <- spark_tbl(iris)
@@ -29,3 +31,5 @@ test_that("persist works", {
                "MEMORY_ONLY_2 - StorageLevel(memory, deserialized, 2 replicas)")
 
 })
+
+spark_session_stop()

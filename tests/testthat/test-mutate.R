@@ -1,3 +1,4 @@
+spark_session(master = "local[1]")
 
 iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
@@ -68,4 +69,6 @@ test_that("Mutate with mutiple args works", {
       mutate(tot_Sepal_Petal = Sepal_Area^2 + Petal_Area^3)
   )
 })
+
+spark_session_stop()
 

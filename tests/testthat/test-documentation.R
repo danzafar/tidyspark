@@ -1,3 +1,4 @@
+spark_session(master = "local[1]")
 
 iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
@@ -65,3 +66,4 @@ test_that("window function", {
                  mutate(teamID = levels(teamID)[teamID]))
 })
 
+spark_session_stop()
