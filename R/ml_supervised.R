@@ -109,22 +109,22 @@ ml_glm <- function(data, formula, family = gaussian, tol = 1e-06,
 setMethod("summary", signature(object = "GeneralizedLinearRegressionModel"),
           function(object) {
             jobj <- object@jobj
-            is.loaded <- callJMethod(jobj, "isLoaded")
-            features <- callJMethod(jobj, "rFeatures")
-            coefficients <- callJMethod(jobj, "rCoefficients")
-            dispersion <- callJMethod(jobj, "rDispersion")
-            null.deviance <- callJMethod(jobj, "rNullDeviance")
-            deviance <- callJMethod(jobj, "rDeviance")
-            df.null <- callJMethod(jobj, "rResidualDegreeOfFreedomNull")
-            df.residual <- callJMethod(jobj, "rResidualDegreeOfFreedom")
-            iter <- callJMethod(jobj, "rNumIterations")
-            family <- callJMethod(jobj, "rFamily")
-            aic <- callJMethod(jobj, "rAic")
+            is.loaded <- call_method(jobj, "isLoaded")
+            features <- call_method(jobj, "rFeatures")
+            coefficients <- call_method(jobj, "rCoefficients")
+            dispersion <- call_method(jobj, "rDispersion")
+            null.deviance <- call_method(jobj, "rNullDeviance")
+            deviance <- call_method(jobj, "rDeviance")
+            df.null <- call_method(jobj, "rResidualDegreeOfFreedomNull")
+            df.residual <- call_method(jobj, "rResidualDegreeOfFreedom")
+            iter <- call_method(jobj, "rNumIterations")
+            family <- call_method(jobj, "rFamily")
+            aic <- call_method(jobj, "rAic")
             if (family == "tweedie" && aic == 0) aic <- NA
             deviance.resid <- if (is.loaded) {
               NULL
             } else {
-              dataFrame(callJMethod(jobj, "rDevianceResiduals"))
+              new_spark_tbl(call_method(jobj, "rDevianceResiduals"))
             }
             # If the underlying WeightedLeastSquares using "normal" solver, we can provide
             # coefficients, standard error of coefficients, t value and p value. Otherwise,
@@ -150,7 +150,7 @@ print.summary.GeneralizedLinearRegressionModel <- function(x, ...) {
   if (x$is.loaded) {
     cat("\nSaved-loaded model does not support output 'Deviance Residuals'.\n")
   } else {
-    x$deviance.resid <- setNames(unlist(approxQuantile(x$deviance.resid, "devianceResiduals",
+    x$deviance.resid <- setNames(unlist(SparkR::approxQuantile(x$deviance.resid, "devianceResiduals",
                                                        c(0.0, 0.25, 0.5, 0.75, 1.0), 0.01)), c("Min", "1Q", "Median", "3Q", "Max"))
     x$deviance.resid <- zapsmall(x$deviance.resid, 5L)
     cat("\nDeviance Residuals: \n")
@@ -331,9 +331,9 @@ ml_logit <- function(data, formula, regParam = 0, elasticNetParam = 0,
 setMethod("summary", signature(object = "LogisticRegressionModel"),
           function(object) {
             jobj <- object@jobj
-            features <- callJMethod(jobj, "rFeatures")
-            labels <- callJMethod(jobj, "labels")
-            coefficients <- callJMethod(jobj, "rCoefficients")
+            features <- call_method(jobj, "rFeatures")
+            labels <- call_method(jobj, "labels")
+            coefficients <- call_method(jobj, "rCoefficients")
             nCol <- length(coefficients) / length(features)
             coefficients <- matrix(unlist(coefficients), ncol = nCol)
             # If nCol == 1, means this is a binomial logistic regression model with pivoting.
@@ -697,13 +697,13 @@ ml_gbt <- function(data, formula,
 # Create the summary of a tree ensemble model (eg. Random Forest, GBT)
 summary.treeEnsemble <- function(model) {
   jobj <- model@jobj
-  formula <- callJMethod(jobj, "formula")
-  numFeatures <- callJMethod(jobj, "numFeatures")
-  features <-  callJMethod(jobj, "features")
-  featureImportances <- callJMethod(callJMethod(jobj, "featureImportances"), "toString")
-  maxDepth <- callJMethod(jobj, "maxDepth")
-  numTrees <- callJMethod(jobj, "numTrees")
-  treeWeights <- callJMethod(jobj, "treeWeights")
+  formula <- call_method(jobj, "formula")
+  numFeatures <- call_method(jobj, "numFeatures")
+  features <-  call_method(jobj, "features")
+  featureImportances <- call_method(call_method(jobj, "featureImportances"), "toString")
+  maxDepth <- call_method(jobj, "maxDepth")
+  numTrees <- call_method(jobj, "numTrees")
+  treeWeights <- call_method(jobj, "treeWeights")
   list(formula = formula,
        numFeatures = numFeatures,
        features = features,
@@ -725,7 +725,7 @@ print.summary.treeEnsemble <- function(x) {
   cat("\nNumber of trees: ", x$numTrees)
   cat("\nTree weights: ", unlist(x$treeWeights))
 
-  summaryStr <- callJMethod(jobj, "summary")
+  summaryStr <- call_method(jobj, "summary")
   cat("\n", summaryStr, "\n")
   invisible(x)
 }
@@ -733,11 +733,11 @@ print.summary.treeEnsemble <- function(x) {
 # Create the summary of a decision tree model
 summary.decisionTree <- function(model) {
   jobj <- model@jobj
-  formula <- callJMethod(jobj, "formula")
-  numFeatures <- callJMethod(jobj, "numFeatures")
-  features <-  callJMethod(jobj, "features")
-  featureImportances <- callJMethod(callJMethod(jobj, "featureImportances"), "toString")
-  maxDepth <- callJMethod(jobj, "maxDepth")
+  formula <- call_method(jobj, "formula")
+  numFeatures <- call_method(jobj, "numFeatures")
+  features <-  call_method(jobj, "features")
+  featureImportances <- call_method(call_method(jobj, "featureImportances"), "toString")
+  maxDepth <- call_method(jobj, "maxDepth")
   list(formula = formula,
        numFeatures = numFeatures,
        features = features,
@@ -755,7 +755,7 @@ print.summary.decisionTree <- function(x) {
   cat("\nFeature importances: ", x$featureImportances)
   cat("\nMax Depth: ", x$maxDepth)
 
-  summaryStr <- callJMethod(jobj, "summary")
+  summaryStr <- call_method(jobj, "summary")
   cat("\n", summaryStr, "\n")
   invisible(x)
 }
@@ -917,8 +917,8 @@ ml_survival_regression <- function(data, formula, aggregationDepth = 2,
 setMethod("summary", signature(object = "AFTSurvivalRegressionModel"),
           function(object) {
             jobj <- object@jobj
-            features <- callJMethod(jobj, "rFeatures")
-            coefficients <- callJMethod(jobj, "rCoefficients")
+            features <- call_method(jobj, "rFeatures")
+            coefficients <- call_method(jobj, "rCoefficients")
             coefficients <- as.matrix(unlist(coefficients))
             colnames(coefficients) <- c("Value")
             rownames(coefficients) <- unlist(features)
@@ -987,8 +987,8 @@ ml_isotonic_regression <- function(data, formula, isotonic = TRUE, featureIndex 
 setMethod("summary", signature(object = "IsotonicRegressionModel"),
           function(object) {
             jobj <- object@jobj
-            boundaries <- callJMethod(jobj, "boundaries")
-            predictions <- callJMethod(jobj, "predictions")
+            boundaries <- call_method(jobj, "boundaries")
+            predictions <- call_method(jobj, "predictions")
             list(boundaries = boundaries, predictions = predictions)
           })
 
@@ -1076,10 +1076,10 @@ ml_mlp <- function(data, formula, layers, blockSize = 128,
 setMethod("summary", signature(object = "MultilayerPerceptronClassificationModel"),
           function(object) {
             jobj <- object@jobj
-            layers <- unlist(callJMethod(jobj, "layers"))
+            layers <- unlist(call_method(jobj, "layers"))
             numOfInputs <- head(layers, n = 1)
             numOfOutputs <- tail(layers, n = 1)
-            weights <- callJMethod(jobj, "weights")
+            weights <- call_method(jobj, "weights")
             list(numOfInputs = numOfInputs, numOfOutputs = numOfOutputs,
                  layers = layers, weights = weights)
           })

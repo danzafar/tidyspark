@@ -59,19 +59,19 @@ ml_kmeans <- function(data,
 setMethod("summary", signature(object = "KMeansModel"),
           function(object) {
             jobj <- object@jobj
-            is.loaded <- callJMethod(jobj, "isLoaded")
-            features <- callJMethod(jobj, "features")
-            coefficients <- callJMethod(jobj, "coefficients")
-            k <- callJMethod(jobj, "k")
-            size <- callJMethod(jobj, "size")
-            clusterSize <- callJMethod(jobj, "clusterSize")
+            is.loaded <- call_method(jobj, "isLoaded")
+            features <- call_method(jobj, "features")
+            coefficients <- call_method(jobj, "coefficients")
+            k <- call_method(jobj, "k")
+            size <- call_method(jobj, "size")
+            clusterSize <- call_method(jobj, "clusterSize")
             coefficients <- t(matrix(unlist(coefficients), ncol = clusterSize))
             colnames(coefficients) <- unlist(features)
             rownames(coefficients) <- 1:clusterSize
             cluster <- if (is.loaded) {
               NULL
             } else {
-              dataFrame(callJMethod(jobj, "cluster"))
+              new_spark_tbl(call_method(jobj, "cluster"))
             }
             list(k = k, coefficients = coefficients, size = size,
                  cluster = cluster, is.loaded = is.loaded, clusterSize = clusterSize)
@@ -97,11 +97,11 @@ setMethod("fitted", signature(object = "KMeansModel"),
           function(object, method = c("centers", "classes")) {
             method <- match.arg(method)
             jobj <- object@jobj
-            is.loaded <- callJMethod(jobj, "isLoaded")
+            is.loaded <- call_method(jobj, "isLoaded")
             if (is.loaded) {
               stop("Saved-loaded k-means model does not support 'fitted' method")
             } else {
-              dataFrame(callJMethod(jobj, "fitted", method))
+              new_spark_tbl(call_method(jobj, "fitted", method))
             }
           })
 
@@ -169,18 +169,18 @@ ml_kmeans_bisecting <- function(data,
 setMethod("summary", signature(object = "BisectingKMeansModel"),
           function(object) {
             jobj <- object@jobj
-            is.loaded <- callJMethod(jobj, "isLoaded")
-            features <- callJMethod(jobj, "features")
-            coefficients <- callJMethod(jobj, "coefficients")
-            k <- callJMethod(jobj, "k")
-            size <- callJMethod(jobj, "size")
+            is.loaded <- call_method(jobj, "isLoaded")
+            features <- call_method(jobj, "features")
+            coefficients <- call_method(jobj, "coefficients")
+            k <- call_method(jobj, "k")
+            size <- call_method(jobj, "size")
             coefficients <- t(matrix(coefficients, ncol = k))
             colnames(coefficients) <- unlist(features)
             rownames(coefficients) <- 1:k
             cluster <- if (is.loaded) {
               NULL
             } else {
-              dataFrame(callJMethod(jobj, "cluster"))
+              new_spark_tbl(call_method(jobj, "cluster"))
             }
             list(k = k, coefficients = coefficients, size = size,
                  cluster = cluster, is.loaded = is.loaded)
@@ -203,11 +203,11 @@ setMethod("fitted", signature(object = "BisectingKMeansModel"),
           function(object, method = c("centers", "classes")) {
             method <- match.arg(method)
             jobj <- object@jobj
-            is.loaded <- callJMethod(jobj, "isLoaded")
+            is.loaded <- call_method(jobj, "isLoaded")
             if (is.loaded) {
               stop("Saved-loaded bisecting k-means model does not support 'fitted' method")
             } else {
-              dataFrame(callJMethod(jobj, "fitted", method))
+              new_spark_tbl(call_method(jobj, "fitted", method))
             }
           })
 
@@ -270,21 +270,21 @@ setMethod("summary", signature(object = "LDAModel"),
           function(object, maxTermsPerTopic) {
             maxTermsPerTopic <- as.integer(ifelse(missing(maxTermsPerTopic), 10, maxTermsPerTopic))
             jobj <- object@jobj
-            docConcentration <- callJMethod(jobj, "docConcentration")
-            topicConcentration <- callJMethod(jobj, "topicConcentration")
-            logLikelihood <- callJMethod(jobj, "logLikelihood")
-            logPerplexity <- callJMethod(jobj, "logPerplexity")
-            isDistributed <- callJMethod(jobj, "isDistributed")
-            vocabSize <- callJMethod(jobj, "vocabSize")
-            topics <- dataFrame(callJMethod(jobj, "topics", maxTermsPerTopic))
-            vocabulary <- callJMethod(jobj, "vocabulary")
+            docConcentration <- call_method(jobj, "docConcentration")
+            topicConcentration <- call_method(jobj, "topicConcentration")
+            logLikelihood <- call_method(jobj, "logLikelihood")
+            logPerplexity <- call_method(jobj, "logPerplexity")
+            isDistributed <- call_method(jobj, "isDistributed")
+            vocabSize <- call_method(jobj, "vocabSize")
+            topics <- new_spark_tbl(call_method(jobj, "topics", maxTermsPerTopic))
+            vocabulary <- call_method(jobj, "vocabulary")
             trainingLogLikelihood <- if (isDistributed) {
-              callJMethod(jobj, "trainingLogLikelihood")
+              call_method(jobj, "trainingLogLikelihood")
             } else {
               NA
             }
             logPrior <- if (isDistributed) {
-              callJMethod(jobj, "logPrior")
+              call_method(jobj, "logPrior")
             } else {
               NA
             }
@@ -348,13 +348,13 @@ ml_gaussian_mixture <- function(data, formula, k = 2, maxIter = 100,
 setMethod("summary", signature(object = "GaussianMixtureModel"),
           function(object) {
             jobj <- object@jobj
-            is.loaded <- callJMethod(jobj, "isLoaded")
-            lambda <- unlist(callJMethod(jobj, "lambda"))
-            muList <- callJMethod(jobj, "mu")
-            sigmaList <- callJMethod(jobj, "sigma")
-            k <- callJMethod(jobj, "k")
-            dim <- callJMethod(jobj, "dim")
-            loglik <- callJMethod(jobj, "logLikelihood")
+            is.loaded <- call_method(jobj, "isLoaded")
+            lambda <- unlist(call_method(jobj, "lambda"))
+            muList <- call_method(jobj, "mu")
+            sigmaList <- call_method(jobj, "sigma")
+            k <- call_method(jobj, "k")
+            dim <- call_method(jobj, "dim")
+            loglik <- call_method(jobj, "logLikelihood")
             mu <- c()
             for (i in 1 : k) {
               start <- (i - 1) * dim + 1
@@ -370,7 +370,7 @@ setMethod("summary", signature(object = "GaussianMixtureModel"),
             posterior <- if (is.loaded) {
               NULL
             } else {
-              dataFrame(callJMethod(jobj, "posterior"))
+              new_spark_tbl(call_method(jobj, "posterior"))
             }
             list(lambda = lambda, mu = mu, sigma = sigma, loglik = loglik,
                  posterior = posterior, is.loaded = is.loaded)
