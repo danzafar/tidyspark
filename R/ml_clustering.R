@@ -297,28 +297,8 @@ setMethod("summary", signature(object = "LDAModel"),
           })
 
 
-#' @return \code{spark.perplexity} returns the log perplexity of given SparkDataFrame, or the log
-#'         perplexity of the training data if missing argument "data".
-#' @rdname ml_lda
-#' @aliases spark.perplexity,LDAModel-method
-#' @note spark.perplexity(LDAModel) since 2.1.0
-setMethod("ml_perplexity", signature(object = "LDAModel", data = "SparkDataFrame"),
-          function(object, data) {
-            ifelse(missing(data), callJMethod(object@jobj, "logPerplexity"),
-                   callJMethod(object@jobj, "computeLogPerplexity", data@sdf))
-          })
 
 
-#' @param newData A SparkDataFrame for testing.
-#' @return \code{spark.posterior} returns a SparkDataFrame containing posterior probabilities
-#'         vectors named "topicDistribution".
-#' @rdname ml_lda
-#' @aliases spark.posterior,LDAModel,SparkDataFrame-method
-#' @note spark.posterior(LDAModel) since 2.1.0
-setMethod("ml_posterior", signature(object = "LDAModel", newData = "SparkDataFrame"),
-          function(object, newData) {
-            predict_internal(object, newData)
-          })
 
 #' S4 class that represents a GaussianMixtureModel
 #'
