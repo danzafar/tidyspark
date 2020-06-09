@@ -32,9 +32,6 @@ setGeneric("cast", function(x, dataType) { standardGeneric("cast") })
 setGeneric("contains", function(x, ...) { standardGeneric("contains") })
 
 #' @rdname columnfunctions
-setGeneric("desc", function(x) { standardGeneric("desc") })
-
-#' @rdname columnfunctions
 setGeneric("getField", function(x, ...) { standardGeneric("getField") })
 
 #' @rdname columnfunctions
