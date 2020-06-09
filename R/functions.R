@@ -5,6 +5,10 @@ setClassUnion("characterOrColumn", c("character", "Column"))
 
 setClassUnion("numericOrColumn", c("numeric", "Column"))
 
+#' @export
+setClassUnion("characterOrStructTypeOrColumn",
+              c("character", "StructType", "Column"))
+
 #' Aggregate functions for Column operations
 #'
 #' Aggregate functions defined for \code{Column}.
@@ -2061,11 +2065,6 @@ setMethod("date_format", signature(y = "Column", x = "character"),
             jc <- call_static("org.apache.spark.sql.functions", "date_format", y@jc, x)
             new("Column", jc)
           })
-
-#' @export
-setClassUnion("characterOrStructTypeOrColumn",
-              c("character", "StructType", "Column"))
-
 
 #' @details
 #' \code{from_json}: Parses a column containing a JSON string into a Column of
