@@ -60,5 +60,6 @@ Collate:
     'spark_new.R'
     'spark_tbl.R'
     'startup-utils.R'
+    'stats.R'
     'streaming.R'
     'utils.R'
