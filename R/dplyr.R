@@ -394,16 +394,15 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 #' @export
 #' @importFrom rlang enquo
 #' @importFrom tidyr spread
+#' @importFrom tidyselect vars_pull
 spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
                              drop = TRUE, sep = NULL) {
-  # these become the new col names
-  group_var <- enquo(key)
-  # these are currently aggregated but maybe not
-  vals_var <-  enquo(value)
+  group_var <- tidyselect::vars_pull(names(.data), !!enquo(key))
+  value_var <- tidyselect::vars_pull(names(.data), !!enquo(value))
 
   # get the columns that don't spread
   static <- names(.data)[!(names(.data) %in% c(rlang::quo_name(group_var),
-                                               rlang::quo_name(vals_var)))]
+                                               rlang::quo_name(value_var)))]
 
   sdf <-
     call_method(
@@ -412,7 +411,7 @@ spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
           attr(.data, "jc"),
           "groupBy", static[[1]], as.list(static[-1])),
         "pivot", rlang::as_name(group_var)),
-      "agg", collect_list(collect_set(col(rlang::as_name(vals_var)))@jc,
+      "agg", call_method(collect_list(col(rlang::as_name(value_var)))@jc,
                          "getItem", 0L), list())
 
   new_spark_tbl(sdf)
