@@ -1,4 +1,4 @@
-spark_session(master = "local[1]")
+spark_session(master = "local[*]")
 iris_tbl <- spark_tbl(iris)
 iris_fix <- iris %>%
   setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
