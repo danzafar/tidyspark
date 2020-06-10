@@ -2,7 +2,6 @@
 % Please edit documentation in R/generics.R, R/columns.R
 \name{contains}
 \alias{contains}
-\alias{desc}
 \alias{getField}
 \alias{getItem}
 \alias{isNaN}
@@ -14,8 +13,6 @@
 \title{A set of operations working with SparkDataFrame columns}
 \usage{
 contains(x, ...)
-
-desc(x)
 
 getField(x, ...)
 
