@@ -478,6 +478,11 @@ as.RDD.spark_tbl <- function(.data) {
 }
 
 as.RDD.list <- function(.l, numSlices = 1L) {
-  context <- get(".sparkRjsc", envir = SparkR:::.sparkREnv)
-  context$parallelize(.l, numSlices)
+  sc <- get_spark_context()
+  sc$parallelize(.l, numSlices)
+}
+
+as.RDD.data.frame <- function(.data, numSlices = 1L) {
+  sc <- get_spark_context()
+  sc$parallelize(.data, numSlices)
 }
