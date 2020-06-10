@@ -4,14 +4,8 @@
 \alias{spark_write_source}
 \title{Write a \code{spark_tbl} to an arbitrary file format}
 \usage{
-spark_write_source(
-  .data,
-  path,
-  source = NULL,
-  mode = "error",
-  partition_by = NULL,
-  ...
-)
+spark_write_source(.data, path, source = NULL, mode = "error",
+  partition_by = NULL, ...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}

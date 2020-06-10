@@ -4,15 +4,9 @@
 \alias{spark_write_table}
 \title{Write to a Spark table}
 \usage{
-spark_write_table(
-  .data,
-  table,
-  mode = "error",
-  partition_by = NULL,
+spark_write_table(.data, table, mode = "error", partition_by = NULL,
   bucket_by = list(n = NA_integer_, cols = NA_character_),
-  sort_by = NULL,
-  ...
-)
+  sort_by = NULL, ...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}

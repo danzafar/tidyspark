@@ -4,9 +4,7 @@
 \name{json_sample}
 \alias{json_sample}
 \title{Sample JSON Data}
-\format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 3 rows and 4 columns.
-}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 3 rows and 4 columns.}
 \source{
 \url{https://docs.databricks.com/data/data-sources/read-json.html}
 }
