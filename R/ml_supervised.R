@@ -1036,6 +1036,7 @@ setClass("MultilayerPerceptronClassificationModel", representation(jobj = "jobj"
 #'                                         a special additional bucket, at index numLabels). Default
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
+#' @importFrom stats na.omit
 #' @examples
 #' \dontrun{
 #' df <- read.df("data/mllib/sample_multiclass_classification_data.txt", source = "libsvm")
@@ -1075,8 +1076,8 @@ ml_mlp <- function(data, formula, layers, blockSize = 128,
   new("MultilayerPerceptronClassificationModel", jobj = jobj)
 }
 
-#' importFrom("stats", "na.omit")
-#' importFrom("utils", "tail")
+
+#' @importFrom utils tail
 setMethod("summary", signature(object = "MultilayerPerceptronClassificationModel"),
           function(object) {
             jobj <- object@jobj
