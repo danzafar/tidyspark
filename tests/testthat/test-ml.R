@@ -6,11 +6,10 @@ iris_fix <- iris %>%
 iris_spk <- spark_tbl(iris)
 
 test_that('glm works and matches benchmark', {
-  tmp_glm <- tempfile()
   expect_known_output(
     ml_glm(iris_spk, Sepal_Width ~ Petal_Length, family = gaussian) %>%
       summary(),
-    tmp_glm,
+    'glm_results',
     print = TRUE)
 })
 
@@ -93,8 +92,8 @@ test_that('gmm works and matches benchmark', {
   tmp_gmm <- tempfile()
   expect_known_output({
     set.seed(100)
-    a <- mvtnorm::rmvnorm(4, c(0, 0))
-    b <- mvtnorm::rmvnorm(6, c(3, 4))
+    a <- rmvnorm(4, c(0, 0))
+    b <- rmvnorm(6, c(3, 4))
     data <- rbind(a, b)
     df <- spark_tbl(as.data.frame(data))
     ml_gaussian_mixture(df, ~ V1 + V2, k = 2) %>%

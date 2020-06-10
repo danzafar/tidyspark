@@ -1,0 +1,7 @@
+$coefficients
+                 Value
+(Intercept)  6.8966930
+ecog_ps     -0.3850426
+rx           0.5286457
+Log(scale)  -0.1234418
+
