@@ -27,12 +27,12 @@ Imports:
     methods,
     R6,
     rlang,
-    tidyr,
     tidyselect,
     utils
 Depends: 
     R (>= 3.1),
-    dplyr (>= 0.8.0)
+    dplyr (>= 0.8.0),
+    tidyr
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 Collate: 

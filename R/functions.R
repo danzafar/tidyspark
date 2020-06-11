@@ -1,13 +1,12 @@
 #' @include generics.R schema.R columns.R
 NULL
 
-#' setClassUnion("characterOrColumn", c("character", "Column"))
-#'
-#' setClassUnion("numericOrColumn", c("numeric", "Column"))
-#'
-#' #' @export
-#' setClassUnion("characterOrStructTypeOrColumn",
-#'               c("character", "StructType", "Column"))
+# setClassUnion("characterOrColumn", c("character", "Column"))
+#
+# setClassUnion("numericOrColumn", c("numeric", "Column"))
+
+#' @importClassesFrom SparkR Column
+NULL
 
 #' Aggregate functions for Column operations
 #'

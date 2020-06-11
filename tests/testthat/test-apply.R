@@ -1,11 +1,12 @@
-spark_session(master = "local[*]")
-iris_tbl <- spark_tbl(iris)
-iris_fix <- iris %>%
-  setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
-  mutate(Species = levels(Species)[Species])
 
 # spark_udf works --------------------------------------------------------------
 test_that("spark_udf works", {
+
+  spark_session(master = "local[*]")
+  iris_tbl <- spark_tbl(iris)
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
 
   expect_equal(
     iris_tbl %>%
@@ -26,10 +27,18 @@ test_that("spark_udf works", {
     iris_fix %>% head(1)
   )
 
+  spark_session_stop()
+
 })
 
 # spark_udf works with dplyr/purrr formulas-------------------------------------
 test_that("spark_udf works with dplyr/purrr formulas", {
+
+  spark_session(master = "local[*]")
+  iris_tbl <- spark_tbl(iris)
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
 
   expect_equal(
     iris_tbl %>%
@@ -37,10 +46,18 @@ test_that("spark_udf works with dplyr/purrr formulas", {
       collect,
     iris_fix %>% head(1)
   )
+
+  spark_session_stop()
 })
 
 ### spark_udf broadcasts values ------------------------------------------------
 test_that("spark_udf broadcasts values", {
+
+  spark_session(master = "local[*]")
+  iris_tbl <- spark_tbl(iris)
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
 
   .some_int <- 3
 
@@ -53,10 +70,18 @@ test_that("spark_udf broadcasts values", {
     iris_fix %>% head(3)
   )
 
+  spark_session_stop()
+
 })
 
 ### spark_udf docs are sound ---------------------------------------------------
 test_that("spark_udf docs are sound", {
+
+  spark_session(master = "local[*]")
+  iris_tbl <- spark_tbl(iris)
+  iris_fix <- iris %>%
+    setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
+    mutate(Species = levels(Species)[Species])
 
   # note, my_var will be broadcasted if we include it in the function
   my_var <- 1
@@ -118,11 +143,16 @@ test_that("spark_udf docs are sound", {
                  }, schema) %>%
                  collect,
                result)
+
+  spark_session_stop()
 })
 
 
 ### spark_grouped_udf docs are sound -------------------------------------------
 test_that("spark_grouped_udf docs are sound", {
+
+  spark_session(master = "local[*]")
+
   df <- spark_tbl(tibble(a = c(1L, 1L, 3L),
                          b = c(1, 2, 3),
                          c = c("1", "1", "3"),
@@ -174,16 +204,22 @@ test_that("spark_grouped_udf docs are sound", {
       data.frame(t(coef(m)))
     }, schema) %>%
     collect
+
+  spark_session_stop()
 })
 
 ### spark_lapply docs are sound ------------------------------------------------
 test_that("spark_lapply docs are sound", {
+
+  spark_session(master = "local[*]")
 
   expect_equal(spark_lapply(1:10, function(x) {2 * x}),
                as.list((1:10) * 2))
 
   expect_equal(spark_lapply(1:10, ~ 2 * .),
                as.list((1:10) * 2))
+
+  spark_session_stop()
 
 })
 

@@ -10,6 +10,7 @@ tbl_vars.spark_tbl <- function(x) {
 #' @importFrom dplyr select
 #' @importFrom stats setNames
 #' @importFrom tidyselect vars_select
+#' @importFrom methods new
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
 
@@ -395,20 +396,20 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
 #' @importFrom rlang enquo
 #' @importFrom tidyr spread
 #' @importFrom tidyselect vars_pull
-spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
+spread.spark_tbl <- function(data, key, value, fill = NA, convert = FALSE,
                              drop = TRUE, sep = NULL) {
-  group_var <- tidyselect::vars_pull(names(.data), !!enquo(key))
-  value_var <- tidyselect::vars_pull(names(.data), !!enquo(value))
+  group_var <- tidyselect::vars_pull(names(data), !!enquo(key))
+  value_var <- tidyselect::vars_pull(names(data), !!enquo(value))
 
   # get the columns that don't spread
-  static <- names(.data)[!(names(.data) %in% c(rlang::quo_name(group_var),
-                                               rlang::quo_name(value_var)))]
+  static <- names(data)[!(names(data) %in% c(rlang::quo_name(group_var),
+                                             rlang::quo_name(value_var)))]
 
   sdf <-
     call_method(
       call_method(
         call_method(
-          attr(.data, "jc"),
+          attr(data, "jc"),
           "groupBy", static[[1]], as.list(static[-1])),
         "pivot", rlang::as_name(group_var)),
       "agg", call_method(collect_list(col(rlang::as_name(value_var)))@jc,
@@ -421,7 +422,7 @@ spread.spark_tbl <- function(.data, key, value, fill = NA, convert = FALSE,
 #' @importFrom tidyselect vars_select
 #' @importFrom rlang enquo as_string
 #' @importFrom tidyr gather
-gather.spark_tbl <- function(.data, key = "key", value = "value", ...,
+gather.spark_tbl <- function(data, key = "key", value = "value", ...,
                              na.rm = FALSE, convert = FALSE,
                              factor_key = FALSE) {
 
@@ -430,13 +431,13 @@ gather.spark_tbl <- function(.data, key = "key", value = "value", ...,
   quos <- quos(...)
 
   if (rlang::is_empty(quos)) {
-    cols <- setdiff(names(.data), c(key_var, value_var))
+    cols <- setdiff(names(data), c(key_var, value_var))
   } else {
-    cols <- unname(vars_select(tbl_vars(.data), !!!quos))
+    cols <- unname(vars_select(tbl_vars(data), !!!quos))
   }
 
   # names not being pivoted long
-  non_pivot_cols <- names(.data)[!(names(.data) %in% cols)]
+  non_pivot_cols <- names(data)[!(names(data) %in% cols)]
   stack_fn_arg1 <- length(cols)
   cols_str <- shQuote(cols)
   stack_fn_arg2 <- c()
@@ -451,7 +452,7 @@ gather.spark_tbl <- function(.data, key = "key", value = "value", ...,
                         ") as (", key_var, ", ", value_var, ")")
 
   expr_list <- c(non_pivot_cols, stack_query)
-  sdf <- call_method(attr(.data, "jc"), "selectExpr", as.list(expr_list))
+  sdf <- call_method(attr(data, "jc"), "selectExpr", as.list(expr_list))
   new_spark_tbl(sdf)
 
 }
