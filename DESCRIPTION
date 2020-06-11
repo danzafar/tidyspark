@@ -21,6 +21,7 @@ Suggests:
     nycflights13,
     Lahman
 Imports:
+    SparkR,
     digest,
     lubridate,
     methods,

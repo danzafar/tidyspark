@@ -11,12 +11,14 @@
 \alias{to_csv}
 \alias{concat,Column-method}
 \alias{concat}
-\alias{from_json,Column,characterOrStructTypeOrColumn-method}
+\alias{from_json,Column,characterOrColumn-method}
 \alias{from_json}
+\alias{from_json,Column,StructType-method}
 \alias{schema_of_json,characterOrColumn-method}
 \alias{schema_of_json}
-\alias{from_csv,Column,characterOrStructTypeOrColumn-method}
+\alias{from_csv,Column,characterOrColumn-method}
 \alias{from_csv}
+\alias{from_csv,Column,StructType-method}
 \alias{schema_of_csv,characterOrColumn-method}
 \alias{schema_of_csv}
 \alias{array_aggregate,characterOrColumn,Column,function-method}
@@ -211,11 +213,15 @@ to_csv(x, ...)
 
 \S4method{concat}{Column}(x, ...)
 
-\S4method{from_json}{Column,characterOrStructTypeOrColumn}(x, schema, as.json.array = FALSE, ...)
+\S4method{from_json}{Column,characterOrColumn}(x, schema, as.json.array = FALSE, ...)
+
+\S4method{from_json}{Column,StructType}(x, schema, as.json.array = FALSE, ...)
 
 \S4method{schema_of_json}{characterOrColumn}(x, ...)
 
-\S4method{from_csv}{Column,characterOrStructTypeOrColumn}(x, schema, ...)
+\S4method{from_csv}{Column,characterOrColumn}(x, schema, ...)
+
+\S4method{from_csv}{Column,StructType}(x, schema, ...)
 
 \S4method{schema_of_csv}{characterOrColumn}(x, ...)
 
@@ -366,9 +372,9 @@ into accumulator (the first argument).}
 
 \item{extraction}{index to check for in array or key to check for in map}
 
-\item{schema}{a structType object to use as the schema to use when parsing
-the JSON string. Since Spark 2.3, the DDL-formatted string is
-also supported for the schema.}
+\item{schema}{a Column or StructType object to use as the schema to use when
+parsing the JSON string. Since Spark 2.3, the DDL-formatted
+string is also supported for the schema.}
 
 \item{start}{the starting index}
 
@@ -404,14 +410,14 @@ is encountered.
 The function works with strings, binary and compatible array columns.
 
 \code{from_json}: Parses a column containing a JSON string into a Column of
-\code{structType} with the specified \code{schema} or array of
-\code{structType} if \code{as.json.array} is set to \code{TRUE}. If the
+\code{StructType} with the specified \code{schema} or array of
+\code{StructType} if \code{as.json.array} is set to \code{TRUE}. If the
 string is unparseable, the Column will contain the value NA.
 
 \code{schema_of_json}: Parses a JSON string and infers its schema in DDL format.
 
 \code{from_csv}: Parses a column containing a CSV string into a Column of
-\code{structType} with the specified \code{schema}.
+\code{StructType} with the specified \code{schema}.
 If the string is unparseable, the Column will contain the value NA.
 
 \code{schema_of_csv}: Parses a CSV string and infers its schema in DDL format.
@@ -544,7 +550,11 @@ concat since 1.5.0
 
 from_json since 2.2.0
 
+from_json since 2.2.0
+
 schema_of_json since 3.0.0
+
+from_csv since 3.0.0
 
 from_csv since 3.0.0
 

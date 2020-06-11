@@ -1,13 +1,13 @@
 #' @include generics.R schema.R columns.R
 NULL
 
-setClassUnion("characterOrColumn", c("character", "Column"))
-
-setClassUnion("numericOrColumn", c("numeric", "Column"))
-
-#' @export
-setClassUnion("characterOrStructTypeOrColumn",
-              c("character", "StructType", "Column"))
+#' setClassUnion("characterOrColumn", c("character", "Column"))
+#'
+#' setClassUnion("numericOrColumn", c("numeric", "Column"))
+#'
+#' #' @export
+#' setClassUnion("characterOrStructTypeOrColumn",
+#'               c("character", "StructType", "Column"))
 
 #' Aggregate functions for Column operations
 #'
@@ -2068,17 +2068,17 @@ setMethod("date_format", signature(y = "Column", x = "character"),
 
 #' @details
 #' \code{from_json}: Parses a column containing a JSON string into a Column of
-#' \code{structType} with the specified \code{schema} or array of
-#' \code{structType} if \code{as.json.array} is set to \code{TRUE}. If the
+#' \code{StructType} with the specified \code{schema} or array of
+#' \code{StructType} if \code{as.json.array} is set to \code{TRUE}. If the
 #' string is unparseable, the Column will contain the value NA.
 #'
 #' @rdname column_collection_functions
-#' @param schema a structType object to use as the schema to use when parsing
-#'               the JSON string. Since Spark 2.3, the DDL-formatted string is
-#'               also supported for the schema.
+#' @param schema a Column or StructType object to use as the schema to use when
+#'               parsing the JSON string. Since Spark 2.3, the DDL-formatted
+#'               string is also supported for the schema.
 #' @param as.json.array indicating if input string is JSON array of objects or
 #'                      a single object.
-#' @aliases from_json from_json,Column,characterOrStructTypeOrColumn-method
+#' @aliases from_json from_json,Column,characterOrColumn-method
 #' @examples
 #'
 #' \dontrun{
@@ -2094,12 +2094,31 @@ setMethod("date_format", signature(y = "Column", x = "character"),
 #' head(select(df2, from_json(df2$people_json, "name STRING")))}
 #' @note from_json since 2.2.0
 setMethod("from_json",
-          signature(x = "Column", schema = "characterOrStructTypeOrColumn"),
+          signature(x = "Column", schema = "characterOrColumn"),
           function(x, schema, as.json.array = FALSE, ...) {
             if (is.character(schema)) {
               schema <- StructType(schema)
             }
 
+            if (as.json.array) {
+              jschema <- call_static("org.apache.spark.sql.types.DataTypes",
+                                     "createArrayType",
+                                     schema$jobj)
+            } else {
+              jschema <- schema$jobj
+            }
+            options <- varargsToStrEnv(...)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "from_json",
+                              x@jc, jschema, options)
+            new("Column", jc)
+          })
+
+#' @rdname column_collection_functions
+#' @note from_json since 2.2.0
+setMethod("from_json",
+          signature(x = "Column", schema = "StructType"),
+          function(x, schema, as.json.array = FALSE, ...) {
             if (as.json.array) {
               jschema <- call_static("org.apache.spark.sql.types.DataTypes",
                                      "createArrayType",
@@ -2142,11 +2161,11 @@ setMethod("schema_of_json", signature(x = "characterOrColumn"),
 
 #' @details
 #' \code{from_csv}: Parses a column containing a CSV string into a Column of
-#' \code{structType} with the specified \code{schema}.
+#' \code{StructType} with the specified \code{schema}.
 #' If the string is unparseable, the Column will contain the value NA.
 #'
 #' @rdname column_collection_functions
-#' @aliases from_csv from_csv,Column,characterOrStructTypeOrColumn-method
+#' @aliases from_csv from_csv,Column,characterOrColumn-method
 #' @examples
 #'
 #' \dontrun{
@@ -2158,7 +2177,7 @@ setMethod("schema_of_json", signature(x = "characterOrColumn"),
 #' head(select(df, from_csv(df$csv, schema_of_csv(csv))))}
 #' @note from_csv since 3.0.0
 setMethod("from_csv", signature(x = "Column",
-                                schema = "characterOrStructTypeOrColumn"),
+                                schema = "characterOrColumn"),
           function(x, schema, ...) {
             if (class(schema) == "structType") {
               schema <- call_method(schema$jobj, "toDDL")
@@ -2175,6 +2194,20 @@ setMethod("from_csv", signature(x = "Column",
                               "from_csv",
                               x@jc, jschema, options)
             new("Column", jc)
+          })
+
+#' @rdname column_collection_functions
+#' @note from_csv since 3.0.0
+setMethod("from_csv", signature(x = "Column",
+                                schema = "StructType"),
+          function(x, schema, ...) {
+              schema <- call_method(schema$jobj, "toDDL")
+              jschema <- schema@jc
+              options <- varargsToStrEnv(...)
+              jc <- call_static("org.apache.spark.sql.functions",
+                                "from_csv",
+                                x@jc, jschema, options)
+              new("Column", jc)
           })
 
 #' @details

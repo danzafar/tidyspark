@@ -6,26 +6,26 @@ NULL
 
 setOldClass("jobj")
 
-#' S4 class that represents a SparkDataFrame column
+#' #' S4 class that represents a SparkDataFrame column
+#' #'
+#' #' The column class supports unary, binary operations on SparkDataFrame columns
+#' #'
+#' #' @rdname column
+#' #'
+#' #' @slot jc reference to JVM SparkDataFrame column
+#' #' @note Column since 1.4.0
+#' setClass("Column",
+#'          slots = list(jc = "jobj"))
 #'
-#' The column class supports unary, binary operations on SparkDataFrame columns
-#'
-#' @rdname column
-#'
-#' @slot jc reference to JVM SparkDataFrame column
-#' @note Column since 1.4.0
-setClass("Column",
-         slots = list(jc = "jobj"))
+#' setMethod("initialize", "Column", function(.Object, jc) {
+#'   .Object@jc <- jc
+#'   .Object
+#' })
 
 #' A set of operations working with SparkDataFrame columns
 #' @rdname columnfunctions
 #' @name columnfunctions
 NULL
-
-setMethod("initialize", "Column", function(.Object, jc) {
-  .Object@jc <- jc
-  .Object
-})
 
 #' @rdname column
 #' @name column
@@ -93,9 +93,7 @@ setMethod("getItem",
 NULL
 
 
-#' @export
 #' @rdname Column-missing
-#' @importFrom methods new
 setMethod("is.na", signature(x = "Column"),
           function(x) {
             new("Column", call_method(x@jc, "isNull"))
@@ -115,7 +113,6 @@ setMethod("is.na", signature(x = "Column"),
 NULL
 
 #' @rdname Column-functions
-#' @export
 setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
 #' @export

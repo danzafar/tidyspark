@@ -42,7 +42,7 @@
 \alias{grouping_bit}
 \alias{grouping_id,Column-method}
 \alias{grouping_id}
-\title{Aggregate functions for Column operations}
+\title{setClassUnion("characterOrColumn", c("character", "Column"))}
 \usage{
 approxCountDistinct(x, rsd, ...)
 
@@ -125,9 +125,16 @@ var_samp(x)
 additional Columns.}
 }
 \description{
-Aggregate functions defined for \code{Column}.
+setClassUnion("numericOrColumn", c("numeric", "Column"))
 }
 \details{
+#' @export
+setClassUnion("characterOrStructTypeOrColumn",
+              c("character", "StructType", "Column"))
+Aggregate functions for Column operations
+
+Aggregate functions defined for \code{Column}.
+
 \code{approxCountDistinct}: Returns the approximate number of distinct items
 in a group.
 
