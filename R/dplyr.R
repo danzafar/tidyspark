@@ -389,7 +389,7 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
   if (by_partition) sdf <- call_method(sdf, "sortWithinPartitions", jcols)
   else sdf <- call_method(sdf, "sort", jcols)
 
-  new_spark_tbl(sdf)
+  new_spark_tbl(sdf, groups = attr(.data, "groups"))
 }
 
 #' @export
