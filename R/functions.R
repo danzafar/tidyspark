@@ -2904,29 +2904,37 @@ setMethod("cume_dist",
             new("Column", jc)
           })
 
-#' @details
-#' \code{lead}: Returns the value that is \code{offset} rows after the current row, and
-#' \code{defaultValue} if there is less than \code{offset} rows after the current row.
-#' For example, an \code{offset} of one will return the next row at any given point
-#' in the window partition.
-#' This is equivalent to the \code{LEAD} function in SQL.
+# !!!!!!!!Delete this ---------------
+#' #' @details
+#' #' \code{lead}: Returns the value that is \code{offset} rows after the current row, and
+#' #' \code{defaultValue} if there is less than \code{offset} rows after the current row.
+#' #' For example, an \code{offset} of one will return the next row at any given point
+#' #' in the window partition.
+#' #' This is equivalent to the \code{LEAD} function in SQL.
+#' #'
+#' #' @rdname column_window_functions
+#' #' @aliases lead lead,characterOrColumn,numeric-method
+#' #' @note lead since 1.6.0
+#' setMethod("lead",
+#'           signature(x = "characterOrColumn", offset = "numeric", defaultValue = "ANY"),
+#'           function(x, offset = 1, defaultValue = NULL) {
+#'             col <- if (class(x) == "Column") x@jc else x
 #'
-#' @rdname column_window_functions
-#' @aliases lead lead,characterOrColumn,numeric-method
-#' @note lead since 1.6.0
-setMethod("lead",
-          signature(x = "characterOrColumn", offset = "numeric", defaultValue = "ANY"),
-          function(x, offset = 1, defaultValue = NULL) {
-            col <- if (class(x) == "Column") {
-              x@jc
-            } else {
-              x
-            }
-
-            jc <- call_static("org.apache.spark.sql.functions",
-                              "lead", col, as.integer(offset), defaultValue)
-            new("Column", jc)
-          })
+#'             id_jc <- call_static("org.apache.spark.sql.functions",
+#'                               "monotonically_increasing_id")
+#'             id <- new("Column", id_jc)
+#'
+#'             window <- call_static("org.apache.spark.sql.expressions.Window",
+#'                                   "orderBy", list(id_jc))
+#'
+#'             jc <-
+#'               call_method(
+#'                 call_static("org.apache.spark.sql.functions",
+#'                             "lead", col, as.integer(offset), defaultValue),
+#'                 "over", window)
+#'
+#'             new("Column", jc)
+#'           })
 
 #' @details
 #' \code{ntile}: Returns the ntile group id (from 1 to n inclusive) in an ordered window

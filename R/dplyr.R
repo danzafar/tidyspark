@@ -269,7 +269,7 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     rlang::env_bind(eval_env,
                     n = .n, if_else = .if_else, case_when = .case_when,
                     cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
-                    lag = .lag, sd = .sd, var = .var)
+                    lag = .lag, lead = .lead, sd = .sd, var = .var)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
     conds[[i]] <- cond
 
@@ -352,7 +352,7 @@ summarise.spark_tbl <- function(.data, ...) {
     rlang::env_bind(eval_env,
                     n = .n, if_else = .if_else, case_when = .case_when,
                     cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
-                    lag = .lag, sd = .sd, var = .var)
+                    lag = .lag, lead = .lead, sd = .sd, var = .var)
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
   }
 
@@ -363,7 +363,7 @@ summarise.spark_tbl <- function(.data, ...) {
           stop("Column '", i, "' must be length 1 (a summary value), not ",
                length(agg[[1]]))
         }
-        jc <- call_method(SparkR::lit(agg[i])@jc, "getItem", 0L)
+        jc <- call_method(lit(agg[i])@jc, "getItem", 0L)
         agg[[i]] <- new("Column", jc)
       }
       agg[[i]] <- SparkR::alias(agg[[i]], i)

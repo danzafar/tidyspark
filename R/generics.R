@@ -425,11 +425,12 @@ setGeneric("last", function(x, ...) { standardGeneric("last") })
 #' @name NULL
 setGeneric("last_day", function(x) { standardGeneric("last_day") })
 
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("lead", function(x, offset, defaultValue = NULL) {
-  standardGeneric("lead")
-  })
+# !!!Delete this ---------------------------
+# #' @rdname column_window_functions
+# #' @name NULL
+# setGeneric("lead", function(x, offset = 1, defaultValue = NULL) {
+#   standardGeneric("lead")
+#   })
 
 #' @rdname column_nonaggregate_functions
 #' @name NULL

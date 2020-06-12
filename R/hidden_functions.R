@@ -22,10 +22,41 @@
   new("Column", jc)
 }
 
-.lag <- function(x, offset = 1, defaultValue = NULL) {
+.lag <- function(x, offset = 1, defaultValue = NULL,
+                 window = windowOrderBy(monotonically_increasing_id())) {
+  stopifnot(inherits(x, "Column"))
 
-  jc <- call_static("org.apache.spark.sql.functions",
-                    "lag", x@jc, as.integer(offset), defaultValue)
+  col <- if (class(x) == "Column") x@jc else x
+
+  if (!inherits(window, "WindowSpec")) {
+    stop("`window` must be of class `WindowSpec`")
+  }
+
+  jc <-
+    call_method(
+      call_static("org.apache.spark.sql.functions",
+                  "lag", col, as.integer(offset), defaultValue),
+      "over", window@sws)
+
+  new("Column", jc)
+}
+
+.lead <- function(x, offset = 1, defaultValue = NULL,
+                  window = windowOrderBy(monotonically_increasing_id())) {
+  stopifnot(inherits(x, "Column"))
+
+  col <- if (class(x) == "Column") x@jc else x
+
+  if (!inherits(window, "WindowSpec")) {
+    stop("`window` must be of class `WindowSpec`")
+  }
+
+  jc <-
+    call_method(
+      call_static("org.apache.spark.sql.functions",
+                  "lead", col, as.integer(offset), defaultValue),
+      "over", window@sws)
+
   new("Column", jc)
 }
 
