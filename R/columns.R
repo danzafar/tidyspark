@@ -192,6 +192,9 @@ as_datetime.Column <- function(x, ...) {
 #' @description Coerces objects of type \code{timestamp}.
 #'
 #' @param x object to be coerced or tested.
+#' @param format a character string representing the incoming format. See
+#' \href{here}{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}
+#' for more information on possible usage.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
@@ -200,14 +203,16 @@ as.timestamp <- function (x, ...)  .Primitive("as.timestamp")
 
 #' @export
 #' @rdname ts-type
-as.timestamp.Column <- function(x, ...) {
-  new("Column", call_method(x@jc, "cast", "timestamp"))
+as.timestamp.Column <- function(x, format = "yyyy-MM-dd HH:mm:ss", ...) {
+  new("Column", call_static("org.apache.spark.sql.functions", "to_timestamp",
+                            x@jc, format))
 }
 
 # dates
 #' @export
-as.Date.Column <- function(x, ...) {
-  new("Column", call_method(x@jc, "cast", "date"))
+as.Date.Column <- function(x, format = "yyyy-MM-dd", ...) {
+  new("Column", call_static("org.apache.spark.sql.functions", "to_date",
+                            x@jc, format))
 }
 
 # lists
