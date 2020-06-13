@@ -1,4 +1,4 @@
-#' @include generics.R jobj.R column.R
+#' @include generics.R jobj.R columns.R
 NULL
 
 #' S4 class that represents a WindowSpec

@@ -64,6 +64,8 @@ setGeneric("%<=>%", function(x, value) { standardGeneric("%<=>%") })
 
 ###################### WindowSpec Methods ##########################
 
+setGeneric("orderBy", function(x, col, ...) { standardGeneric("orderBy") })
+
 setGeneric("partitionBy", function(x, ...) { standardGeneric("partitionBy") })
 
 setGeneric("rowsBetween", function(x, start, end) {
@@ -267,10 +269,6 @@ setGeneric("create_map", function(x, ...) { standardGeneric("create_map") })
 #' @name NULL
 setGeneric("hash", function(x, ...) { standardGeneric("hash") })
 
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("cume_dist", function(x = "missing") {standardGeneric("cume_dist")})
-
 #' @rdname column_datetime_functions
 #' @name NULL
 setGeneric("current_date", function(x = "missing") {
@@ -425,13 +423,6 @@ setGeneric("last", function(x, ...) { standardGeneric("last") })
 #' @name NULL
 setGeneric("last_day", function(x) { standardGeneric("last_day") })
 
-# !!!Delete this ---------------------------
-# #' @rdname column_window_functions
-# #' @name NULL
-# setGeneric("lead", function(x, offset = 1, defaultValue = NULL) {
-#   standardGeneric("lead")
-#   })
-
 #' @rdname column_nonaggregate_functions
 #' @name NULL
 setGeneric("least", function(x, ...) { standardGeneric("least") })
@@ -522,19 +513,9 @@ setGeneric("not", function(x) { standardGeneric("not") })
 #' @name NULL
 setGeneric("next_day", function(y, x) { standardGeneric("next_day") })
 
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("ntile", function(x) { standardGeneric("ntile") })
-
 #' @rdname column_aggregate_functions
 #' @name NULL
 setGeneric("n_distinct", function(x, ...) { standardGeneric("n_distinct") })
-
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("percent_rank", function(x = "missing") {
-  standardGeneric("percent_rank")
-  })
 
 #' @rdname column_math_functions
 #' @name NULL
@@ -584,12 +565,6 @@ setGeneric("reverse", function(x) { standardGeneric("reverse") })
 #' @rdname column_math_functions
 #' @name NULL
 setGeneric("rint", function(x) { standardGeneric("rint") })
-
-#' @rdname column_window_functions
-#' @name NULL
-setGeneric("row_number", function(x = "missing") {
-  standardGeneric("row_number")
-  })
 
 #' @rdname column_string_functions
 #' @name NULL

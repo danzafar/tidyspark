@@ -113,13 +113,15 @@ chop_wndw <- function(col) {
 
   # get the function the window should be over
   # same as `expr(func_spec.head.toString)`
+  func_str <- call_method(
+    call_method(
+      func_spec,
+      "head"),
+    "toString")
+
   func <- call_static(
     "org.apache.spark.sql.functions", "expr",
-    call_method(
-      call_method(
-        func_spec,
-        "head"),
-      "toString"))
+    gsub("#[0-9]*", "", func_str))
 
   # reconstruct the window spec
   # same as `func_spec.tail.head.children.head.toString`
@@ -151,12 +153,21 @@ chop_wndw <- function(col) {
   #   sub("(.*)(#[0-9]*) (.*)", "\\1 \\3", wndw_str)
   #   ))
 
-  # grab the column name with regex and add the connonical desc applying
+  # grab the column name with regex and add the cannonical desc applying
   # conditionally
   col_string <- sub("(-)?(.*)#.*", "\\2", wndw_str)
-  col_obj <- new("Column", call_static(
-    "org.apache.spark.sql.functions", "col", col_string
-  ))
+  col_obj <- if (grepl("^monotonically_increasing_id()", col_string)) {
+    monotonically_increasing_id()
+  } else if (grepl("^'", col_string)) {
+    new("Column", call_static(
+      "org.apache.spark.sql.functions", "col",
+      sub("'(.*?) (.*)", "\\1", col_string)
+    ))
+  } else {
+    new("Column", call_static(
+      "org.apache.spark.sql.functions", "col", col_string
+    ))
+  }
 
   descending <- sub("(-)?(.*)#.*", "\\1", wndw_str) == "-"
   if (descending) col_obj <- dplyr::desc(col_obj)
@@ -191,7 +202,8 @@ mutate.spark_tbl <- function(.data, ...) {
     rlang::env_bind(eval_env,
                     n = .n, if_else = .if_else, case_when = .case_when,
                     cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
-                    lag = .lag, sd = .sd, var = .var)
+                    lag = .lag, lead = .lead, sd = .sd, var = .var,
+                    row_number = .row_number)
     eval <- rlang::eval_tidy(dot, df_cols, eval_env)
 
     if (is_agg_expr(eval)) {
@@ -203,7 +215,8 @@ mutate.spark_tbl <- function(.data, ...) {
                                      "partitionBy", group_jcols)
 
       eval <- new("Column", call_method(eval@jc, "over", window))
-    } else if (is_wndw_expr(eval)) {
+    }
+    else if (is_wndw_expr(eval)) {
       # this is used for rank, min_rank, row_number, dense_rank, etc.
       func_wndw <- chop_wndw(eval)
 
@@ -215,6 +228,21 @@ mutate.spark_tbl <- function(.data, ...) {
       # apply the window over the function
       eval <- new("Column", call_method(func_wndw$func, "over", window))
     }
+    # else if (is_wndw_expr(eval)) {
+    #
+    #   # add in the partitionBy based on grouping
+    #   groups <- attr(.data, "groups")
+    #
+    #   if (!is.null(groups)) {
+    #     group_jcols <- lapply(df_cols[groups], function(x) x@jc)
+    #     window <- call_static("org.apache.spark.sql.expressions.Window",
+    #                 "partitionBy", group_jcols)
+    #
+    #     browser()
+    #     # apply the window over the function
+    #     eval <- new("Column", call_method(eval@jc, "over", window))
+    #   }
+    # }
 
     jcol <- if (class(eval) == "Column") eval@jc
     else call_static("org.apache.spark.sql.functions", "lit", eval)
@@ -269,7 +297,8 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     rlang::env_bind(eval_env,
                     n = .n, if_else = .if_else, case_when = .case_when,
                     cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
-                    lag = .lag, lead = .lead, sd = .sd, var = .var)
+                    lag = .lag, lead = .lead, sd = .sd, var = .var,
+                    row_number = .row_number)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
     conds[[i]] <- cond
 
@@ -352,7 +381,8 @@ summarise.spark_tbl <- function(.data, ...) {
     rlang::env_bind(eval_env,
                     n = .n, if_else = .if_else, case_when = .case_when,
                     cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
-                    lag = .lag, lead = .lead, sd = .sd, var = .var)
+                    lag = .lag, lead = .lead, sd = .sd, var = .var,
+                    row_number = .row_number)
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
   }
 

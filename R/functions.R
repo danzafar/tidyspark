@@ -1,10 +1,6 @@
 #' @include generics.R schema.R columns.R
 NULL
 
-# setClassUnion("characterOrColumn", c("character", "Column"))
-#
-# setClassUnion("numericOrColumn", c("numeric", "Column"))
-
 #' @importClassesFrom SparkR Column
 NULL
 
@@ -312,34 +308,6 @@ NULL
 #' head(select(tmp7, map_from_arrays(tmp7$v8, tmp7$v9)))
 #' tmp8 <- mutate(df, v10 = create_array(struct(df$model, df$cyl)))
 #' head(select(tmp8, map_from_entries(tmp8$v10)))}
-NULL
-
-#' Window functions for Column operations
-#'
-#' Window functions defined for \code{Column}.
-#'
-#' @param x In \code{lag} and \code{lead}, it is the column as a character string or a Column
-#'          to compute on. In \code{ntile}, it is the number of ntile groups.
-#' @param offset In \code{lag}, the number of rows back from the current row from which to obtain
-#'               a value. In \code{lead}, the number of rows after the current row from which to
-#'               obtain a value. If not specified, the default is 1.
-#' @param defaultValue (optional) default to use when the offset row does not exist.
-#' @param ... additional argument(s).
-#' @name column_window_functions
-#' @rdname column_window_functions
-#' @family window functions
-#' @examples
-#' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
-#' ws <- orderBy(windowPartitionBy("am"), "hp")
-#' tmp <- mutate(df, dist = over(cume_dist(), ws), dense_rank = over(dense_rank(), ws),
-#'               lag = over(lag(df$mpg), ws), lead = over(lead(df$mpg, 1), ws),
-#'               percent_rank = over(percent_rank(), ws),
-#'               rank = over(rank(), ws), row_number = over(row_number(), ws))
-#' # Get ntile group id (1-4) for hp
-#' tmp <- mutate(tmp, ntile = over(ntile(4), ws))
-#' head(tmp)}
 NULL
 
 #' @details
@@ -2885,108 +2853,8 @@ setMethod("unix_timestamp", signature(x = "Column", format = "character"),
             new("Column", jc)
           })
 
-###################### Window functions######################
 
-#' @details
-#' \code{cume_dist}: Returns the cumulative distribution of values within a window partition,
-#' i.e. the fraction of rows that are below the current row:
-#' (number of values before and including x) / (total number of rows in the partition).
-#' This is equivalent to the \code{CUME_DIST} function in SQL.
-#' The method should be used with no argument.
-#'
-#' @rdname column_window_functions
-#' @aliases cume_dist cume_dist,missing-method
-#' @note cume_dist since 1.6.0
-setMethod("cume_dist",
-          signature("missing"),
-          function() {
-            jc <- call_static("org.apache.spark.sql.functions", "cume_dist")
-            new("Column", jc)
-          })
-
-# !!!!!!!!Delete this ---------------
-#' #' @details
-#' #' \code{lead}: Returns the value that is \code{offset} rows after the current row, and
-#' #' \code{defaultValue} if there is less than \code{offset} rows after the current row.
-#' #' For example, an \code{offset} of one will return the next row at any given point
-#' #' in the window partition.
-#' #' This is equivalent to the \code{LEAD} function in SQL.
-#' #'
-#' #' @rdname column_window_functions
-#' #' @aliases lead lead,characterOrColumn,numeric-method
-#' #' @note lead since 1.6.0
-#' setMethod("lead",
-#'           signature(x = "characterOrColumn", offset = "numeric", defaultValue = "ANY"),
-#'           function(x, offset = 1, defaultValue = NULL) {
-#'             col <- if (class(x) == "Column") x@jc else x
-#'
-#'             id_jc <- call_static("org.apache.spark.sql.functions",
-#'                               "monotonically_increasing_id")
-#'             id <- new("Column", id_jc)
-#'
-#'             window <- call_static("org.apache.spark.sql.expressions.Window",
-#'                                   "orderBy", list(id_jc))
-#'
-#'             jc <-
-#'               call_method(
-#'                 call_static("org.apache.spark.sql.functions",
-#'                             "lead", col, as.integer(offset), defaultValue),
-#'                 "over", window)
-#'
-#'             new("Column", jc)
-#'           })
-
-#' @details
-#' \code{ntile}: Returns the ntile group id (from 1 to n inclusive) in an ordered window
-#' partition. For example, if n is 4, the first quarter of the rows will get value 1, the second
-#' quarter will get 2, the third quarter will get 3, and the last quarter will get 4.
-#' This is equivalent to the \code{NTILE} function in SQL.
-#'
-#' @rdname column_window_functions
-#' @aliases ntile ntile,numeric-method
-#' @note ntile since 1.6.0
-setMethod("ntile",
-          signature(x = "numeric"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "ntile", as.integer(x))
-            new("Column", jc)
-          })
-
-#' @details
-#' \code{percent_rank}: Returns the relative rank (i.e. percentile) of rows within a window
-#' partition.
-#' This is computed by: (rank of row in its partition - 1) / (number of rows in the partition - 1).
-#' This is equivalent to the \code{PERCENT_RANK} function in SQL.
-#' The method should be used with no argument.
-#'
-#' @rdname column_window_functions
-#' @aliases percent_rank percent_rank,missing-method
-#' @note percent_rank since 1.6.0
-setMethod("percent_rank",
-          signature("missing"),
-          function() {
-            jc <- call_static("org.apache.spark.sql.functions", "percent_rank")
-            new("Column", jc)
-          })
-
-#' @details
-#' \code{row_number}: Returns a sequential number starting at 1 within a window partition.
-#' This is equivalent to the \code{ROW_NUMBER} function in SQL.
-#' The method should be used with no argument.
-#'
-#' @rdname column_window_functions
-#' @aliases row_number row_number,missing-method
-#' @note row_number since 1.6.0
-setMethod("row_number",
-          signature("missing"),
-          function() {
-            jc <- call_static("org.apache.spark.sql.functions", "row_number")
-            new("Column", jc)
-          })
-
-
-
-###################### Collection functions######################
+###################### Collection functions ######################
 
 #' Create o.a.s.sql.expressions.UnresolvedNamedLambdaVariable,
 #' convert it to o.s.sql.Column and wrap with R Column.
