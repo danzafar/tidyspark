@@ -167,6 +167,8 @@ chop_wndw <- function(.col) {
     function(x) {
       if (grepl("^monotonically_increasing_id()", x)) {
         monotonically_increasing_id()@jc
+      } else if (grepl("^spark_partition_id()", x)) {
+        spark_partition_id()@jc
       } else col(x)@jc
       })
 
