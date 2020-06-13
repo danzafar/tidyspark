@@ -103,12 +103,15 @@ is_wndw_expr <- function(col) {
 
 # Even more burly is the addition of incoming windowed columns. These are
 # tough because they are already windowed but we need to conditionally add
-# a grouping to them anyway. In order to do that we need to do some pretty
-# questionable things to break up the expression and re-window it.
-chop_wndw <- function(col) {
-  # lets do a little hacking to break up the incoming window col
+# a grouping to them anyway. In order to do that we dig into the incoming
+# windowed column to break it up into it's component pieces so that we can
+# put it back together again with the incoming partition column(s). This also
+# leaves open the possibility of tracking the full window in the future, not
+# just dplyr-style groups.
+chop_wndw <- function(.col) {
+  # lets do a little hacking to break up the incoming window .col
   func_spec <- call_method(
-    call_method(col@jc, "expr"),
+    call_method(.col@jc, "expr"),
     "children")
 
   # get the function the window should be over
@@ -123,62 +126,89 @@ chop_wndw <- function(col) {
     "org.apache.spark.sql.functions", "expr",
     gsub("#[0-9]*", "", func_str))
 
-  # reconstruct the window spec
-  # same as `func_spec.tail.head.children.head.toString`
-  # or `func_spec(2)(1).toString`
-  wndw_str <- call_method(
+  # extract the window attributes same as `func_spec.tail.head.children`
+  # this is all of the ordering and partition column and the last is the frame
+  wndw_attrs <- call_method(
     call_method(
       call_method(
-        call_method(
-          call_method(
-            func_spec,
-            "tail"),
-          "head"),
-        "children"),
+        func_spec,
+        "tail"),
       "head"),
-    "toString")
+    "children")
 
-  # here is the less-robust part. We need to extract the column name
-  # from the expression string which looks a little something like this:
-  # "-H#150 ASC NULLS FIRST", see the # makes it tough. Two ways to handle:
-
-  # EDIT: this doesn't actually work :(
-  # # probably more robust, just use regex to remove the reference #
-  # # so "-H#150 ASC NULLS FIRST" becomes "-H ASC NULLS FIRST"
-  # # but results in error
-  # # `cannot resolve '`-H ASC NULLS FIRST`' given input columns: [R, G,
-  # #                   yearID, playerID, AB, teamID, H]`
-  # col_obj <- new("Column", call_static(
-  #   "org.apache.spark.sql.functions", "col",
-  #   sub("(.*)(#[0-9]*) (.*)", "\\1 \\3", wndw_str)
-  #   ))
-
-  # grab the column name with regex and add the cannonical desc applying
-  # conditionally
-  col_string <- sub("(-)?(.*)#.*", "\\2", wndw_str)
-  col_obj <- if (grepl("^monotonically_increasing_id()", col_string)) {
-    monotonically_increasing_id()
-  } else if (grepl("^'", col_string)) {
-    new("Column", call_static(
-      "org.apache.spark.sql.functions", "col",
-      sub("'(.*?) (.*)", "\\1", col_string)
-    ))
-  } else {
-    new("Column", call_static(
-      "org.apache.spark.sql.functions", "col", col_string
-    ))
+  # recursvie function that digs up the strings in the window
+  mine_attrs <- function(attrs, accum = list()) {
+    if (call_method(attrs, "isEmpty")) accum
+    else mine_attrs(call_method(attrs, "tail"),
+                    c(accum,
+                      call_method(call_method(attrs, "head"), "toString")))
   }
 
-  descending <- sub("(-)?(.*)#.*", "\\1", wndw_str) == "-"
-  if (descending) col_obj <- dplyr::desc(col_obj)
+  wndw_strs <- mine_attrs(wndw_attrs)
 
-  # apply the column
-  wndw_ordr <- call_static(
-    "org.apache.spark.sql.expressions.Window",
-    "orderBy", list(col_obj@jc)
-  )
+  # now we need to categorize the strings into either being orderBy cols,
+  # partitionBy cols, or windowframe cols
+  #  - partitionBy cols usually start with '
+  #  - orderBy cols end with NULLS FIRST or NULLS LAST
+  #  - windowframe are the last one
+  part_cols_raw <- Filter(function(x) !grepl("NULLS FIRST|LAST$", x),
+                          wndw_strs[-length(wndw_strs)])
+  ordr_cols_raw <- Filter(function(x) grepl("NULLS FIRST|LAST$", x), wndw_strs)
+  frame_spec_raw <- wndw_strs[[length(wndw_strs)]]
 
-  list(func = func, wndw = wndw_ordr)
+  # now we process these further into valid pre-column strings to pass back
+  # and de-dup with the incoming grouping
+  part_cols <- sub("(')?([^ #]*)(.*)?", "\\2", part_cols_raw)
+
+  # for the ordering columns we extract the column and the ordering
+  ordr_cols_name <- lapply(
+    sub("(-)?(')?([^ #]*).* (ASC|DESC) NULLS (FIRST|LAST)",
+        "\\3", ordr_cols_raw),
+    function(x) {
+      if (grepl("^monotonically_increasing_id()", x)) {
+        monotonically_increasing_id()@jc
+      } else col(x)@jc
+      })
+
+  ordr_cols_suffix <- lapply(ordr_cols_raw, function(x) {
+    sffx <- sub("(-)?(')?([^ #]*).* ((ASC|DESC) NULLS (FIRST|LAST))", "\\4", x)
+    switch(sffx,
+           "ASC NULLS FIRST" = function(x) call_method(x, "asc_nulls_first"),
+           "DESC NULLS FIRST" = function(x) call_method(x, "desc_nulls_first"),
+           "ASC NULLS LAST" = function(x) call_method(x, "asc_nulls_last"),
+           "DESC NULLS LAST" = function(x) call_method(x, "desc_nulls_last"))
+  })
+
+  ordr_cols <- mapply(function(x, y) y(x), ordr_cols_name, ordr_cols_suffix)
+
+  # if the frame is specified we return a function that applies the frame
+  # some examples:
+  # "specifiedwindowframe(RangeFrame, currentrow$(), 3)"
+  # "specifiedwindowframe(RowFrame, currentrow$(), 3)"
+  # "specifiedwindowframe(RowFrame, currentrow$(), currentrow$())"
+  # "unspecifiedframe$()"
+  frame_spec <- if (grepl("^specified", frame_spec_raw)) {
+    frame <- list()
+    frame$type <- sub(".*frame[(](Range|Row)Frame.*", "\\1", frame_spec_raw)
+    frame$start <- sub(".*[(].*, (.*), .*[)]", "\\1", frame_spec_raw)
+    frame$end <- sub(".*[(].*, .*, (.*)[)]", "\\1", frame_spec_raw)
+    frame <- lapply(frame, function(x) ifelse(x == "currentrow$()", 0L, x))
+
+    if (frame$type == "Range") {
+      function(x) {
+        call_method(x, "rangeBetween", as.integer(frame$start), frame$end)
+      }
+    } else if (frame$type == "Row") {
+      function(x) {
+        call_method(x, "rowsBetween", as.integer(frame$start), frame$end)
+      }
+    } else stop("Unable to process 'specifiedwindowframe'. File a bug report.")
+  } else function(x) x
+
+  list(func = func,
+       part = part_cols,
+       ordr = ordr_cols,
+       frame = frame_spec)
 }
 
 #' @export
@@ -217,16 +247,25 @@ mutate.spark_tbl <- function(.data, ...) {
       eval <- new("Column", call_method(eval@jc, "over", window))
     }
     else if (is_wndw_expr(eval)) {
-      # this is used for rank, min_rank, row_number, dense_rank, etc.
+      # this will give back information used to re-create the window
+      # with grouping included
       func_wndw <- chop_wndw(eval)
 
       # add in the partitionBy based on grouping
-      groups <- attr(.data, "groups")
+      groups <- unique(attr(.data, "groups"), func_wndw$part)
       group_jcols <- lapply(df_cols[groups], function(x) x@jc)
-      window <- call_method(func_wndw$wndw, "partitionBy", group_jcols)
+
+      new_wndw <-
+        func_wndw$frame(
+          call_method(
+            call_static(
+              "org.apache.spark.sql.expressions.Window",
+              "partitionBy", group_jcols),
+            "orderBy", func_wndw$ordr)
+        )
 
       # apply the window over the function
-      eval <- new("Column", call_method(func_wndw$func, "over", window))
+      eval <- new("Column", call_method(func_wndw$func, "over", new_wndw))
     }
     # else if (is_wndw_expr(eval)) {
     #

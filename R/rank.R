@@ -6,29 +6,55 @@
 #'
 #' @description Window functions defined for \code{Column}.
 #'
-#' @param x In \code{lag}, \code{lead}, and \code{cume_dist}, it is the column
-#'          as a character string or a Column to compute on. In \code{ntile},
-#'          it is the number of ntile groups.
+#' @param x the \code{Column} or \code{WindowSpec} to use for rank functions.
+#'          This will default to ordering by
+#'          \code{monotonically_increasing_id()}. If using \code{WindowSpec}
+#'          you can also add partitioning columns, though any grouping vars
+#'          will be respected here.
+#' @param n an integer of the number of tiles used in \code{ntile}
 #' @param ... additional argument(s).
+#'
 #' @name column_window_functions
 #' @rdname column_window_functions
 #' @family window functions
 #' @examples
 #' \dontrun{
-#' # Dataframe used throughout this doc
-#' df <- createDataFrame(cbind(model = rownames(mtcars), mtcars))
-#' ws <- orderBy(windowPartitionBy("am"), "hp")
-#' tmp <- mutate(df,
-#'               rank = over(rank(), ws),
-#'               dense_rank = over(dense_rank(), ws),
-#'               percent_rank = over(percent_rank(), ws),
-#'               dist = over(cume_dist(), ws),
-#'               row_number = over(row_number(), ws))
-#'               lag = over(lag(df$mpg), ws),
-#'               lead = over(lead(df$mpg, 1), ws),
-#' # Get ntile group id (1-4) for hp
-#' tmp <- mutate(tmp, ntile = over(ntile(4), ws))
-#' head(tmp)}
+#' # with column names
+#' spark_tbl(iris) %>%
+#'   mutate(lead = lead(Petal_Width, 1),
+#'          lag = lag(Petal_Width, 2),
+#'          n = row_number(),
+#'          rank = rank(Petal_Width),
+#'          dense_rank = dense_rank(Petal_Width),
+#'          percent_rank = percent_rank(Petal_Width),
+#'          cume_dist = cume_dist(Petal_Width),
+#'          tiles_4 = ntile(Petal_Width, 4)) %>%
+#'  collect
+#'
+#' # with grouping things are more efficient
+#' spark_tbl(iris) %>%
+#'   group_by(Species) %>%
+#'   mutate(lead = lead(Petal_Width, 1),
+#'          lag = lag(Petal_Width, 2),
+#'          n = row_number(),
+#'          rank = rank(Petal_Width),
+#'          dense_rank = dense_rank(Petal_Width),
+#'          percent_rank = percent_rank(Petal_Width),
+#'          cume_dist = cume_dist(Petal_Width),
+#'          tiles_4 = ntile(Petal_Width, 4)) %>%
+#'   collect
+#'
+#' # you can also use a WindowSpec() to acheive the same thing
+#' wndw <- partitionBy(windowOrderBy("Petal_Width"), "Species")
+#' spark_tbl(iris) %>%
+#'   mutate(n = row_number(),
+#'          rank = rank(wndw),
+#'          dense_rank = dense_rank(wndw),
+#'          percent_rank = percent_rank(wndw),
+#'          cume_dist = cume_dist(wndw),
+#'          tiles_4 = ntile(wndw, 4)) %>%
+#'   collect
+#' }
 NULL
 
 # rank -----------------------------------------------------------------
@@ -87,7 +113,7 @@ min_rank <- function(x, ...) {
 
 min_rank.WindowSpec <-
   function(x = windowOrderBy(monotonically_increasing_id())) {
-  jc <- call_static("org.apache.spark.sql.functions", "min_rank")
+  jc <- call_static("org.apache.spark.sql.functions", "rank")
   new("Column", call_method(jc, "over", x@sws))
 }
 
