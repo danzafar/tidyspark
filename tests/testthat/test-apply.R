@@ -2,7 +2,7 @@
 # spark_udf works --------------------------------------------------------------
 test_that("spark_udf works", {
 
-  spark_session(master = "local[*]")
+  spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
   iris_fix <- iris %>%
     setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
@@ -34,7 +34,7 @@ test_that("spark_udf works", {
 # spark_udf works with dplyr/purrr formulas-------------------------------------
 test_that("spark_udf works with dplyr/purrr formulas", {
 
-  spark_session(master = "local[*]")
+  spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
   iris_fix <- iris %>%
     setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
@@ -53,7 +53,7 @@ test_that("spark_udf works with dplyr/purrr formulas", {
 ### spark_udf broadcasts values ------------------------------------------------
 test_that("spark_udf broadcasts values", {
 
-  spark_session(master = "local[*]")
+  spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
   iris_fix <- iris %>%
     setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
@@ -77,7 +77,7 @@ test_that("spark_udf broadcasts values", {
 ### spark_udf docs are sound ---------------------------------------------------
 test_that("spark_udf docs are sound", {
 
-  spark_session(master = "local[*]")
+  spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
   iris_fix <- iris %>%
     setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
@@ -151,7 +151,7 @@ test_that("spark_udf docs are sound", {
 ### spark_grouped_udf docs are sound -------------------------------------------
 test_that("spark_grouped_udf docs are sound", {
 
-  spark_session(master = "local[*]")
+  spark_session(master = "local[1]")
 
   df <- spark_tbl(tibble(a = c(1L, 1L, 3L),
                          b = c(1, 2, 3),
@@ -211,7 +211,7 @@ test_that("spark_grouped_udf docs are sound", {
 ### spark_lapply docs are sound ------------------------------------------------
 test_that("spark_lapply docs are sound", {
 
-  spark_session(master = "local[*]")
+  spark_session(master = "local[1]")
 
   expect_equal(spark_lapply(1:10, function(x) {2 * x}),
                as.list((1:10) * 2))
