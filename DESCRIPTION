@@ -37,11 +37,12 @@ RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 Collate: 
     'SparkSession.R'
-    'apply.R'
-    'client.R'
     'jobj.R'
     'generics.R'
     'columns.R'
+    'WindowSpec.R'
+    'apply.R'
+    'client.R'
     'dplyr.R'
     'dplyr_triple_colon.R'
     'fix_dot.R'
@@ -52,7 +53,7 @@ Collate:
     'joins.R'
     'lubridate.R'
     'package-related.R'
-    'rank_function_classes.R'
+    'rank.R'
     'rdd.R'
     'read-write.R'
     'serde.R'
