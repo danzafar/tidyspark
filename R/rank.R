@@ -262,12 +262,12 @@ row_number.default <- function(...) {
 #' @rdname column_window_functions
 #' @aliases ntile
 #' @note ntile since 1.6.0
-ntile <- function(...) {
+ntile <- function(x, n, ...) {
   UseMethod("ntile")
 }
 
-ntile.default <- function(...) {
-  dplyr::ntile(...)
+ntile.default <- function(x, n) {
+  dplyr::ntile(x, n)
 }
 
 ntile.WindowSpec <-

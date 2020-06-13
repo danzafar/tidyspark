@@ -23,7 +23,7 @@ cume_dist(x, ...)
 
 row_number(...)
 
-ntile(...)
+ntile(x, n, ...)
 }
 \arguments{
 \item{x}{the \code{Column} or \code{WindowSpec} to use for rank functions.
