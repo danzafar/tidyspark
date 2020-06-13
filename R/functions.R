@@ -310,6 +310,7 @@ NULL
 #' head(select(tmp8, map_from_entries(tmp8$v10)))}
 NULL
 
+# abs --------------------------------------------------------------------------
 #' @details
 #' \code{abs}: Computes the absolute value.
 #'
@@ -323,6 +324,7 @@ setMethod("abs",
             new("Column", jc)
           })
 
+# acos --------------------------------------------------------------------------
 #' @details
 #' \code{acos}: Returns the inverse cosine of the given value,
 #' as if computed by \code{java.lang.Math.acos()}
@@ -337,6 +339,7 @@ setMethod("acos",
             new("Column", jc)
           })
 
+# approxCountDistinct ----------------------------------------------------------
 #' @details
 #' \code{approxCountDistinct}: Returns the approximate number of distinct items
 #' in a group.
@@ -362,6 +365,7 @@ setMethod("approxCountDistinct",
             new("Column", jc)
           })
 
+# ascii ------------------------------------------------------------------------
 #' @details
 #' \code{ascii}: Computes the numeric value of the first character of the
 #' string column, and returns the result as an int column.
@@ -380,6 +384,7 @@ setMethod("ascii",
             new("Column", jc)
           })
 
+# asin -------------------------------------------------------------------------
 #' @details
 #' \code{asin}: Returns the inverse sine of the given value,
 #' as if computed by \code{java.lang.Math.asin()}
@@ -394,6 +399,7 @@ setMethod("asin",
             new("Column", jc)
           })
 
+# atan -------------------------------------------------------------------------
 #' @details
 #' \code{atan}: Returns the inverse tangent of the given value,
 #' as if computed by \code{java.lang.Math.atan()}
@@ -408,6 +414,7 @@ setMethod("atan",
             new("Column", jc)
           })
 
+# avg --------------------------------------------------------------------------
 #' avg
 #'
 #' Aggregate function: returns the average of the values in a group.
@@ -425,6 +432,7 @@ setMethod("avg",
             new("Column", jc)
           })
 
+# base64 -----------------------------------------------------------------------
 #' @details
 #' \code{base64}: Computes the BASE64 encoding of a binary column and returns
 #' it as a string column. This is the reverse of unbase64.
@@ -448,6 +456,7 @@ setMethod("base64",
             new("Column", jc)
           })
 
+# bin --------------------------------------------------------------------------
 #' @details
 #' \code{bin}: Returns the string representation of the binary value
 #' of the given long column. For example, bin("12") returns "1100".
@@ -462,6 +471,7 @@ setMethod("bin",
             new("Column", jc)
           })
 
+# bitwiseNOT -------------------------------------------------------------------
 #' @details
 #' \code{bitwiseNOT}: Computes bitwise NOT.
 #'
@@ -480,6 +490,7 @@ setMethod("bitwiseNOT",
             new("Column", jc)
           })
 
+# cbrt -------------------------------------------------------------------------
 #' @details
 #' \code{cbrt}: Computes the cube-root of the given value.
 #'
@@ -493,6 +504,7 @@ setMethod("cbrt",
             new("Column", jc)
           })
 
+# ceil -------------------------------------------------------------------------
 #' @details
 #' \code{ceil}: Computes the ceiling of the given value.
 #'
@@ -506,6 +518,7 @@ setMethod("ceil",
             new("Column", jc)
           })
 
+# ceiling ----------------------------------------------------------------------
 #' @details
 #' \code{ceiling}: Alias for \code{ceil}.
 #'
@@ -518,6 +531,7 @@ setMethod("ceiling",
             ceil(x)
           })
 
+# col --------------------------------------------------------------------------
 #' Though scala functions has "col" function, we don't expose it in SparkR
 #' because we don't want to conflict with the "col" function in the R base
 #' package and we also have "column" function exported which is an alias of
@@ -545,6 +559,7 @@ setMethod("column",
             col(x)
           })
 
+# corr -------------------------------------------------------------------------
 #' corr
 #'
 #' Computes the Pearson Correlation Coefficient for two Columns.
@@ -568,6 +583,7 @@ setMethod("corr", signature(x = "Column"),
             new("Column", jc)
           })
 
+# covar_samp -------------------------------------------------------------------
 #' Covariance
 #'
 #' @description Compute the covariance between two expressions.
@@ -595,6 +611,7 @@ setMethod("covar_samp", signature(col1 = "characterOrColumn",
             new("Column", jc)
           })
 
+# covar_pop --------------------------------------------------------------------
 #' @details
 #' \code{covar_pop}: Computes the population covariance between two expressions.
 #'
@@ -615,6 +632,7 @@ setMethod("covar_pop", signature(col1 = "characterOrColumn",
             new("Column", jc)
           })
 
+# cos --------------------------------------------------------------------------
 #' @details
 #' \code{cos}: Returns the cosine of the given value,
 #' as if computed by \code{java.lang.Math.cos()}. Units in radians.
@@ -629,6 +647,7 @@ setMethod("cos",
             new("Column", jc)
           })
 
+# cosh -------------------------------------------------------------------------
 #' @details
 #' \code{cosh}: Returns the hyperbolic cosine of the given value,
 #' as if computed by \code{java.lang.Math.cosh()}.
@@ -643,6 +662,7 @@ setMethod("cosh",
             new("Column", jc)
           })
 
+# crc32 ------------------------------------------------------------------------
 #' @details
 #' \code{crc32}: Calculates the cyclic redundancy check value  (CRC32) of a
 #' binary column and returns the value as a bigint.
@@ -657,6 +677,7 @@ setMethod("crc32",
             new("Column", jc)
           })
 
+# hash -------------------------------------------------------------------------
 #' @details
 #' \code{hash}: Calculates the hash code of given columns, and returns the
 #' result as an int column.
@@ -675,6 +696,7 @@ setMethod("hash",
             new("Column", jc)
           })
 
+# dayofmonth -------------------------------------------------------------------
 #' @details
 #' \code{dayofmonth}: Extracts the day of the month as an integer from a
 #' given date/timestamp/string.
@@ -698,6 +720,7 @@ setMethod("dayofmonth",
             new("Column", jc)
           })
 
+# dayofweek --------------------------------------------------------------------
 #' @details
 #' \code{dayofweek}: Extracts the day of the week as an integer from a
 #' given date/timestamp/string.
@@ -713,6 +736,7 @@ setMethod("dayofweek",
             new("Column", jc)
           })
 
+# dayofyear --------------------------------------------------------------------
 #' @details
 #' \code{dayofyear}: Extracts the day of the year as an integer from a
 #' given date/timestamp/string.
@@ -727,12 +751,13 @@ setMethod("dayofyear",
             new("Column", jc)
           })
 
+# decode -----------------------------------------------------------------------
 #' @details
-#' \code{decode}: Computes the first argument into a string from a binary using the provided
-#' character set.
+#' \code{decode}: Computes the first argument into a string from a binary
+#' using the provided character set.
 #'
-#' @param charset character set to use (one of "US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE",
-#'                "UTF-16LE", "UTF-16").
+#' @param charset character set to use (one of "US-ASCII", "ISO-8859-1",
+#'                "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16").
 #'
 #' @rdname column_string_functions
 #' @aliases decode decode,Column,character-method
@@ -740,13 +765,15 @@ setMethod("dayofyear",
 setMethod("decode",
           signature(x = "Column", charset = "character"),
           function(x, charset) {
-            jc <- call_static("org.apache.spark.sql.functions", "decode", x@jc, charset)
+            jc <- call_static("org.apache.spark.sql.functions", "decode",
+                              x@jc, charset)
             new("Column", jc)
           })
 
+# encode -----------------------------------------------------------------------
 #' @details
-#' \code{encode}: Computes the first argument into a binary from a string using the provided
-#' character set.
+#' \code{encode}: Computes the first argument into a binary from a string
+#' using the provided character set.
 #'
 #' @rdname column_string_functions
 #' @aliases encode encode,Column,character-method
@@ -754,10 +781,12 @@ setMethod("decode",
 setMethod("encode",
           signature(x = "Column", charset = "character"),
           function(x, charset) {
-            jc <- call_static("org.apache.spark.sql.functions", "encode", x@jc, charset)
+            jc <- call_static("org.apache.spark.sql.functions", "encode",
+                              x@jc, charset)
             new("Column", jc)
           })
 
+# exp --------------------------------------------------------------------------
 #' @details
 #' \code{exp}: Computes the exponential of the given value.
 #'
@@ -771,6 +800,7 @@ setMethod("exp",
             new("Column", jc)
           })
 
+# expm1 ------------------------------------------------------------------------
 #' @details
 #' \code{expm1}: Computes the exponential of the given value minus one.
 #'
@@ -784,6 +814,7 @@ setMethod("expm1",
             new("Column", jc)
           })
 
+# first ------------------------------------------------------------------------
 #' first
 #'
 #' Aggregate function: returns the first value in a group.
@@ -820,6 +851,7 @@ setMethod("first",
             new("Column", jc)
           })
 
+# floor ------------------------------------------------------------------------
 #' @details
 #' \code{floor}: Computes the floor of the given value.
 #'
@@ -833,6 +865,7 @@ setMethod("floor",
             new("Column", jc)
           })
 
+# hex --------------------------------------------------------------------------
 #' @details
 #' \code{hex}: Computes hex value of the given column.
 #'
@@ -846,6 +879,7 @@ setMethod("hex",
             new("Column", jc)
           })
 
+# initcap ----------------------------------------------------------------------
 #' @details
 #' \code{initcap}: Returns a new string column by converting the first letter of
 #' each word to uppercase. Words are delimited by whitespace. For example, "hello world"
@@ -870,6 +904,7 @@ setMethod("initcap",
             new("Column", jc)
           })
 
+# isnan ------------------------------------------------------------------------
 #' @details
 #' \code{isnan}: Returns true if the column is NaN.
 #' @rdname column_nonaggregate_functions
@@ -882,6 +917,7 @@ setMethod("isnan",
             new("Column", jc)
           })
 
+# is.nan -----------------------------------------------------------------------
 #' @details
 #' \code{is.nan}: Alias for \link{isnan}.
 #'
@@ -894,6 +930,7 @@ setMethod("is.nan",
             isnan(x)
           })
 
+# kurtosis ---------------------------------------------------------------------
 #' @details
 #' \code{kurtosis}: Returns the kurtosis of the values in a group.
 #'
@@ -911,14 +948,16 @@ setMethod("kurtosis",
             new("Column", jc)
           })
 
+# last -------------------------------------------------------------------------
 #' last
 #'
 #' Aggregate function: returns the last value in a group.
 #'
-#' The function by default returns the last values it sees. It will return the last non-missing
-#' value it sees when na.rm is set to true. If all values are missing, then NA is returned.
-#' Note: the function is non-deterministic because its results depends on order of rows which
-#' may be non-deterministic after a shuffle.
+#' The function by default returns the last values it sees. It will return the
+#' last non-missing value it sees when na.rm is set to true. If all values are
+#' missing, then NA is returned. Note: the function is non-deterministic
+#' because its results depends on order of rows which may be non-deterministic
+#' after a shuffle.
 #'
 #' @param x column to compute on.
 #' @param na.rm a logical value indicating whether NA values should be stripped
@@ -943,10 +982,12 @@ setMethod("last",
             } else {
               x
             }
-            jc <- call_static("org.apache.spark.sql.functions", "last", col, na.rm)
+            jc <- call_static("org.apache.spark.sql.functions", "last",
+                              col, na.rm)
             new("Column", jc)
           })
 
+# last_day ---------------------------------------------------------------------
 #' @details
 #' \code{last_day}: Given a date column, returns the last day of the month which the
 #' given date belongs to. For example, input "2015-07-27" returns "2015-07-31" since
@@ -962,10 +1003,12 @@ setMethod("last",
 setMethod("last_day",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "last_day", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "last_day",
+                              x@jc)
             new("Column", jc)
           })
 
+# length -----------------------------------------------------------------------
 #' @details
 #' \code{length}: Computes the character length of a string data or number of bytes
 #' of a binary data. The length of string data includes the trailing spaces.
@@ -981,6 +1024,7 @@ setMethod("length",
             new("Column", jc)
           })
 
+# log --------------------------------------------------------------------------
 #' @details
 #' \code{log}: Computes the natural logarithm of the given value.
 #'
@@ -994,6 +1038,7 @@ setMethod("log",
             new("Column", jc)
           })
 
+# log10 ------------------------------------------------------------------------
 #' @details
 #' \code{log10}: Computes the logarithm of the given value in base 10.
 #'
@@ -1007,6 +1052,7 @@ setMethod("log10",
             new("Column", jc)
           })
 
+# log1p ------------------------------------------------------------------------
 #' @details
 #' \code{log1p}: Computes the natural logarithm of the given value plus one.
 #'
@@ -1020,6 +1066,7 @@ setMethod("log1p",
             new("Column", jc)
           })
 
+# log2 -------------------------------------------------------------------------
 #' @details
 #' \code{log2}: Computes the logarithm of the given column in base 2.
 #'
@@ -1033,6 +1080,7 @@ setMethod("log2",
             new("Column", jc)
           })
 
+# lower ------------------------------------------------------------------------
 #' @details
 #' \code{lower}: Converts a string column to lower case.
 #'
@@ -1046,8 +1094,10 @@ setMethod("lower",
             new("Column", jc)
           })
 
+# ltrim ------------------------------------------------------------------------
 #' @details
-#' \code{ltrim}: Trims the spaces from left end for the specified string value. Optionally a
+#' \code{ltrim}: Trims the spaces from left end for the specified string value.
+#'               Optionally a
 #' \code{trimString} can be specified.
 #'
 #' @rdname column_string_functions
@@ -1072,6 +1122,7 @@ setMethod("ltrim",
             new("Column", jc)
           })
 
+# trimString -------------------------------------------------------------------
 #' @param trimString a character string to trim with
 #' @rdname column_string_functions
 #' @aliases ltrim,Column,character-method
@@ -1079,10 +1130,12 @@ setMethod("ltrim",
 setMethod("ltrim",
           signature(x = "Column", trimString = "character"),
           function(x, trimString) {
-            jc <- call_static("org.apache.spark.sql.functions", "ltrim", x@jc, trimString)
+            jc <- call_static("org.apache.spark.sql.functions", "ltrim",
+                              x@jc, trimString)
             new("Column", jc)
           })
 
+# max --------------------------------------------------------------------------
 #' @details
 #' \code{max}: Returns the maximum value of the expression in a group.
 #'
@@ -1096,9 +1149,10 @@ setMethod("max",
             new("Column", jc)
           })
 
+# md5 --------------------------------------------------------------------------
 #' @details
-#' \code{md5}: Calculates the MD5 digest of a binary column and returns the value
-#' as a 32 character hex string.
+#' \code{md5}: Calculates the MD5 digest of a binary column and returns the
+#' value as a 32 character hex string.
 #'
 #' @rdname column_misc_functions
 #' @aliases md5 md5,Column-method
@@ -1110,6 +1164,7 @@ setMethod("md5",
             new("Column", jc)
           })
 
+# mean -------------------------------------------------------------------------
 #' @details
 #' \code{mean}: Returns the average of the values in a group. Alias for \code{avg}.
 #'
@@ -1135,6 +1190,7 @@ setMethod("mean",
             new("Column", jc)
           })
 
+# min --------------------------------------------------------------------------
 #' @details
 #' \code{min}: Returns the minimum value of the expression in a group.
 #'
@@ -1148,18 +1204,21 @@ setMethod("min",
             new("Column", jc)
           })
 
+# monotonically_increasing_id --------------------------------------------------
 #' @details
-#' \code{monotonically_increasing_id}: Returns a column that generates monotonically increasing
-#' 64-bit integers. The generated ID is guaranteed to be monotonically increasing and unique,
-#' but not consecutive. The current implementation puts the partition ID in the upper 31 bits,
-#' and the record number within each partition in the lower 33 bits. The assumption is that the
-#' SparkDataFrame has less than 1 billion partitions, and each partition has less than 8 billion
-#' records. As an example, consider a SparkDataFrame with two partitions, each with 3 records.
-#' This expression would return the following IDs:
-#' 0, 1, 2, 8589934592 (1L << 33), 8589934593, 8589934594.
+#' \code{monotonically_increasing_id}: Returns a column that generates
+#' monotonically increasing 64-bit integers. The generated ID is guaranteed to
+#' be monotonically increasing and unique, but not consecutive. The current
+#' implementation puts the partition ID in the upper 31 bits, and the record
+#' number within each partition in the lower 33 bits. The assumption is that
+#' the SparkDataFrame has less than 1 billion partitions, and each partition
+#' has less than 8 billion records. As an example, consider a SparkDataFrame
+#' with two partitions, each with 3 records. This expression would return the
+#' following IDs: 0, 1, 2, 8589934592 (1L << 33), 8589934593, 8589934594.
 #' This is equivalent to the MONOTONICALLY_INCREASING_ID function in SQL.
 #' The method should be used with no argument.
-#' Note: the function is non-deterministic because its result depends on partition IDs.
+#' Note: the function is non-deterministic because its result depends on
+#' partition IDs.
 #'
 #' @rdname column_nonaggregate_functions
 #' @aliases monotonically_increasing_id monotonically_increasing_id,missing-method
@@ -1169,12 +1228,12 @@ setMethod("min",
 setMethod("monotonically_increasing_id",
           signature("missing"),
           function() {
-            jc <- call_static("org.apache.spark.sql.functions", "monotonically_increasing_id")
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "monotonically_increasing_id")
             new("Column", jc)
           })
 
-
-
+# negate -----------------------------------------------------------------------
 #' @details
 #' \code{negate}: Unary minus, i.e. negate the expression.
 #'
@@ -1188,8 +1247,10 @@ setMethod("negate",
             new("Column", jc)
           })
 
+# reverse ----------------------------------------------------------------------
 #' @details
-#' \code{reverse}: Returns a reversed string or an array with reverse order of elements.
+#' \code{reverse}: Returns a reversed string or an array with reverse order
+#'                 of elements.
 #'
 #' @rdname column_collection_functions
 #' @aliases reverse reverse,Column-method
@@ -1201,9 +1262,10 @@ setMethod("reverse",
             new("Column", jc)
           })
 
+# rint -------------------------------------------------------------------------
 #' @details
-#' \code{rint}: Returns the double value that is closest in value to the argument and
-#' is equal to a mathematical integer.
+#' \code{rint}: Returns the double value that is closest in value to the
+#' argument and is equal to a mathematical integer.
 #'
 #' @rdname column_math_functions
 #' @aliases rint rint,Column-method
@@ -1215,6 +1277,7 @@ setMethod("rint",
             new("Column", jc)
           })
 
+# round ------------------------------------------------------------------------
 #' @details
 #' \code{round}: Returns the value of the column rounded to 0 decimal places
 #' using HALF_UP rounding mode.
@@ -1229,28 +1292,33 @@ setMethod("round",
             new("Column", jc)
           })
 
+# bround -----------------------------------------------------------------------
 #' @details
-#' \code{bround}: Returns the value of the column \code{e} rounded to \code{scale} decimal places
-#' using HALF_EVEN rounding mode if \code{scale} >= 0 or at integer part when \code{scale} < 0.
-#' Also known as Gaussian rounding or bankers' rounding that rounds to the nearest even number.
-#' bround(2.5, 0) = 2, bround(3.5, 0) = 4.
+#' \code{bround}: Returns the value of the column \code{e} rounded to
+#' \code{scale} decimal places using HALF_EVEN rounding mode if
+#' \code{scale} >= 0 or at integer part when \code{scale} < 0. Also known as
+#' Gaussian rounding or bankers' rounding that rounds to the nearest even
+#' number. bround(2.5, 0) = 2, bround(3.5, 0) = 4.
 #'
-#' @param scale round to \code{scale} digits to the right of the decimal point when
-#'        \code{scale} > 0, the nearest even number when \code{scale} = 0, and \code{scale} digits
-#'        to the left of the decimal point when \code{scale} < 0.
+#' @param scale round to \code{scale} digits to the right of the decimal point
+#'        when \code{scale} > 0, the nearest even number when \code{scale} = 0,
+#'        and \code{scale} digits to the left of the decimal point when
+#'        \code{scale} < 0.
 #' @rdname column_math_functions
 #' @aliases bround bround,Column-method
 #' @note bround since 2.0.0
 setMethod("bround",
           signature(x = "Column"),
           function(x, scale = 0) {
-            jc <- call_static("org.apache.spark.sql.functions", "bround", x@jc, as.integer(scale))
+            jc <- call_static("org.apache.spark.sql.functions", "bround",
+                              x@jc, as.integer(scale))
             new("Column", jc)
           })
 
+# rtrim ------------------------------------------------------------------------
 #' @details
-#' \code{rtrim}: Trims the spaces from right end for the specified string value. Optionally a
-#' \code{trimString} can be specified.
+#' \code{rtrim}: Trims the spaces from right end for the specified string value.
+#'               Optionally a \code{trimString} can be specified.
 #'
 #' @rdname column_string_functions
 #' @aliases rtrim rtrim,Column,missing-method
@@ -1268,13 +1336,15 @@ setMethod("rtrim",
 setMethod("rtrim",
           signature(x = "Column", trimString = "character"),
           function(x, trimString) {
-            jc <- call_static("org.apache.spark.sql.functions", "rtrim", x@jc, trimString)
+            jc <- call_static("org.apache.spark.sql.functions", "rtrim",
+                              x@jc, trimString)
             new("Column", jc)
           })
 
+# sha1 -------------------------------------------------------------------------
 #' @details
-#' \code{sha1}: Calculates the SHA-1 digest of a binary column and returns the value
-#' as a 40 character hex string.
+#' \code{sha1}: Calculates the SHA-1 digest of a binary column and returns the
+#' value as a 40 character hex string.
 #'
 #' @rdname column_misc_functions
 #' @aliases sha1 sha1,Column-method
@@ -1286,6 +1356,7 @@ setMethod("sha1",
             new("Column", jc)
           })
 
+# signum -----------------------------------------------------------------------
 #' @details
 #' \code{signum}: Computes the signum of the given value.
 #'
@@ -1299,6 +1370,7 @@ setMethod("signum",
             new("Column", jc)
           })
 
+# sign -------------------------------------------------------------------------
 #' @details
 #' \code{sign}: Alias for \code{signum}.
 #'
@@ -1310,6 +1382,7 @@ setMethod("sign", signature(x = "Column"),
             signum(x)
           })
 
+# sin --------------------------------------------------------------------------
 #' @details
 #' \code{sin}: Returns the sine of the given value,
 #' as if computed by \code{java.lang.Math.sin()}. Units in radians.
@@ -1324,6 +1397,7 @@ setMethod("sin",
             new("Column", jc)
           })
 
+# sinh -------------------------------------------------------------------------
 #' @details
 #' \code{sinh}: Returns the hyperbolic sine of the given value,
 #' as if computed by \code{java.lang.Math.sinh()}.
@@ -1338,6 +1412,7 @@ setMethod("sinh",
             new("Column", jc)
           })
 
+# skewness ---------------------------------------------------------------------
 #' @details
 #' \code{skewness}: Returns the skewness of the values in a group.
 #'
@@ -1347,10 +1422,12 @@ setMethod("sinh",
 setMethod("skewness",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "skewness", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "skewness",
+                              x@jc)
             new("Column", jc)
           })
 
+# soundex ----------------------------------------------------------------------
 #' @details
 #' \code{soundex}: Returns the soundex code for the specified expression.
 #'
@@ -1364,11 +1441,12 @@ setMethod("soundex",
             new("Column", jc)
           })
 
+# spark_partition_id -----------------------------------------------------------
 #' @details
-#' \code{spark_partition_id}: Returns the partition ID as a SparkDataFrame column.
-#' Note that this is nondeterministic because it depends on data partitioning and
-#' task scheduling.
-#' This is equivalent to the \code{SPARK_PARTITION_ID} function in SQL.
+#' \code{spark_partition_id}: Returns the partition ID as a SparkDataFrame
+#' column. Note that this is nondeterministic because it depends on data
+#' partitioning and task scheduling. This is equivalent to the
+#' \code{SPARK_PARTITION_ID} function in SQL.
 #'
 #' @rdname column_nonaggregate_functions
 #' @aliases spark_partition_id spark_partition_id,missing-method
@@ -1379,10 +1457,12 @@ setMethod("soundex",
 setMethod("spark_partition_id",
           signature("missing"),
           function() {
-            jc <- call_static("org.apache.spark.sql.functions", "spark_partition_id")
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "spark_partition_id")
             new("Column", jc)
           })
 
+# stddev -----------------------------------------------------------------------
 #' @details
 #' \code{stddev}: Alias for \code{std_dev}.
 #'
@@ -1396,8 +1476,10 @@ setMethod("stddev",
             new("Column", jc)
           })
 
+# stddev_pop -------------------------------------------------------------------
 #' @details
-#' \code{stddev_pop}: Returns the population standard deviation of the expression in a group.
+#' \code{stddev_pop}: Returns the population standard deviation of the
+#'                    expression in a group.
 #'
 #' @rdname column_aggregate_functions
 #' @aliases stddev_pop stddev_pop,Column-method
@@ -1405,12 +1487,15 @@ setMethod("stddev",
 setMethod("stddev_pop",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "stddev_pop", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "stddev_pop", x@jc)
             new("Column", jc)
           })
 
+# stddev_samp ------------------------------------------------------------------
 #' @details
-#' \code{stddev_samp}: Returns the unbiased sample standard deviation of the expression in a group.
+#' \code{stddev_samp}: Returns the unbiased sample standard deviation of the
+#'                     expression in a group.
 #'
 #' @rdname column_aggregate_functions
 #' @aliases stddev_samp stddev_samp,Column-method
@@ -1418,12 +1503,15 @@ setMethod("stddev_pop",
 setMethod("stddev_samp",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "stddev_samp", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "stddev_samp", x@jc)
             new("Column", jc)
           })
 
+# struct ------------------------------------------------------------------
 #' @details
-#' \code{struct}: Creates a new struct column that composes multiple input columns.
+#' \code{struct}: Creates a new struct column that composes multiple input
+#' columns.
 #'
 #' @rdname column_nonaggregate_functions
 #' @aliases struct struct,characterOrColumn-method
@@ -1440,13 +1528,16 @@ setMethod("struct",
           function(x, ...) {
             if (class(x) == "Column") {
               jcols <- lapply(list(x, ...), function(x) { x@jc })
-              jc <- call_static("org.apache.spark.sql.functions", "struct", jcols)
+              jc <- call_static("org.apache.spark.sql.functions",
+                                "struct", jcols)
             } else {
-              jc <- call_static("org.apache.spark.sql.functions", "struct", x, list(...))
+              jc <- call_static("org.apache.spark.sql.functions", "struct",
+                                x, list(...))
             }
             new("Column", jc)
           })
 
+# sqrt -------------------------------------------------------------------------
 #' @details
 #' \code{sqrt}: Computes the square root of the specified float value.
 #'
@@ -1460,6 +1551,7 @@ setMethod("sqrt",
             new("Column", jc)
           })
 
+# sum --------------------------------------------------------------------------
 #' @details
 #' \code{sum}: Returns the sum of all values in the expression.
 #'
@@ -1473,6 +1565,7 @@ setMethod("sum",
             new("Column", jc)
           })
 
+# sumDistinct ------------------------------------------------------------------
 #' @details
 #' \code{sumDistinct}: Returns the sum of distinct values in the expression.
 #'
@@ -1487,10 +1580,12 @@ setMethod("sum",
 setMethod("sumDistinct",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "sumDistinct", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "sumDistinct", x@jc)
             new("Column", jc)
           })
 
+# tan --------------------------------------------------------------------------
 #' @details
 #' \code{tan}: Returns the tangent of the given value,
 #' as if computed by \code{java.lang.Math.tan()}.
@@ -1506,6 +1601,7 @@ setMethod("tan",
             new("Column", jc)
           })
 
+# tanh -------------------------------------------------------------------------
 #' @details
 #' \code{tanh}: Returns the hyperbolic tangent of the given value,
 #' as if computed by \code{java.lang.Math.tanh()}.
@@ -1520,9 +1616,10 @@ setMethod("tanh",
             new("Column", jc)
           })
 
+# toDegrees --------------------------------------------------------------------
 #' @details
-#' \code{toDegrees}: Converts an angle measured in radians to an approximately equivalent angle
-#' measured in degrees.
+#' \code{toDegrees}: Converts an angle measured in radians to an approximately
+#' equivalent angle measured in degrees.
 #'
 #' @rdname column_math_functions
 #' @aliases toDegrees toDegrees,Column-method
@@ -1530,13 +1627,15 @@ setMethod("tanh",
 setMethod("toDegrees",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "toDegrees", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "toDegrees",
+                              x@jc)
             new("Column", jc)
           })
 
+# degrees ----------------------------------------------------------------------
 #' @details
-#' \code{degrees}: Converts an angle measured in radians to an approximately equivalent angle
-#' measured in degrees.
+#' \code{degrees}: Converts an angle measured in radians to an approximately
+#' equivalent angle measured in degrees.
 #'
 #' @rdname column_math_functions
 #' @aliases degrees degrees,Column-method
@@ -1544,13 +1643,15 @@ setMethod("toDegrees",
 setMethod("degrees",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "degrees", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "degrees", x@jc)
             new("Column", jc)
           })
 
+# toRadians --------------------------------------------------------------------
 #' @details
-#' \code{toRadians}: Converts an angle measured in degrees to an approximately equivalent angle
-#' measured in radians.
+#' \code{toRadians}: Converts an angle measured in degrees to an approximately
+#' equivalent angle measured in radians.
 #'
 #' @rdname column_math_functions
 #' @aliases toRadians toRadians,Column-method
@@ -1558,16 +1659,18 @@ setMethod("degrees",
 setMethod("toRadians",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "toRadians", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "toRadians", x@jc)
             new("Column", jc)
           })
 
+# to_date --------------------------------------------------------------------
 #' @details
-#' \code{to_date}: Converts the column into a DateType. You may optionally specify
-#' a format according to the rules in:
-#' \url{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}.
-#' If the string cannot be parsed according to the specified format (or default),
-#' the value of the column will be null.
+#' \code{to_date}: Converts the column into a DateType. You may optionally
+#' specify a format according to the
+#' \href{rules}{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}.
+#' If the string cannot be parsed according to the specified format
+#' (or default), the value of the column will be null.
 #' By default, it follows casting rules to a DateType if the format is omitted
 #' (equivalent to \code{cast(df$x, "date")}).
 #'
@@ -1587,7 +1690,8 @@ setMethod("toRadians",
 setMethod("to_date",
           signature(x = "Column", format = "missing"),
           function(x, format) {
-            jc <- call_static("org.apache.spark.sql.functions", "to_date", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "to_date",
+                              x@jc)
             new("Column", jc)
           })
 
@@ -1597,13 +1701,15 @@ setMethod("to_date",
 setMethod("to_date",
           signature(x = "Column", format = "character"),
           function(x, format) {
-            jc <- call_static("org.apache.spark.sql.functions", "to_date", x@jc, format)
+            jc <- call_static("org.apache.spark.sql.functions", "to_date",
+                              x@jc, format)
             new("Column", jc)
           })
 
+# to_json ----------------------------------------------------------------------
 #' @details
-#' \code{to_json}: Converts a column containing a \code{structType}, a \code{mapType}
-#' or an \code{arrayType} into a Column of JSON string.
+#' \code{to_json}: Converts a column containing a \code{structType}, a
+#' \code{mapType} or an \code{arrayType} into a Column of JSON string.
 #' Resolving the Column can fail if an unsupported type is encountered.
 #'
 #' @rdname column_collection_functions
@@ -1616,7 +1722,8 @@ setMethod("to_date",
 #' select(df2, to_json(df2$d, dateFormat = 'dd/MM/yyyy'))
 #'
 #' # Converts an array of structs into a JSON array
-#' df2 <- sql("SELECT array(named_struct('name', 'Bob'), named_struct('name', 'Alice')) as people")
+#' df2 <- sql("SELECT array(named_struct('name', 'Bob'),
+#'                          named_struct('name', 'Alice')) as people")
 #' df2 <- mutate(df2, people_json = to_json(df2$people))
 #'
 #' # Converts a map into a JSON object
@@ -1624,16 +1731,19 @@ setMethod("to_date",
 #' df2 <- mutate(df2, people_json = to_json(df2$people))
 #'
 #' # Converts an array of maps into a JSON array
-#' df2 <- sql("SELECT array(map('name', 'Bob'), map('name', 'Alice')) as people")
+#' df2 <- sql("SELECT array(map('name', 'Bob'),
+#'                          map('name', 'Alice')) as people")
 #' df2 <- mutate(df2, people_json = to_json(df2$people))}
 #' @note to_json since 2.2.0
 setMethod("to_json", signature(x = "Column"),
           function(x, ...) {
             options <- varargsToStrEnv(...)
-            jc <- call_static("org.apache.spark.sql.functions", "to_json", x@jc, options)
+            jc <- call_static("org.apache.spark.sql.functions", "to_json",
+                              x@jc, options)
             new("Column", jc)
           })
 
+# to_csv -----------------------------------------------------------------------
 #' @details
 #' \code{to_csv}: Converts a column containing a \code{structType} into a
 #' Column of CSV string. Resolving the Column can fail if an unsupported type
@@ -1656,6 +1766,7 @@ setMethod("to_csv", signature(x = "Column"),
             new("Column", jc)
           })
 
+# to_timestamp -----------------------------------------------------------------
 #' @details
 #' \code{to_timestamp}: Converts the column into a TimestampType. You may
 #' optionally specify a format according to the rules in:
@@ -1671,7 +1782,8 @@ setMethod("to_csv", signature(x = "Column"),
 setMethod("to_timestamp",
           signature(x = "Column", format = "missing"),
           function(x, format) {
-            jc <- call_static("org.apache.spark.sql.functions", "to_timestamp", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "to_timestamp", x@jc)
             new("Column", jc)
           })
 
@@ -1681,13 +1793,15 @@ setMethod("to_timestamp",
 setMethod("to_timestamp",
           signature(x = "Column", format = "character"),
           function(x, format) {
-            jc <- call_static("org.apache.spark.sql.functions", "to_timestamp", x@jc, format)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "to_timestamp", x@jc, format)
             new("Column", jc)
           })
 
+# trim -------------------------------------------------------------------------
 #' @details
-#' \code{trim}: Trims the spaces from both ends for the specified string column. Optionally a
-#' \code{trimString} can be specified.
+#' \code{trim}: Trims the spaces from both ends for the specified string
+#' column. Optionally a \code{trimString} can be specified.
 #'
 #' @rdname column_string_functions
 #' @aliases trim trim,Column,missing-method
@@ -1705,13 +1819,15 @@ setMethod("trim",
 setMethod("trim",
           signature(x = "Column", trimString = "character"),
           function(x, trimString) {
-            jc <- call_static("org.apache.spark.sql.functions", "trim", x@jc, trimString)
+            jc <- call_static("org.apache.spark.sql.functions", "trim",
+                              x@jc, trimString)
             new("Column", jc)
           })
 
+# unbase64 ---------------------------------------------------------------------
 #' @details
-#' \code{unbase64}: Decodes a BASE64 encoded string column and returns it as a binary column.
-#' This is the reverse of base64.
+#' \code{unbase64}: Decodes a BASE64 encoded string column and returns it as
+#' a binary column. This is the reverse of base64.
 #'
 #' @rdname column_string_functions
 #' @aliases unbase64 unbase64,Column-method
@@ -1719,13 +1835,15 @@ setMethod("trim",
 setMethod("unbase64",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "unbase64", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "unbase64",
+                              x@jc)
             new("Column", jc)
           })
 
+# unhex ------------------------------------------------------------------------
 #' @details
-#' \code{unhex}: Inverse of hex. Interprets each pair of characters as a hexadecimal number
-#' and converts to the byte representation of number.
+#' \code{unhex}: Inverse of hex. Interprets each pair of characters as a
+#' hexadecimal number and converts to the byte representation of number.
 #'
 #' @rdname column_math_functions
 #' @aliases unhex unhex,Column-method
@@ -1737,6 +1855,7 @@ setMethod("unhex",
             new("Column", jc)
           })
 
+# upper ------------------------------------------------------------------------
 #' @details
 #' \code{upper}: Converts a string column to upper case.
 #'
@@ -1750,16 +1869,19 @@ setMethod("upper",
             new("Column", jc)
           })
 
+# variance ---------------------------------------------------------------------
 #' @rdname column_aggregate_functions
 #' @aliases variance variance,Column-method
 #' @note variance since 1.6.0
 setMethod("variance",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "variance", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "variance",
+                              x@jc)
             new("Column", jc)
           })
 
+# var_pop ----------------------------------------------------------------------
 #' @details
 #' \code{var_pop}: Returns the population variance of the values in a group.
 #'
@@ -1773,6 +1895,7 @@ setMethod("var_pop",
             new("Column", jc)
           })
 
+# var_samp ---------------------------------------------------------------------
 #' @details
 #' \code{var_samp}: Returns the unbiased variance of the values in a group.
 #'
@@ -1782,12 +1905,15 @@ setMethod("var_pop",
 setMethod("var_samp",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "var_samp", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "var_samp",
+                              x@jc)
             new("Column", jc)
           })
 
+# weekofyear -------------------------------------------------------------------
 #' @details
-#' \code{weekofyear}: Extracts the week number as an integer from a given date/timestamp/string.
+#' \code{weekofyear}: Extracts the week number as an integer from a given
+#'                    date/timestamp/string.
 #'
 #' @rdname column_datetime_functions
 #' @aliases weekofyear weekofyear,Column-method
@@ -1795,27 +1921,12 @@ setMethod("var_samp",
 setMethod("weekofyear",
           signature(x = "Column"),
           function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "weekofyear", x@jc)
+            jc <- call_static("org.apache.spark.sql.functions", "weekofyear",
+                              x@jc)
             new("Column", jc)
           })
 
-#' #' @details
-#' #' \code{atan2}: Returns the angle theta from the conversion of rectangular coordinates
-#' #' (x, y) to polar coordinates (r, theta),
-#' #' as if computed by \code{java.lang.Math.atan2()}. Units in radians.
-#' #'
-#' #' @rdname column_math_functions
-#' #' @aliases atan2 atan2,Column-method
-#' #' @note atan2 since 1.5.0
-#' setMethod("atan2", signature(y = "Column"),
-#'           function(y, x) {
-#'             if (class(x) == "Column") {
-#'               x <- x@jc
-#'             }
-#'             jc <- call_static("org.apache.spark.sql.functions", "atan2", y@jc, x)
-#'             new("Column", jc)
-#'           })
-
+# datediff ---------------------------------------------------------------------
 #' @details
 #' \code{datediff}: Returns the number of days from \code{y} to \code{x}.
 #' If \code{y} is later than \code{x} then the result is positive.
@@ -1836,12 +1947,15 @@ setMethod("datediff", signature(y = "Column"),
             if (class(x) == "Column") {
               x <- x@jc
             }
-            jc <- call_static("org.apache.spark.sql.functions", "datediff", y@jc, x)
+            jc <- call_static("org.apache.spark.sql.functions", "datediff",
+                              y@jc, x)
             new("Column", jc)
           })
 
+# hypot ------------------------------------------------------------------------
 #' @details
-#' \code{hypot}: Computes "sqrt(a^2 + b^2)" without intermediate overflow or underflow.
+#' \code{hypot}: Computes "sqrt(a^2 + b^2)" without intermediate overflow or
+#'               underflow.
 #'
 #' @rdname column_math_functions
 #' @aliases hypot hypot,Column-method
@@ -1855,8 +1969,10 @@ setMethod("hypot", signature(y = "Column"),
             new("Column", jc)
           })
 
+# levenshtein ------------------------------------------------------------------
 #' @details
-#' \code{levenshtein}: Computes the Levenshtein distance of the two given string columns.
+#' \code{levenshtein}: Computes the Levenshtein distance of the two given
+#'                     string columns.
 #'
 #' @rdname column_string_functions
 #' @aliases levenshtein levenshtein,Column-method
@@ -1877,11 +1993,13 @@ setMethod("levenshtein", signature(y = "Column"),
             new("Column", jc)
           })
 
+# months_between ---------------------------------------------------------------
 #' @details
-#' \code{months_between}: Returns number of months between dates \code{y} and \code{x}.
-#' If \code{y} is later than \code{x}, then the result is positive. If \code{y} and \code{x}
-#' are on the same day of month, or both are the last day of month, time of day will be ignored.
-#' Otherwise, the difference is calculated based on 31 days per month, and rounded to 8 digits.
+#' \code{months_between}: Returns number of months between dates \code{y} and
+#' \code{x}. If \code{y} is later than \code{x}, then the result is positive.
+#' If \code{y} and \code{x} are on the same day of month, or both are the last
+#' day of month, time of day will be ignored. Otherwise, the difference is
+#' calculated based on 31 days per month, and rounded to 8 digits.
 #'
 #' @rdname column_datetime_diff_functions
 #' @aliases months_between months_between,Column-method
@@ -1891,14 +2009,16 @@ setMethod("months_between", signature(y = "Column"),
             if (class(x) == "Column") {
               x <- x@jc
             }
-            jc <- call_static("org.apache.spark.sql.functions", "months_between", y@jc, x)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "months_between", y@jc, x)
             new("Column", jc)
           })
 
+# nanvl ------------------------------------------------------------------------
 #' @details
-#' \code{nanvl}: Returns the first column (\code{y}) if it is not NaN, or the second column
-#' (\code{x}) if the first column is NaN. Both inputs should be floating point columns
-#' (DoubleType or FloatType).
+#' \code{nanvl}: Returns the first column (\code{y}) if it is not NaN, or the
+#' second column (\code{x}) if the first column is NaN. Both inputs should be
+#' floating point columns (DoubleType or FloatType).
 #'
 #' @rdname column_nonaggregate_functions
 #' @aliases nanvl nanvl,Column-method
@@ -1908,13 +2028,16 @@ setMethod("nanvl", signature(y = "Column"),
             if (class(x) == "Column") {
               x <- x@jc
             }
-            jc <- call_static("org.apache.spark.sql.functions", "nanvl", y@jc, x)
+            jc <- call_static("org.apache.spark.sql.functions", "nanvl",
+                              y@jc, x)
             new("Column", jc)
           })
 
+# pmod -------------------------------------------------------------------------
 #' @details
 #' \code{pmod}: Returns the positive value of dividend mod divisor.
-#' Column \code{x} is divisor column, and column \code{y} is the dividend column.
+#' Column \code{x} is divisor column, and column \code{y} is the dividend
+#' column.
 #'
 #' @rdname column_math_functions
 #' @aliases pmod pmod,Column-method
@@ -1928,6 +2051,7 @@ setMethod("pmod", signature(y = "Column"),
             new("Column", jc)
           })
 
+# countDistinct ----------------------------------------------------------------
 #' @details
 #' \code{countDistinct}: Returns the number of distinct items in a group.
 #'
@@ -1941,11 +2065,12 @@ setMethod("countDistinct",
               stopifnot(class(x) == "Column")
               x@jc
             })
-            jc <- call_static("org.apache.spark.sql.functions", "countDistinct", x@jc,
-                              jcols)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "countDistinct", x@jc, jcols)
             new("Column", jc)
           })
 
+# concat -----------------------------------------------------------------------
 #' @details
 #' \code{concat}: Concatenates multiple input columns together into a single column.
 #' The function works with strings, binary and compatible array columns.
@@ -1964,9 +2089,11 @@ setMethod("concat",
             new("Column", jc)
           })
 
+# greatest ---------------------------------------------------------------------
 #' @details
-#' \code{greatest}: Returns the greatest value of the list of column names, skipping null values.
-#' This function takes at least 2 parameters. It will return null if all parameters are null.
+#' \code{greatest}: Returns the greatest value of the list of column names,
+#' skipping null values. This function takes at least 2 parameters. It will
+#' return null if all parameters are null.
 #'
 #' @rdname column_nonaggregate_functions
 #' @aliases greatest greatest,Column-method
@@ -1983,9 +2110,11 @@ setMethod("greatest",
             new("Column", jc)
           })
 
+# least ------------------------------------------------------------------------
 #' @details
-#' \code{least}: Returns the least value of the list of column names, skipping null values.
-#' This function takes at least 2 parameters. It will return null if all parameters are null.
+#' \code{least}: Returns the least value of the list of column names, skipping
+#' null values. This function takes at least 2 parameters. It will return null
+#' if all parameters are null.
 #'
 #' @rdname column_nonaggregate_functions
 #' @aliases least least,Column-method
@@ -2002,6 +2131,7 @@ setMethod("least",
             new("Column", jc)
           })
 
+# n_distinct -------------------------------------------------------------------
 #' @details
 #' \code{n_distinct}: Returns the number of distinct items in a group.
 #'
@@ -2014,6 +2144,7 @@ setMethod("n_distinct", signature(x = "Column"),
           })
 
 
+# date_format ------------------------------------------------------------------
 #' @details
 #' \code{date_format}: Converts a date/timestamp/string to a value of string in
 #' the format specified by the date format given by the second argument. A
@@ -2029,10 +2160,12 @@ setMethod("n_distinct", signature(x = "Column"),
 #' @note date_format since 1.5.0
 setMethod("date_format", signature(y = "Column", x = "character"),
           function(y, x) {
-            jc <- call_static("org.apache.spark.sql.functions", "date_format", y@jc, x)
+            jc <- call_static("org.apache.spark.sql.functions", "date_format",
+                              y@jc, x)
             new("Column", jc)
           })
 
+# from_json --------------------------------------------------------------------
 #' @details
 #' \code{from_json}: Parses a column containing a JSON string into a Column of
 #' \code{StructType} with the specified \code{schema} or array of
@@ -2100,6 +2233,7 @@ setMethod("from_json",
             new("Column", jc)
           })
 
+# schema_of_json ---------------------------------------------------------------
 #' @details
 #' \code{schema_of_json}: Parses a JSON string and infers its schema in DDL format.
 #'
@@ -2126,6 +2260,7 @@ setMethod("schema_of_json", signature(x = "characterOrColumn"),
             new("Column", jc)
           })
 
+# from_csv ---------------------------------------------------------------------
 #' @details
 #' \code{from_csv}: Parses a column containing a CSV string into a Column of
 #' \code{StructType} with the specified \code{schema}.
@@ -2177,6 +2312,7 @@ setMethod("from_csv", signature(x = "Column",
               new("Column", jc)
           })
 
+# schema_of_csv ----------------------------------------------------------------
 #' @details
 #' \code{schema_of_csv}: Parses a CSV string and infers its schema in DDL format.
 #'
@@ -2203,6 +2339,7 @@ setMethod("schema_of_csv", signature(x = "characterOrColumn"),
             new("Column", jc)
           })
 
+# from_utc_timestamp -----------------------------------------------------------
 #' @details
 #' \code{from_utc_timestamp}: This is a common function for databases
 #' supporting TIMESTAMP WITHOUT TIMEZONE. This function takes a timestamp which
@@ -2234,6 +2371,7 @@ setMethod("from_utc_timestamp", signature(y = "Column", x = "character"),
             new("Column", jc)
           })
 
+# instr ------------------------------------------------------------------------
 #' @details
 #' \code{instr}: Locates the position of the first occurrence of a substring
 #' (\code{x}) in the given string column (\code{y}). Returns null if either of
@@ -2245,16 +2383,20 @@ setMethod("from_utc_timestamp", signature(y = "Column", x = "character"),
 #' @examples
 #'
 #' \dontrun{
-#' tmp <- mutate(df, s1 = instr(df$Sex, "m"), s2 = instr(df$Sex, "M"),
-#'                   s3 = locate("m", df$Sex), s4 = locate("m", df$Sex, pos = 4))
+#' tmp <- mutate(df, s1 = instr(df$Sex, "m"),
+#'                   s2 = instr(df$Sex, "M"),
+#'                   s3 = locate("m", df$Sex),
+#'                   s4 = locate("m", df$Sex, pos = 4))
 #' head(tmp)}
 #' @note instr since 1.5.0
 setMethod("instr", signature(y = "Column", x = "character"),
           function(y, x) {
-            jc <- call_static("org.apache.spark.sql.functions", "instr", y@jc, x)
+            jc <- call_static("org.apache.spark.sql.functions", "instr",
+                              y@jc, x)
             new("Column", jc)
           })
 
+# next_day ---------------------------------------------------------------------
 #' @details
 #' \code{next_day}: Given a date column, returns the first date which is later
 #' than the value of the date column that is on the specified day of the week.
@@ -2268,10 +2410,12 @@ setMethod("instr", signature(y = "Column", x = "character"),
 #' @note next_day since 1.5.0
 setMethod("next_day", signature(y = "Column", x = "character"),
           function(y, x) {
-            jc <- call_static("org.apache.spark.sql.functions", "next_day", y@jc, x)
+            jc <- call_static("org.apache.spark.sql.functions", "next_day",
+                              y@jc, x)
             new("Column", jc)
           })
 
+# to_utc_timestamp -------------------------------------------------------------
 #' @details
 #' \code{to_utc_timestamp}: This is a common function for databases supporting
 #' TIMESTAMP WITHOUT TIMEZONE. This function takes a timestamp which is
@@ -2296,6 +2440,7 @@ setMethod("to_utc_timestamp", signature(y = "Column", x = "character"),
             new("Column", jc)
           })
 
+# add_months -------------------------------------------------------------------
 #' @details
 #' \code{add_months}: Returns the date that is numMonths (\code{x}) after
 #' startDate (\code{y}).
@@ -2318,6 +2463,7 @@ setMethod("add_months", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# date_add ---------------------------------------------------------------------
 #' @details
 #' \code{date_add}: Returns the date that is \code{x} days after.
 #'
@@ -2331,6 +2477,7 @@ setMethod("date_add", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# date_sub ---------------------------------------------------------------------
 #' @details
 #' \code{date_sub}: Returns the date that is \code{x} days before.
 #'
@@ -2345,6 +2492,7 @@ setMethod("date_sub", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# format_number ----------------------------------------------------------------
 #' @details
 #' \code{format_number}: Formats numeric column \code{y} to a format like
 #' '#,###,###.##', rounded to \code{x} decimal places with HALF_EVEN round
@@ -2369,6 +2517,7 @@ setMethod("format_number", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# sha2 -------------------------------------------------------------------------
 #' @details
 #' \code{sha2}: Calculates the SHA-2 family of hash functions of a binary
 #' column and returns the value as a hex string. The second argument \code{x}
@@ -2384,6 +2533,7 @@ setMethod("sha2", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# shiftLeft --------------------------------------------------------------------
 #' @details
 #' \code{shiftLeft}: Shifts the given value numBits left. If the given value is
 #' a long value. this function will return a long value else it will return an
@@ -2400,6 +2550,7 @@ setMethod("shiftLeft", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# shiftRight -------------------------------------------------------------------
 #' @details
 #' \code{shiftRight}: (Signed) shifts the given value numBits right. If the
 #' given value is a long value, it will return a long value else it will return
@@ -2416,6 +2567,7 @@ setMethod("shiftRight", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# shiftRightUnsigned -----------------------------------------------------------
 #' @details
 #' \code{shiftRightUnsigned}: (Unigned) shifts the given value numBits right.
 #' If the given value is a long value, it will return a long value else it will
@@ -2432,6 +2584,7 @@ setMethod("shiftRightUnsigned", signature(y = "Column", x = "numeric"),
             new("Column", jc)
           })
 
+# concat_ws --------------------------------------------------------------------
 #' @details
 #' \code{concat_ws}: Concatenates multiple input string columns together into a
 #' single string column, using the given separator.
@@ -2455,6 +2608,7 @@ setMethod("concat_ws", signature(sep = "character", x = "Column"),
             new("Column", jc)
           })
 
+# conv -------------------------------------------------------------------------
 #' @details
 #' \code{conv}: Converts a number in a string column from one base to another.
 #'
@@ -2463,7 +2617,8 @@ setMethod("concat_ws", signature(sep = "character", x = "Column"),
 #' @rdname column_math_functions
 #' @aliases conv conv,Column,numeric,numeric-method
 #' @note conv since 1.5.0
-setMethod("conv", signature(x = "Column", fromBase = "numeric", toBase = "numeric"),
+setMethod("conv", signature(x = "Column", fromBase = "numeric",
+                            toBase = "numeric"),
           function(x, fromBase, toBase) {
             fromBase <- as.integer(fromBase)
             toBase <- as.integer(toBase)
@@ -2473,6 +2628,7 @@ setMethod("conv", signature(x = "Column", fromBase = "numeric", toBase = "numeri
             new("Column", jc)
           })
 
+# expr -------------------------------------------------------------------------
 #' @details
 #' \code{expr}: Parses the expression string into the column that it
 #' represents, similar to \code{SparkDataFrame.selectExpr}
@@ -2486,6 +2642,7 @@ setMethod("expr", signature(x = "character"),
             new("Column", jc)
           })
 
+# format_string ----------------------------------------------------------------
 #' @details
 #' \code{format_string}: Formats the arguments in printf-style and returns the
 #' result as a string column.
@@ -2503,6 +2660,7 @@ setMethod("format_string", signature(format = "character", x = "Column"),
             new("Column", jc)
           })
 
+# from_unixtime ----------------------------------------------------------------
 #' @details
 #' \code{from_unixtime}: Converts the number of seconds from unix epoch
 #' (1970-01-01 00:00:00 UTC) to a string representing the timestamp of that
@@ -2531,9 +2689,10 @@ setMethod("from_unixtime", signature(x = "Column"),
             new("Column", jc)
           })
 
+# when -------------------------------------------------------------------------
 #' @details
-#' \code{when}: Evaluates a list of conditions and returns one of multiple possible result
-#' expressions. For unmatched expressions null is returned.
+#' \code{when}: Evaluates a list of conditions and returns one of multiple
+#' possible result expressions. For unmatched expressions null is returned.
 #'
 #' @rdname column_nonaggregate_functions
 #' @param condition the condition to test on. Must be a Column expression.
@@ -2559,6 +2718,7 @@ setMethod("when", signature(condition = "Column", value = "ANY"),
             new("Column", jc)
           })
 
+# window -----------------------------------------------------------------------
 #' @details
 #' \code{window}: Bucketizes rows into one or more time windows given a
 #' timestamp specifying column. Window starts are inclusive but the window ends
@@ -2631,6 +2791,7 @@ window.Column <- function(x, windowDuration,
             new("Column", jc)
           }
 
+# locate -----------------------------------------------------------------------
 #' @details
 #' \code{locate}: Locates the position of the first occurrence of substr.
 #' Note: The position is not zero based, but 1 based index. Returns 0 if substr
@@ -2650,6 +2811,7 @@ setMethod("locate", signature(substr = "character", str = "Column"),
             new("Column", jc)
           })
 
+# lpad -------------------------------------------------------------------------
 #' @details
 #' \code{lpad}: Left-padded with pad to a length of len.
 #'
@@ -2666,9 +2828,10 @@ setMethod("lpad", signature(x = "Column", len = "numeric", pad = "character"),
             new("Column", jc)
           })
 
+# rand -------------------------------------------------------------------------
 #' @details
-#' \code{rand}: Generates a random column with independent and identically distributed (i.i.d.)
-#' samples from U[0.0, 1.0].
+#' \code{rand}: Generates a random column with independent and identically
+#' distributed (i.i.d.) samples from U[0.0, 1.0].
 #' Note: the function is non-deterministic in general case.
 #'
 #' @rdname column_nonaggregate_functions
@@ -2691,13 +2854,15 @@ setMethod("rand", signature(seed = "missing"),
 #' @note rand(numeric) since 1.5.0
 setMethod("rand", signature(seed = "numeric"),
           function(seed) {
-            jc <- call_static("org.apache.spark.sql.functions", "rand", as.integer(seed))
+            jc <- call_static("org.apache.spark.sql.functions", "rand",
+                              as.integer(seed))
             new("Column", jc)
           })
 
+# randn ------------------------------------------------------------------------
 #' @details
-#' \code{randn}: Generates a column with independent and identically distributed (i.i.d.) samples
-#' from the standard normal distribution.
+#' \code{randn}: Generates a column with independent and identically
+#' distributed (i.i.d.) samples from the standard normal distribution.
 #' Note: the function is non-deterministic in general case.
 #'
 #' @rdname column_nonaggregate_functions
@@ -2714,14 +2879,16 @@ setMethod("randn", signature(seed = "missing"),
 #' @note randn(numeric) since 1.5.0
 setMethod("randn", signature(seed = "numeric"),
           function(seed) {
-            jc <- call_static("org.apache.spark.sql.functions", "randn", as.integer(seed))
+            jc <- call_static("org.apache.spark.sql.functions", "randn",
+                              as.integer(seed))
             new("Column", jc)
           })
 
+# regexp_extract ---------------------------------------------------------------
 #' @details
-#' \code{regexp_extract}: Extracts a specific \code{idx} group identified by a Java regex,
-#' from the specified string column. If the regex did not match, or the specified group did
-#' not match, an empty string is returned.
+#' \code{regexp_extract}: Extracts a specific \code{idx} group identified by a
+#' Java regex, from the specified string column. If the regex did not match, or
+#' the specified group did not match, an empty string is returned.
 #'
 #' @param pattern a regular expression.
 #' @param idx a group index.
@@ -2748,11 +2915,13 @@ setMethod("regexp_extract",
             new("Column", jc)
           })
 
+# regexp_replace ---------------------------------------------------------------
 #' @details
-#' \code{regexp_replace}: Replaces all substrings of the specified string value that
-#' match regexp with rep.
+#' \code{regexp_replace}: Replaces all substrings of the specified string value
+#' that match regexp with rep.
 #'
-#' @param replacement a character string that a matched \code{pattern} is replaced with.
+#' @param replacement a character string that a matched \code{pattern} is
+#'        replaced with.
 #' @rdname column_string_functions
 #' @aliases regexp_replace regexp_replace,Column,character,character-method
 #' @note regexp_replace since 1.5.0
@@ -2765,6 +2934,7 @@ setMethod("regexp_replace",
             new("Column", jc)
           })
 
+# rpad -------------------------------------------------------------------------
 #' @details
 #' \code{rpad}: Right-padded with pad to a length of len.
 #'
@@ -2779,17 +2949,19 @@ setMethod("rpad", signature(x = "Column", len = "numeric", pad = "character"),
             new("Column", jc)
           })
 
+# substring_index --------------------------------------------------------------
 #' @details
-#' \code{substring_index}: Returns the substring from string (\code{x}) before \code{count}
-#' occurrences of the delimiter (\code{delim}). If \code{count} is positive, everything the left of
-#' the final delimiter (counting from left) is returned. If \code{count} is negative, every to the
-#' right of the final delimiter (counting from the right) is returned. \code{substring_index}
+#' \code{substring_index}: Returns the substring from string (\code{x}) before
+#' \code{count} occurrences of the delimiter (\code{delim}). If \code{count} is
+#' positive, everything the left of the final delimiter (counting from left) is
+#' returned. If \code{count} is negative, every to the right of the final
+#' delimiter (counting from the right) is returned. \code{substring_index}
 #' performs a case-sensitive match when searching for the delimiter.
 #'
 #' @param delim a delimiter string.
-#' @param count number of occurrences of \code{delim} before the substring is returned.
-#'              A positive number means counting from the left, while negative means
-#'              counting from the right.
+#' @param count number of occurrences of \code{delim} before the substring is
+#'              returned. A positive number means counting from the left, while
+#'              negative means counting from the right.
 #' @rdname column_string_functions
 #' @aliases substring_index substring_index,Column,character,numeric-method
 #' @note substring_index since 1.5.0
@@ -2802,27 +2974,30 @@ setMethod("substring_index",
             new("Column", jc)
           })
 
+# translate --------------------------------------------------------------------
 #' @details
-#' \code{translate}: Translates any character in the src by a character in replaceString.
-#' The characters in replaceString is corresponding to the characters in matchingString.
-#' The translate will happen when any character in the string matching with the character
-#' in the matchingString.
+#' \code{translate}: Translates any character in the src by a character in
+#' replaceString. The characters in replaceString is corresponding to the
+#' characters in matchingString. The translate will happen when any character
+#' in the string matching with the character in the matchingString.
 #'
 #' @param matchingString a source string where each character will be translated.
-#' @param replaceString a target string where each \code{matchingString} character will
-#'                      be replaced by the character in \code{replaceString}
-#'                      at the same location, if any.
+#' @param replaceString a target string where each \code{matchingString}
+#'                      character will be replaced by the character in
+#'                      \code{replaceString} at the same location, if any.
 #' @rdname column_string_functions
 #' @aliases translate translate,Column,character,character-method
 #' @note translate since 1.5.0
 setMethod("translate",
-          signature(x = "Column", matchingString = "character", replaceString = "character"),
+          signature(x = "Column", matchingString = "character",
+                    replaceString = "character"),
           function(x, matchingString, replaceString) {
             jc <- call_static("org.apache.spark.sql.functions",
                               "translate", x@jc, matchingString, replaceString)
             new("Column", jc)
           })
 
+# unix_timestamp ---------------------------------------------------------------
 #' @details
 #' \code{unix_timestamp}: Gets current Unix timestamp in seconds.
 #'
@@ -3794,7 +3969,8 @@ setMethod("grouping_id",
               stopifnot(class(x) == "Column")
               x@jc
             })
-            jc <- call_static("org.apache.spark.sql.functions", "grouping_id", jcols)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "grouping_id", jcols)
             new("Column", jc)
           })
 
