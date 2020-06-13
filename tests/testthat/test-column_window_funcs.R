@@ -164,6 +164,18 @@ test_that("rank", {
       group_by(Species) %>%
       mutate(n = min_rank(Petal_Width))
   )
+
+  # redundant grouping is handled
+  expect_equal(
+    iris_tbl %>%
+      group_by(Species) %>%
+      mutate(n = rank(partitionBy(windowOrderBy(Petal_Width), Species))) %>%
+      collect,
+    iris_fix %>%
+      group_by(Species) %>%
+      mutate(n = min_rank(Petal_Width))
+  )
+
   spark_session_stop()
 
 })
