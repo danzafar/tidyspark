@@ -1,4 +1,6 @@
-#' S4 class that represents a KMeansModel
+#' @include mllib_utils.R
+
+#' @title S4 class that represents a KMeansModel
 #'
 #' @param jobj a Java object reference to the backing Scala KMeansModel
 #' @note KMeansModel since 2.0.0
@@ -7,16 +9,16 @@ setClass("KMeansModel", representation(jobj = "jobj"))
 
 #' K-Means Clustering Model
 #'
-#' Fits a k-means clustering model against a SparkDataFrame, similarly to R's
+#' Fits a k-means clustering model against a spark_tbl, similarly to R's
 #' kmeans(). Users can call \code{summary} to print a summary of the fitted
-#' model, \code{predict} to make predictions on new data, and \code{write.ml}/
-#' \code{read.ml} to save/load fitted models.
+#' model, \code{predict} to make predictions on new data, and \code{write_ml}/
+#' \code{read_ml} to save/load fitted models.
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently
 #'                only a few formula operators are supported, including '~',
 #'                '.', ':', '+', and '-'. Note that the response variable of
-#'                formula is empty in spark.kmeans.
+#'                formula is empty in ml_kmeans.
 #' @param k number of centers.
 #' @param maxIter maximum iteration number.
 #' @param initMode the initialization algorithm chosen to fit the model.
@@ -26,10 +28,10 @@ setClass("KMeansModel", representation(jobj = "jobj"))
 #'                  always enough. Must be > 0.
 #' @param tol convergence tolerance of iterations.
 #' @param ... additional argument(s) passed to the method.
-#' @return \code{spark.kmeans} returns a fitted k-means model.
-#' @rdname spark.kmeans
-#' @aliases spark.kmeans,SparkDataFrame,formula-method
-#' @name spark.kmeans
+#' @return \code{ml_kmeans} returns a fitted k-means model.
+#' @rdname ml_kmeans
+#' @aliases ml_kmeans,spark_tbl,formula-method
+#' @name ml_kmeans
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -39,15 +41,9 @@ setClass("KMeansModel", representation(jobj = "jobj"))
 #' summary(model)
 #' }
 #' @export
-ml_kmeans <- function(data,
-                      formula,
-                      k = 2,
-                      maxIter = 20,
-                      initMode = c("k-means||",
-                                   "random"),
-                      seed = NULL,
-                      initSteps = 2,
-                      tol = 1e-04) {
+ml_kmeans <- function(data, formula, k = 2, maxIter = 20,
+                      initMode = c("k-means||", "random"), seed = NULL,
+                      initSteps = 2, tol = 1e-04) {
   formula <- paste(deparse(formula), collapse = "")
   initMode <- match.arg(initMode)
   if (!is.null(seed)) {
@@ -60,6 +56,17 @@ ml_kmeans <- function(data,
   new("KMeansModel", jobj = jobj)
 }
 
+#' @param object a fitted k-means model.
+#' @return \code{summary} returns summary information of the fitted model, which is a list.
+#'         The list includes the model's \code{k} (the configured number of cluster centers),
+#'         \code{coefficients} (model cluster centers),
+#'         \code{size} (number of data points in each cluster), \code{cluster}
+#'         (cluster centers of the transformed data), {is.loaded} (whether the model is loaded
+#'         from a saved file), and \code{clusterSize}
+#'         (the actual number of cluster centers. When using initMode = "random",
+#'         \code{clusterSize} may not equal to \code{k}).
+#' @rdname ml_kmeans
+#' @note summary(KMeansModel) since 2.0.0
 setMethod("summary", signature(object = "KMeansModel"),
           function(object) {
             jobj <- object@jobj
@@ -96,7 +103,8 @@ setMethod("predict", signature(object = "KMeansModel"),
 #' @param method type of fitted results, \code{"centers"} for cluster centers
 #'        or \code{"classes"} for assigned classes.
 #' @param ... additional argument(s) passed to the method.
-#' @return \code{fitted} returns a SparkDataFrame containing fitted values.
+#' @rdname ml_kmeans
+#' @return \code{fitted} returns a spark_tbl containing fitted values.
 setMethod("fitted", signature(object = "KMeansModel"),
           function(object, method = c("centers", "classes")) {
             method <- match.arg(method)
@@ -109,6 +117,16 @@ setMethod("fitted", signature(object = "KMeansModel"),
             }
           })
 
+#' @param path the directory where the model is saved.
+#' @param overwrite overwrites or not if the output path already exists. Default is FALSE
+#'                  which means throw exception if the output path exists.
+#'
+#' @rdname ml_kmeans
+#' @note write_ml(KMeansModel, character) since 2.0.0
+setMethod("write_ml", signature(object = "KMeansModel", path = "character"),
+          function(object, path, overwrite = FALSE) {
+            write_internal(object, path, overwrite)
+          })
 
 #' S4 class that represents a BisectingKMeansModel
 #'
@@ -128,16 +146,16 @@ setClass("BisectingKMeansModel", representation(jobj = "jobj"))
 #' divisible clusters on the bottom level would result more than k leaf
 #' clusters, larger clusters get higher priority.
 #'
-#' Fits a bisecting k-means clustering model against a SparkDataFrame.
+#' Fits a bisecting k-means clustering model against a spark_tbl.
 #' Users can call \code{summary} to print a summary of the fitted model,
-#' \code{predict} to make predictions on new data, and \code{write.ml}/
-#' \code{read.ml} to save/load fitted models.
+#' \code{predict} to make predictions on new data, and \code{write_ml}/
+#' \code{read_ml} to save/load fitted models.
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently
 #'                only a few formula operators are supported, including '~',
 #'                '.', ':', '+', and '-'. Note that the response variable of
-#'                formula is empty in spark.bisectingKmeans.
+#'                formula is empty in ml_bisectingKmeans.
 #' @param k the desired number of leaf clusters. Must be > 1. The actual number
 #'          could be smaller if there are no divisible leaf clusters.
 #' @param maxIter maximum iteration number.
@@ -149,7 +167,8 @@ setClass("BisectingKMeansModel", representation(jobj = "jobj"))
 #'                                The default value should be good enough for
 #'                                most cases.
 #' @param ... additional argument(s) passed to the method.
-#' @return \code{spark.bisectingKmeans} returns a fitted bisecting k-means model.
+#' @return \code{ml_bisectingKmeans} returns a fitted bisecting k-means model.
+#' @rdname ml_bisectingKmeans
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -157,15 +176,11 @@ setClass("BisectingKMeansModel", representation(jobj = "jobj"))
 #' setNames(names(iris) %>% sub("[//.]", "_", .)) %>%
 #'  mutate(Species = levels(Species)[Species])
 #' iris_spk <- spark_tbl(iris)
-#' model <- spark.bisectingKmeans(iris_spk, Sepal_Width ~ Sepal_Length, k = 4)
+#' model <- ml_bisectingKmeans(iris_spk, Sepal_Width ~ Sepal_Length, k = 4)
 #' summary(model)
 #' }
 #' @export
-ml_kmeans_bisecting <- function(data,
-                                formula,
-                                k = 4,
-                                maxIter = 20,
-                                seed = NULL,
+ml_kmeans_bisecting <- function(data, formula, k = 4, maxIter = 20, seed = NULL,
                                 minDivisibleClusterSize = 1) {
   formula <- paste0(deparse(formula), collapse = "")
   if (!is.null(seed)) {
@@ -178,6 +193,15 @@ ml_kmeans_bisecting <- function(data,
   new("BisectingKMeansModel", jobj = jobj)
 }
 
+#' @param object a fitted bisecting k-means model.
+#' @return \code{summary} returns summary information of the fitted model, which is a list.
+#'         The list includes the model's \code{k} (number of cluster centers),
+#'         \code{coefficients} (model cluster centers),
+#'         \code{size} (number of data points in each cluster), \code{cluster}
+#'         (cluster centers of the transformed data; cluster is NULL if is.loaded is TRUE),
+#'         and \code{is.loaded} (whether the model is loaded from a saved file).
+#' @rdname ml_bisectingKmeans
+#' @note summary(BisectingKMeansModel) since 2.2.0
 setMethod("summary", signature(object = "BisectingKMeansModel"),
           function(object) {
             jobj <- object@jobj
@@ -208,9 +232,11 @@ setMethod("predict", signature(object = "BisectingKMeansModel"),
 #' Get fitted result from a bisecting k-means model.
 #' Note: A saved-loaded model does not support this method.
 #'
+#' @param object a fitted bisecting k-means model.
 #' @param method type of fitted results, \code{"centers"} for cluster centers
 #'        or \code{"classes"} for assigned classes.
-#' @return \code{fitted} returns a SparkDataFrame containing fitted values.
+#' @rdname ml_bisectingKmeans
+#' @return \code{fitted} returns a spark_tbl containing fitted values.
 setMethod("fitted", signature(object = "BisectingKMeansModel"),
           function(object, method = c("centers", "classes")) {
             method <- match.arg(method)
@@ -223,7 +249,17 @@ setMethod("fitted", signature(object = "BisectingKMeansModel"),
             }
           })
 
-
+#' @param path the directory where the model is saved.
+#' @param overwrite overwrites or not if the output path already exists. Default is FALSE
+#'                  which means throw exception if the output path exists.
+#'
+#' @rdname ml_bisectingKmeans
+#' @note write_ml(BisectingKMeansModel, character) since 2.2.0
+setMethod("write_ml", signature(object = "BisectingKMeansModel",
+                                path = "character"),
+          function(object, path, overwrite = FALSE) {
+            write_internal(object, path, overwrite)
+          })
 
 #' S4 class that represents an LDAModel
 #'
@@ -233,11 +269,11 @@ setClass("LDAModel", representation(jobj = "jobj"))
 
 #' Latent Dirichlet Allocation
 #'
-#' \code{ml_lda} fits a Latent Dirichlet Allocation model on a SparkDataFrame.
+#' \code{ml_lda} fits a Latent Dirichlet Allocation model on a spark_tbl.
 #' Users can call
 #' \code{summary} to get a summary of the fitted LDA model.
 #'
-#' @param data A SparkDataFrame for training.
+#' @param data A spark_tbl for training.
 #' @param features Features column name. Either libSVM-format column or
 #'        character-format column is valid.
 #' @param k Number of topics.
@@ -262,19 +298,14 @@ setClass("LDAModel", representation(jobj = "jobj"))
 #'        features column.
 #' @param maxVocabSize maximum vocabulary size, default 1 << 18
 #' @param ... additional argument(s) passed to the method.
+#' @rdname ml_lda
 #' @return \code{ml_lda} returns a fitted Latent Dirichlet Allocation model.
 #' @seealso topicmodels: \url{https://cran.r-project.org/package=topicmodels}
 #' @export
-ml_lda <- function(data,
-                   features = "features",
-                   k = 10,
-                   maxIter = 20,
-                   optimizer = c("online", "em"),
-                   subsamplingRate = 0.05,
-                   topicConcentration = -1,
-                   docConcentration = -1,
-                   customizedStopWords = "",
-                   maxVocabSize = bitwShiftL(1, 18)) {
+ml_lda <- function(data, features = "features", k = 10, maxIter = 20,
+                   optimizer = c("online", "em"), subsamplingRate = 0.05,
+                   topicConcentration = -1, docConcentration = -1,
+                   customizedStopWords = "", maxVocabSize = bitwShiftL(1, 18)) {
   optimizer <- match.arg(optimizer)
   jobj <- call_static("org.apache.spark.ml.r.LDAWrapper",
                       "fit", attr(data, "jc"), features, as.integer(k),
@@ -285,6 +316,31 @@ ml_lda <- function(data,
   new("LDAModel", jobj = jobj)
 }
 
+#' @param object A Latent Dirichlet Allocation model fitted by \code{spark.lda}.
+#' @param maxTermsPerTopic Maximum number of terms to collect for each topic. Default value of 10.
+#' @return \code{summary} returns summary information of the fitted model, which is a list.
+#'         The list includes
+#'         \item{\code{docConcentration}}{concentration parameter commonly named \code{alpha} for
+#'               the prior placed on documents distributions over topics \code{theta}}
+#'         \item{\code{topicConcentration}}{concentration parameter commonly named \code{beta} or
+#'               \code{eta} for the prior placed on topic distributions over terms}
+#'         \item{\code{logLikelihood}}{log likelihood of the entire corpus}
+#'         \item{\code{logPerplexity}}{log perplexity}
+#'         \item{\code{isDistributed}}{TRUE for distributed model while FALSE for local model}
+#'         \item{\code{vocabSize}}{number of terms in the corpus}
+#'         \item{\code{topics}}{top 10 terms and their weights of all topics}
+#'         \item{\code{vocabulary}}{whole terms of the training corpus, NULL if libsvm format file
+#'               used as training set}
+#'         \item{\code{trainingLogLikelihood}}{Log likelihood of the observed tokens in the
+#'               training set, given the current parameter estimates:
+#'               log P(docs | topics, topic distributions for docs, Dirichlet hyperparameters)
+#'               It is only for distributed LDA model (i.e., optimizer = "em")}
+#'         \item{\code{logPrior}}{Log probability of the current parameter estimate:
+#'               log P(topics, topic distributions for docs | Dirichlet hyperparameters)
+#'               It is only for distributed LDA model (i.e., optimizer = "em")}
+#' @rdname ml_lda
+#' @aliases summary,LDAModel-method
+#' @note summary(LDAModel) since 2.1.0
 setMethod("summary", signature(object = "LDAModel"),
           function(object, maxTermsPerTopic) {
             maxTermsPerTopic <- as.integer(ifelse(missing(maxTermsPerTopic), 10,
@@ -318,7 +374,46 @@ setMethod("summary", signature(object = "LDAModel"),
                  logPrior = logPrior)
           })
 
+#  Returns the log perplexity of a Latent Dirichlet Allocation model produced
+#  by \code{ml_lda}
 
+#' @return \code{ml_perplexity} returns the log perplexity of given
+#'         spark_tbl, or the log perplexity of the training data if
+#'         missing argument "data".
+#' @rdname ml_lda
+#' @aliases ml_perplexity,LDAModel-method
+#' @note ml_perplexity(LDAModel) since 2.1.0
+setMethod("ml_perplexity", signature(object = "LDAModel", data = "spark_tbl"),
+          function(object, data) {
+            ifelse(missing(data), call_method(object@jobj, "logPerplexity"),
+                   call_method(object@jobj, "computeLogPerplexity", data@sdf))
+          })
+
+#  Returns posterior probabilities from a Latent Dirichlet Allocation model produced by ml_lda()
+
+#' @param newData A spark_tbl for testing.
+#' @return \code{ml_posterior} returns a spark_tbl containing posterior probabilities
+#'         vectors named "topicDistribution".
+#' @rdname ml_lda
+#' @aliases ml_posterior,LDAModel,spark_tbl-method
+#' @note ml_posterior(LDAModel) since 2.1.0
+setMethod("ml_posterior", signature(object = "LDAModel", newData = "spark_tbl"),
+          function(object, newData) {
+            predict_internal(object, newData)
+          })
+
+#' @param path The directory where the model is saved.
+#' @param overwrite Overwrites or not if the output path already exists. Default is FALSE
+#'                  which means throw exception if the output path exists.
+#'
+#' @rdname ml_lda
+#' @aliases write_ml,LDAModel,character-method
+#' @seealso \link{read_ml}
+#' @note write_ml(LDAModel, character) since 2.1.0
+setMethod("write_ml", signature(object = "LDAModel", path = "character"),
+          function(object, path, overwrite = FALSE) {
+            write_internal(object, path, overwrite)
+          })
 
 
 
@@ -330,24 +425,25 @@ setClass("GaussianMixtureModel", representation(jobj = "jobj"))
 
 #' Multivariate Gaussian Mixture Model (GMM)
 #'
-#' Fits multivariate gaussian mixture model against a SparkDataFrame, similarly
+#' Fits multivariate gaussian mixture model against a spark_tbl, similarly
 #' to R's mvnormalmixEM(). Users can call \code{summary} to print a summary of
 #' the fitted model, \code{predict} to make predictions on new data, and
-#' \code{write.ml}/\code{read.ml} to save/load fitted models.
+#' \code{write_ml}/\code{read_ml} to save/load fitted models.
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently
 #'                only a few formula operators are supported, including '~',
 #'                '.', ':', '+', and '-'. Note that the response variable of
-#'                formula is empty in spark.gaussianMixture.
+#'                formula is empty in ml_gaussianMixture.
 #' @param k number of independent Gaussians in the mixture model.
 #' @param maxIter maximum iteration number.
 #' @param tol the convergence tolerance.
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.gaussianMixture,SparkDataFrame,formula-method
+#' @aliases ml_gaussianMixture,spark_tbl,formula-method
 #' @return \code{ml_gaussian_mixture} returns a fitted multivariate gaussian
 #'         mixture model.
 #' @seealso mixtools: \url{https://cran.r-project.org/package=mixtools}
+#' @rdname gaussianMixture
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -370,6 +466,15 @@ ml_gaussian_mixture <- function(data, formula, k = 2, maxIter = 100,
   new("GaussianMixtureModel", jobj = jobj)
 }
 
+#  Get the summary of a multivariate gaussian mixture model
+
+#' @param object a fitted gaussian mixture model.
+#' @return \code{summary} returns summary of the fitted model, which is a list.
+#'         The list includes the model's \code{lambda} (lambda), \code{mu} (mu),
+#'         \code{sigma} (sigma), \code{loglik} (loglik), and \code{posterior} (posterior).
+#' @aliases gaussianMixture,spark_tbl,formula-method
+#' @rdname gaussianMixture
+#' @note summary(GaussianMixtureModel) since 2.1.0
 setMethod("summary", signature(object = "GaussianMixtureModel"),
           function(object) {
             jobj <- object@jobj
@@ -404,5 +509,17 @@ setMethod("summary", signature(object = "GaussianMixtureModel"),
 setMethod("predict", signature(object = "GaussianMixtureModel"),
           function(object, newData) {
             predict_internal(object, newData)
+          })
+
+#' @param path the directory where the model is saved.
+#' @param overwrite overwrites or not if the output path already exists. Default is FALSE
+#'                  which means throw exception if the output path exists.
+#'
+#' @aliases write_ml,GaussianMixtureModel,character-method
+#' @rdname gaussianMixture
+#' @note write_ml(GaussianMixtureModel, character) since 2.1.0
+setMethod("write_ml", signature(object = "GaussianMixtureModel", path = "character"),
+          function(object, path, overwrite = FALSE) {
+            write_internal(object, path, overwrite)
           })
 
