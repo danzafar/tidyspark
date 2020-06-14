@@ -51,7 +51,7 @@ Collate:
     'ml_clustering.R'
     'ml_helpers.R'
     'ml_regression.R'
-    'ml_supervised.R'
+    'ml_tree.R'
     'n_context.R'
     'rank_function_classes.R'
     'rdd.R'
