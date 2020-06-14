@@ -1,3 +1,5 @@
+spark_session(master = "local[1]")
+
 iris_tbl <- spark_tbl(iris)
 
 iris_fix <- iris %>%
@@ -70,3 +72,5 @@ test_that("Repartition with partition_by option repartitions", {
     {iris_tbl %>% repartition(partition_by = c("Sepal_Width")) %>% n_partitions()}
   )
 })
+
+spark_session_stop()

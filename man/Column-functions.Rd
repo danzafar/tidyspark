@@ -2,12 +2,9 @@
 % Please edit documentation in R/columns.R
 \name{Column-functions}
 \alias{Column-functions}
-\alias{mean,Column-method}
 \alias{xtfrm,Column-method}
 \title{Column Functions}
 \usage{
-\S4method{mean}{Column}(x)
-
 \S4method{xtfrm}{Column}(x)
 }
 \arguments{

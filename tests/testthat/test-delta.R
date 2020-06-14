@@ -1,7 +1,9 @@
-spark_session(master = "local[1]",
-              spark_packages = "io.delta:delta-core_2.11:0.5.0")
 
 test_that("read/write delta to file", {
+
+  spark_session(master = "local[1]",
+                spark_packages = "io.delta:delta-core_2.11:0.5.0")
+
   # write files to disk that can be used
   path_pqt <- tempfile()
   iris_fix <- iris %>%
@@ -21,9 +23,14 @@ test_that("read/write delta to file", {
     spark_read_delta(path_pqt, schema = schema(iris_sdf)) %>%
       collect,
     iris_fix)
+
+  spark_session_stop()
 })
 
 test_that("read/write delta in DDL", {
+
+  spark_session(master = "local[1]",
+                spark_packages = "io.delta:delta-core_2.11:0.5.0")
   # write files to disk that can be used
   path_pqt <- tempfile()
   iris_fix <- iris %>%
@@ -44,6 +51,8 @@ test_that("read/write delta in DDL", {
     iris_fix)
 
   invisible(spark_sql(paste0("DROP TABLE default.iris_ddl")))
+
+  spark_session_stop()
 })
 
-spark_session_stop()
+

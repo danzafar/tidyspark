@@ -202,3 +202,18 @@ check_suffix <- function(x) {
   }
   list(x = x[[1]], y = x[[2]])
 }
+
+# tidyr-related ----------------------------------------------------------------
+ensym2 <- function (arg) {
+  arg <- rlang::ensym(arg)
+  expr <- rlang::eval_bare(rlang::expr(enquo(!!arg)), rlang::caller_env())
+  expr <- rlang::quo_get_expr(expr)
+  if (rlang::is_string(expr)) {
+    rlang::sym(expr)
+  }
+  else if (rlang::is_symbol(expr)) {
+    expr
+  } else {
+    rlang::abort("Must supply a symbol or a string as argument")
+  }
+}

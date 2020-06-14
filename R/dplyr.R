@@ -8,6 +8,7 @@ tbl_vars.spark_tbl <- function(x) {
 #' @importFrom dplyr select
 #' @importFrom stats setNames
 #' @importFrom tidyselect vars_select
+#' @importFrom methods new
 select.spark_tbl <- function(.data, ...) {
   vars <- tidyselect::vars_select(tbl_vars(.data), !!!enquos(...))
 
@@ -100,71 +101,126 @@ is_wndw_expr <- function(col) {
 
 # Even more burly is the addition of incoming windowed columns. These are
 # tough because they are already windowed but we need to conditionally add
-# a grouping to them anyway. In order to do that we need to do some pretty
-# questionable things to break up the expression and re-window it.
-chop_wndw <- function(col) {
-  # lets do a little hacking to break up the incoming window col
+# a grouping to them anyway. In order to do that we dig into the incoming
+# windowed column to break it up into it's component pieces so that we can
+# put it back together again with the incoming partition column(s). This also
+# leaves open the possibility of tracking the full window in the future, not
+# just dplyr-style groups.
+chop_wndw <- function(.col) {
+  # lets do a little hacking to break up the incoming window .col
   func_spec <- call_method(
-    call_method(col@jc, "expr"),
+    call_method(.col@jc, "expr"),
     "children")
 
   # get the function the window should be over
   # same as `expr(func_spec.head.toString)`
-  func <- call_static(
-    "org.apache.spark.sql.functions", "expr",
+  func_str <- call_method(
     call_method(
-      call_method(
-        func_spec,
-        "head"),
-      "toString"))
-
-  # reconstruct the window spec
-  # same as `func_spec.tail.head.children.head.toString`
-  # or `func_spec(2)(1).toString`
-  wndw_str <- call_method(
-    call_method(
-      call_method(
-        call_method(
-          call_method(
-            func_spec,
-            "tail"),
-          "head"),
-        "children"),
+      func_spec,
       "head"),
     "toString")
 
-  # here is the less-robust part. We need to extract the column name
-  # from the expression string which looks a little something like this:
-  # "-H#150 ASC NULLS FIRST", see the # makes it tough. Two ways to handle:
+  func <- call_static(
+    "org.apache.spark.sql.functions", "expr",
+    gsub("#[0-9]*", "", func_str))
 
-  # EDIT: this doesn't actually work :(
-  # # probably more robust, just use regex to remove the reference #
-  # # so "-H#150 ASC NULLS FIRST" becomes "-H ASC NULLS FIRST"
-  # # but results in error
-  # # `cannot resolve '`-H ASC NULLS FIRST`' given input columns: [R, G,
-  # #                   yearID, playerID, AB, teamID, H]`
-  # col_obj <- new("Column", call_static(
-  #   "org.apache.spark.sql.functions", "col",
-  #   sub("(.*)(#[0-9]*) (.*)", "\\1 \\3", wndw_str)
-  #   ))
+  # extract the window attributes same as `func_spec.tail.head.children`
+  # this is all of the ordering and partition column and the last is the frame
+  wndw_attrs <- call_method(
+    call_method(
+      call_method(
+        func_spec,
+        "tail"),
+      "head"),
+    "children")
 
-  # grab the column name with regex and add the connonical desc applying
-  # conditionally
-  col_string <- sub("(-)?(.*)#.*", "\\2", wndw_str)
-  col_obj <- new("Column", call_static(
-    "org.apache.spark.sql.functions", "col", col_string
-  ))
+  # recursvie function that digs up the strings in the window
+  mine_attrs <- function(attrs, accum = list()) {
+    if (call_method(attrs, "isEmpty")) accum
+    else mine_attrs(call_method(attrs, "tail"),
+                    c(accum,
+                      call_method(call_method(attrs, "head"), "toString")))
+  }
 
-  descending <- sub("(-)?(.*)#.*", "\\1", wndw_str) == "-"
-  if (descending) col_obj <- dplyr::desc(col_obj)
+  wndw_strs <- mine_attrs(wndw_attrs)
 
-  # apply the column
-  wndw_ordr <- call_static(
-    "org.apache.spark.sql.expressions.Window",
-    "orderBy", list(col_obj@jc)
-  )
+  # now we need to categorize the strings into either being orderBy cols,
+  # partitionBy cols, or windowframe cols
+  #  - partitionBy cols usually start with '
+  #  - orderBy cols end with NULLS FIRST or NULLS LAST
+  #  - windowframe are the last one
+  part_cols_raw <- Filter(function(x) !grepl("NULLS FIRST|LAST$", x),
+                          wndw_strs[-length(wndw_strs)])
+  ordr_cols_raw <- Filter(function(x) grepl("NULLS FIRST|LAST$", x), wndw_strs)
+  frame_spec_raw <- wndw_strs[[length(wndw_strs)]]
 
-  list(func = func, wndw = wndw_ordr)
+  # now we process these further into valid pre-column strings to pass back
+  # and de-dup with the incoming grouping
+  part_cols <- sub("(')?([^ #]*)(.*)?", "\\2", part_cols_raw)
+
+  # for the ordering columns we extract the column and the ordering
+  ordr_cols_name <- lapply(
+    sub("(-)?(')?([^ #]*).* (ASC|DESC) NULLS (FIRST|LAST)",
+        "\\3", ordr_cols_raw),
+    function(x) {
+      if (grepl("^monotonically_increasing_id()", x)) {
+        monotonically_increasing_id()@jc
+      } else if (grepl("^spark_partition_id()", x)) {
+        spark_partition_id()@jc
+      } else col(x)@jc
+      })
+
+  ordr_cols_suffix <- lapply(ordr_cols_raw, function(x) {
+    sffx <- sub("(-)?(')?([^ #]*).* ((ASC|DESC) NULLS (FIRST|LAST))", "\\4", x)
+    descnd <- sub("(-)?(')?([^ #]*).* (ASC|DESC) NULLS (FIRST|LAST)",
+                  "\\1", x) == "-"
+    if (descnd) {
+      switch(sffx,
+             "ASC NULLS FIRST" = function(x) call_method(x, "desc_nulls_first"),
+             "DESC NULLS FIRST" = function(x) call_method(x, "asc_nulls_first"),
+             "ASC NULLS LAST" = function(x) call_method(x, "desc_nulls_last"),
+             "DESC NULLS LAST" = function(x) call_method(x, "asc_nulls_last"))
+    } else {
+      switch(sffx,
+             "ASC NULLS FIRST" = function(x) call_method(x, "asc_nulls_first"),
+             "DESC NULLS FIRST" = function(x) call_method(x, "desc_nulls_first"),
+             "ASC NULLS LAST" = function(x) call_method(x, "asc_nulls_last"),
+             "DESC NULLS LAST" = function(x) call_method(x, "desc_nulls_last"))
+    }
+  })
+
+  # here we handle the -, which comes about because of the hacky way we
+  # integrated with the dplyr desc() function
+  ordr_cols <- mapply(function(x, y) y(x), ordr_cols_name, ordr_cols_suffix)
+
+  # if the frame is specified we return a function that applies the frame
+  # some examples:
+  # "specifiedwindowframe(RangeFrame, currentrow$(), 3)"
+  # "specifiedwindowframe(RowFrame, currentrow$(), 3)"
+  # "specifiedwindowframe(RowFrame, currentrow$(), currentrow$())"
+  # "unspecifiedframe$()"
+  frame_spec <- if (grepl("^specified", frame_spec_raw)) {
+    frame <- list()
+    frame$type <- sub(".*frame[(](Range|Row)Frame.*", "\\1", frame_spec_raw)
+    frame$start <- sub(".*[(].*, (.*), .*[)]", "\\1", frame_spec_raw)
+    frame$end <- sub(".*[(].*, .*, (.*)[)]", "\\1", frame_spec_raw)
+    frame <- lapply(frame, function(x) ifelse(x == "currentrow$()", 0L, x))
+
+    if (frame$type == "Range") {
+      function(x) {
+        call_method(x, "rangeBetween", as.integer(frame$start), frame$end)
+      }
+    } else if (frame$type == "Row") {
+      function(x) {
+        call_method(x, "rowsBetween", as.integer(frame$start), frame$end)
+      }
+    } else stop("Unable to process 'specifiedwindowframe'. File a bug report.")
+  } else function(x) x
+
+  list(func = func,
+       part = part_cols,
+       ordr = ordr_cols,
+       frame = frame_spec)
 }
 
 #' @export
@@ -185,8 +241,11 @@ mutate.spark_tbl <- function(.data, ...) {
 
     # add our .n() and others to the eval environment
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env,  n = .n,
-                    if_else = .if_else, case_when = .case_when)
+    rlang::env_bind(eval_env,
+                    n = .n, if_else = .if_else, case_when = .case_when,
+                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    lag = .lag, lead = .lead, sd = .sd, var = .var,
+                    row_number = .row_number)
     eval <- rlang::eval_tidy(dot, df_cols, eval_env)
 
     if (is_agg_expr(eval)) {
@@ -198,17 +257,27 @@ mutate.spark_tbl <- function(.data, ...) {
                                      "partitionBy", group_jcols)
 
       eval <- new("Column", call_method(eval@jc, "over", window))
-    } else if (is_wndw_expr(eval)) {
-      # this is used for rank, min_rank, row_number, dense_rank, etc.
+    }
+    else if (is_wndw_expr(eval)) {
+      # this will give back information used to re-create the window
+      # with grouping included
       func_wndw <- chop_wndw(eval)
 
       # add in the partitionBy based on grouping
-      groups <- attr(.data, "groups")
+      groups <- unique(attr(.data, "groups"), func_wndw$part)
       group_jcols <- lapply(df_cols[groups], function(x) x@jc)
-      window <- call_method(func_wndw$wndw, "partitionBy", group_jcols)
+
+      new_wndw <-
+        func_wndw$frame(
+          call_method(
+            call_static(
+              "org.apache.spark.sql.expressions.Window",
+              "partitionBy", group_jcols),
+            "orderBy", func_wndw$ordr)
+        )
 
       # apply the window over the function
-      eval <- new("Column", call_method(func_wndw$func, "over", window))
+      eval <- new("Column", call_method(func_wndw$func, "over", new_wndw))
     }
 
     jcol <- if (class(eval) == "Column") eval@jc
@@ -261,8 +330,11 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     df_cols_update <- get_jc_cols(sdf)
 
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env, n = .n,
-                    if_else = .if_else, case_when = .case_when)
+    rlang::env_bind(eval_env,
+                    n = .n, if_else = .if_else, case_when = .case_when,
+                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    lag = .lag, lead = .lead, sd = .sd, var = .var,
+                    row_number = .row_number)
     cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
     conds[[i]] <- cond
 
@@ -342,8 +414,11 @@ summarise.spark_tbl <- function(.data, ...) {
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
 
     eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env, n = .n,
-                    if_else = .if_else, case_when = .case_when)
+    rlang::env_bind(eval_env,
+                    n = .n, if_else = .if_else, case_when = .case_when,
+                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    lag = .lag, lead = .lead, sd = .sd, var = .var,
+                    row_number = .row_number)
     agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
   }
 
@@ -354,7 +429,7 @@ summarise.spark_tbl <- function(.data, ...) {
           stop("Column '", i, "' must be length 1 (a summary value), not ",
                length(agg[[1]]))
         }
-        jc <- call_method(SparkR::lit(agg[i])@jc, "getItem", 0L)
+        jc <- call_method(lit(agg[i])@jc, "getItem", 0L)
         agg[[i]] <- new("Column", jc)
       }
       agg[[i]] <- SparkR::alias(agg[[i]], i)
@@ -380,49 +455,52 @@ arrange.spark_tbl <- function(.data, ..., by_partition = F) {
   if (by_partition) sdf <- call_method(sdf, "sortWithinPartitions", jcols)
   else sdf <- call_method(sdf, "sort", jcols)
 
+  new_spark_tbl(sdf, groups = attr(.data, "groups"))
+}
+
+#' @export
+#' @importFrom rlang enquo
+#' @importFrom tidyr spread
+#' @importFrom tidyselect vars_pull
+spread.spark_tbl <- function(data, key, value, fill = NA, convert = FALSE,
+                             drop = TRUE, sep = NULL) {
+  group_var <- tidyselect::vars_pull(names(data), !!enquo(key))
+  value_var <- tidyselect::vars_pull(names(data), !!enquo(value))
+
+  # get the columns that don't spread
+  static <- names(data)[!(names(data) %in% c(rlang::quo_name(group_var),
+                                             rlang::quo_name(value_var)))]
+
+  sdf <-
+    call_method(
+      call_method(
+        call_method(
+          attr(data, "jc"),
+          "groupBy", static[[1]], as.list(static[-1])),
+        "pivot", rlang::as_name(group_var)),
+      "agg", call_method(collect_list(col(rlang::as_name(value_var)))@jc,
+                         "getItem", 0L), list())
+
   new_spark_tbl(sdf)
 }
 
-# pivots
-
-#' @export
-#' @importFrom rlang enquo
-piv_wider <- function(.data, id_cols = NULL, names_from, values_from) {
-  # these become the new col names
-  group_var <- enquo(names_from)
-  # these are currently aggregated but maybe not
-  vals_var <-  enquo(values_from)
-  id_var   <-  enquo(id_cols) # this is how the data are id'd
-
-
-  if (is.null(id_cols)) {
-    # this aggreagates and drops everything else
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        SparkR::groupBy(attr(.data, "jc")),
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var)))
-      )
-  } else {
-    sgd_in <-
-      SparkR::agg(SparkR::pivot(
-        group_spark_data(group_by(.data, !!id_var)), # DZ: group_spark_data is diff now
-        rlang::as_name(group_var)),
-        SparkR::collect_list(SparkR::lit(rlang::as_name(vals_var))))
-  }
-
-  new_spark_tbl(sgd_in)
-
-}
-
-
 #' @export
 #' @importFrom tidyselect vars_select
-#' @importFrom rlang enquo
-piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
-  #idk I copied from tidyr
-  cols <- unname(tidyselect::vars_select(unique(names(data)),
-                                         !!enquo(cols)))
+#' @importFrom rlang enquo as_string
+#' @importFrom tidyr gather
+gather.spark_tbl <- function(data, key = "key", value = "value", ...,
+                             na.rm = FALSE, convert = FALSE,
+                             factor_key = FALSE) {
+
+  key_var <- as_string(ensym2(key))
+  value_var <- as_string(ensym2(value))
+  quos <- quos(...)
+
+  if (rlang::is_empty(quos)) {
+    cols <- setdiff(names(data), c(key_var, value_var))
+  } else {
+    cols <- unname(vars_select(tbl_vars(data), !!!quos))
+  }
 
   # names not being pivoted long
   non_pivot_cols <- names(data)[!(names(data) %in% cols)]
@@ -432,18 +510,15 @@ piv_longer <- function(data, cols, names_to = "name", values_to = "value") {
 
   for (i in 1:length(cols)) {
     arg <- paste(cols_str[i], cols[i], sep = ", ")
-
     stack_fn_arg2 <- c(stack_fn_arg2, arg)
   }
 
   stack_query <- paste0("stack(", stack_fn_arg1, ", ",
                         paste(stack_fn_arg2, collapse = ", "),
-                        ") as (", names_to, ", ", values_to, ")")
+                        ") as (", key_var, ", ", value_var, ")")
 
-  expr_list <- c(stack_query, non_pivot_cols)
-  sdf <- attr(data, "jc")
-  sdf_jc <- call_method(sdf@sdf, "selectExpr", as.list(expr_list))
-  sdf_out <- new("SparkDataFrame", sdf_jc, F)
-  new_spark_tbl(sdf_out)
+  expr_list <- c(non_pivot_cols, stack_query)
+  sdf <- call_method(attr(data, "jc"), "selectExpr", as.list(expr_list))
+  new_spark_tbl(sdf)
 
 }

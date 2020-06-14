@@ -1,3 +1,5 @@
+spark_session(master = "local[1]")
+
 # NEED TO MAKE SOME MORE TESTS HERE
 
 test_that("can use freshly create variables (#138)", {
@@ -220,3 +222,5 @@ test_that("peels off a single layer of grouping", {
 #     summarise(group_by(tibble(a = 1:3), a), c = .data$b)
 #   })
 # })
+
+spark_session_stop()

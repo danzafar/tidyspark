@@ -287,14 +287,14 @@ Let's say we are trying to find out how `SparkR` does `count`:
         Use  showMethods("count")  for currently available ones.
 2. Now let's check out the methods:
 
-        > showMethods(SparkR:::count)
+        > showMethods(SparkR::count)
         Function: count (package SparkR)
         x="Column"
         x="GroupedData"
         x="SparkDataFrame"   
 3. There are 3 methods for three single class types (should have used S3 amirite?). Let's check out the `Column` method:
 
-        > getMethod(SparkR:::count, c("Column"))
+        > getMethod(SparkR::count, c("Column"))
         Method Definition:
         
         function (x) 
@@ -312,6 +312,6 @@ Let's say we are trying to find out how `SparkR` does `count`:
         defined "Column"
 4. If you are using RStudio and want to jump into this function you can use `debugonce` like so:
 
-        > debugonce(getMethod(SparkR:::count, c("Column")))
+        > debugonce(getMethod(SparkR::count, c("Column")))
         
 Hopefully that helps shed some light on these bad boy S4 classes. If you made it this far, give yourself a pat on the back from Dan. He is very happy. Happy coding!

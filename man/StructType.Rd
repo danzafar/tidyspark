@@ -2,6 +2,8 @@
 % Please edit documentation in R/schema.R
 \name{StructType}
 \alias{StructType}
+\alias{StructType,}
+\alias{StructType-class}
 \alias{StructType.jobj}
 \alias{StructType.character}
 \alias{StructType.StructField}

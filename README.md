@@ -37,9 +37,9 @@ library(SparkR)
 drop(join(left, right, left$name == right$name, "left_outer"), left$name)
 ```
 
-Many R users seek refuge in RStudio's `sparklyr` package which is maintained by RStudio and adheres to tidy principles. `sparklyr` uses a backend similar to `dbconnect` where `dplyr` commands are translated into SQL syntax and that is passed onto SparkSQL. `sparklyr` was originally based on the RDD API and centers around theSpark Context as it's primary connection to Spark, though unfortunetely the RDD API will be deprecated with Spark 3.0.0. While `sparklyr` has phenomenal and intuitive syntax, it is significantly more complex than SparkR. As such, Spark experts complain of bugs and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows more efficent execution plans which eventually leads to the question, **_choose one: syntax or functionality?_**.
+Many R users seek refuge in RStudio's `sparklyr` package which is maintained by RStudio and adheres to tidy principles. `sparklyr` uses a backend similar to `dbconnect` where `dplyr` commands are translated into SQL syntax and that is passed onto SparkSQL. `sparklyr` was originally based on the RDD API and centers around the Spark Context as it's primary connection to Spark, though unfortunetely the RDD API will be deprecated with Spark 3.0.0. While `sparklyr` has phenomenal and intuitive syntax, it is significantly more complex than SparkR. As such, Spark experts complain of bugs and performance issues. Running `SparkR` and `sparklyr` code side-by-side, `SparkR` commonly shows more efficent execution plans which eventually leads to the question, **_choose one: syntax or functionality?_**.
 
-`tidyspark` was developed so that R users could have the "best of both worlds". The syntax of `sparklyr` but the backend of `SparkR`. In essence, the goal of `tidyspark` is to provide a tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. The principles are to minimize learning by modelling after `dplyr`/`sparklyr` syntax as much as possible, keep tidy wrappers thin and simple to foster contribution for years to come, and to avoid namespace conflicts with `tidyverse` packages.
+`tidyspark` was developed such that R users could have the "best of both worlds". The syntax of `sparklyr` with the backend of `SparkR`. In essence, the goal of `tidyspark` is to provide a tidy wrapper to `SparkR` so that R users can work with Spark through `dplyr`. The principles are to minimize learning by modelling after `dplyr`/`sparklyr` syntax as much as possible, keep tidy wrappers thin and simple to foster contribution for years to come, and to avoid namespace conflicts with `tidyverse` packages.
 
 ### More Information
 For more information on the philosophy of `tidyspark` and technical information on how it works, please view the [Developer Guide](https://github.com/danzafar/tidyspark/blob/master/vignettes/dev_guide.Rmd)
@@ -60,14 +60,23 @@ Since the first code written Jan 23, 2020 some significant progress has been mad
 - `distinct`
 - `rank` functions
 - `if_else` and `case_when`
+- `gather`/`spread`
 
-The following workflows are still being developed
-- `gather`/`spread` (or `pivot_wider`/`pivot_longer`)
-- `nest`
+In addition to this core `tidyverse` interoperability, there are many other components to required in a Spark API. Here are the aspects that are completed:
+- file read/writes
+- the entire RDD API (see below)
+- all of the clustering, classification, and regression ML algorithms
+- The full suite of `org.apache.spark.sql.functions._`
+- conversion to/from `SparkR` `SparkDataFrame`s
 
-In addition to this core `tidyverse` interoperability, much of the other infra must still be built including file read/writes, converstion to/from `SparkR` and `sparklyr`, `arrow` compatibility, and exposing the suite of ML methods. Another item being considered is to support the entire Spark RDD API in the form of R6 classes with similar syntax to the Scala and `pyspark` APIs.
+Aspects that are waiting to be finalized:
+- `arrow` integration
+- exposing the reccomendation and pattern mining ML algorithms
+- `sparklyr` integration
+- RStudio integration
+- Databricks integration
 
-At this time, the package should be considered a proof-of-concept.
+At this time, the package should be considered as experimental. Contributions are welcome!
 
 ## Installation
 

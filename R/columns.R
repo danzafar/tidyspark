@@ -1,10 +1,65 @@
 
+# Column Class
 
-other_functions <- c("like", "rlike", "getField", "getItem", "asc") #, "contains"
+#' A set of operations working with SparkDataFrame columns
+#' @rdname columnfunctions
+#' @name columnfunctions
+NULL
 
-for (.f in other_functions) {
-  assign(.f, utils::getFromNamespace(.f, "SparkR"))
-}
+#' @rdname column
+#' @name column
+#' @aliases column,jobj-method
+setMethod("column",
+          signature(x = "jobj"),
+          function(x) {
+            new("Column", x)
+          })
+
+setMethod("asc",
+          signature(x = "Column"),
+          function(x) {
+            column(call_method(x@jc, "asc"))
+          })
+
+setMethod("like",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "like", data)
+            new("Column", jc)
+          })
+
+setMethod("rlike",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "rlike", data)
+            new("Column", jc)
+          })
+
+setMethod("getField",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "getField", data)
+            new("Column", jc)
+          })
+
+setMethod("getItem",
+          signature(x = "Column"),
+          function(x, data) {
+            if (class(data) == "Column") {
+              data <- data@jc
+            }
+            jc <- call_method(x@jc, "getItem", data)
+            new("Column", jc)
+          })
 
 #' @name Column-missing
 #'
@@ -17,20 +72,10 @@ for (.f in other_functions) {
 NULL
 
 
-#' @export
 #' @rdname Column-missing
-#' @importFrom methods new
 setMethod("is.na", signature(x = "Column"),
           function(x) {
             new("Column", call_method(x@jc, "isNull"))
-          })
-
-#' @export
-#' @rdname Column-missing
-#' @importFrom methods new
-setMethod("is.nan", signature(x = "Column"),
-          function(x) {
-            new("Column", call_method(x@jc, "isNaN"))
           })
 
 #' @name Column-functions
@@ -46,17 +91,7 @@ setMethod("is.nan", signature(x = "Column"),
 #' @rdname Column-functions
 NULL
 
-#' @export
 #' @rdname Column-functions
-#' @importFrom methods new
-setMethod("mean", signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
-            new("Column", jc)
-          })
-
-#' @rdname Column-functions
-#' @export
 setMethod("xtfrm", signature(x = "Column"), function(x) x)
 
 #' @export
@@ -136,6 +171,9 @@ as_datetime.Column <- function(x, ...) {
 #' @description Coerces objects of type \code{timestamp}.
 #'
 #' @param x object to be coerced or tested.
+#' @param format a character string representing the incoming format. See
+#' \href{here}{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}
+#' for more information on possible usage.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
@@ -144,14 +182,16 @@ as.timestamp <- function (x, ...)  .Primitive("as.timestamp")
 
 #' @export
 #' @rdname ts-type
-as.timestamp.Column <- function(x, ...) {
-  new("Column", call_method(x@jc, "cast", "timestamp"))
+as.timestamp.Column <- function(x, format = "yyyy-MM-dd HH:mm:ss", ...) {
+  new("Column", call_static("org.apache.spark.sql.functions", "to_timestamp",
+                            x@jc, format))
 }
 
 # dates
 #' @export
-as.Date.Column <- function(x, ...) {
-  new("Column", call_method(x@jc, "cast", "date"))
+as.Date.Column <- function(x, format = "yyyy-MM-dd", ...) {
+  new("Column", call_static("org.apache.spark.sql.functions", "to_date",
+                            x@jc, format))
 }
 
 # lists
@@ -496,24 +536,6 @@ any.Column <- function(x, ...) {
   true_jc <- call_static("org.apache.spark.sql.functions",
                                   "lit", T)
   new("Column", call_method(jc, "equalTo", true_jc))
-}
-
-#' Size
-#'
-#' @description [under construction]
-#'
-#' @param x Column to compute on
-#' @param ... additional argument(s)
-#'
-#' @export
-size <- function(x, ...) {
-  UseMethod("size")
-}
-
-#' @export
-size.Column <- function(x, ...) {
-  jc <- call_static("org.apache.spark.sql.functions", "size", x@jc)
-  new("Column", jc)
 }
 
 #' Create a Column of literal value
