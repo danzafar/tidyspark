@@ -549,8 +549,9 @@ setClass("PowerIterationClustering", slots = list(jobj = "jobj"))
 #' @param ... additional argument(s) passed to the method.
 #' @return A dataset that contains columns of vertex id and the corresponding cluster for the id.
 #'         The schema of it will be: \code{id: integer}, \code{cluster: integer}
-#' @rdname spark.powerIterationClustering
+#' @rdname powerIterationClustering
 #' @aliases ml_assign_clusters,spark_tbl
+#' @export
 #' @examples
 #' \dontrun{
 #' df <- spark_tbl(
