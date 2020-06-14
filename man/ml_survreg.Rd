@@ -53,7 +53,7 @@ which means throw exception if the output path exists.}
 \item{...}{additional arguments passed to the method.}
 }
 \value{
-\code{ml_survival_regression} returns a fitted AFT survival regression model.
+\code{survreg} returns a fitted AFT survival regression model.
 
 \code{summary} returns summary information of the fitted model, which is a list.
         The list includes the model's \code{coefficients} (features, coefficients,
@@ -63,12 +63,14 @@ which means throw exception if the output path exists.}
         on the original scale of the data (mean predicted value at scale = 1.0).
 }
 \description{
-\code{ml_survival_regression} fits an accelerated failure time (AFT) survival regression model on
+\code{ml_survreg} fits an accelerated failure time (AFT) survival regression model on
 a spark_tbl. Users can call \code{summary} to get a summary of the fitted AFT model,
 \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 save/load fitted models.
 }
 \note{
+spark.survreg since 2.0.0
+
 summary(AFTSurvivalRegressionModel) since 2.0.0
 
 predict(AFTSurvivalRegressionModel) since 2.0.0
@@ -78,14 +80,25 @@ write_ml(AFTSurvivalRegressionModel, character) since 2.0.0
 \examples{
 \dontrun{
 df <- spark_tbl(ovarian)
-model <- ml_survival_regression(df, Surv(futime, fustat) ~ ecog_ps + rx)
+model <- ml_survreg(df, Surv(futime, fustat) ~ ecog_ps + rx)
 
 # get a summary of the model
 summary(model)
+
+# make predictions
+predicted <- predict(model, df)
+show(predicted)
+
+# save and load the model
+path <- "path/to/model"
+write_ml(model, path)
+
+savedModel <- read_ml(path)
+summary(savedModel)
 }
 }
 \seealso{
-survival: \url{https://cran.r-project.org/package=survival}
+ml_survival: \url{https://cran.r-project.org/package=survival}
 
 \link{write_ml}
 }

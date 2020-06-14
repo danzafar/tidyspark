@@ -19,7 +19,8 @@ Suggests:
     knitr,
     rmarkdown,
     nycflights13,
-    Lahman
+    Lahman,
+    statmod
 Imports:
     SparkR,
     rlang,

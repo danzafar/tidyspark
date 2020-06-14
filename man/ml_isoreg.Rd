@@ -56,6 +56,8 @@ Fits an Isotonic Regression model against a spark_tbl, similarly to R's isoreg()
 Users can print, make predictions on the produced model and save the model to the input path.
 }
 \note{
+spark.isoreg since 2.1.0
+
 summary(IsotonicRegressionModel) since 2.1.0
 
 predict(IsotonicRegressionModel) since 2.1.0
@@ -65,11 +67,34 @@ write_ml(IsotonicRegression, character) since 2.1.0
 \examples{
 \dontrun{
 spark_session()
-data <- list(list(7.0, 0.0), list(5.0, 1.0), list(3.0, 2.0),
-        list(5.0, 3.0), list(1.0, 4.0))
-df <- spark_tbl(data \%>\% setNames("label", "feature"))
-model <- ml_isotonic_regression(df, label ~ feature, isotonic = FALSE)
+data <- tribble(~label, ~feature,
+                7.0, 0.0,
+                5.0, 1.0,
+                3.0, 2.0,
+                5.0, 3.0,
+                1.0, 4.0)
+
+df <- spark_tbl(data)
+model <- ml_isoreg(df, label ~ feature, isotonic = FALSE)
 # return model boundaries and prediction as lists
-result <- summary(model, df)
+result <- summary(model)
+
+# prediction based on fitted model
+predict_data <- tibble(feature = c(-2.0, -1.0, 0.5,
+                                   0.75, 1.0, 2.0, 9.0))
+predict_df <- spark_tbl(predict_data)
+# get prediction column
+predict_result <- model \%>\%
+  predict(predict_df) \%>\%
+  select(prediction) \%>\%
+  collect
+
+# save fitted model to input path
+path <- "path/to/model"
+write_ml(model, path)
+
+# can also read back the saved model and print
+savedModel <- read_ml(path)
+summary(savedModel)
 }
 }

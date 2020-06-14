@@ -44,6 +44,7 @@ setClass("LinearSVCModel", representation(jobj = "jobj"))
 #' @rdname ml_svm_linear
 #' @aliases ml_svm_linear,spark_tbl,formula-method
 #' @name ml_svm_linear
+#' @export
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -221,6 +222,7 @@ setClass("LogisticRegressionModel", representation(jobj = "jobj"))
 #' @param ... additional arguments passed to the method.
 #' @return \code{ml_logit} returns a fitted logistic regression model.
 #' @aliases ml_logit,spark_tbl,formula-method
+#' @export
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -407,6 +409,7 @@ setClass("MultilayerPerceptronClassificationModel", representation(jobj = "jobj"
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
 #' @importFrom stats na.omit
+#' @export
 #' @examples
 #' \dontrun{
 #' df <- spark_read_source("data/mllib/sample_multiclass_classification_data.txt",
@@ -527,6 +530,7 @@ setClass("NaiveBayesModel", representation(jobj = "jobj"))
 #' @aliases ml_naive_bayes,spark_tbl,formula-method
 #' @name ml_naive_bayes
 #' @seealso e1071: \url{https://cran.r-project.org/package=e1071}
+#' @export
 #' @examples
 #' \dontrun{
 #' data <- as.data.frame(UCBAdmissions)

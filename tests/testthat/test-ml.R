@@ -39,7 +39,7 @@ test_that('survival works and matches benchmark', {
     ovarianDF <- suppressWarnings(spark_tbl(ovarian))
     aftDF <- ovarianDF
     aftTestDF <- ovarianDF
-    ml_survival_regression(aftDF, Surv(futime, fustat) ~ ecog_ps + rx) %>%
+    ml_survreg(aftDF, Surv(futime, fustat) ~ ecog_ps + rx) %>%
       summary()},
     tmp_surv,
     print = TRUE)
@@ -51,7 +51,7 @@ test_that('iso works and matches benchmark', {
     data.frame(label = 7,5,3,5,1,
                feature = 0,1,2,3,4) %>%
       spark_tbl() %>%
-      ml_isotonic_regression(label ~ feature, isotonic = TRUE) %>%
+      ml_isoreg(label ~ feature, isotonic = TRUE) %>%
       # return model boundaries and prediction as lists
       summary()},
     tmp_iso

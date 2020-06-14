@@ -53,20 +53,58 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 #' @return \code{ml_glm} returns a fitted generalized linear model.
 #' @rdname ml_glm
 #' @name ml_glm
+#' @export
 #' @importFrom stats gaussian
 #' @examples
 #' \dontrun{
 #' spark_session()
 #' t <- as.data.frame(Titanic, stringsAsFactors = FALSE)
 #' df <- spark_tbl(t)
-#' model <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian")
+#' model <- df %>%
+#'   ml_glm(Freq ~ Sex + Age, family = "gaussian")
+#' summary(model)
+#'
+#' # fitted values on training data
+#' fitted <- predict(model, df)
+#' fitted %>%
+#'   select(Freq, prediction) %>%
+#'   collect
+#'
+#' # save fitted model to input path
+#' path <- "path/to/model"
+#' write_ml(model, path)
+#'
+#' # can also read back the saved model and print
+#' savedModel <- read_ml(path)
+#' summary(savedModel)
+#'
+#' # note that the default string encoding is different from R's glm
+#' model2 <- df %>%
+#'   ml_glm(Freq ~ Sex + Age, family = "gaussian")
+#' summary(model2)
+#' # use stringIndexerOrderType = "alphabetDesc" to force string encoding
+#' # to be consistent with R
+#' model3 <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian",
+#'                    stringIndexerOrderType = "alphabetDesc")
+#' summary(model3)
+#'
+#' # fit tweedie model
+#' model <- df %>% ml_glm(Freq ~ Sex + Age, family = "tweedie",
+#'                        var.power = 1.2, link.power = 0)
+#' summary(model)
+#'
+#' # use the tweedie family from statmod
+#' library(statmod)
+#' model <- ml_glm(df, Freq ~ Sex + Age, family = tweedie(1.2, 0))
 #' summary(model)
 #' }
-#' @export
+#' @note ml_glm since 2.0.0
 ml_glm <- function(data, formula, family = "gaussian", tol = 1e-06,
                    maxIter = 25, weightCol = NULL, regParam = 0, var.power = 0,
-                   link.power = 1 - var.power, stringIndexerOrderType = c("frequencyDesc",
-                                                                          "frequencyAsc", "alphabetDesc", "alphabetAsc"), offsetCol = NULL) {
+                   link.power = 1 - var.power,
+                   stringIndexerOrderType = c("frequencyDesc", "frequencyAsc",
+                                              "alphabetDesc", "alphabetAsc"),
+                   offsetCol = NULL) {
   stringIndexerOrderType <- match.arg(stringIndexerOrderType)
   if (is.character(family)) {
     if (tolower(family) == "tweedie") {
@@ -155,14 +193,14 @@ setMethod("summary", signature(object = "GeneralizedLinearRegressionModel"),
                         dispersion = dispersion, null.deviance = null.deviance,
                         deviance = deviance, df.null = df.null, df.residual = df.residual,
                         aic = aic, iter = iter, family = family, is.loaded = is.loaded)
-            class(ans) <- "summary.GeneralizedLinearRegressionModel"
+            class(ans) <- "summary.tidyGeneralizedLinearRegressionModel"
             ans
           })
 
 #' @rdname ml_glm
 #' @param x summary object of fitted generalized linear model returned by \code{summary} function.
 #' @note print.summary.GeneralizedLinearRegressionModel since 2.0.0
-print.summary.GeneralizedLinearRegressionModel <- function(x, ...) {
+print.summary.tidyGeneralizedLinearRegressionModel <- function(x, ...) {
   if (x$is.loaded) {
     cat("\nSaved-loaded model does not support output 'Deviance Residuals'.\n")
   } else {
@@ -235,16 +273,41 @@ setClass("IsotonicRegressionModel", representation(jobj = "jobj"))
 #' @rdname ml_isoreg
 #' @aliases ml_isoreg,spark_tbl,formula-method
 #' @name ml_isoreg
+#' @export
 #' @examples
 #' \dontrun{
 #' spark_session()
-#' data <- list(list(7.0, 0.0), list(5.0, 1.0), list(3.0, 2.0),
-#'         list(5.0, 3.0), list(1.0, 4.0))
-#' df <- spark_tbl(data %>% setNames("label", "feature"))
-#' model <- ml_isotonic_regression(df, label ~ feature, isotonic = FALSE)
+#' data <- tribble(~label, ~feature,
+#'                 7.0, 0.0,
+#'                 5.0, 1.0,
+#'                 3.0, 2.0,
+#'                 5.0, 3.0,
+#'                 1.0, 4.0)
+#'
+#' df <- spark_tbl(data)
+#' model <- ml_isoreg(df, label ~ feature, isotonic = FALSE)
 #' # return model boundaries and prediction as lists
-#' result <- summary(model, df)
+#' result <- summary(model)
+#'
+#' # prediction based on fitted model
+#' predict_data <- tibble(feature = c(-2.0, -1.0, 0.5,
+#'                                    0.75, 1.0, 2.0, 9.0))
+#' predict_df <- spark_tbl(predict_data)
+#' # get prediction column
+#' predict_result <- model %>%
+#'   predict(predict_df) %>%
+#'   select(prediction) %>%
+#'   collect
+#'
+#' # save fitted model to input path
+#' path <- "path/to/model"
+#' write_ml(model, path)
+#'
+#' # can also read back the saved model and print
+#' savedModel <- read_ml(path)
+#' summary(savedModel)
 #' }
+#' @note spark.isoreg since 2.1.0
 ml_isoreg <- function(data, formula, isotonic = TRUE, featureIndex = 0,
                       weightCol = NULL) {
   formula <- paste(deparse(formula), collapse = "")
@@ -255,7 +318,8 @@ ml_isoreg <- function(data, formula, isotonic = TRUE, featureIndex = 0,
     weightCol <- as.character(weightCol)
   }
   jobj <- call_static("org.apache.spark.ml.r.IsotonicRegressionWrapper",
-                      "fit", attr(data, "jc"), formula, as.logical(isotonic), as.integer(featureIndex),
+                      "fit", attr(data, "jc"), formula, as.logical(isotonic),
+                      as.integer(featureIndex),
                       weightCol)
   new("IsotonicRegressionModel", jobj = jobj)
 }
@@ -308,7 +372,7 @@ setClass("AFTSurvivalRegressionModel", representation(jobj = "jobj"))
 
 #' Accelerated Failure Time (AFT) Survival Regression Model
 #'
-#' \code{ml_survival_regression} fits an accelerated failure time (AFT) survival regression model on
+#' \code{ml_survreg} fits an accelerated failure time (AFT) survival regression model on
 #' a spark_tbl. Users can call \code{summary} to get a summary of the fitted AFT model,
 #' \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 #' save/load fitted models.
@@ -329,17 +393,30 @@ setClass("AFTSurvivalRegressionModel", representation(jobj = "jobj"))
 #'                               ordering is set to "alphabetDesc", this drops the same category
 #'                               as R when encoding strings.
 #' @param ... additional arguments passed to the method.
-#' @return \code{ml_survival_regression} returns a fitted AFT survival regression model.
-#' @seealso survival: \url{https://cran.r-project.org/package=survival}
+#' @return \code{survreg} returns a fitted AFT survival regression model.
+#' @seealso ml_survival: \url{https://cran.r-project.org/package=survival}
 #' @rdname ml_survreg
+#' @export
 #' @examples
 #' \dontrun{
 #' df <- spark_tbl(ovarian)
-#' model <- ml_survival_regression(df, Surv(futime, fustat) ~ ecog_ps + rx)
+#' model <- ml_survreg(df, Surv(futime, fustat) ~ ecog_ps + rx)
 #'
 #' # get a summary of the model
 #' summary(model)
+#'
+#' # make predictions
+#' predicted <- predict(model, df)
+#' show(predicted)
+#'
+#' # save and load the model
+#' path <- "path/to/model"
+#' write_ml(model, path)
+#'
+#' savedModel <- read_ml(path)
+#' summary(savedModel)
 #' }
+#' @note spark.survreg since 2.0.0
 ml_survreg <- function(data, formula, aggregationDepth = 2,
                        stringIndexerOrderType = c("frequencyDesc", "frequencyAsc",
                                                   "alphabetDesc", "alphabetAsc")) {

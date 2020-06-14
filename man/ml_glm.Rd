@@ -4,7 +4,7 @@
 \alias{ml_glm}
 \alias{ml_glm,spark_tbl,formula-method}
 \alias{summary,GeneralizedLinearRegressionModel-method}
-\alias{print.summary.GeneralizedLinearRegressionModel}
+\alias{print.summary.tidyGeneralizedLinearRegressionModel}
 \alias{predict,GeneralizedLinearRegressionModel-method}
 \alias{write_ml,GeneralizedLinearRegressionModel,character-method}
 \title{Generalized Linear Models}
@@ -26,7 +26,7 @@ ml_glm(
 
 \S4method{summary}{GeneralizedLinearRegressionModel}(object)
 
-\method{print}{summary.GeneralizedLinearRegressionModel}(x, ...)
+\method{print}{summary.tidyGeneralizedLinearRegressionModel}(x, ...)
 
 \S4method{predict}{GeneralizedLinearRegressionModel}(object, newData)
 
@@ -111,6 +111,8 @@ Users can call \code{summary} to print a summary of the fitted model, \code{pred
 predictions on new data, and \code{write_ml}/\code{read_ml} to save/load fitted models.
 }
 \note{
+ml_glm since 2.0.0
+
 summary(GeneralizedLinearRegressionModel) since 2.0.0
 
 print.summary.GeneralizedLinearRegressionModel since 2.0.0
@@ -124,7 +126,42 @@ write_ml(GeneralizedLinearRegressionModel, character) since 2.0.0
 spark_session()
 t <- as.data.frame(Titanic, stringsAsFactors = FALSE)
 df <- spark_tbl(t)
-model <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian")
+model <- df \%>\%
+  ml_glm(Freq ~ Sex + Age, family = "gaussian")
+summary(model)
+
+# fitted values on training data
+fitted <- predict(model, df)
+fitted \%>\%
+  select(Freq, prediction) \%>\%
+  collect
+
+# save fitted model to input path
+path <- "path/to/model"
+write_ml(model, path)
+
+# can also read back the saved model and print
+savedModel <- read_ml(path)
+summary(savedModel)
+
+# note that the default string encoding is different from R's glm
+model2 <- df \%>\%
+  ml_glm(Freq ~ Sex + Age, family = "gaussian")
+summary(model2)
+# use stringIndexerOrderType = "alphabetDesc" to force string encoding
+# to be consistent with R
+model3 <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian",
+                   stringIndexerOrderType = "alphabetDesc")
+summary(model3)
+
+# fit tweedie model
+model <- df \%>\% ml_glm(Freq ~ Sex + Age, family = "tweedie",
+                       var.power = 1.2, link.power = 0)
+summary(model)
+
+# use the tweedie family from statmod
+library(statmod)
+model <- ml_glm(df, Freq ~ Sex + Age, family = tweedie(1.2, 0))
 summary(model)
 }
 }

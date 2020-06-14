@@ -158,6 +158,7 @@ print.summary.decisionTree <- function(x) {
 #' @return \code{ml_gbt} returns a fitted Gradient Boosted Tree model.
 #' @rdname ml_gbt
 #' @name ml_gbt
+#' @export
 #' @examples
 #' \dontrun{
 #' # fit a Gradient Boosted Tree Regression Model
@@ -347,6 +348,7 @@ setMethod("write_ml", signature(object = "GBTClassificationModel", path = "chara
 #' @return \code{ml_random_forest} returns a fitted Random Forest model.
 #' @rdname ml_random_forest
 #' @name ml_random_forest
+#' @export
 #' @examples
 #' \dontrun{
 #' # fit a Random Forest Regression Model
@@ -536,6 +538,7 @@ setMethod("write_ml", signature(object = "RandomForestClassificationModel", path
 #' @return \code{ml_decision_tree} returns a fitted Decision Tree model.
 #' @rdname ml_decision_tree
 #' @name ml_decision_tree
+#' @export
 #' @examples
 #' \dontrun{
 #' # fit a Decision Tree Regression Model
