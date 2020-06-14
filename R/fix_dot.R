@@ -139,12 +139,20 @@ sub_wndw_column <- function(col, env) {
   func_wndw <- chop_wndw(col)
 
   # add in the partitionBy based on grouping
-  groups <- env$groups
+  groups <- unique(env$groups, func_wndw$part)
   group_jcols <- lapply(groups, function(col) get_jc_cols(env$sdf)[[col]]@jc)
-  window <- call_method(func_wndw$wndw, "partitionBy", group_jcols)
+
+  new_wndw <-
+    func_wndw$frame(
+      call_method(
+        call_static(
+          "org.apache.spark.sql.expressions.Window",
+          "partitionBy", group_jcols),
+        "orderBy", func_wndw$ordr)
+    )
 
   # apply the window over the function
-  wndw_col <- new("Column", call_method(func_wndw$func, "over", window))
+  wndw_col <- new("Column", call_method(func_wndw$func, "over", new_wndw))
 
   # add the windowed column
   sdf_jc <- call_method(env$sdf, "withColumn",
