@@ -174,13 +174,25 @@ chop_wndw <- function(.col) {
 
   ordr_cols_suffix <- lapply(ordr_cols_raw, function(x) {
     sffx <- sub("(-)?(')?([^ #]*).* ((ASC|DESC) NULLS (FIRST|LAST))", "\\4", x)
-    switch(sffx,
-           "ASC NULLS FIRST" = function(x) call_method(x, "asc_nulls_first"),
-           "DESC NULLS FIRST" = function(x) call_method(x, "desc_nulls_first"),
-           "ASC NULLS LAST" = function(x) call_method(x, "asc_nulls_last"),
-           "DESC NULLS LAST" = function(x) call_method(x, "desc_nulls_last"))
+    descnd <- sub("(-)?(')?([^ #]*).* (ASC|DESC) NULLS (FIRST|LAST)",
+                  "\\1", x) == "-"
+    if (descnd) {
+      switch(sffx,
+             "ASC NULLS FIRST" = function(x) call_method(x, "desc_nulls_first"),
+             "DESC NULLS FIRST" = function(x) call_method(x, "asc_nulls_first"),
+             "ASC NULLS LAST" = function(x) call_method(x, "desc_nulls_last"),
+             "DESC NULLS LAST" = function(x) call_method(x, "asc_nulls_last"))
+    } else {
+      switch(sffx,
+             "ASC NULLS FIRST" = function(x) call_method(x, "asc_nulls_first"),
+             "DESC NULLS FIRST" = function(x) call_method(x, "desc_nulls_first"),
+             "ASC NULLS LAST" = function(x) call_method(x, "asc_nulls_last"),
+             "DESC NULLS LAST" = function(x) call_method(x, "desc_nulls_last"))
+    }
   })
 
+  # here we handle the -, which comes about because of the hacky way we
+  # integrated with the dplyr desc() function
   ordr_cols <- mapply(function(x, y) y(x), ordr_cols_name, ordr_cols_suffix)
 
   # if the frame is specified we return a function that applies the frame
@@ -269,21 +281,6 @@ mutate.spark_tbl <- function(.data, ...) {
       # apply the window over the function
       eval <- new("Column", call_method(func_wndw$func, "over", new_wndw))
     }
-    # else if (is_wndw_expr(eval)) {
-    #
-    #   # add in the partitionBy based on grouping
-    #   groups <- attr(.data, "groups")
-    #
-    #   if (!is.null(groups)) {
-    #     group_jcols <- lapply(df_cols[groups], function(x) x@jc)
-    #     window <- call_static("org.apache.spark.sql.expressions.Window",
-    #                 "partitionBy", group_jcols)
-    #
-    #     browser()
-    #     # apply the window over the function
-    #     eval <- new("Column", call_method(eval@jc, "over", window))
-    #   }
-    # }
 
     jcol <- if (class(eval) == "Column") eval@jc
     else call_static("org.apache.spark.sql.functions", "lit", eval)
