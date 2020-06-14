@@ -381,6 +381,7 @@ setMethod("summary", signature(object = "LDAModel"),
 #'         spark_tbl, or the log perplexity of the training data if
 #'         missing argument "data".
 #' @rdname ml_lda
+#' @export
 #' @aliases ml_perplexity,LDAModel-method
 #' @note ml_perplexity(LDAModel) since 2.1.0
 ml_perplexity <- function(object, data) {
@@ -396,6 +397,7 @@ ml_perplexity <- function(object, data) {
 #' @return \code{ml_posterior} returns a spark_tbl containing posterior probabilities
 #'         vectors named "topicDistribution".
 #' @rdname ml_lda
+#' @export
 #' @aliases ml_posterior,LDAModel,spark_tbl-method
 #' @note ml_posterior(LDAModel) since 2.1.0
 ml_posterior <- function(object, newData) {
@@ -524,4 +526,67 @@ setMethod("write_ml", signature(object = "GaussianMixtureModel", path = "charact
           function(object, path, overwrite = FALSE) {
             write_internal(object, path, overwrite)
           })
+
+#' S4 class that represents a PowerIterationClustering
+#'
+#' @param jobj a Java object reference to the backing Scala PowerIterationClustering
+#' @note PowerIterationClustering since 3.0.0
+setClass("PowerIterationClustering", slots = list(jobj = "jobj"))
+
+#' PowerIterationClustering
+#'
+#' A scalable graph clustering algorithm. Users can call \code{ml_assign_clusters} to
+#' return a cluster assignment for each input vertex.
+#' Run the PIC algorithm and returns a cluster assignment for each input vertex.
+#' @param data a spark_tbl.
+#' @param k the number of clusters to create.
+#' @param initMode the initialization algorithm; "random" or "degree"
+#' @param maxIter the maximum number of iterations.
+#' @param sourceCol the name of the input column for source vertex IDs.
+#' @param destinationCol the name of the input column for destination vertex IDs
+#' @param weightCol weight column name. If this is not set or \code{NULL},
+#'                  we treat all instance weights as 1.0.
+#' @param ... additional argument(s) passed to the method.
+#' @return A dataset that contains columns of vertex id and the corresponding cluster for the id.
+#'         The schema of it will be: \code{id: integer}, \code{cluster: integer}
+#' @rdname spark.powerIterationClustering
+#' @aliases ml_assign_clusters,spark_tbl
+#' @examples
+#' \dontrun{
+#' df <- spark_tbl(
+#'   tribble(~src, ~dst, ~weight,
+#'           0L, 1L, 1.0,
+#'           0L, 2L, 1.0,
+#'           1L, 2L, 1.0,
+#'           3L, 4L, 1.0,
+#'           4L, 0L, 0.1))
+#' clusters <- ml_assign_clusters(df, initMode = "degree", weightCol = "weight")
+#' show(clusters)
+#' }
+#' @note ml_assign_clusters(spark_tbl) since 3.0.0
+ml_assign_clusters <- function(data, k = 2L, initMode = c("random", "degree"),
+                               maxIter = 20L, sourceCol = "src",
+                               destinationCol = "dst", weightCol = NULL) {
+            if (!is.integer(k) || k < 1) {
+              stop("k should be a number with value >= 1.")
+            }
+            if (!is.integer(maxIter) || maxIter <= 0) {
+              stop("maxIter should be a number with value > 0.")
+            }
+            initMode <- match.arg(initMode)
+            if (!is.null(weightCol) && weightCol == "") {
+              weightCol <- NULL
+            } else if (!is.null(weightCol)) {
+              weightCol <- as.character(weightCol)
+            }
+            jobj <- call_static("org.apache.spark.ml.r.PowerIterationClusteringWrapper",
+                                "getPowerIterationClustering",
+                                as.integer(k), initMode,
+                                as.integer(maxIter), as.character(sourceCol),
+                                as.character(destinationCol), weightCol)
+            object <- new("PowerIterationClustering", jobj = jobj)
+            new_spark_tbl(
+              call_method(object@jobj, "assignClusters", attr(data, "jc"))
+              )
+          }
 
