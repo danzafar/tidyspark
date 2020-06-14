@@ -4,8 +4,6 @@
 #' @note GeneralizedLinearRegressionModel since 2.0.0
 setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 
-
-
 #' Generalized Linear Models
 #'
 #' Fits generalized linear model against a SparkDataFrame.
@@ -60,7 +58,8 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 #' df <- spark_tbl(t)
 #' model <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian")
 #' summary(model)
-#'
+#' }
+#' @export
 ml_glm <- function(data, formula, family = "gaussian", tol = 1e-06,
                        maxIter = 25, weightCol = NULL, regParam = 0, var.power = 0,
                        link.power = 1 - var.power, stringIndexerOrderType = c("frequencyDesc",
@@ -266,13 +265,13 @@ setClass("LogisticRegressionModel", representation(jobj = "jobj"))
 #' @aliases spark.logit,SparkDataFrame,formula-method
 #' @examples
 #' \dontrun{
-#' sparkR.session()
+#' spark_session()
 #' # binary logistic regression
 #' t <- as.data.frame(Titanic)
 #' training <- spark_tbl(t)
 #' model <- ml_logit(training, Survived ~ ., regParam = 0.5)
 #' summary <- summary(model)
-
+#' }
 ml_logit <- function(data, formula, regParam = 0, elasticNetParam = 0,
                       maxIter = 100, tol = 1e-06, family = "auto", standardization = TRUE,
                       thresholds = 0.5, weightCol = NULL, aggregationDepth = 2,
@@ -449,7 +448,7 @@ setClass("DecisionTreeClassificationModel", representation(jobj = "jobj"))
 #'
 #' # get the summary of the model
 #' summary(model)
-
+#' }
 ml_decision_tree <- function (data, formula, type = c("regression",
                                               "classification"), maxDepth = 5, maxBins = 32, impurity = NULL,
                       seed = NULL, minInstancesPerNode = 1, minInfoGain = 0,
@@ -555,7 +554,7 @@ ml_decision_tree <- function (data, formula, type = c("regression",
 #'
 #' # get the summary of the model
 #' summary(model)
-
+#' }
 ml_random_forest <- function(data, formula, type = c("regression",
                                               "classification"), maxDepth = 5, maxBins = 32, numTrees = 20,
                       impurity = NULL, featureSubsetStrategy = "auto", seed = NULL,
@@ -656,7 +655,7 @@ ml_random_forest <- function(data, formula, type = c("regression",
 #'
 #' # get the summary of the model
 #' summary(model)
-
+#' }
 ml_gbt <- function(data, formula,
                    type = c("regression", "classification"),
                    maxDepth = 5, maxBins = 32, maxIter = 20,
@@ -905,6 +904,7 @@ setClass("AFTSurvivalRegressionModel", representation(jobj = "jobj"))
 #'
 #' # get a summary of the model
 #' summary(model)
+#' }
 ml_survival_regression <- function(data, formula, aggregationDepth = 2,
                       stringIndexerOrderType = c("frequencyDesc", "frequencyAsc",
                                                  "alphabetDesc", "alphabetAsc")) {
@@ -964,13 +964,14 @@ setClass("IsotonicRegressionModel", representation(jobj = "jobj"))
 #' @name spark.isoreg
 #' @examples
 #' \dontrun{
-#' sparkr_session()
+#' spark_session()
 #' data <- list(list(7.0, 0.0), list(5.0, 1.0), list(3.0, 2.0),
 #'         list(5.0, 3.0), list(1.0, 4.0))
 #' df <- spark_tbl(data %>% setNames("label", "feature"))
 #' model <- ml_isotonic_regression(df, label ~ feature, isotonic = FALSE)
 #' # return model boundaries and prediction as lists
 #' result <- summary(model, df)
+#' }
 ml_isotonic_regression <- function(data, formula, isotonic = TRUE, featureIndex = 0,
                                    weightCol = NULL) {
   formula <- paste(deparse(formula), collapse = "")
@@ -1039,19 +1040,21 @@ setClass("MultilayerPerceptronClassificationModel", representation(jobj = "jobj"
 #' @importFrom stats na.omit
 #' @examples
 #' \dontrun{
-#' df <- read.df("data/mllib/sample_multiclass_classification_data.txt", source = "libsvm")
+#' df <- read_delim("data/mllib/sample_multiclass_classification_data.txt",
+#'                  source = "libsvm")
 #'
 #' # fit a Multilayer Perceptron Classification Model
-#' model <- ml_mlp(df, label ~ features, blockSize = 128, layers = c(4, 3), solver = "l-bfgs",
-#'                    maxIter = 100, tol = 0.5, stepSize = 1, seed = 1,
-#'                    initialWeights = c(0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 9, 9, 9, 9, 9))
+#' model <- ml_mlp(df, label ~ features, blockSize = 128, layers = c(4, 3),
+#'                 solver = "l-bfgs", maxIter = 100, tol = 0.5, stepSize = 1,
+#'                 seed = 1, initialWeights = c(0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 9, 9, 9, 9, 9))
 #'
 #' # get the summary of the model
 #' summary(model)
+#' }
 ml_mlp <- function(data, formula, layers, blockSize = 128,
-                   solver = "l-bfgs", maxIter = 100, tol = 1e-06, stepSize = 0.03,
-                   seed = NULL, initialWeights = NULL, handleInvalid = c("error",
-                                                                         "keep", "skip"))
+                   solver = "l-bfgs", maxIter = 100, tol = 1e-06,
+                   stepSize = 0.03, seed = NULL, initialWeights = NULL,
+                   handleInvalid = c("error", "keep", "skip"))
 {
   formula <- paste(deparse(formula), collapse = "")
   if (is.null(layers)) {
@@ -1070,9 +1073,9 @@ ml_mlp <- function(data, formula, layers, blockSize = 128,
   handleInvalid <- match.arg(handleInvalid)
   jobj <- call_static("org.apache.spark.ml.r.MultilayerPerceptronClassifierWrapper",
                       "fit", attr(data, "jc"), formula, as.integer(blockSize),
-                      as.array(layers), as.character(solver), as.integer(maxIter),
-                      as.numeric(tol), as.numeric(stepSize), seed, initialWeights,
-                      handleInvalid)
+                      as.array(layers), as.character(solver),
+                      as.integer(maxIter), as.numeric(tol),
+                      as.numeric(stepSize), seed, initialWeights, handleInvalid)
   new("MultilayerPerceptronClassificationModel", jobj = jobj)
 }
 
