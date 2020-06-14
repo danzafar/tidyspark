@@ -6,8 +6,6 @@ as_date.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
-# get/set components
-
 #' @importFrom lubridate date
 date.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "date"))
@@ -18,9 +16,6 @@ year.Column <- function(x, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "year", x@jc)
   return(new("Column", jc))
 }
-
-#TODO: isoyear()
-#TODO: epiyear()
 
 #' @importFrom lubridate month
 month.Column <- function(x, ...){
@@ -39,8 +34,6 @@ wday.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "dayofweek", x@jc)
   new("Column", jc)
 }
-
-#TODO: qday()
 
 #' @importFrom lubridate hour
 hour.Column <- function(x, ...){
@@ -65,43 +58,35 @@ week.Column <- function(x, ...){
   date_trunc("week", x)
 }
 
-#TODO: isoweek
-#TODO: epiweek
-
 #' @importFrom lubridate quarter
 quarter.Column <- function(x, ...){
   date_trunc("quarter", x)
 }
 
-#TODO: semester
-#TODO: am
-#TODO: pm
-#TODO: dst
-#TODO: leap_year
-#TODO: update
+#' Floor Date
+#'
+#' @param x a vector or \code{Column} of date-time objects
+#' @param unit a character string specifying a time unit or a multiple of a
+#' unit to be rounded to. Valid base units are second, minute, hour, day,
+#' week, month, quarter and year. Non-Spark usage additionally supports
+#' bimonth, season, and halfyear.
+#' @param week_start (not included in Spark) when unit is weeks specify the
+#' reference day; 7 being Sunday.
+#'
+#' @export
+#' @importFrom lubridate floor_date
+floor_date <- function(x, unit, ...) {
+  UseMethod("floor_date")
+}
 
-# round date-times
-#TODO: floor_date
-#TODO:round_date
-#TODO: ceiling_date
-#TODO: rollback
+floor_date.Column <- function(x, unit) {
+  date_trunc(unit, x)
+}
 
-# Parse date-times (composite functions)
-#TODO: ymd_hms(), ymd_hm(), ymd_h()
-#TODO: ydm_hms(), ydm_hm(), ydm_h()
-#TODO: mdy_hms(), mdy_hm(), mdy_h()
-#TODO: dmy_hms(), dmy_hm(), dmy_h()
-#TODO: ymd(), ydm()
-#TODO: mdy, myd
-#TODO: dmy, dym
-#TODO: yq
-#TODO: hms, hm, ms
-# ----------------
-#TODO: date_decimal
-#TODO: now
-#TODO: today
-#TODO: fast_strptime
-#TODO: parse_date_time
+floor_date.default <- function(x, unit, ...) {
+  lubridate::floor_date(x, unit, ...)
+}
+
 
 
 
