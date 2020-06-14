@@ -1,4 +1,6 @@
-#' S4 class that represents a generalized linear model
+#' @include mllib_utils.R
+
+#' @title S4 class that represents a generalized linear model
 #'
 #' @param jobj a Java object reference to the backing Scala GeneralizedLinearRegressionWrapper
 #' @note GeneralizedLinearRegressionModel since 2.0.0
@@ -46,10 +48,10 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 #'                  offsets as 0.0. The feature specified as offset has a constant coefficient of
 #'                  1.0.
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.glm,spark_tbl,formula-method
-#' @return \code{spark.glm} returns a fitted generalized linear model.
-#' @rdname spark.glm
-#' @name spark.glm
+#' @aliases ml_glm,spark_tbl,formula-method
+#' @return \code{ml_glm} returns a fitted generalized linear model.
+#' @rdname ml_glm
+#' @name ml_glm
 #' @importFrom stats gaussian
 #' @examples
 #' \dontrun{
@@ -107,6 +109,15 @@ ml_glm <- function(data, formula, family = "gaussian", tol = 1e-06,
       new("GeneralizedLinearRegressionModel", jobj = jobj)
 }
 
+#' @param object a fitted generalized linear model.
+#' @return \code{summary} returns summary information of the fitted model, which is a list.
+#'         The list of components includes at least the \code{coefficients} (coefficients matrix,
+#'         which includes coefficients, standard error of coefficients, t value and p value),
+#'         \code{null.deviance} (null/residual degrees of freedom), \code{aic} (AIC)
+#'         and \code{iter} (number of iterations IRLS takes). If there are collinear columns in
+#'         the data, the coefficients matrix only provides coefficients.
+#' @rdname ml_glm
+#' @note summary(GeneralizedLinearRegressionModel) since 2.0.0
 setMethod("summary", signature(object = "GeneralizedLinearRegressionModel"),
           function(object) {
             jobj <- object@jobj
@@ -147,6 +158,9 @@ setMethod("summary", signature(object = "GeneralizedLinearRegressionModel"),
             ans
           })
 
+#' @rdname ml_glm
+#' @param x summary object of fitted generalized linear model returned by \code{summary} function.
+#' @note print.summary.GeneralizedLinearRegressionModel since 2.0.0
 print.summary.GeneralizedLinearRegressionModel <- function(x, ...) {
   if (x$is.loaded) {
     cat("\nSaved-loaded model does not support output 'Deviance Residuals'.\n")
@@ -172,9 +186,25 @@ print.summary.GeneralizedLinearRegressionModel <- function(x, ...) {
   invisible(x)
 }
 
+#' @param newData a spark_tbl for testing.
+#' @return \code{predict} returns a spark_tbl containing predicted labels in a column named
+#'         "prediction".
+#' @rdname ml_glm
+#' @note predict(GeneralizedLinearRegressionModel) since 1.5.0
 setMethod("predict", signature(object = "GeneralizedLinearRegressionModel"),
           function(object, newData) {
             predict_internal(object, newData)
+          })
+
+#' @param path the directory where the model is saved.
+#' @param overwrite overwrites or not if the output path already exists. Default is FALSE
+#'                  which means throw exception if the output path exists.
+#'
+#' @rdname ml_glm
+#' @note write_ml(GeneralizedLinearRegressionModel, character) since 2.0.0
+setMethod("write_ml", signature(object = "GeneralizedLinearRegressionModel", path = "character"),
+          function(object, path, overwrite = FALSE) {
+            write_internal(object, path, overwrite)
           })
 
 
@@ -262,7 +292,7 @@ setClass("LogisticRegressionModel", representation(jobj = "jobj"))
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
 #' @return \code{ml_logit} returns a fitted logistic regression model.
-#' @aliases spark.logit,spark_tbl,formula-method
+#' @aliases ml_logit,spark_tbl,formula-method
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -436,7 +466,7 @@ setClass("DecisionTreeClassificationModel", representation(jobj = "jobj"))
 #'                                         a special additional bucket, at index numLabels). Default
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.decisionTree,spark_tbl,formula-method
+#' @aliases ml_decision_tree,spark_tbl,formula-method
 #' @return \code{ml_decision_tree} returns a fitted Decision Tree model.
 #' @rdname ml_decision_tree
 #' @name ml_decision_tree
@@ -542,7 +572,7 @@ ml_decision_tree <- function (data, formula, type = c("regression",
 #'                                         a special additional bucket, at index numLabels). Default
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.randomForest,spark_tbl,formula-method
+#' @aliases ml_random_forest,spark_tbl,formula-method
 #' @return \code{ml_random_forest} returns a fitted Random Forest model.
 #' @rdname ml_random_forest
 #' @name ml_random_forest
@@ -643,7 +673,7 @@ ml_random_forest <- function(data, formula, type = c("regression",
 #'                                         a special additional bucket, at index numLabels). Default
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.gbt,spark_tbl,formula-method
+#' @aliases ml_gbt,spark_tbl,formula-method
 #' @return \code{ml_gbt} returns a fitted Gradient Boosted Tree model.
 #' @rdname ml_gbt
 #' @name ml_gbt
@@ -897,6 +927,7 @@ setClass("AFTSurvivalRegressionModel", representation(jobj = "jobj"))
 #' @param ... additional arguments passed to the method.
 #' @return \code{ml_survival_regression} returns a fitted AFT survival regression model.
 #' @seealso survival: \url{https://cran.r-project.org/package=survival}
+#' @rdname ml_survreg
 #' @examples
 #' \dontrun{
 #' df <- spark_tbl(ovarian)
@@ -916,6 +947,12 @@ ml_survival_regression <- function(data, formula, aggregationDepth = 2,
     new("AFTSurvivalRegressionModel", jobj = jobj)
 }
 
+#' @param object a fitted AFT survival regression model.
+#' @return \code{summary} returns summary information of the fitted model, which is a list.
+#'         The list includes the model's \code{coefficients} (features, coefficients,
+#'         intercept and log(scale)).
+#' @rdname ml_survreg
+#' @note summary(AFTSurvivalRegressionModel) since 2.0.0
 setMethod("summary", signature(object = "AFTSurvivalRegressionModel"),
           function(object) {
             jobj <- object@jobj
@@ -927,12 +964,29 @@ setMethod("summary", signature(object = "AFTSurvivalRegressionModel"),
             list(coefficients = coefficients)
           })
 
+#  Makes predictions from an AFT survival regression model or a model produced by
+#  ml_survreg, similarly to R package survival's predict.
+
+#' @param newData a spark_tbl for testing.
+#' @return \code{predict} returns a spark_tbl containing predicted values
+#'         on the original scale of the data (mean predicted value at scale = 1.0).
+#' @rdname ml_survreg
+#' @note predict(AFTSurvivalRegressionModel) since 2.0.0
 setMethod("predict", signature(object = "AFTSurvivalRegressionModel"),
           function(object, newData) {
             predict_internal(object, newData)
           })
 
-
+#' @param path the directory where the model is saved.
+#' @param overwrite overwrites or not if the output path already exists. Default is FALSE
+#'                  which means throw exception if the output path exists.
+#' @rdname ml_survreg
+#' @note write_ml(AFTSurvivalRegressionModel, character) since 2.0.0
+#' @seealso \link{write_ml}
+setMethod("write_ml", signature(object = "AFTSurvivalRegressionModel", path = "character"),
+          function(object, path, overwrite = FALSE) {
+            write_internal(object, path, overwrite)
+          })
 
 
 # Isotonic Regression ----------
@@ -958,10 +1012,10 @@ setClass("IsotonicRegressionModel", representation(jobj = "jobj"))
 #'                     (default: 0), no effect otherwise.
 #' @param weightCol The weight column name.
 #' @param ... additional arguments passed to the method.
-#' @return \code{spark.isoreg} returns a fitted Isotonic Regression model.
-#' @rdname spark.isoreg
-#' @aliases spark.isoreg,spark_tbl,formula-method
-#' @name spark.isoreg
+#' @return \code{ml_isotonic_regression} returns a fitted Isotonic Regression model.
+#' @rdname ml_isoreg
+#' @aliases ml_isoreg,spark_tbl,formula-method
+#' @name ml_isoreg
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -987,6 +1041,12 @@ ml_isotonic_regression <- function(data, formula, isotonic = TRUE, featureIndex 
   new("IsotonicRegressionModel", jobj = jobj)
 }
 
+#' @return \code{summary} returns summary information of the fitted model, which is a list.
+#'         The list includes model's \code{boundaries} (boundaries in increasing order)
+#'         and \code{predictions} (predictions associated with the boundaries at the same index).
+#' @rdname ml_isoreg
+#' @aliases summary,IsotonicRegressionModel-method
+#' @note summary(IsotonicRegressionModel) since 2.1.0
 setMethod("summary", signature(object = "IsotonicRegressionModel"),
           function(object) {
             jobj <- object@jobj
@@ -995,12 +1055,30 @@ setMethod("summary", signature(object = "IsotonicRegressionModel"),
             list(boundaries = boundaries, predictions = predictions)
           })
 
+#' @param object a fitted IsotonicRegressionModel.
+#' @param newData spark_tbl for testing.
+#' @return \code{predict} returns a spark_tbl containing predicted values.
+#' @rdname ml_isoreg
+#' @aliases predict,IsotonicRegressionModel,spark_tbl-method
+#' @note predict(IsotonicRegressionModel) since 2.1.0
 setMethod("predict", signature(object = "IsotonicRegressionModel"),
           function(object, newData) {
             predict_internal(object, newData)
           })
 
-# Nueral Networks --------
+#' @param path The directory where the model is saved.
+#' @param overwrite Overwrites or not if the output path already exists. Default is FALSE
+#'                  which means throw exception if the output path exists.
+#'
+#' @rdname ml_isoreg
+#' @aliases write_ml,IsotonicRegressionModel,character-method
+#' @note write_ml(IsotonicRegression, character) since 2.1.0
+setMethod("write_ml", signature(object = "IsotonicRegressionModel", path = "character"),
+          function(object, path, overwrite = FALSE) {
+            write_internal(object, path, overwrite)
+          })
+
+# Neural Networks --------
 
 #' S4 class that represents a MultilayerPerceptronClassificationModel
 #'

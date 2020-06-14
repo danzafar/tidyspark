@@ -4,7 +4,7 @@
 \alias{ml_gaussian_mixture}
 \alias{ml_gaussianMixture,spark_tbl,formula-method}
 \alias{summary,GaussianMixtureModel-method}
-\alias{gaussianMixture,SparkDataFrame,formula-method}
+\alias{gaussianMixture,spark_tbl,formula-method}
 \alias{write_ml,GaussianMixtureModel,character-method}
 \title{Multivariate Gaussian Mixture Model (GMM)}
 \usage{

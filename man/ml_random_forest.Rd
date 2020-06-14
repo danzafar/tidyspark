@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_random_forest}
 \alias{ml_random_forest}
-\alias{spark.randomForest,spark_tbl,formula-method}
+\alias{ml_random_forest,spark_tbl,formula-method}
 \title{Random Forest Model for Regression and Classification}
 \usage{
 ml_random_forest(

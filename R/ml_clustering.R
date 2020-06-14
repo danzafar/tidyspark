@@ -383,11 +383,12 @@ setMethod("summary", signature(object = "LDAModel"),
 #' @rdname ml_lda
 #' @aliases ml_perplexity,LDAModel-method
 #' @note ml_perplexity(LDAModel) since 2.1.0
-setMethod("ml_perplexity", signature(object = "LDAModel", data = "spark_tbl"),
-          function(object, data) {
+ml_perplexity <- function(object, data) {
+            stopifnot(inherits(object, "LDAModel"))
+            stopifnot(inherits(data, "spark_tbl"))
             ifelse(missing(data), call_method(object@jobj, "logPerplexity"),
                    call_method(object@jobj, "computeLogPerplexity", data@sdf))
-          })
+          }
 
 #  Returns posterior probabilities from a Latent Dirichlet Allocation model produced by ml_lda()
 
@@ -397,10 +398,11 @@ setMethod("ml_perplexity", signature(object = "LDAModel", data = "spark_tbl"),
 #' @rdname ml_lda
 #' @aliases ml_posterior,LDAModel,spark_tbl-method
 #' @note ml_posterior(LDAModel) since 2.1.0
-setMethod("ml_posterior", signature(object = "LDAModel", newData = "spark_tbl"),
-          function(object, newData) {
+ml_posterior <- function(object, newData) {
+            stopifnot(inherits(object, "LDAModel"))
+            stopifnot(inherits(newData, "spark_tbl"))
             predict_internal(object, newData)
-          })
+          }
 
 #' @param path The directory where the model is saved.
 #' @param overwrite Overwrites or not if the output path already exists. Default is FALSE

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_decision_tree}
 \alias{ml_decision_tree}
-\alias{spark.decisionTree,spark_tbl,formula-method}
+\alias{ml_decision_tree,spark_tbl,formula-method}
 \title{Decision Tree Model for Regression and Classification}
 \usage{
 ml_decision_tree(

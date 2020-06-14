@@ -116,16 +116,6 @@ read_ml <- function(path) {
   }
 }
 
-#' @rdname ml_lda
-setGeneric("ml_posterior", function(object, newData) {
-  standardGeneric("ml_posterior")
-})
-
-#' @rdname ml_lda
-setGeneric("ml_perplexity", function(object, data) {
-  standardGeneric("ml_perplexity")
-})
-
 #' @param object a fitted ML model object.
 #' @param path the directory where the model is saved.
 #' @param ... additional argument(s) passed to the method.

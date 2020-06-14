@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_logit}
 \alias{ml_logit}
-\alias{spark.logit,spark_tbl,formula-method}
+\alias{ml_logit,spark_tbl,formula-method}
 \title{Logistic Regression Model}
 \usage{
 ml_logit(

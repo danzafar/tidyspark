@@ -2,6 +2,9 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_survival_regression}
 \alias{ml_survival_regression}
+\alias{summary,AFTSurvivalRegressionModel-method}
+\alias{predict,AFTSurvivalRegressionModel-method}
+\alias{write_ml,AFTSurvivalRegressionModel,character-method}
 \title{Accelerated Failure Time (AFT) Survival Regression Model}
 \usage{
 ml_survival_regression(
@@ -11,6 +14,12 @@ ml_survival_regression(
   stringIndexerOrderType = c("frequencyDesc", "frequencyAsc", "alphabetDesc",
     "alphabetAsc")
 )
+
+\S4method{summary}{AFTSurvivalRegressionModel}(object)
+
+\S4method{predict}{AFTSurvivalRegressionModel}(object, newData)
+
+\S4method{write_ml}{AFTSurvivalRegressionModel,character}(object, path, overwrite = FALSE)
 }
 \arguments{
 \item{data}{a spark_tbl for training.}
@@ -32,16 +41,39 @@ are "frequencyDesc", "frequencyAsc", "alphabetDesc", and
 ordering is set to "alphabetDesc", this drops the same category
 as R when encoding strings.}
 
+\item{object}{a fitted AFT survival regression model.}
+
+\item{newData}{a spark_tbl for testing.}
+
+\item{path}{the directory where the model is saved.}
+
+\item{overwrite}{overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.}
+
 \item{...}{additional arguments passed to the method.}
 }
 \value{
 \code{ml_survival_regression} returns a fitted AFT survival regression model.
+
+\code{summary} returns summary information of the fitted model, which is a list.
+        The list includes the model's \code{coefficients} (features, coefficients,
+        intercept and log(scale)).
+
+\code{predict} returns a spark_tbl containing predicted values
+        on the original scale of the data (mean predicted value at scale = 1.0).
 }
 \description{
 \code{ml_survival_regression} fits an accelerated failure time (AFT) survival regression model on
 a spark_tbl. Users can call \code{summary} to get a summary of the fitted AFT model,
 \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 save/load fitted models.
+}
+\note{
+summary(AFTSurvivalRegressionModel) since 2.0.0
+
+predict(AFTSurvivalRegressionModel) since 2.0.0
+
+write_ml(AFTSurvivalRegressionModel, character) since 2.0.0
 }
 \examples{
 \dontrun{
@@ -54,4 +86,6 @@ summary(model)
 }
 \seealso{
 survival: \url{https://cran.r-project.org/package=survival}
+
+\link{write_ml}
 }

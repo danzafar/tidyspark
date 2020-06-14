@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_gbt}
 \alias{ml_gbt}
-\alias{spark.gbt,spark_tbl,formula-method}
+\alias{ml_gbt,spark_tbl,formula-method}
 \title{Gradient Boosted Tree Model for Regression and Classification}
 \usage{
 ml_gbt(
