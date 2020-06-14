@@ -6,11 +6,6 @@ as_date.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
-#' @importFrom lubridate as_datetime
-as_datetime.Column <- function(x) {
-  new("Column", call_method(x@jc, "cast", "timestamp"))
-}
-
 # get/set components
 
 #' @importFrom lubridate date

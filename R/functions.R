@@ -2002,17 +2002,25 @@ setMethod("levenshtein", signature(y = "Column"),
 #' day of month, time of day will be ignored. Otherwise, the difference is
 #' calculated based on 31 days per month, and rounded to 8 digits.
 #'
+#' @param roundOff an optional parameter to specify if the result is rounded
+#'                 off to 8 digits
 #' @rdname column_datetime_diff_functions
 #' @aliases months_between months_between,Column-method
 #' @note months_between since 1.5.0
 setMethod("months_between", signature(y = "Column"),
-          function(y, x) {
+          function(y, x, roundOff = NULL) {
             if (class(x) == "Column") {
               x <- x@jc
             }
-            jc <- call_static("org.apache.spark.sql.functions",
-                              "months_between", y@jc, x)
-            new("Column", jc)
+            jc <- if (is.null(roundOff)) {
+              callJStatic("org.apache.spark.sql.functions", "months_between",
+                          y@jc, x)
+            } else {
+              callJStatic("org.apache.spark.sql.functions", "months_between",
+                          y@jc, x,
+                          as.logical(roundOff))
+            }
+            column(jc)
           })
 
 # nanvl ------------------------------------------------------------------------

@@ -494,7 +494,7 @@ setGeneric("monotonically_increasing_id",
 
 #' @rdname column_datetime_diff_functions
 #' @name NULL
-setGeneric("months_between", function(y, x) {
+setGeneric("months_between", function(y, x, ...) {
   standardGeneric("months_between")
   })
 
