@@ -6,97 +6,81 @@ iris_fix <- iris %>%
 iris_spk <- spark_tbl(iris)
 
 test_that('glm works and matches benchmark', {
-  expect_known_output(
-    ml_glm(iris_spk, Sepal_Width ~ Petal_Length, family = gaussian) %>%
-      summary(),
-    'glm_results',
-    print = TRUE)
+  expect_equal(
+    round(summary(ml_glm(iris_spk,
+                         Sepal_Width ~ Petal_Length,
+                         family = gaussian))$aic, 4),
+    151.1318)
 })
 
 test_that('rf works and matches benchmark', {
-  tmp_rf <- tempfile()
-  expect_known_output({
-    ml_random_forest(iris_spk, Sepal_Width ~ Petal_Length) %>%
-      summary()},
-    tmp_rf,
-    print = TRUE)
+  expect_equal(
+    summary(ml_random_forest(
+      iris_spk, Sepal_Width ~ Petal_Length)
+      )$featureImportances,
+    "(1,[0],[1.0])")
 })
 
 test_that('gbt works and matches benchmark', {
-  tmp_gbt <- tempfile()
-  expect_known_output({
-    ml_gbt(iris_spk, Sepal_Width ~ Petal_Length) %>%
-      summary()},
-    tmp_gbt,
-    print = TRUE)
+  expect_equal(
+    summary(ml_gbt(iris_spk, Sepal_Width ~ Petal_Length))$featureImportances,
+    "(1,[0],[1.0])")
 })
 
 
 test_that('survival works and matches benchmark', {
-  tmp_surv <- tempfile()
-  expect_known_output({
-    # Fit an accelerated failure time (AFT) survival regression model with spark.survreg
-    ovarianDF <- suppressWarnings(spark_tbl(ovarian))
-    aftDF <- ovarianDF
-    aftTestDF <- ovarianDF
-    ml_survreg(aftDF, Surv(futime, fustat) ~ ecog_ps + rx) %>%
-      summary()},
-    tmp_surv,
-    print = TRUE)
+  expect_equal({
+    ovarianDF <- spark_tbl(ovarian)
+    model <- ml_survreg(ovarianDF, Surv(futime, fustat) ~ ecog_ps + rx)
+    summary(model)$coefficients[1]},
+    6.896693)
 })
 
 test_that('iso works and matches benchmark', {
-  tmp_iso <- tempfile()
-  expect_known_output({
-    data.frame(label = 7,5,3,5,1,
-               feature = 0,1,2,3,4) %>%
-      spark_tbl() %>%
-      ml_isoreg(label ~ feature, isotonic = TRUE) %>%
-      # return model boundaries and prediction as lists
-      summary()},
-    tmp_iso
-  )
+  expect_equal({
+    data <- spark_tbl(data.frame(label = 7,5,3,5,1,
+                                 feature = 0,1,2,3,4))
+    model <- ml_isoreg(data, label ~ feature, isotonic = TRUE)
+    summary(model)[[2]][[1]]},
+    7)
 })
 
-# tmp_nn <- tempfile()
-# expect_known_output({
-#   model <- ml_mlp(iris_spk, Species ~ Sepal_Width, blockSize = 128, layers = c(2, 2), solver = "l-bfgs",
-#                   maxIter = 100, tol = 0.5, stepSize = 1, seed = 1,
-#                    initialWeights = c(0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 9, 9, 9, 9, 9))},
-#                   tmp_nn
-# )
-
 test_that('kmeans works and matches benchmark', {
-  tmp_km <- tempfile()
-  expect_known_output({
+  expect_equal({
     t <- as.data.frame(Titanic)
     df <- spark_tbl(t)
     model <- ml_kmeans(df, Class ~ Survived, k = 4, initMode = "random")
-    summary(model)},
-    tmp_km
+    summary(model)$coefficients[2]},
+    1
   )
 })
 
 test_that('bisecting kmeans works and matches benchmark', {
-  tmp_bsmk<- tempfile()
-  expect_known_output({
+  expect_equal({
     t <- as.data.frame(Titanic)
     df <- spark_tbl(t)
-    ml_kmeans_bisecting(df, Class ~ Survived, k = 4) %>%
-      summary()},
-    tmp_bsmk
+    model <- ml_kmeans_bisecting(df, Class ~ Survived, k = 4)
+    summary(model)$size[[1]]},
+    16
   )
 })
 
 test_that('gmm works and matches benchmark', {
-  tmp_gmm <- tempfile()
-  expect_known_output({
+  expect_equal({
     set.seed(100)
-    a <- rmvnorm(4, c(0, 0))
-    b <- rmvnorm(6, c(3, 4))
+    a <- matrix(c(-0.65053763, -1.5858810,
+                  -0.04069196, -0.3310045,
+                  -0.95313021,  1.1858818,
+                  -0.25726294,  0.4372134), ncol = 2)
+    b <- matrix(c(4.103618, 4.943563,
+                  2.978020, 5.196386,
+                  2.495873, 3.153651,
+                  2.401900, 3.336142,
+                  2.260843, 3.198457,
+                  3.377506, 4.457650), ncol = 2)
     data <- rbind(a, b)
     df <- spark_tbl(as.data.frame(data))
-    ml_gaussian_mixture(df, ~ V1 + V2, k = 2) %>%
-      summary()},
-    tmp_gmm)
+    model <- ml_gaussian_mixture(df, ~ V1 + V2, k = 2)
+    summary(model)$lambda[1]},
+    0.4113201)
 })
