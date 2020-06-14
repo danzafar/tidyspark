@@ -143,9 +143,11 @@ in a group.
 
 \code{stddev}: Alias for \code{std_dev}.
 
-\code{stddev_pop}: Returns the population standard deviation of the expression in a group.
+\code{stddev_pop}: Returns the population standard deviation of the
+                   expression in a group.
 
-\code{stddev_samp}: Returns the unbiased sample standard deviation of the expression in a group.
+\code{stddev_samp}: Returns the unbiased sample standard deviation of the
+                    expression in a group.
 
 \code{sum}: Returns the sum of all values in the expression.
 

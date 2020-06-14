@@ -187,8 +187,8 @@ upper(x)
 
 \item{...}{additional Columns.}
 
-\item{charset}{character set to use (one of "US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE",
-"UTF-16LE", "UTF-16").}
+\item{charset}{character set to use (one of "US-ASCII", "ISO-8859-1",
+"UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16").}
 
 \item{y}{Column to compute on.}
 
@@ -208,21 +208,22 @@ upper(x)
 
 \item{idx}{a group index.}
 
-\item{replacement}{a character string that a matched \code{pattern} is replaced with.}
+\item{replacement}{a character string that a matched \code{pattern} is
+replaced with.}
 
 \item{n}{number of repetitions.}
 
 \item{delim}{a delimiter string.}
 
-\item{count}{number of occurrences of \code{delim} before the substring is returned.
-A positive number means counting from the left, while negative means
-counting from the right.}
+\item{count}{number of occurrences of \code{delim} before the substring is
+returned. A positive number means counting from the left, while
+negative means counting from the right.}
 
 \item{matchingString}{a source string where each character will be translated.}
 
-\item{replaceString}{a target string where each \code{matchingString} character will
-be replaced by the character in \code{replaceString}
-at the same location, if any.}
+\item{replaceString}{a target string where each \code{matchingString}
+character will be replaced by the character in
+\code{replaceString} at the same location, if any.}
 
 \item{pos}{start position of search.}
 }
@@ -236,11 +237,11 @@ string column, and returns the result as an int column.
 \code{base64}: Computes the BASE64 encoding of a binary column and returns
 it as a string column. This is the reverse of unbase64.
 
-\code{decode}: Computes the first argument into a string from a binary using the provided
-character set.
+\code{decode}: Computes the first argument into a string from a binary
+using the provided character set.
 
-\code{encode}: Computes the first argument into a binary from a string using the provided
-character set.
+\code{encode}: Computes the first argument into a binary from a string
+using the provided character set.
 
 \code{initcap}: Returns a new string column by converting the first letter of
 each word to uppercase. Words are delimited by whitespace. For example, "hello world"
@@ -252,23 +253,25 @@ The length of binary data includes binary zeros.
 
 \code{lower}: Converts a string column to lower case.
 
-\code{ltrim}: Trims the spaces from left end for the specified string value. Optionally a
+\code{ltrim}: Trims the spaces from left end for the specified string value.
+              Optionally a
 \code{trimString} can be specified.
 
-\code{rtrim}: Trims the spaces from right end for the specified string value. Optionally a
-\code{trimString} can be specified.
+\code{rtrim}: Trims the spaces from right end for the specified string value.
+              Optionally a \code{trimString} can be specified.
 
 \code{soundex}: Returns the soundex code for the specified expression.
 
-\code{trim}: Trims the spaces from both ends for the specified string column. Optionally a
-\code{trimString} can be specified.
+\code{trim}: Trims the spaces from both ends for the specified string
+column. Optionally a \code{trimString} can be specified.
 
-\code{unbase64}: Decodes a BASE64 encoded string column and returns it as a binary column.
-This is the reverse of base64.
+\code{unbase64}: Decodes a BASE64 encoded string column and returns it as
+a binary column. This is the reverse of base64.
 
 \code{upper}: Converts a string column to upper case.
 
-\code{levenshtein}: Computes the Levenshtein distance of the two given string columns.
+\code{levenshtein}: Computes the Levenshtein distance of the two given
+                    string columns.
 
 \code{instr}: Locates the position of the first occurrence of a substring
 (\code{x}) in the given string column (\code{y}). Returns null if either of
@@ -293,25 +296,26 @@ could not be found in str.
 
 \code{lpad}: Left-padded with pad to a length of len.
 
-\code{regexp_extract}: Extracts a specific \code{idx} group identified by a Java regex,
-from the specified string column. If the regex did not match, or the specified group did
-not match, an empty string is returned.
+\code{regexp_extract}: Extracts a specific \code{idx} group identified by a
+Java regex, from the specified string column. If the regex did not match, or
+the specified group did not match, an empty string is returned.
 
-\code{regexp_replace}: Replaces all substrings of the specified string value that
-match regexp with rep.
+\code{regexp_replace}: Replaces all substrings of the specified string value
+that match regexp with rep.
 
 \code{rpad}: Right-padded with pad to a length of len.
 
-\code{substring_index}: Returns the substring from string (\code{x}) before \code{count}
-occurrences of the delimiter (\code{delim}). If \code{count} is positive, everything the left of
-the final delimiter (counting from left) is returned. If \code{count} is negative, every to the
-right of the final delimiter (counting from the right) is returned. \code{substring_index}
+\code{substring_index}: Returns the substring from string (\code{x}) before
+\code{count} occurrences of the delimiter (\code{delim}). If \code{count} is
+positive, everything the left of the final delimiter (counting from left) is
+returned. If \code{count} is negative, every to the right of the final
+delimiter (counting from the right) is returned. \code{substring_index}
 performs a case-sensitive match when searching for the delimiter.
 
-\code{translate}: Translates any character in the src by a character in replaceString.
-The characters in replaceString is corresponding to the characters in matchingString.
-The translate will happen when any character in the string matching with the character
-in the matchingString.
+\code{translate}: Translates any character in the src by a character in
+replaceString. The characters in replaceString is corresponding to the
+characters in matchingString. The translate will happen when any character
+in the string matching with the character in the matchingString.
 
 \code{split_string}: Splits string on regular expression.
 Equivalent to \code{split} SQL function.
@@ -422,8 +426,10 @@ tmp <- mutate(df, d1 = levenshtein(df$Class, df$Sex),
 head(tmp)}
 
 \dontrun{
-tmp <- mutate(df, s1 = instr(df$Sex, "m"), s2 = instr(df$Sex, "M"),
-                  s3 = locate("m", df$Sex), s4 = locate("m", df$Sex, pos = 4))
+tmp <- mutate(df, s1 = instr(df$Sex, "m"),
+                  s2 = instr(df$Sex, "M"),
+                  s3 = locate("m", df$Sex),
+                  s4 = locate("m", df$Sex, pos = 4))
 head(tmp)}
 
 \dontrun{

@@ -396,10 +396,11 @@ apply final transformation on the accumulated data in \code{array_aggregate}.}
 Collection functions defined for \code{Column}.
 }
 \details{
-\code{reverse}: Returns a reversed string or an array with reverse order of elements.
+\code{reverse}: Returns a reversed string or an array with reverse order
+                of elements.
 
-\code{to_json}: Converts a column containing a \code{structType}, a \code{mapType}
-or an \code{arrayType} into a Column of JSON string.
+\code{to_json}: Converts a column containing a \code{structType}, a
+\code{mapType} or an \code{arrayType} into a Column of JSON string.
 Resolving the Column can fail if an unsupported type is encountered.
 
 \code{to_csv}: Converts a column containing a \code{structType} into a
@@ -692,7 +693,8 @@ df2 <- sql("SELECT named_struct('date', cast('2000-01-01' as date)) as d")
 select(df2, to_json(df2$d, dateFormat = 'dd/MM/yyyy'))
 
 # Converts an array of structs into a JSON array
-df2 <- sql("SELECT array(named_struct('name', 'Bob'), named_struct('name', 'Alice')) as people")
+df2 <- sql("SELECT array(named_struct('name', 'Bob'),
+                         named_struct('name', 'Alice')) as people")
 df2 <- mutate(df2, people_json = to_json(df2$people))
 
 # Converts a map into a JSON object
@@ -700,7 +702,8 @@ df2 <- sql("SELECT map('name', 'Bob')) as people")
 df2 <- mutate(df2, people_json = to_json(df2$people))
 
 # Converts an array of maps into a JSON array
-df2 <- sql("SELECT array(map('name', 'Bob'), map('name', 'Alice')) as people")
+df2 <- sql("SELECT array(map('name', 'Bob'),
+                         map('name', 'Alice')) as people")
 df2 <- mutate(df2, people_json = to_json(df2$people))}
 
 \dontrun{

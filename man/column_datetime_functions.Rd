@@ -158,11 +158,11 @@ given date/timestamp/string.
 given date belongs to. For example, input "2015-07-27" returns "2015-07-31" since
 July 31 is the last day of the month in July 2015.
 
-\code{to_date}: Converts the column into a DateType. You may optionally specify
-a format according to the rules in:
-\url{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}.
-If the string cannot be parsed according to the specified format (or default),
-the value of the column will be null.
+\code{to_date}: Converts the column into a DateType. You may optionally
+specify a format according to the
+\href{rules}{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}.
+If the string cannot be parsed according to the specified format
+(or default), the value of the column will be null.
 By default, it follows casting rules to a DateType if the format is omitted
 (equivalent to \code{cast(df$x, "date")}).
 
@@ -174,7 +174,8 @@ the value of the column will be null.
 By default, it follows casting rules to a TimestampType if the format is omitted
 (equivalent to \code{cast(df$x, "timestamp")}).
 
-\code{weekofyear}: Extracts the week number as an integer from a given date/timestamp/string.
+\code{weekofyear}: Extracts the week number as an integer from a given
+                   date/timestamp/string.
 
 \code{from_unixtime}: Converts the number of seconds from unix epoch
 (1970-01-01 00:00:00 UTC) to a string representing the timestamp of that

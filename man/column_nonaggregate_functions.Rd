@@ -135,49 +135,54 @@ Non-aggregate functions defined for \code{Column}.
 
 \code{is.nan}: Alias for \link{isnan}.
 
-\code{monotonically_increasing_id}: Returns a column that generates monotonically increasing
-64-bit integers. The generated ID is guaranteed to be monotonically increasing and unique,
-but not consecutive. The current implementation puts the partition ID in the upper 31 bits,
-and the record number within each partition in the lower 33 bits. The assumption is that the
-SparkDataFrame has less than 1 billion partitions, and each partition has less than 8 billion
-records. As an example, consider a SparkDataFrame with two partitions, each with 3 records.
-This expression would return the following IDs:
-0, 1, 2, 8589934592 (1L << 33), 8589934593, 8589934594.
+\code{monotonically_increasing_id}: Returns a column that generates
+monotonically increasing 64-bit integers. The generated ID is guaranteed to
+be monotonically increasing and unique, but not consecutive. The current
+implementation puts the partition ID in the upper 31 bits, and the record
+number within each partition in the lower 33 bits. The assumption is that
+the SparkDataFrame has less than 1 billion partitions, and each partition
+has less than 8 billion records. As an example, consider a SparkDataFrame
+with two partitions, each with 3 records. This expression would return the
+following IDs: 0, 1, 2, 8589934592 (1L << 33), 8589934593, 8589934594.
 This is equivalent to the MONOTONICALLY_INCREASING_ID function in SQL.
 The method should be used with no argument.
-Note: the function is non-deterministic because its result depends on partition IDs.
+Note: the function is non-deterministic because its result depends on
+partition IDs.
 
 \code{negate}: Unary minus, i.e. negate the expression.
 
-\code{spark_partition_id}: Returns the partition ID as a SparkDataFrame column.
-Note that this is nondeterministic because it depends on data partitioning and
-task scheduling.
-This is equivalent to the \code{SPARK_PARTITION_ID} function in SQL.
+\code{spark_partition_id}: Returns the partition ID as a SparkDataFrame
+column. Note that this is nondeterministic because it depends on data
+partitioning and task scheduling. This is equivalent to the
+\code{SPARK_PARTITION_ID} function in SQL.
 
-\code{struct}: Creates a new struct column that composes multiple input columns.
+\code{struct}: Creates a new struct column that composes multiple input
+columns.
 
-\code{nanvl}: Returns the first column (\code{y}) if it is not NaN, or the second column
-(\code{x}) if the first column is NaN. Both inputs should be floating point columns
-(DoubleType or FloatType).
+\code{nanvl}: Returns the first column (\code{y}) if it is not NaN, or the
+second column (\code{x}) if the first column is NaN. Both inputs should be
+floating point columns (DoubleType or FloatType).
 
-\code{greatest}: Returns the greatest value of the list of column names, skipping null values.
-This function takes at least 2 parameters. It will return null if all parameters are null.
+\code{greatest}: Returns the greatest value of the list of column names,
+skipping null values. This function takes at least 2 parameters. It will
+return null if all parameters are null.
 
-\code{least}: Returns the least value of the list of column names, skipping null values.
-This function takes at least 2 parameters. It will return null if all parameters are null.
+\code{least}: Returns the least value of the list of column names, skipping
+null values. This function takes at least 2 parameters. It will return null
+if all parameters are null.
 
 \code{expr}: Parses the expression string into the column that it
 represents, similar to \code{SparkDataFrame.selectExpr}
 
-\code{when}: Evaluates a list of conditions and returns one of multiple possible result
-expressions. For unmatched expressions null is returned.
+\code{when}: Evaluates a list of conditions and returns one of multiple
+possible result expressions. For unmatched expressions null is returned.
 
-\code{rand}: Generates a random column with independent and identically distributed (i.i.d.)
-samples from U[0.0, 1.0].
+\code{rand}: Generates a random column with independent and identically
+distributed (i.i.d.) samples from U[0.0, 1.0].
 Note: the function is non-deterministic in general case.
 
-\code{randn}: Generates a column with independent and identically distributed (i.i.d.) samples
-from the standard normal distribution.
+\code{randn}: Generates a column with independent and identically
+distributed (i.i.d.) samples from the standard normal distribution.
 Note: the function is non-deterministic in general case.
 
 \code{create_array}: Creates a new array column. The input columns must all have the same data

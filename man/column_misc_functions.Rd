@@ -52,11 +52,11 @@ binary column and returns the value as a bigint.
 \code{hash}: Calculates the hash code of given columns, and returns the
 result as an int column.
 
-\code{md5}: Calculates the MD5 digest of a binary column and returns the value
-as a 32 character hex string.
+\code{md5}: Calculates the MD5 digest of a binary column and returns the
+value as a 32 character hex string.
 
-\code{sha1}: Calculates the SHA-1 digest of a binary column and returns the value
-as a 40 character hex string.
+\code{sha1}: Calculates the SHA-1 digest of a binary column and returns the
+value as a 40 character hex string.
 
 \code{sha2}: Calculates the SHA-2 family of hash functions of a binary
 column and returns the value as a hex string. The second argument \code{x}

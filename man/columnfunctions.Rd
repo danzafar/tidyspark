@@ -35,10 +35,4 @@ rlike(x, ...)
 }
 \description{
 A set of operations working with Column objects
-
-setMethod("initialize", "Column", function(.Object, jc) {
-  .Object@jc <- jc
-  .Object
-})
-A set of operations working with SparkDataFrame columns
 }

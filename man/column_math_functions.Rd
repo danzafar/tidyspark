@@ -202,9 +202,10 @@ unhex(x)
 
 \item{y}{Column to compute on.}
 
-\item{scale}{round to \code{scale} digits to the right of the decimal point when
-\code{scale} > 0, the nearest even number when \code{scale} = 0, and \code{scale} digits
-to the left of the decimal point when \code{scale} < 0.}
+\item{scale}{round to \code{scale} digits to the right of the decimal point
+when \code{scale} > 0, the nearest even number when \code{scale} = 0,
+and \code{scale} digits to the left of the decimal point when
+\code{scale} < 0.}
 }
 \description{
 Math functions defined for \code{Column}.
@@ -252,16 +253,17 @@ as if computed by \code{java.lang.Math.cosh()}.
 
 \code{log2}: Computes the logarithm of the given column in base 2.
 
-\code{rint}: Returns the double value that is closest in value to the argument and
-is equal to a mathematical integer.
+\code{rint}: Returns the double value that is closest in value to the
+argument and is equal to a mathematical integer.
 
 \code{round}: Returns the value of the column rounded to 0 decimal places
 using HALF_UP rounding mode.
 
-\code{bround}: Returns the value of the column \code{e} rounded to \code{scale} decimal places
-using HALF_EVEN rounding mode if \code{scale} >= 0 or at integer part when \code{scale} < 0.
-Also known as Gaussian rounding or bankers' rounding that rounds to the nearest even number.
-bround(2.5, 0) = 2, bround(3.5, 0) = 4.
+\code{bround}: Returns the value of the column \code{e} rounded to
+\code{scale} decimal places using HALF_EVEN rounding mode if
+\code{scale} >= 0 or at integer part when \code{scale} < 0. Also known as
+Gaussian rounding or bankers' rounding that rounds to the nearest even
+number. bround(2.5, 0) = 2, bround(3.5, 0) = 4.
 
 \code{signum}: Computes the signum of the given value.
 
@@ -282,22 +284,24 @@ Units in radians.
 \code{tanh}: Returns the hyperbolic tangent of the given value,
 as if computed by \code{java.lang.Math.tanh()}.
 
-\code{toDegrees}: Converts an angle measured in radians to an approximately equivalent angle
-measured in degrees.
+\code{toDegrees}: Converts an angle measured in radians to an approximately
+equivalent angle measured in degrees.
 
-\code{degrees}: Converts an angle measured in radians to an approximately equivalent angle
-measured in degrees.
+\code{degrees}: Converts an angle measured in radians to an approximately
+equivalent angle measured in degrees.
 
-\code{toRadians}: Converts an angle measured in degrees to an approximately equivalent angle
-measured in radians.
+\code{toRadians}: Converts an angle measured in degrees to an approximately
+equivalent angle measured in radians.
 
-\code{unhex}: Inverse of hex. Interprets each pair of characters as a hexadecimal number
-and converts to the byte representation of number.
+\code{unhex}: Inverse of hex. Interprets each pair of characters as a
+hexadecimal number and converts to the byte representation of number.
 
-\code{hypot}: Computes "sqrt(a^2 + b^2)" without intermediate overflow or underflow.
+\code{hypot}: Computes "sqrt(a^2 + b^2)" without intermediate overflow or
+              underflow.
 
 \code{pmod}: Returns the positive value of dividend mod divisor.
-Column \code{x} is divisor column, and column \code{y} is the dividend column.
+Column \code{x} is divisor column, and column \code{y} is the dividend
+column.
 
 \code{shiftLeft}: Shifts the given value numBits left. If the given value is
 a long value. this function will return a long value else it will return an

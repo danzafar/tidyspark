@@ -89,10 +89,11 @@ Date time arithmetic functions defined for \code{Column}.
 \code{datediff}: Returns the number of days from \code{y} to \code{x}.
 If \code{y} is later than \code{x} then the result is positive.
 
-\code{months_between}: Returns number of months between dates \code{y} and \code{x}.
-If \code{y} is later than \code{x}, then the result is positive. If \code{y} and \code{x}
-are on the same day of month, or both are the last day of month, time of day will be ignored.
-Otherwise, the difference is calculated based on 31 days per month, and rounded to 8 digits.
+\code{months_between}: Returns number of months between dates \code{y} and
+\code{x}. If \code{y} is later than \code{x}, then the result is positive.
+If \code{y} and \code{x} are on the same day of month, or both are the last
+day of month, time of day will be ignored. Otherwise, the difference is
+calculated based on 31 days per month, and rounded to 8 digits.
 
 \code{date_format}: Converts a date/timestamp/string to a value of string in
 the format specified by the date format given by the second argument. A
