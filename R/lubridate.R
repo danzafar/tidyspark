@@ -70,8 +70,8 @@ quarter.Column <- function(x, ...){
 #' unit to be rounded to. Valid base units are second, minute, hour, day,
 #' week, month, quarter and year. Non-Spark usage additionally supports
 #' bimonth, season, and halfyear.
-#' @param week_start (not included in Spark) when unit is weeks specify the
-#' reference day; 7 being Sunday.
+#' @param ... lubridate version has \code{week_start} (not included in Spark).
+#' When unit is weeks specify the reference day; 7 being Sunday.
 #'
 #' @export
 #' @importFrom lubridate floor_date

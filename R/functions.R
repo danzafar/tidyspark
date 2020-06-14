@@ -2013,10 +2013,10 @@ setMethod("months_between", signature(y = "Column"),
               x <- x@jc
             }
             jc <- if (is.null(roundOff)) {
-              callJStatic("org.apache.spark.sql.functions", "months_between",
+              call_static("org.apache.spark.sql.functions", "months_between",
                           y@jc, x)
             } else {
-              callJStatic("org.apache.spark.sql.functions", "months_between",
+              call_static("org.apache.spark.sql.functions", "months_between",
                           y@jc, x,
                           as.logical(roundOff))
             }

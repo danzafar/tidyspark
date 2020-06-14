@@ -35,6 +35,6 @@ is_Streaming(df)
 \link{read.stream} \link{write.stream}
 
 Other SparkDataFrame functions: 
-\code{\link{write.stream}}
+\code{\link{write.stream}()}
 }
 \concept{SparkDataFrame functions}

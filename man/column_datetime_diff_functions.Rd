@@ -34,7 +34,7 @@ date_sub(y, x)
 
 from_utc_timestamp(y, x)
 
-months_between(y, x)
+months_between(y, x, ...)
 
 next_day(y, x)
 
@@ -42,7 +42,7 @@ to_utc_timestamp(y, x)
 
 \S4method{datediff}{Column}(y, x)
 
-\S4method{months_between}{Column}(y, x)
+\S4method{months_between}{Column}(y, x, roundOff = NULL)
 
 \S4method{date_format}{Column,character}(y, x)
 
@@ -81,6 +81,9 @@ days to be added to or subtracted from \code{y}. For class \code{character}, it 
 \item \code{months_between}, this contains an optional parameter to specify the
     the result is rounded off to 8 digits.
 }}
+
+\item{roundOff}{an optional parameter to specify if the result is rounded
+off to 8 digits}
 }
 \description{
 Date time arithmetic functions defined for \code{Column}.
