@@ -1,4 +1,3 @@
-#' @include columns.R
 
 # This is the most complicated part of tidyspark so far. In order to break
 # up complicated expressions like:

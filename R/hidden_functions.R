@@ -1,6 +1,4 @@
 
-#' @include columns.R
-
 # These hidden functions are treated differently because they have namespace
 # conflicts with dplyr or base that could lead to confusing usage. These are
 # purposefully not exported and instead are injected into the evaluation

@@ -89,8 +89,6 @@ test_that("read/write orc", {
       collect,
     iris_fix)
 })
-#' @include columns.R
-NULL
 
 # PARQUET ---------------------------------------------------------------------
 test_that("read parquet", {

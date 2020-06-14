@@ -1,5 +1,3 @@
-#' @include columns.R
-
 #' @export
 #' @importFrom dplyr tbl_vars
 tbl_vars.spark_tbl <- function(x) {

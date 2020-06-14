@@ -1,4 +1,5 @@
-#' @include generics.R schema.R columns.R
+
+#' @include generics.R schema.R
 NULL
 
 #' @importClassesFrom SparkR Column

@@ -1,5 +1,3 @@
-#' @include columns.R
-
 # create a low-level constructor for an new S3 class called "spark_tbl"
 # following tidy guidelines here https://adv-r.hadley.nz/s3.html#constructors
 new_spark_tbl <- function(sdf, ...) {

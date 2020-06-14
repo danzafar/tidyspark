@@ -1,7 +1,4 @@
 
-#' @include generics.R
-NULL
-
 #' S4 class that represents a StreamingQuery
 #'
 #' StreamingQuery can be created by using read.stream() and write.stream()

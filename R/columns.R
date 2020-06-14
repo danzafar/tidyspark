@@ -1,9 +1,6 @@
 
 # Column Class
 
-#' @include generics.R jobj.R
-NULL
-
 #' A set of operations working with SparkDataFrame columns
 #' @rdname columnfunctions
 #' @name columnfunctions
