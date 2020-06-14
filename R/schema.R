@@ -10,6 +10,8 @@
 #'
 #' @return an object of type \code{StructType}
 #' @export
+#' @exportClass StructType
+#' @aliases StructType, StructType-class
 #'
 #' @rdname StructType
 #' @examples
@@ -23,6 +25,12 @@
 StructType <- function(x, ...) {
   UseMethod("StructType", x)
 }
+
+#' @title StructType
+#' @name StructType
+#'
+#' @rdname StructType
+setOldClass("StructType")
 
 #' @rdname StructType
 #' @export

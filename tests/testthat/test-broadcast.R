@@ -1,10 +1,11 @@
 # Partitioned data
-spark <- spark_session(master = "local[1]")
-sc <- spark$sparkContext
-nums <- 1:2
-rrdd <- sc$parallelize(nums, 2L)
 
 test_that("using broadcast variable", {
+  spark <- spark_session(master = "local[1]")
+  sc <- spark$sparkContext
+  nums <- 1:2
+  rrdd <- sc$parallelize(nums, 2L)
+
   randomMat <- matrix(nrow = 10, ncol = 10, data = rnorm(100))
   randomMatBr <- sc$broadcast(randomMat)
 
@@ -19,6 +20,12 @@ test_that("using broadcast variable", {
 })
 
 test_that("without using broadcast variable", {
+
+  spark <- spark_session(master = "local[1]")
+  sc <- spark$sparkContext
+  nums <- 1:2
+  rrdd <- sc$parallelize(nums, 2L)
+
   randomMat <- matrix(nrow = 10, ncol = 10, data = rnorm(100))
 
   useBroadcast <- function(x) {

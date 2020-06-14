@@ -170,6 +170,20 @@ convertJListToRList <- function (jList, flatten, logicalUpperBound = NULL,
   else as.list(results)
 }
 
+convertNamedListToEnv <- function (namedList) {
+  names <- names(namedList)
+  stopifnot(if (is.null(names)) {
+    length(namedList) == 0
+  } else {
+    !any(is.na(names))
+  })
+  env <- new.env()
+  for (name in names) {
+    env[[name]] <- namedList[[name]]
+  }
+  env
+}
+
 # I was considering replacing SparkR:::varargsToStrEnv with this,
 # but SparkR:::varargsToStrEnv does some nice error handling.
 # varargsToStrEnv <- function(...) {

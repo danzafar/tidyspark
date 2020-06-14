@@ -1,3 +1,5 @@
+spark_session(master = "local[1]")
+
 test_that("able to specify simple StructField", {
   expect_equal(
     class(StructField("int", IntegerType, TRUE)),
@@ -88,3 +90,5 @@ test_that("able to specify simple nested StructTypes with Map and Array", {
     "StructType"
   )
 })
+
+spark_session_stop()

@@ -7,12 +7,16 @@
 \usage{
 as.timestamp(x, ...)
 
-as.timestamp.Column(x, ...)
+as.timestamp.Column(x, format = "yyyy-MM-dd HH:mm:ss", ...)
 }
 \arguments{
 \item{x}{object to be coerced or tested.}
 
 \item{...}{further arguments passed to or from other methods.}
+
+\item{format}{a character string representing the incoming format. See
+\href{here}{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}
+for more information on possible usage.}
 }
 \description{
 Coerces objects of type \code{timestamp}.

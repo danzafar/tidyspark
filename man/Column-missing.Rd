@@ -3,12 +3,9 @@
 \name{Column-missing}
 \alias{Column-missing}
 \alias{is.na,Column-method}
-\alias{is.nan,Column-method}
 \title{Check missing values in Column objects}
 \usage{
 \S4method{is.na}{Column}(x)
-
-\S4method{is.nan}{Column}(x)
 }
 \arguments{
 \item{x}{a Column object}
