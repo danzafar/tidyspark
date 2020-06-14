@@ -65,13 +65,13 @@ Since the first code written Jan 23, 2020 some significant progress has been mad
 In addition to this core `tidyverse` interoperability, there are many other components to required in a Spark API. Here are the aspects that are completed:
 - file read/writes
 - the entire RDD API (see below)
-- Many commonly used ML functions
+- all of the clustering, classification, and regression ML algorithms
 - The full suite of `org.apache.spark.sql.functions._`
 - conversion to/from `SparkR` `SparkDataFrame`s
 
 Aspects that are waiting to be finalized:
 - `arrow` integration
-- exposing the full suite of ML functions
+- exposing the reccomendation and pattern mining ML algorithms
 - `sparklyr` integration
 - RStudio integration
 - Databricks integration
