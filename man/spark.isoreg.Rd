@@ -6,8 +6,13 @@
 \alias{spark.isoreg,SparkDataFrame,formula-method}
 \title{Isotonic Regression Model}
 \usage{
-ml_isotonic_regression(data, formula, isotonic = TRUE,
-  featureIndex = 0, weightCol = NULL)
+ml_isotonic_regression(
+  data,
+  formula,
+  isotonic = TRUE,
+  featureIndex = 0,
+  weightCol = NULL
+)
 }
 \arguments{
 \item{data}{SparkDataFrame for training.}
@@ -31,4 +36,15 @@ antitonic/decreasing (FALSE).}
 \description{
 Fits an Isotonic Regression model against a SparkDataFrame, similarly to R's isoreg().
 Users can print, make predictions on the produced model and save the model to the input path.
+}
+\examples{
+\dontrun{
+spark_session()
+data <- list(list(7.0, 0.0), list(5.0, 1.0), list(3.0, 2.0),
+        list(5.0, 3.0), list(1.0, 4.0))
+df <- spark_tbl(data \%>\% setNames("label", "feature"))
+model <- ml_isotonic_regression(df, label ~ feature, isotonic = FALSE)
+# return model boundaries and prediction as lists
+result <- summary(model, df)
+}
 }

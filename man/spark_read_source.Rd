@@ -4,8 +4,13 @@
 \alias{spark_read_source}
 \title{Read from a generic source into a \code{spark_tbl}}
 \usage{
-spark_read_source(path = NULL, source = NULL, schema = NULL,
-  na.strings = "NA", ...)
+spark_read_source(
+  path = NULL,
+  source = NULL,
+  schema = NULL,
+  na.strings = "NA",
+  ...
+)
 }
 \arguments{
 \item{path}{string, the path to the file. Needs to be accessible from the cluster.}

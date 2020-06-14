@@ -14,7 +14,25 @@
 \alias{TimestampType}
 \alias{DateType}
 \title{\code{tidyspark} Schema Types}
-\format{An object of class \code{character} of length 1.}
+\format{
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+
+An object of class \code{character} of length 1.
+}
 \usage{
 ArrayType(type, nullable)
 
@@ -46,8 +64,6 @@ DateType
 \item{key}{a schema object or string representing the key's type}
 
 \item{value}{a schema object or string representing the value's type}
-
-\item{nullable}{logical, if the field allows null values}
 }
 \value{
 a string or if it's a nested type a \code{jobj}

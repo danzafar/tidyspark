@@ -5,15 +5,28 @@
 \alias{spark_session}
 \title{Get or create a SparkSession}
 \usage{
-spark_session_reset(master = "", app_name = "SparkR",
-  spark_home = Sys.getenv("SPARK_HOME"), spark_config = list(),
-  spark_jars = "", spark_packages = "", enable_hive_support = TRUE,
-  ...)
+spark_session_reset(
+  master = "",
+  app_name = "SparkR",
+  spark_home = Sys.getenv("SPARK_HOME"),
+  spark_config = list(),
+  spark_jars = "",
+  spark_packages = "",
+  enable_hive_support = TRUE,
+  ...
+)
 
-spark_session(master = "", app_name = "tidyspark",
-  spark_home = Sys.getenv("SPARK_HOME"), spark_config = list(),
-  spark_jars = "", spark_packages = "", enable_hive_support = TRUE,
-  verbose = F, ...)
+spark_session(
+  master = "",
+  app_name = "tidyspark",
+  spark_home = Sys.getenv("SPARK_HOME"),
+  spark_config = list(),
+  spark_jars = "",
+  spark_packages = "",
+  enable_hive_support = TRUE,
+  verbose = F,
+  ...
+)
 }
 \arguments{
 \item{master}{string, the Spark master URL.}

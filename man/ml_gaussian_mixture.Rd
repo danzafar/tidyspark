@@ -10,9 +10,10 @@ ml_gaussian_mixture(data, formula, k = 2, maxIter = 100, tol = 0.01)
 \arguments{
 \item{data}{a SparkDataFrame for training.}
 
-\item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
-operators are supported, including '~', '.', ':', '+', and '-'.
-Note that the response variable of formula is empty in spark.gaussianMixture.}
+\item{formula}{a symbolic description of the model to be fitted. Currently
+only a few formula operators are supported, including '~',
+'.', ':', '+', and '-'. Note that the response variable of
+formula is empty in spark.gaussianMixture.}
 
 \item{k}{number of independent Gaussians in the mixture model.}
 
@@ -23,13 +24,27 @@ Note that the response variable of formula is empty in spark.gaussianMixture.}
 \item{...}{additional arguments passed to the method.}
 }
 \value{
-\code{ml_gaussian_mixture} returns a fitted multivariate gaussian mixture model.
+\code{ml_gaussian_mixture} returns a fitted multivariate gaussian
+        mixture model.
 }
 \description{
-Fits multivariate gaussian mixture model against a SparkDataFrame, similarly to R's
-mvnormalmixEM(). Users can call \code{summary} to print a summary of the fitted model,
-\code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml}
-to save/load fitted models.
+Fits multivariate gaussian mixture model against a SparkDataFrame, similarly
+to R's mvnormalmixEM(). Users can call \code{summary} to print a summary of
+the fitted model, \code{predict} to make predictions on new data, and
+\code{write.ml}/\code{read.ml} to save/load fitted models.
+}
+\examples{
+\dontrun{
+spark_session()
+library(mvtnorm)
+set.seed(100)
+a <- rmvnorm(4, c(0, 0))
+b <- rmvnorm(6, c(3, 4))
+data <- rbind(a, b)
+df <- spark_tbl(as.data.frame(data))
+model <- ml_gaussian_mixture(df, ~ V1 + V2, k = 2)
+summary(model)
+}
 }
 \seealso{
 mixtools: \url{https://cran.r-project.org/package=mixtools}

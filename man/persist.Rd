@@ -16,17 +16,11 @@ unpersist(.data, blocking = TRUE)
 storage_level(.data)
 }
 \arguments{
-\item{.data}{}
+\item{.data}{a \code{spark_tbl}}
 
 \item{newLevel}{storage level chosen for the persistence. See available options in the details.}
 
 \item{blocking}{boolean, whether to block until all blocks are deleted.}
-
-\item{.data}{a \code{spark_tbl}}
-
-\item{.data}{a \code{spark_tbl}}
-
-\item{.data}{a \code{spark_tbl}}
 }
 \value{
 a \code{spark_tbl}

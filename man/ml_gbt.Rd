@@ -5,12 +5,24 @@
 \alias{spark.gbt,SparkDataFrame,formula-method}
 \title{Gradient Boosted Tree Model for Regression and Classification}
 \usage{
-ml_gbt(data, formula, type = c("regression", "classification"),
-  maxDepth = 5, maxBins = 32, maxIter = 20, stepSize = 0.1,
-  lossType = NULL, seed = NULL, subsamplingRate = 1,
-  minInstancesPerNode = 1, minInfoGain = 0, checkpointInterval = 10,
-  maxMemoryInMB = 256, cacheNodeIds = FALSE,
-  handleInvalid = c("error", "keep", "skip"))
+ml_gbt(
+  data,
+  formula,
+  type = c("regression", "classification"),
+  maxDepth = 5,
+  maxBins = 32,
+  maxIter = 20,
+  stepSize = 0.1,
+  lossType = NULL,
+  seed = NULL,
+  subsamplingRate = 1,
+  minInstancesPerNode = 1,
+  minInfoGain = 0,
+  checkpointInterval = 10,
+  maxMemoryInMB = 256,
+  cacheNodeIds = FALSE,
+  handleInvalid = c("error", "keep", "skip")
+)
 }
 \arguments{
 \item{data}{a SparkDataFrame for training.}
@@ -79,4 +91,14 @@ For more details, see
 GBT Regression} and
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html#gradient-boosted-tree-classifier}{
 GBT Classification}
+}
+\examples{
+\dontrun{
+# fit a Gradient Boosted Tree Regression Model
+df <- spark_tbl(longley)
+model <- ml_gbt(df, Employed ~ ., type = "regression", maxDepth = 5, maxBins = 16)
+
+# get the summary of the model
+summary(model)
+}
 }

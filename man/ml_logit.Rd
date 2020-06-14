@@ -5,13 +5,24 @@
 \alias{spark.logit,SparkDataFrame,formula-method}
 \title{Logistic Regression Model}
 \usage{
-ml_logit(data, formula, regParam = 0, elasticNetParam = 0,
-  maxIter = 100, tol = 1e-06, family = "auto",
-  standardization = TRUE, thresholds = 0.5, weightCol = NULL,
-  aggregationDepth = 2, lowerBoundsOnCoefficients = NULL,
-  upperBoundsOnCoefficients = NULL, lowerBoundsOnIntercepts = NULL,
-  upperBoundsOnIntercepts = NULL, handleInvalid = c("error", "keep",
-  "skip"))
+ml_logit(
+  data,
+  formula,
+  regParam = 0,
+  elasticNetParam = 0,
+  maxIter = 100,
+  tol = 1e-06,
+  family = "auto",
+  standardization = TRUE,
+  thresholds = 0.5,
+  weightCol = NULL,
+  aggregationDepth = 2,
+  lowerBoundsOnCoefficients = NULL,
+  upperBoundsOnCoefficients = NULL,
+  lowerBoundsOnIntercepts = NULL,
+  upperBoundsOnIntercepts = NULL,
+  handleInvalid = c("error", "keep", "skip")
+)
 }
 \arguments{
 \item{data}{SparkDataFrame for training.}
@@ -109,4 +120,14 @@ Fits an logistic regression model against a SparkDataFrame. It supports "binomia
 logistic regression with pivoting; "multinomial": Multinomial logistic (softmax) regression
 without pivoting, similar to glmnet. Users can print, make predictions on the produced model
 and save the model to the input path.
+}
+\examples{
+\dontrun{
+spark_session()
+# binary logistic regression
+t <- as.data.frame(Titanic)
+training <- spark_tbl(t)
+model <- ml_logit(training, Survived ~ ., regParam = 0.5)
+summary <- summary(model)
+}
 }

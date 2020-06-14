@@ -6,16 +6,24 @@
 \alias{spark.kmeans,SparkDataFrame,formula-method}
 \title{K-Means Clustering Model}
 \usage{
-ml_kmeans(data, formula, k = 2, maxIter = 20,
-  initMode = c("k-means||", "random"), seed = NULL, initSteps = 2,
-  tol = 1e-04)
+ml_kmeans(
+  data,
+  formula,
+  k = 2,
+  maxIter = 20,
+  initMode = c("k-means||", "random"),
+  seed = NULL,
+  initSteps = 2,
+  tol = 1e-04
+)
 }
 \arguments{
 \item{data}{a SparkDataFrame for training.}
 
-\item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
-operators are supported, including '~', '.', ':', '+', and '-'.
-Note that the response variable of formula is empty in spark.kmeans.}
+\item{formula}{a symbolic description of the model to be fitted. Currently
+only a few formula operators are supported, including '~',
+'.', ':', '+', and '-'. Note that the response variable of
+formula is empty in spark.kmeans.}
 
 \item{k}{number of centers.}
 
@@ -26,8 +34,8 @@ Note that the response variable of formula is empty in spark.kmeans.}
 \item{seed}{the random seed for cluster initialization.}
 
 \item{initSteps}{the number of steps for the k-means|| initialization mode.
-This is an advanced setting, the default of 2 is almost always enough.
-Must be > 0.}
+This is an advanced setting, the default of 2 is almost
+always enough. Must be > 0.}
 
 \item{tol}{convergence tolerance of iterations.}
 
@@ -37,7 +45,17 @@ Must be > 0.}
 \code{spark.kmeans} returns a fitted k-means model.
 }
 \description{
-Fits a k-means clustering model against a SparkDataFrame, similarly to R's kmeans().
-Users can call \code{summary} to print a summary of the fitted model, \code{predict} to make
-predictions on new data, and \code{write.ml}/\code{read.ml} to save/load fitted models.
+Fits a k-means clustering model against a SparkDataFrame, similarly to R's
+kmeans(). Users can call \code{summary} to print a summary of the fitted
+model, \code{predict} to make predictions on new data, and \code{write.ml}/
+\code{read.ml} to save/load fitted models.
+}
+\examples{
+\dontrun{
+spark_session()
+t <- as.data.frame(Titanic)
+df <- spark_tbl(t)
+model <- ml_kmeans(df, Class ~ Survived, k = 4, initMode = "random")
+summary(model)
+}
 }

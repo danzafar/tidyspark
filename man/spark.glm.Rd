@@ -6,10 +6,20 @@
 \alias{spark.glm,SparkDataFrame,formula-method}
 \title{Generalized Linear Models}
 \usage{
-ml_glm(data, formula, family = "gaussian", tol = 1e-06, maxIter = 25,
-  weightCol = NULL, regParam = 0, var.power = 0, link.power = 1 -
-  var.power, stringIndexerOrderType = c("frequencyDesc", "frequencyAsc",
-  "alphabetDesc", "alphabetAsc"), offsetCol = NULL)
+ml_glm(
+  data,
+  formula,
+  family = "gaussian",
+  tol = 1e-06,
+  maxIter = 25,
+  weightCol = NULL,
+  regParam = 0,
+  var.power = 0,
+  link.power = 1 - var.power,
+  stringIndexerOrderType = c("frequencyDesc", "frequencyAsc", "alphabetDesc",
+    "alphabetAsc"),
+  offsetCol = NULL
+)
 }
 \arguments{
 \item{data}{a SparkDataFrame for training.}
@@ -67,4 +77,13 @@ offsets as 0.0. The feature specified as offset has a constant coefficient of
 Fits generalized linear model against a SparkDataFrame.
 Users can call \code{summary} to print a summary of the fitted model, \code{predict} to make
 predictions on new data, and \code{write.ml}/\code{read.ml} to save/load fitted models.
+}
+\examples{
+\dontrun{
+spark_session()
+t <- as.data.frame(Titanic, stringsAsFactors = FALSE)
+df <- spark_tbl(t)
+model <- ml_glm(df, Freq ~ Sex + Age, family = "gaussian")
+summary(model)
+}
 }

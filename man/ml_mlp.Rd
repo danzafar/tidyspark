@@ -4,9 +4,19 @@
 \alias{ml_mlp}
 \title{Multilayer Perceptron Classification Model}
 \usage{
-ml_mlp(data, formula, layers, blockSize = 128, solver = "l-bfgs",
-  maxIter = 100, tol = 1e-06, stepSize = 0.03, seed = NULL,
-  initialWeights = NULL, handleInvalid = c("error", "keep", "skip"))
+ml_mlp(
+  data,
+  formula,
+  layers,
+  blockSize = 128,
+  solver = "l-bfgs",
+  maxIter = 100,
+  tol = 1e-06,
+  stepSize = 0.03,
+  seed = NULL,
+  initialWeights = NULL,
+  handleInvalid = c("error", "keep", "skip")
+)
 }
 \arguments{
 \item{data}{a \code{SparkDataFrame} of observations and labels for model fitting.}
@@ -48,4 +58,18 @@ Only categorical data is supported.
 For more details, see
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html}{
   Multilayer Perceptron}
+}
+\examples{
+\dontrun{
+df <- read_delim("data/mllib/sample_multiclass_classification_data.txt",
+                 source = "libsvm")
+
+# fit a Multilayer Perceptron Classification Model
+model <- ml_mlp(df, label ~ features, blockSize = 128, layers = c(4, 3),
+                solver = "l-bfgs", maxIter = 100, tol = 0.5, stepSize = 1,
+                seed = 1, initialWeights = c(0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 9, 9, 9, 9, 9))
+
+# get the summary of the model
+summary(model)
+}
 }

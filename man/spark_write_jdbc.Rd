@@ -4,8 +4,15 @@
 \alias{spark_write_jdbc}
 \title{Write to a JDBC table}
 \usage{
-spark_write_jdbc(.data, url, table = NULL, mode = "error",
-  partition_by = NULL, driver = NULL, ...)
+spark_write_jdbc(
+  .data,
+  url,
+  table = NULL,
+  mode = "error",
+  partition_by = NULL,
+  driver = NULL,
+  ...
+)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}

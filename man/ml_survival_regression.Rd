@@ -4,9 +4,13 @@
 \alias{ml_survival_regression}
 \title{Accelerated Failure Time (AFT) Survival Regression Model}
 \usage{
-ml_survival_regression(data, formula, aggregationDepth = 2,
-  stringIndexerOrderType = c("frequencyDesc", "frequencyAsc",
-  "alphabetDesc", "alphabetAsc"))
+ml_survival_regression(
+  data,
+  formula,
+  aggregationDepth = 2,
+  stringIndexerOrderType = c("frequencyDesc", "frequencyAsc", "alphabetDesc",
+    "alphabetAsc")
+)
 }
 \arguments{
 \item{data}{a SparkDataFrame for training.}
@@ -38,6 +42,15 @@ as R when encoding strings.}
 a SparkDataFrame. Users can call \code{summary} to get a summary of the fitted AFT model,
 \code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml} to
 save/load fitted models.
+}
+\examples{
+\dontrun{
+df <- spark_tbl(ovarian)
+model <- ml_survival_regression(df, Surv(futime, fustat) ~ ecog_ps + rx)
+
+# get a summary of the model
+summary(model)
+}
 }
 \seealso{
 survival: \url{https://cran.r-project.org/package=survival}

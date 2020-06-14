@@ -5,11 +5,21 @@
 \alias{spark.decisionTree,SparkDataFrame,formula-method}
 \title{Decision Tree Model for Regression and Classification}
 \usage{
-ml_decision_tree(data, formula, type = c("regression", "classification"),
-  maxDepth = 5, maxBins = 32, impurity = NULL, seed = NULL,
-  minInstancesPerNode = 1, minInfoGain = 0, checkpointInterval = 10,
-  maxMemoryInMB = 256, cacheNodeIds = FALSE,
-  handleInvalid = c("error", "keep", "skip"))
+ml_decision_tree(
+  data,
+  formula,
+  type = c("regression", "classification"),
+  maxDepth = 5,
+  maxBins = 32,
+  impurity = NULL,
+  seed = NULL,
+  minInstancesPerNode = 1,
+  minInfoGain = 0,
+  checkpointInterval = 10,
+  maxMemoryInMB = 256,
+  cacheNodeIds = FALSE,
+  handleInvalid = c("error", "keep", "skip")
+)
 }
 \arguments{
 \item{data}{a SparkDataFrame for training.}
@@ -68,4 +78,14 @@ For more details, see
 Decision Tree Regression} and
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html#decision-tree-classifier}{
 Decision Tree Classification}
+}
+\examples{
+\dontrun{
+# fit a Decision Tree Regression Model
+df <- spark_tbl(longley)
+model <- ml_decision_tree(df, Employed ~ ., type = "regression", maxDepth = 5, maxBins = 16)
+
+# get the summary of the model
+summary(model)
+}
 }

@@ -5,12 +5,24 @@
 \alias{spark.randomForest,SparkDataFrame,formula-method}
 \title{Random Forest Model for Regression and Classification}
 \usage{
-ml_random_forest(data, formula, type = c("regression", "classification"),
-  maxDepth = 5, maxBins = 32, numTrees = 20, impurity = NULL,
-  featureSubsetStrategy = "auto", seed = NULL, subsamplingRate = 1,
-  minInstancesPerNode = 1, minInfoGain = 0, checkpointInterval = 10,
-  maxMemoryInMB = 256, cacheNodeIds = FALSE,
-  handleInvalid = c("error", "keep", "skip"))
+ml_random_forest(
+  data,
+  formula,
+  type = c("regression", "classification"),
+  maxDepth = 5,
+  maxBins = 32,
+  numTrees = 20,
+  impurity = NULL,
+  featureSubsetStrategy = "auto",
+  seed = NULL,
+  subsamplingRate = 1,
+  minInstancesPerNode = 1,
+  minInfoGain = 0,
+  checkpointInterval = 10,
+  maxMemoryInMB = 256,
+  cacheNodeIds = FALSE,
+  handleInvalid = c("error", "keep", "skip")
+)
 }
 \arguments{
 \item{data}{a SparkDataFrame for training.}
@@ -88,4 +100,14 @@ For more details, see
 Random Forest Regression} and
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html#random-forest-classifier}{
 Random Forest Classification}
+}
+\examples{
+\dontrun{
+# fit a Random Forest Regression Model
+df <- spark_tbl(longley)
+model <- ml_random_forest(df, Employed ~ ., type = "regression", maxDepth = 5, maxBins = 16)
+
+# get the summary of the model
+summary(model)
+}
 }

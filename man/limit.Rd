@@ -23,14 +23,6 @@ show(.data, n = NULL)
 \item{x}{a \code{spark_tbl}}
 
 \item{...}{other arguments passed, currently unused}
-
-\item{.data}{a \code{spark_tbl}}
-
-\item{n}{numeric, the number of rows to collect}
-
-\item{.data}{a \code{spark_tbl}}
-
-\item{n}{numeric, the number of rows to collect}
 }
 \value{
 a \code{spark_tbl}

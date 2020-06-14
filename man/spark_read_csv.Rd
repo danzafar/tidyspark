@@ -4,8 +4,15 @@
 \alias{spark_read_csv}
 \title{Read a CSV file into a \code{spark_tbl}}
 \usage{
-spark_read_csv(path, schema = NULL, na = "NA", header = FALSE,
-  delim = ",", guess_max = 1000, ...)
+spark_read_csv(
+  path,
+  schema = NULL,
+  na = "NA",
+  header = FALSE,
+  delim = ",",
+  guess_max = 1000,
+  ...
+)
 }
 \arguments{
 \item{path}{string, the path to the file. Needs to be accessible from the cluster.}

@@ -4,38 +4,51 @@
 \alias{ml_lda}
 \title{Latent Dirichlet Allocation}
 \usage{
-ml_lda(data, features = "features", k = 10, maxIter = 20,
-  optimizer = c("online", "em"), subsamplingRate = 0.05,
-  topicConcentration = -1, docConcentration = -1,
-  customizedStopWords = "", maxVocabSize = bitwShiftL(1, 18))
+ml_lda(
+  data,
+  features = "features",
+  k = 10,
+  maxIter = 20,
+  optimizer = c("online", "em"),
+  subsamplingRate = 0.05,
+  topicConcentration = -1,
+  docConcentration = -1,
+  customizedStopWords = "",
+  maxVocabSize = bitwShiftL(1, 18)
+)
 }
 \arguments{
 \item{data}{A SparkDataFrame for training.}
 
-\item{features}{Features column name. Either libSVM-format column or character-format column is
-valid.}
+\item{features}{Features column name. Either libSVM-format column or
+character-format column is valid.}
 
 \item{k}{Number of topics.}
 
 \item{maxIter}{Maximum iterations.}
 
-\item{optimizer}{Optimizer to train an LDA model, "online" or "em", default is "online".}
+\item{optimizer}{Optimizer to train an LDA model, "online" or "em", default
+is "online".}
 
-\item{subsamplingRate}{(For online optimizer) Fraction of the corpus to be sampled and used in
-each iteration of mini-batch gradient descent, in range (0, 1].}
+\item{subsamplingRate}{(For online optimizer) Fraction of the corpus to be
+sampled and used in each iteration of mini-batch gradient descent,
+in range (0, 1].}
 
-\item{topicConcentration}{concentration parameter (commonly named \code{beta} or \code{eta}) for
-the prior placed on topic distributions over terms, default -1 to set automatically on the
-Spark side. Use \code{summary} to retrieve the effective topicConcentration. Only 1-size
-numeric is accepted.}
+\item{topicConcentration}{concentration parameter (commonly named \code{beta}
+or \code{eta}) for the prior placed on topic distributions over terms,
+default -1 to set automatically on the Spark side. Use \code{summary}
+to retrieve the effective topicConcentration. Only 1-size numeric is
+accepted.}
 
-\item{docConcentration}{concentration parameter (commonly named \code{alpha}) for the
-prior placed on documents distributions over topics (\code{theta}), default -1 to set
-automatically on the Spark side. Use \code{summary} to retrieve the effective
-docConcentration. Only 1-size or \code{k}-size numeric is accepted.}
+\item{docConcentration}{concentration parameter (commonly named \code{alpha})
+for the prior placed on documents distributions over topics
+(\code{theta}), default -1 to set automatically on the Spark side.
+Use \code{summary} to retrieve the effective docConcentration. Only
+1-size or \code{k}-size numeric is accepted.}
 
-\item{customizedStopWords}{stopwords that need to be removed from the given corpus. Ignore the
-parameter if libSVM-format column is used as the features column.}
+\item{customizedStopWords}{stopwords that need to be removed from the given
+corpus. Ignore the parameter if libSVM-format column is used as the
+features column.}
 
 \item{maxVocabSize}{maximum vocabulary size, default 1 << 18}
 
@@ -45,7 +58,8 @@ parameter if libSVM-format column is used as the features column.}
 \code{ml_lda} returns a fitted Latent Dirichlet Allocation model.
 }
 \description{
-\code{ml_lda} fits a Latent Dirichlet Allocation model on a SparkDataFrame. Users can call
+\code{ml_lda} fits a Latent Dirichlet Allocation model on a SparkDataFrame.
+Users can call
 \code{summary} to get a summary of the fitted LDA model.
 }
 \seealso{

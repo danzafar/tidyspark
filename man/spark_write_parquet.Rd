@@ -4,8 +4,7 @@
 \alias{spark_write_parquet}
 \title{Write a \code{spark_tbl} to Parquet format}
 \usage{
-spark_write_parquet(.data, path, mode = "error", partition_by = NULL,
-  ...)
+spark_write_parquet(.data, path, mode = "error", partition_by = NULL, ...)
 }
 \arguments{
 \item{.data}{a \code{spark_tbl}}

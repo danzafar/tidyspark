@@ -4,8 +4,16 @@
 \alias{spark_read_jdbc}
 \title{Create spark_tbl from JDBC connection}
 \usage{
-spark_read_jdbc(url, table, partition_col = NULL, lower_bound = NULL,
-  upper_bound = NULL, num_partitions = 0L, predicates = list(), ...)
+spark_read_jdbc(
+  url,
+  table,
+  partition_col = NULL,
+  lower_bound = NULL,
+  upper_bound = NULL,
+  num_partitions = 0L,
+  predicates = list(),
+  ...
+)
 }
 \arguments{
 \item{url}{spring, JDBC database url of the form jdbc:subprotocol:subname}

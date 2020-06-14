@@ -4,27 +4,36 @@
 \alias{ml_kmeans_bisecting}
 \title{Spark ML -- Bisecting K-Means Clustering}
 \usage{
-ml_kmeans_bisecting(data, formula, k = 4, maxIter = 20, seed = NULL,
-  minDivisibleClusterSize = 1)
+ml_kmeans_bisecting(
+  data,
+  formula,
+  k = 4,
+  maxIter = 20,
+  seed = NULL,
+  minDivisibleClusterSize = 1
+)
 }
 \arguments{
 \item{data}{a SparkDataFrame for training.}
 
-\item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
-operators are supported, including '~', '.', ':', '+', and '-'.
-Note that the response variable of formula is empty in spark.bisectingKmeans.}
+\item{formula}{a symbolic description of the model to be fitted. Currently
+only a few formula operators are supported, including '~',
+'.', ':', '+', and '-'. Note that the response variable of
+formula is empty in spark.bisectingKmeans.}
 
-\item{k}{the desired number of leaf clusters. Must be > 1.
-The actual number could be smaller if there are no divisible leaf clusters.}
+\item{k}{the desired number of leaf clusters. Must be > 1. The actual number
+could be smaller if there are no divisible leaf clusters.}
 
 \item{maxIter}{maximum iteration number.}
 
 \item{seed}{the random seed.}
 
-\item{minDivisibleClusterSize}{The minimum number of points (if greater than or equal to 1.0)
-or the minimum proportion of points (if less than 1.0) of a
-divisible cluster. Note that it is an expert parameter. The
-default value should be good enough for most cases.}
+\item{minDivisibleClusterSize}{The minimum number of points (if greater than
+or equal to 1.0) or the minimum proportion of
+points (if less than 1.0) of a divisible
+cluster. Note that it is an expert parameter.
+The default value should be good enough for
+most cases.}
 
 \item{...}{additional argument(s) passed to the method.}
 }
@@ -32,16 +41,30 @@ default value should be good enough for most cases.}
 \code{spark.bisectingKmeans} returns a fitted bisecting k-means model.
 }
 \description{
-A bisecting k-means algorithm based on the paper "A comparison of document clustering techniques"
-by Steinbach, Karypis, and Kumar, with modification to fit Spark.
-The algorithm starts from a single cluster that contains all points. Iteratively it finds divisible
-clusters on the bottom level and bisects each of them using k-means, until there are k leaf clusters
-in total or no leaf clusters are divisible. The bisecting steps of clusters on the same level are
-grouped together to increase parallelism. If bisecting all divisible clusters on the bottom level
-would result more than k leaf clusters, larger clusters get higher priority.
+A bisecting k-means algorithm based on the paper "A comparison of document
+clustering techniques" by Steinbach, Karypis, and Kumar, with modification to
+fit Spark. The algorithm starts from a single cluster that contains all
+points. Iteratively it finds divisible clusters on the bottom level and
+bisects each of them using k-means, until there are k leaf clusters in total
+or no leaf clusters are divisible. The bisecting steps of clusters on the
+same level are grouped together to increase parallelism. If bisecting all
+divisible clusters on the bottom level would result more than k leaf
+clusters, larger clusters get higher priority.
 }
 \details{
 Fits a bisecting k-means clustering model against a SparkDataFrame.
-Users can call \code{summary} to print a summary of the fitted model, \code{predict} to make
-predictions on new data, and \code{write.ml}/\code{read.ml} to save/load fitted models.
+Users can call \code{summary} to print a summary of the fitted model,
+\code{predict} to make predictions on new data, and \code{write.ml}/
+\code{read.ml} to save/load fitted models.
+}
+\examples{
+\dontrun{
+spark_session()
+iris_fix <- iris \%>\%
+setNames(names(iris) \%>\% sub("[//.]", "_", .)) \%>\%
+ mutate(Species = levels(Species)[Species])
+iris_spk <- spark_tbl(iris)
+model <- spark.bisectingKmeans(iris_spk, Sepal_Width ~ Sepal_Length, k = 4)
+summary(model)
+}
 }
