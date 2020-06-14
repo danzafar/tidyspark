@@ -19,7 +19,7 @@ ml_mlp(
 )
 }
 \arguments{
-\item{data}{a \code{SparkDataFrame} of observations and labels for model fitting.}
+\item{data}{a \code{spark_tbl} of observations and labels for model fitting.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', '.', ':', '+', and '-'.}
@@ -51,9 +51,9 @@ Supported options: "skip" (filter out rows with invalid data),
 \item{...}{additional arguments passed to the method.}
 }
 \description{
-\code{ml_mlp} fits a multi-layer perceptron neural network model against a SparkDataFrame.
+\code{ml_mlp} fits a multi-layer perceptron neural network model against a spark_tbl.
 Users can call \code{summary} to print a summary of the fitted model, \code{predict} to make
-predictions on new data, and \code{write.ml}/\code{read.ml} to save/load fitted models.
+predictions on new data, and \code{write_ml}/\code{read_ml} to save/load fitted models.
 Only categorical data is supported.
 For more details, see
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html}{

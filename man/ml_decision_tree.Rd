@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_decision_tree}
 \alias{ml_decision_tree}
-\alias{spark.decisionTree,SparkDataFrame,formula-method}
+\alias{spark.decisionTree,spark_tbl,formula-method}
 \title{Decision Tree Model for Regression and Classification}
 \usage{
 ml_decision_tree(
@@ -22,7 +22,7 @@ ml_decision_tree(
 )
 }
 \arguments{
-\item{data}{a SparkDataFrame for training.}
+\item{data}{a spark_tbl for training.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', ':', '+', and '-'.}
@@ -70,8 +70,8 @@ Supported options: "skip" (filter out rows with invalid data),
 }
 \description{
 \code{ml_decision_tree} fits a Decision Tree Regression model or Classification model on
-a SparkDataFrame. Users can call \code{summary} to get a summary of the fitted Decision Tree
-model, \code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml} to
+a spark_tbl. Users can call \code{summary} to get a summary of the fitted Decision Tree
+model, \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 save/load fitted models.
 For more details, see
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html#decision-tree-regression}{

@@ -3,7 +3,7 @@
 \name{spark.isoreg}
 \alias{spark.isoreg}
 \alias{ml_isotonic_regression}
-\alias{spark.isoreg,SparkDataFrame,formula-method}
+\alias{spark.isoreg,spark_tbl,formula-method}
 \title{Isotonic Regression Model}
 \usage{
 ml_isotonic_regression(
@@ -15,7 +15,7 @@ ml_isotonic_regression(
 )
 }
 \arguments{
-\item{data}{SparkDataFrame for training.}
+\item{data}{spark_tbl for training.}
 
 \item{formula}{A symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', '.', ':', '+', and '-'.}
@@ -34,7 +34,7 @@ antitonic/decreasing (FALSE).}
 \code{spark.isoreg} returns a fitted Isotonic Regression model.
 }
 \description{
-Fits an Isotonic Regression model against a SparkDataFrame, similarly to R's isoreg().
+Fits an Isotonic Regression model against a spark_tbl, similarly to R's isoreg().
 Users can print, make predictions on the produced model and save the model to the input path.
 }
 \examples{

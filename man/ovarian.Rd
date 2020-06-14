@@ -6,12 +6,12 @@
 \title{Ovarian Cancer Survival Data}
 \format{
 \describe{
-  \item {futime}	{survival or censoring time}
-  \item {fustat}	{censoring status}
-  \item {age}	{in years}
-  \item {resid.ds}	{residual disease present (1=no,2=yes)}
-  \item {rx}	{treatment group}
-  \item {ecog.ps}	{ECOG performance status (1 is better, see reference)}
+  \item{futime}{survival or censoring time}
+  \item{fustat}{censoring status}
+  \item{age}{in years}
+  \item{resid.ds}{residual disease present (1=no,2=yes)}
+  \item{rx}{treatment group}
+  \item{ecog.ps}{ECOG performance status (1 is better, see reference)}
   }
 }
 \source{

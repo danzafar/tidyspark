@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_logit}
 \alias{ml_logit}
-\alias{spark.logit,SparkDataFrame,formula-method}
+\alias{spark.logit,spark_tbl,formula-method}
 \title{Logistic Regression Model}
 \usage{
 ml_logit(
@@ -25,7 +25,7 @@ ml_logit(
 )
 }
 \arguments{
-\item{data}{SparkDataFrame for training.}
+\item{data}{spark_tbl for training.}
 
 \item{formula}{A symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', '.', ':', '+', and '-'.}
@@ -116,7 +116,7 @@ Supported options: "skip" (filter out rows with invalid data),
 \code{ml_logit} returns a fitted logistic regression model.
 }
 \description{
-Fits an logistic regression model against a SparkDataFrame. It supports "binomial": Binary
+Fits an logistic regression model against a spark_tbl. It supports "binomial": Binary
 logistic regression with pivoting; "multinomial": Multinomial logistic (softmax) regression
 without pivoting, similar to glmnet. Users can print, make predictions on the produced model
 and save the model to the input path.

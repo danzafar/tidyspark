@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_gbt}
 \alias{ml_gbt}
-\alias{spark.gbt,SparkDataFrame,formula-method}
+\alias{spark.gbt,spark_tbl,formula-method}
 \title{Gradient Boosted Tree Model for Regression and Classification}
 \usage{
 ml_gbt(
@@ -25,7 +25,7 @@ ml_gbt(
 )
 }
 \arguments{
-\item{data}{a SparkDataFrame for training.}
+\item{data}{a spark_tbl for training.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', ':', '+', and '-'.}
@@ -83,9 +83,9 @@ Supported options: "skip" (filter out rows with invalid data),
 }
 \description{
 \code{ml_gbt} fits a Gradient Boosted Tree Regression model or Classification model on a
-SparkDataFrame. Users can call \code{summary} to get a summary of the fitted
+spark_tbl. Users can call \code{summary} to get a summary of the fitted
 Gradient Boosted Tree model, \code{predict} to make predictions on new data, and
-\code{write.ml}/\code{read.ml} to save/load fitted models.
+\code{write_ml}/\code{read_ml} to save/load fitted models.
 For more details, see
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html#gradient-boosted-tree-regression}{
 GBT Regression} and

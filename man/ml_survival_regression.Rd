@@ -13,7 +13,7 @@ ml_survival_regression(
 )
 }
 \arguments{
-\item{data}{a SparkDataFrame for training.}
+\item{data}{a spark_tbl for training.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', ':', '+', and '-'.
@@ -39,8 +39,8 @@ as R when encoding strings.}
 }
 \description{
 \code{ml_survival_regression} fits an accelerated failure time (AFT) survival regression model on
-a SparkDataFrame. Users can call \code{summary} to get a summary of the fitted AFT model,
-\code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml} to
+a spark_tbl. Users can call \code{summary} to get a summary of the fitted AFT model,
+\code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 save/load fitted models.
 }
 \examples{

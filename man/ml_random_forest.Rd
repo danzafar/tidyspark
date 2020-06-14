@@ -2,7 +2,7 @@
 % Please edit documentation in R/ml_supervised.R
 \name{ml_random_forest}
 \alias{ml_random_forest}
-\alias{spark.randomForest,SparkDataFrame,formula-method}
+\alias{spark.randomForest,spark_tbl,formula-method}
 \title{Random Forest Model for Regression and Classification}
 \usage{
 ml_random_forest(
@@ -25,7 +25,7 @@ ml_random_forest(
 )
 }
 \arguments{
-\item{data}{a SparkDataFrame for training.}
+\item{data}{a spark_tbl for training.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', ':', '+', and '-'.}
@@ -92,8 +92,8 @@ Supported options: "skip" (filter out rows with invalid data),
 }
 \description{
 \code{ml_random_forest} fits a Random Forest Regression model or Classification model on
-a SparkDataFrame. Users can call \code{summary} to get a summary of the fitted Random Forest
-model, \code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml} to
+a spark_tbl. Users can call \code{summary} to get a summary of the fitted Random Forest
+model, \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 save/load fitted models.
 For more details, see
 \href{http://spark.apache.org/docs/latest/ml-classification-regression.html#random-forest-regression}{

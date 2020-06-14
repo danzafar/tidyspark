@@ -3,7 +3,7 @@
 \name{spark.glm}
 \alias{spark.glm}
 \alias{ml_glm}
-\alias{spark.glm,SparkDataFrame,formula-method}
+\alias{spark.glm,spark_tbl,formula-method}
 \title{Generalized Linear Models}
 \usage{
 ml_glm(
@@ -22,7 +22,7 @@ ml_glm(
 )
 }
 \arguments{
-\item{data}{a SparkDataFrame for training.}
+\item{data}{a spark_tbl for training.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently only a few formula
 operators are supported, including '~', '.', ':', '+', and '-'.}
@@ -74,9 +74,9 @@ offsets as 0.0. The feature specified as offset has a constant coefficient of
 \code{spark.glm} returns a fitted generalized linear model.
 }
 \description{
-Fits generalized linear model against a SparkDataFrame.
+Fits generalized linear model against a spark_tbl.
 Users can call \code{summary} to print a summary of the fitted model, \code{predict} to make
-predictions on new data, and \code{write.ml}/\code{read.ml} to save/load fitted models.
+predictions on new data, and \code{write_ml}/\code{read_ml} to save/load fitted models.
 }
 \examples{
 \dontrun{

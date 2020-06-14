@@ -2,18 +2,25 @@
 % Please edit documentation in R/ml_clustering.R
 \name{ml_gaussian_mixture}
 \alias{ml_gaussian_mixture}
-\alias{spark.gaussianMixture,SparkDataFrame,formula-method}
+\alias{ml_gaussianMixture,spark_tbl,formula-method}
+\alias{summary,GaussianMixtureModel-method}
+\alias{gaussianMixture,SparkDataFrame,formula-method}
+\alias{write_ml,GaussianMixtureModel,character-method}
 \title{Multivariate Gaussian Mixture Model (GMM)}
 \usage{
 ml_gaussian_mixture(data, formula, k = 2, maxIter = 100, tol = 0.01)
+
+\S4method{summary}{GaussianMixtureModel}(object)
+
+\S4method{write_ml}{GaussianMixtureModel,character}(object, path, overwrite = FALSE)
 }
 \arguments{
-\item{data}{a SparkDataFrame for training.}
+\item{data}{a spark_tbl for training.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently
 only a few formula operators are supported, including '~',
 '.', ':', '+', and '-'. Note that the response variable of
-formula is empty in spark.gaussianMixture.}
+formula is empty in ml_gaussianMixture.}
 
 \item{k}{number of independent Gaussians in the mixture model.}
 
@@ -21,17 +28,33 @@ formula is empty in spark.gaussianMixture.}
 
 \item{tol}{the convergence tolerance.}
 
+\item{object}{a fitted gaussian mixture model.}
+
+\item{path}{the directory where the model is saved.}
+
+\item{overwrite}{overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.}
+
 \item{...}{additional arguments passed to the method.}
 }
 \value{
 \code{ml_gaussian_mixture} returns a fitted multivariate gaussian
         mixture model.
+
+\code{summary} returns summary of the fitted model, which is a list.
+        The list includes the model's \code{lambda} (lambda), \code{mu} (mu),
+        \code{sigma} (sigma), \code{loglik} (loglik), and \code{posterior} (posterior).
 }
 \description{
-Fits multivariate gaussian mixture model against a SparkDataFrame, similarly
+Fits multivariate gaussian mixture model against a spark_tbl, similarly
 to R's mvnormalmixEM(). Users can call \code{summary} to print a summary of
 the fitted model, \code{predict} to make predictions on new data, and
-\code{write.ml}/\code{read.ml} to save/load fitted models.
+\code{write_ml}/\code{read_ml} to save/load fitted models.
+}
+\note{
+summary(GaussianMixtureModel) since 2.1.0
+
+write_ml(GaussianMixtureModel, character) since 2.1.0
 }
 \examples{
 \dontrun{

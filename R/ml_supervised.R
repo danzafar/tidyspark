@@ -6,11 +6,11 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 
 #' Generalized Linear Models
 #'
-#' Fits generalized linear model against a SparkDataFrame.
+#' Fits generalized linear model against a spark_tbl.
 #' Users can call \code{summary} to print a summary of the fitted model, \code{predict} to make
-#' predictions on new data, and \code{write.ml}/\code{read.ml} to save/load fitted models.
+#' predictions on new data, and \code{write_ml}/\code{read_ml} to save/load fitted models.
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', '.', ':', '+', and '-'.
 #' @param family a description of the error distribution and link function to be used in the model.
@@ -46,7 +46,7 @@ setClass("GeneralizedLinearRegressionModel", representation(jobj = "jobj"))
 #'                  offsets as 0.0. The feature specified as offset has a constant coefficient of
 #'                  1.0.
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.glm,SparkDataFrame,formula-method
+#' @aliases spark.glm,spark_tbl,formula-method
 #' @return \code{spark.glm} returns a fitted generalized linear model.
 #' @rdname spark.glm
 #' @name spark.glm
@@ -186,12 +186,12 @@ setClass("LogisticRegressionModel", representation(jobj = "jobj"))
 
 #' Logistic Regression Model
 #'
-#' Fits an logistic regression model against a SparkDataFrame. It supports "binomial": Binary
+#' Fits an logistic regression model against a spark_tbl. It supports "binomial": Binary
 #' logistic regression with pivoting; "multinomial": Multinomial logistic (softmax) regression
 #' without pivoting, similar to glmnet. Users can print, make predictions on the produced model
 #' and save the model to the input path.
 #'
-#' @param data SparkDataFrame for training.
+#' @param data spark_tbl for training.
 #' @param formula A symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', '.', ':', '+', and '-'.
 #' @param regParam the regularization parameter.
@@ -262,7 +262,7 @@ setClass("LogisticRegressionModel", representation(jobj = "jobj"))
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
 #' @return \code{ml_logit} returns a fitted logistic regression model.
-#' @aliases spark.logit,SparkDataFrame,formula-method
+#' @aliases spark.logit,spark_tbl,formula-method
 #' @examples
 #' \dontrun{
 #' spark_session()
@@ -396,8 +396,8 @@ setClass("DecisionTreeClassificationModel", representation(jobj = "jobj"))
 #' Decision Tree Model for Regression and Classification
 #'
 #' \code{ml_decision_tree} fits a Decision Tree Regression model or Classification model on
-#' a SparkDataFrame. Users can call \code{summary} to get a summary of the fitted Decision Tree
-#' model, \code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml} to
+#' a spark_tbl. Users can call \code{summary} to get a summary of the fitted Decision Tree
+#' model, \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 #' save/load fitted models.
 #' For more details, see
 # nolint start
@@ -407,7 +407,7 @@ setClass("DecisionTreeClassificationModel", representation(jobj = "jobj"))
 #' Decision Tree Classification}
 # nolint end
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', ':', '+', and '-'.
 #' @param type type of model, one of "regression" or "classification", to fit
@@ -436,7 +436,7 @@ setClass("DecisionTreeClassificationModel", representation(jobj = "jobj"))
 #'                                         a special additional bucket, at index numLabels). Default
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.decisionTree,SparkDataFrame,formula-method
+#' @aliases spark.decisionTree,spark_tbl,formula-method
 #' @return \code{ml_decision_tree} returns a fitted Decision Tree model.
 #' @rdname ml_decision_tree
 #' @name ml_decision_tree
@@ -486,8 +486,8 @@ ml_decision_tree <- function (data, formula, type = c("regression",
 #' Random Forest Model for Regression and Classification
 #'
 #' \code{ml_random_forest} fits a Random Forest Regression model or Classification model on
-#' a SparkDataFrame. Users can call \code{summary} to get a summary of the fitted Random Forest
-#' model, \code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml} to
+#' a spark_tbl. Users can call \code{summary} to get a summary of the fitted Random Forest
+#' model, \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 #' save/load fitted models.
 #' For more details, see
 # nolint start
@@ -497,7 +497,7 @@ ml_decision_tree <- function (data, formula, type = c("regression",
 #' Random Forest Classification}
 # nolint end
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', ':', '+', and '-'.
 #' @param type type of model, one of "regression" or "classification", to fit
@@ -542,7 +542,7 @@ ml_decision_tree <- function (data, formula, type = c("regression",
 #'                                         a special additional bucket, at index numLabels). Default
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.randomForest,SparkDataFrame,formula-method
+#' @aliases spark.randomForest,spark_tbl,formula-method
 #' @return \code{ml_random_forest} returns a fitted Random Forest model.
 #' @rdname ml_random_forest
 #' @name ml_random_forest
@@ -596,9 +596,9 @@ ml_random_forest <- function(data, formula, type = c("regression",
 #' Gradient Boosted Tree Model for Regression and Classification
 #'
 #' \code{ml_gbt} fits a Gradient Boosted Tree Regression model or Classification model on a
-#' SparkDataFrame. Users can call \code{summary} to get a summary of the fitted
+#' spark_tbl. Users can call \code{summary} to get a summary of the fitted
 #' Gradient Boosted Tree model, \code{predict} to make predictions on new data, and
-#' \code{write.ml}/\code{read.ml} to save/load fitted models.
+#' \code{write_ml}/\code{read_ml} to save/load fitted models.
 #' For more details, see
 # nolint start
 #' \href{http://spark.apache.org/docs/latest/ml-classification-regression.html#gradient-boosted-tree-regression}{
@@ -607,7 +607,7 @@ ml_random_forest <- function(data, formula, type = c("regression",
 #' GBT Classification}
 # nolint end
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', ':', '+', and '-'.
 #' @param type type of model, one of "regression" or "classification", to fit
@@ -643,7 +643,7 @@ ml_random_forest <- function(data, formula, type = c("regression",
 #'                                         a special additional bucket, at index numLabels). Default
 #'                                         is "error".
 #' @param ... additional arguments passed to the method.
-#' @aliases spark.gbt,SparkDataFrame,formula-method
+#' @aliases spark.gbt,spark_tbl,formula-method
 #' @return \code{ml_gbt} returns a fitted Gradient Boosted Tree model.
 #' @rdname ml_gbt
 #' @name ml_gbt
@@ -875,11 +875,11 @@ setClass("AFTSurvivalRegressionModel", representation(jobj = "jobj"))
 #' Accelerated Failure Time (AFT) Survival Regression Model
 #'
 #' \code{ml_survival_regression} fits an accelerated failure time (AFT) survival regression model on
-#' a SparkDataFrame. Users can call \code{summary} to get a summary of the fitted AFT model,
-#' \code{predict} to make predictions on new data, and \code{write.ml}/\code{read.ml} to
+#' a spark_tbl. Users can call \code{summary} to get a summary of the fitted AFT model,
+#' \code{predict} to make predictions on new data, and \code{write_ml}/\code{read_ml} to
 #' save/load fitted models.
 #'
-#' @param data a SparkDataFrame for training.
+#' @param data a spark_tbl for training.
 #' @param formula a symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', ':', '+', and '-'.
 #'                Note that operator '.' is not supported currently.
@@ -946,10 +946,10 @@ setClass("IsotonicRegressionModel", representation(jobj = "jobj"))
 
 #' Isotonic Regression Model
 #'
-#' Fits an Isotonic Regression model against a SparkDataFrame, similarly to R's isoreg().
+#' Fits an Isotonic Regression model against a spark_tbl, similarly to R's isoreg().
 #' Users can print, make predictions on the produced model and save the model to the input path.
 #'
-#' @param data SparkDataFrame for training.
+#' @param data spark_tbl for training.
 #' @param formula A symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', '.', ':', '+', and '-'.
 #' @param isotonic Whether the output sequence should be isotonic/increasing (TRUE) or
@@ -960,7 +960,7 @@ setClass("IsotonicRegressionModel", representation(jobj = "jobj"))
 #' @param ... additional arguments passed to the method.
 #' @return \code{spark.isoreg} returns a fitted Isotonic Regression model.
 #' @rdname spark.isoreg
-#' @aliases spark.isoreg,SparkDataFrame,formula-method
+#' @aliases spark.isoreg,spark_tbl,formula-method
 #' @name spark.isoreg
 #' @examples
 #' \dontrun{
@@ -1010,15 +1010,15 @@ setClass("MultilayerPerceptronClassificationModel", representation(jobj = "jobj"
 
 #' Multilayer Perceptron Classification Model
 #'
-#' \code{ml_mlp} fits a multi-layer perceptron neural network model against a SparkDataFrame.
+#' \code{ml_mlp} fits a multi-layer perceptron neural network model against a spark_tbl.
 #' Users can call \code{summary} to print a summary of the fitted model, \code{predict} to make
-#' predictions on new data, and \code{write.ml}/\code{read.ml} to save/load fitted models.
+#' predictions on new data, and \code{write_ml}/\code{read_ml} to save/load fitted models.
 #' Only categorical data is supported.
 #' For more details, see
 #' \href{http://spark.apache.org/docs/latest/ml-classification-regression.html}{
 #'   Multilayer Perceptron}
 #'
-#' @param data a \code{SparkDataFrame} of observations and labels for model fitting.
+#' @param data a \code{spark_tbl} of observations and labels for model fitting.
 #' @param formula a symbolic description of the model to be fitted. Currently only a few formula
 #'                operators are supported, including '~', '.', ':', '+', and '-'.
 #' @param blockSize blockSize parameter.

@@ -2,6 +2,9 @@
 % Please edit documentation in R/ml_clustering.R
 \name{ml_kmeans_bisecting}
 \alias{ml_kmeans_bisecting}
+\alias{summary,BisectingKMeansModel-method}
+\alias{fitted,BisectingKMeansModel-method}
+\alias{write_ml,BisectingKMeansModel,character-method}
 \title{Spark ML -- Bisecting K-Means Clustering}
 \usage{
 ml_kmeans_bisecting(
@@ -12,14 +15,20 @@ ml_kmeans_bisecting(
   seed = NULL,
   minDivisibleClusterSize = 1
 )
+
+\S4method{summary}{BisectingKMeansModel}(object)
+
+\S4method{fitted}{BisectingKMeansModel}(object, method = c("centers", "classes"))
+
+\S4method{write_ml}{BisectingKMeansModel,character}(object, path, overwrite = FALSE)
 }
 \arguments{
-\item{data}{a SparkDataFrame for training.}
+\item{data}{a spark_tbl for training.}
 
 \item{formula}{a symbolic description of the model to be fitted. Currently
 only a few formula operators are supported, including '~',
 '.', ':', '+', and '-'. Note that the response variable of
-formula is empty in spark.bisectingKmeans.}
+formula is empty in ml_bisectingKmeans.}
 
 \item{k}{the desired number of leaf clusters. Must be > 1. The actual number
 could be smaller if there are no divisible leaf clusters.}
@@ -35,10 +44,29 @@ cluster. Note that it is an expert parameter.
 The default value should be good enough for
 most cases.}
 
+\item{object}{a fitted bisecting k-means model.}
+
+\item{method}{type of fitted results, \code{"centers"} for cluster centers
+or \code{"classes"} for assigned classes.}
+
+\item{path}{the directory where the model is saved.}
+
+\item{overwrite}{overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.}
+
 \item{...}{additional argument(s) passed to the method.}
 }
 \value{
-\code{spark.bisectingKmeans} returns a fitted bisecting k-means model.
+\code{ml_bisectingKmeans} returns a fitted bisecting k-means model.
+
+\code{summary} returns summary information of the fitted model, which is a list.
+        The list includes the model's \code{k} (number of cluster centers),
+        \code{coefficients} (model cluster centers),
+        \code{size} (number of data points in each cluster), \code{cluster}
+        (cluster centers of the transformed data; cluster is NULL if is.loaded is TRUE),
+        and \code{is.loaded} (whether the model is loaded from a saved file).
+
+\code{fitted} returns a spark_tbl containing fitted values.
 }
 \description{
 A bisecting k-means algorithm based on the paper "A comparison of document
@@ -50,12 +78,20 @@ or no leaf clusters are divisible. The bisecting steps of clusters on the
 same level are grouped together to increase parallelism. If bisecting all
 divisible clusters on the bottom level would result more than k leaf
 clusters, larger clusters get higher priority.
+
+Get fitted result from a bisecting k-means model.
+Note: A saved-loaded model does not support this method.
 }
 \details{
-Fits a bisecting k-means clustering model against a SparkDataFrame.
+Fits a bisecting k-means clustering model against a spark_tbl.
 Users can call \code{summary} to print a summary of the fitted model,
-\code{predict} to make predictions on new data, and \code{write.ml}/
-\code{read.ml} to save/load fitted models.
+\code{predict} to make predictions on new data, and \code{write_ml}/
+\code{read_ml} to save/load fitted models.
+}
+\note{
+summary(BisectingKMeansModel) since 2.2.0
+
+write_ml(BisectingKMeansModel, character) since 2.2.0
 }
 \examples{
 \dontrun{
@@ -64,7 +100,7 @@ iris_fix <- iris \%>\%
 setNames(names(iris) \%>\% sub("[//.]", "_", .)) \%>\%
  mutate(Species = levels(Species)[Species])
 iris_spk <- spark_tbl(iris)
-model <- spark.bisectingKmeans(iris_spk, Sepal_Width ~ Sepal_Length, k = 4)
+model <- ml_bisectingKmeans(iris_spk, Sepal_Width ~ Sepal_Length, k = 4)
 summary(model)
 }
 }
