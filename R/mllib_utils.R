@@ -46,7 +46,7 @@ write_internal <- function(object, path, overwrite = FALSE) {
 }
 
 predict_internal <- function(object, newData) {
-  new_spark_tbl(call_method(object@jobj, "transform", newData@sdf))
+  new_spark_tbl(call_method(object@jobj, "transform", attr(newData, "jc")))
 }
 
 #' Load a fitted MLlib model from the input path.
@@ -65,7 +65,7 @@ predict_internal <- function(object, newData) {
 read_ml <- function(path) {
   path <- suppressWarnings(normalizePath(path))
   sparkSession <- get_spark_session()
-  call_static("org.apache.spark.ml.r.RWrappers", "session", sparkSession)
+  call_static("org.apache.spark.ml.r.RWrappers", "session", sparkSession$jobj)
   jobj <- call_static("org.apache.spark.ml.r.RWrappers", "load", path)
   if (isInstanceOf(jobj, "org.apache.spark.ml.r.NaiveBayesWrapper")) {
     new("NaiveBayesModel", jobj = jobj)
