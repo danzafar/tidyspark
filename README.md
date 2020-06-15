@@ -1,4 +1,4 @@
-tidyspark: tidy interface for Apache SparkR
+tidyspark: tidy interface for Apache SparkR <a href='https://www.tidyverse.org/'><img src='man/figures/logo.png' align="right" height="210" /></a>
 ================
 
 ## Motivation
