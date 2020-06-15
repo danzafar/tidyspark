@@ -315,6 +315,7 @@ NULL
 #' @details
 #' \code{abs}: Computes the absolute value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases abs abs,Column-method
 #' @note abs since 1.5.0
@@ -330,6 +331,7 @@ setMethod("abs",
 #' \code{acos}: Returns the inverse cosine of the given value,
 #' as if computed by \code{java.lang.Math.acos()}
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases acos acos,Column-method
 #' @note acos since 1.5.0
@@ -346,7 +348,8 @@ setMethod("acos",
 #' in a group.
 #'
 #' @param rsd maximum estimation error allowed (default = 0.05).
-#'
+
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases approxCountDistinct approxCountDistinct,Column-method
 #' @examples
@@ -371,6 +374,7 @@ setMethod("approxCountDistinct",
 #' \code{ascii}: Computes the numeric value of the first character of the
 #' string column, and returns the result as an int column.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases ascii ascii,Column-method
 #' @examples
@@ -390,6 +394,7 @@ setMethod("ascii",
 #' \code{asin}: Returns the inverse sine of the given value,
 #' as if computed by \code{java.lang.Math.asin()}
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases asin asin,Column-method
 #' @note asin since 1.5.0
@@ -404,7 +409,8 @@ setMethod("asin",
 #' @details
 #' \code{atan}: Returns the inverse tangent of the given value,
 #' as if computed by \code{java.lang.Math.atan()}
-#'
+
+#' @export
 #' @rdname column_math_functions
 #' @aliases atan atan,Column-method
 #' @note atan since 1.5.0
@@ -420,6 +426,7 @@ setMethod("atan",
 #'
 #' Aggregate function: returns the average of the values in a group.
 #'
+#' @export
 #' @rdname avg
 #' @name avg
 #' @family aggregate functions
@@ -438,6 +445,7 @@ setMethod("avg",
 #' \code{base64}: Computes the BASE64 encoding of a binary column and returns
 #' it as a string column. This is the reverse of unbase64.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases base64 base64,Column-method
 #' @examples
@@ -462,6 +470,7 @@ setMethod("base64",
 #' \code{bin}: Returns the string representation of the binary value
 #' of the given long column. For example, bin("12") returns "1100".
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases bin bin,Column-method
 #' @note bin since 1.5.0
@@ -476,6 +485,7 @@ setMethod("bin",
 #' @details
 #' \code{bitwiseNOT}: Computes bitwise NOT.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases bitwiseNOT bitwiseNOT,Column-method
 #' @examples
@@ -495,6 +505,7 @@ setMethod("bitwiseNOT",
 #' @details
 #' \code{cbrt}: Computes the cube-root of the given value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases cbrt cbrt,Column-method
 #' @note cbrt since 1.4.0
@@ -509,6 +520,7 @@ setMethod("cbrt",
 #' @details
 #' \code{ceil}: Computes the ceiling of the given value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases ceil ceil,Column-method
 #' @note ceil since 1.5.0
@@ -523,6 +535,7 @@ setMethod("ceil",
 #' @details
 #' \code{ceiling}: Alias for \code{ceil}.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases ceiling ceiling,Column-method
 #' @note ceiling since 1.5.0
@@ -548,6 +561,7 @@ col <- function(x) {
 #'
 #' @param x Character column name.
 #'
+#' @export
 #' @rdname column
 #' @name column
 #' @family non-aggregate functions
@@ -567,6 +581,7 @@ setMethod("column",
 #'
 #' @param col2 a (second) Column.
 #'
+#' @export
 #' @rdname corr
 #' @name corr
 #' @family aggregate functions
@@ -592,6 +607,7 @@ setMethod("corr", signature(x = "Column"),
 #' @details
 #' \code{covar_sample}: Alias for \code{cov}.
 #'
+#' @export
 #' @rdname cov
 #'
 #' @param col1 the first Column.
@@ -616,6 +632,7 @@ setMethod("covar_samp", signature(col1 = "characterOrColumn",
 #' @details
 #' \code{covar_pop}: Computes the population covariance between two expressions.
 #'
+#' @export
 #' @rdname cov
 #' @name covar_pop
 #' @aliases covar_pop,characterOrColumn,characterOrColumn-method
@@ -638,6 +655,7 @@ setMethod("covar_pop", signature(col1 = "characterOrColumn",
 #' \code{cos}: Returns the cosine of the given value,
 #' as if computed by \code{java.lang.Math.cos()}. Units in radians.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases cos cos,Column-method
 #' @note cos since 1.5.0
@@ -653,6 +671,7 @@ setMethod("cos",
 #' \code{cosh}: Returns the hyperbolic cosine of the given value,
 #' as if computed by \code{java.lang.Math.cosh()}.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases cosh cosh,Column-method
 #' @note cosh since 1.5.0
@@ -668,6 +687,7 @@ setMethod("cosh",
 #' \code{crc32}: Calculates the cyclic redundancy check value  (CRC32) of a
 #' binary column and returns the value as a bigint.
 #'
+#' @export
 #' @rdname column_misc_functions
 #' @aliases crc32 crc32,Column-method
 #' @note crc32 since 1.5.0
@@ -683,6 +703,7 @@ setMethod("crc32",
 #' \code{hash}: Calculates the hash code of given columns, and returns the
 #' result as an int column.
 #'
+#' @export
 #' @rdname column_misc_functions
 #' @aliases hash hash,Column-method
 #' @note hash since 2.0.0
@@ -702,6 +723,7 @@ setMethod("hash",
 #' \code{dayofmonth}: Extracts the day of the month as an integer from a
 #' given date/timestamp/string.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases dayofmonth dayofmonth,Column-method
 #' @examples
@@ -726,6 +748,7 @@ setMethod("dayofmonth",
 #' \code{dayofweek}: Extracts the day of the week as an integer from a
 #' given date/timestamp/string.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases dayofweek dayofweek,Column-method
 #' @note dayofweek since 2.3.0
@@ -742,6 +765,7 @@ setMethod("dayofweek",
 #' \code{dayofyear}: Extracts the day of the year as an integer from a
 #' given date/timestamp/string.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases dayofyear dayofyear,Column-method
 #' @note dayofyear since 1.5.0
@@ -760,6 +784,7 @@ setMethod("dayofyear",
 #' @param charset character set to use (one of "US-ASCII", "ISO-8859-1",
 #'                "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16").
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases decode decode,Column,character-method
 #' @note decode since 1.6.0
@@ -776,6 +801,7 @@ setMethod("decode",
 #' \code{encode}: Computes the first argument into a binary from a string
 #' using the provided character set.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases encode encode,Column,character-method
 #' @note encode since 1.6.0
@@ -791,6 +817,7 @@ setMethod("encode",
 #' @details
 #' \code{exp}: Computes the exponential of the given value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases exp exp,Column-method
 #' @note exp since 1.5.0
@@ -805,6 +832,7 @@ setMethod("exp",
 #' @details
 #' \code{expm1}: Computes the exponential of the given value minus one.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases expm1 expm1,Column-method
 #' @note expm1 since 1.5.0
@@ -830,6 +858,7 @@ setMethod("expm1",
 #'        before the computation proceeds.
 #' @param ... other arguments, currently unused
 #'
+#' @export
 #' @rdname first
 #' @name first
 #' @aliases first,characterOrColumn-method
@@ -856,6 +885,7 @@ setMethod("first",
 #' @details
 #' \code{floor}: Computes the floor of the given value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases floor floor,Column-method
 #' @note floor since 1.5.0
@@ -870,6 +900,7 @@ setMethod("floor",
 #' @details
 #' \code{hex}: Computes hex value of the given column.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases hex hex,Column-method
 #' @note hex since 1.5.0
@@ -886,6 +917,7 @@ setMethod("hex",
 #' each word to uppercase. Words are delimited by whitespace. For example, "hello world"
 #' will become "Hello World".
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases initcap initcap,Column-method
 #' @examples
@@ -908,6 +940,8 @@ setMethod("initcap",
 # isnan ------------------------------------------------------------------------
 #' @details
 #' \code{isnan}: Returns true if the column is NaN.
+#'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases isnan isnan,Column-method
 #' @note isnan since 2.0.0
@@ -922,6 +956,7 @@ setMethod("isnan",
 #' @details
 #' \code{is.nan}: Alias for \link{isnan}.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases is.nan is.nan,Column-method
 #' @note is.nan since 2.0.0
@@ -935,6 +970,7 @@ setMethod("is.nan",
 #' @details
 #' \code{kurtosis}: Returns the kurtosis of the values in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases kurtosis kurtosis,Column-method
 #' @examples
@@ -965,6 +1001,7 @@ setMethod("kurtosis",
 #'        before the computation proceeds.
 #' @param ... further arguments to be passed to or from other methods.
 #'
+#' @export
 #' @rdname last
 #' @name last
 #' @aliases last,characterOrColumn-method
@@ -994,6 +1031,7 @@ setMethod("last",
 #' given date belongs to. For example, input "2015-07-27" returns "2015-07-31" since
 #' July 31 is the last day of the month in July 2015.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases last_day last_day,Column-method
 #' @examples
@@ -1015,6 +1053,7 @@ setMethod("last_day",
 #' of a binary data. The length of string data includes the trailing spaces.
 #' The length of binary data includes binary zeros.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases length length,Column-method
 #' @note length since 1.5.0
@@ -1029,6 +1068,7 @@ setMethod("length",
 #' @details
 #' \code{log}: Computes the natural logarithm of the given value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases log log,Column-method
 #' @note log since 1.5.0
@@ -1043,6 +1083,7 @@ setMethod("log",
 #' @details
 #' \code{log10}: Computes the logarithm of the given value in base 10.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases log10 log10,Column-method
 #' @note log10 since 1.5.0
@@ -1057,6 +1098,7 @@ setMethod("log10",
 #' @details
 #' \code{log1p}: Computes the natural logarithm of the given value plus one.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases log1p log1p,Column-method
 #' @note log1p since 1.5.0
@@ -1071,6 +1113,7 @@ setMethod("log1p",
 #' @details
 #' \code{log2}: Computes the logarithm of the given column in base 2.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases log2 log2,Column-method
 #' @note log2 since 1.5.0
@@ -1085,6 +1128,7 @@ setMethod("log2",
 #' @details
 #' \code{lower}: Converts a string column to lower case.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases lower lower,Column-method
 #' @note lower since 1.4.0
@@ -1101,6 +1145,7 @@ setMethod("lower",
 #'               Optionally a
 #' \code{trimString} can be specified.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases ltrim ltrim,Column,missing-method
 #' @examples
@@ -1125,6 +1170,8 @@ setMethod("ltrim",
 
 # trimString -------------------------------------------------------------------
 #' @param trimString a character string to trim with
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases ltrim,Column,character-method
 #' @note ltrim(Column, character) since 2.3.0
@@ -1140,6 +1187,7 @@ setMethod("ltrim",
 #' @details
 #' \code{max}: Returns the maximum value of the expression in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases max max,Column-method
 #' @note max since 1.5.0
@@ -1155,6 +1203,7 @@ setMethod("max",
 #' \code{md5}: Calculates the MD5 digest of a binary column and returns the
 #' value as a 32 character hex string.
 #'
+#' @export
 #' @rdname column_misc_functions
 #' @aliases md5 md5,Column-method
 #' @note md5 since 1.5.0
@@ -1171,6 +1220,7 @@ setMethod("md5",
 #'
 #' @rdname column_aggregate_functions
 #' @aliases mean mean,Column-method
+#' @export
 #' @examples
 #'
 #' \dontrun{
@@ -1195,6 +1245,7 @@ setMethod("mean",
 #' @details
 #' \code{min}: Returns the minimum value of the expression in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases min min,Column-method
 #' @note min since 1.5.0
@@ -1223,6 +1274,7 @@ setMethod("min",
 #'
 #' @rdname column_nonaggregate_functions
 #' @aliases monotonically_increasing_id monotonically_increasing_id,missing-method
+#' @export
 #' @examples
 #'
 #' \dontrun{head(select(df, monotonically_increasing_id()))}
@@ -1238,6 +1290,7 @@ setMethod("monotonically_increasing_id",
 #' @details
 #' \code{negate}: Unary minus, i.e. negate the expression.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases negate negate,Column-method
 #' @note negate since 1.5.0
@@ -1253,6 +1306,7 @@ setMethod("negate",
 #' \code{reverse}: Returns a reversed string or an array with reverse order
 #'                 of elements.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases reverse reverse,Column-method
 #' @note reverse since 1.5.0
@@ -1268,6 +1322,7 @@ setMethod("reverse",
 #' \code{rint}: Returns the double value that is closest in value to the
 #' argument and is equal to a mathematical integer.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases rint rint,Column-method
 #' @note rint since 1.5.0
@@ -1283,6 +1338,7 @@ setMethod("rint",
 #' \code{round}: Returns the value of the column rounded to 0 decimal places
 #' using HALF_UP rounding mode.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases round round,Column-method
 #' @note round since 1.5.0
@@ -1305,6 +1361,8 @@ setMethod("round",
 #'        when \code{scale} > 0, the nearest even number when \code{scale} = 0,
 #'        and \code{scale} digits to the left of the decimal point when
 #'        \code{scale} < 0.
+#'
+#' @export
 #' @rdname column_math_functions
 #' @aliases bround bround,Column-method
 #' @note bround since 2.0.0
@@ -1321,6 +1379,7 @@ setMethod("bround",
 #' \code{rtrim}: Trims the spaces from right end for the specified string value.
 #'               Optionally a \code{trimString} can be specified.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases rtrim rtrim,Column,missing-method
 #' @note rtrim since 1.5.0
@@ -1331,6 +1390,7 @@ setMethod("rtrim",
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_string_functions
 #' @aliases rtrim,Column,character-method
 #' @note rtrim(Column, character) since 2.3.0
@@ -1347,6 +1407,7 @@ setMethod("rtrim",
 #' \code{sha1}: Calculates the SHA-1 digest of a binary column and returns the
 #' value as a 40 character hex string.
 #'
+#' @export
 #' @rdname column_misc_functions
 #' @aliases sha1 sha1,Column-method
 #' @note sha1 since 1.5.0
@@ -1361,6 +1422,7 @@ setMethod("sha1",
 #' @details
 #' \code{signum}: Computes the signum of the given value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases signum signum,Column-method
 #' @note signum since 1.5.0
@@ -1375,6 +1437,7 @@ setMethod("signum",
 #' @details
 #' \code{sign}: Alias for \code{signum}.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases sign sign,Column-method
 #' @note sign since 1.5.0
@@ -1388,6 +1451,7 @@ setMethod("sign", signature(x = "Column"),
 #' \code{sin}: Returns the sine of the given value,
 #' as if computed by \code{java.lang.Math.sin()}. Units in radians.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases sin sin,Column-method
 #' @note sin since 1.5.0
@@ -1403,6 +1467,7 @@ setMethod("sin",
 #' \code{sinh}: Returns the hyperbolic sine of the given value,
 #' as if computed by \code{java.lang.Math.sinh()}.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases sinh sinh,Column-method
 #' @note sinh since 1.5.0
@@ -1417,6 +1482,7 @@ setMethod("sinh",
 #' @details
 #' \code{skewness}: Returns the skewness of the values in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases skewness skewness,Column-method
 #' @note skewness since 1.6.0
@@ -1432,6 +1498,7 @@ setMethod("skewness",
 #' @details
 #' \code{soundex}: Returns the soundex code for the specified expression.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases soundex soundex,Column-method
 #' @note soundex since 1.5.0
@@ -1449,8 +1516,10 @@ setMethod("soundex",
 #' partitioning and task scheduling. This is equivalent to the
 #' \code{SPARK_PARTITION_ID} function in SQL.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases spark_partition_id spark_partition_id,missing-method
+#' @export
 #' @examples
 #'
 #' \dontrun{head(select(df, spark_partition_id()))}
@@ -1467,6 +1536,7 @@ setMethod("spark_partition_id",
 #' @details
 #' \code{stddev}: Alias for \code{std_dev}.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases stddev stddev,Column-method
 #' @note stddev since 1.6.0
@@ -1482,6 +1552,7 @@ setMethod("stddev",
 #' \code{stddev_pop}: Returns the population standard deviation of the
 #'                    expression in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases stddev_pop stddev_pop,Column-method
 #' @note stddev_pop since 1.6.0
@@ -1498,6 +1569,7 @@ setMethod("stddev_pop",
 #' \code{stddev_samp}: Returns the unbiased sample standard deviation of the
 #'                     expression in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases stddev_samp stddev_samp,Column-method
 #' @note stddev_samp since 1.6.0
@@ -1514,6 +1586,7 @@ setMethod("stddev_samp",
 #' \code{struct}: Creates a new struct column that composes multiple input
 #' columns.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases struct struct,characterOrColumn-method
 #' @examples
@@ -1542,6 +1615,7 @@ setMethod("struct",
 #' @details
 #' \code{sqrt}: Computes the square root of the specified float value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases sqrt sqrt,Column-method
 #' @note sqrt since 1.5.0
@@ -1556,6 +1630,7 @@ setMethod("sqrt",
 #' @details
 #' \code{sum}: Returns the sum of all values in the expression.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases sum sum,Column-method
 #' @note sum since 1.5.0
@@ -1570,6 +1645,7 @@ setMethod("sum",
 #' @details
 #' \code{sumDistinct}: Returns the sum of distinct values in the expression.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases sumDistinct sumDistinct,Column-method
 #' @examples
@@ -1592,6 +1668,7 @@ setMethod("sumDistinct",
 #' as if computed by \code{java.lang.Math.tan()}.
 #' Units in radians.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases tan tan,Column-method
 #' @note tan since 1.5.0
@@ -1607,6 +1684,7 @@ setMethod("tan",
 #' \code{tanh}: Returns the hyperbolic tangent of the given value,
 #' as if computed by \code{java.lang.Math.tanh()}.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases tanh tanh,Column-method
 #' @note tanh since 1.5.0
@@ -1622,6 +1700,7 @@ setMethod("tanh",
 #' \code{toDegrees}: Converts an angle measured in radians to an approximately
 #' equivalent angle measured in degrees.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases toDegrees toDegrees,Column-method
 #' @note toDegrees since 1.4.0
@@ -1638,6 +1717,7 @@ setMethod("toDegrees",
 #' \code{degrees}: Converts an angle measured in radians to an approximately
 #' equivalent angle measured in degrees.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases degrees degrees,Column-method
 #' @note degrees since 3.0.0
@@ -1654,6 +1734,7 @@ setMethod("degrees",
 #' \code{toRadians}: Converts an angle measured in degrees to an approximately
 #' equivalent angle measured in radians.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases toRadians toRadians,Column-method
 #' @note toRadians since 1.4.0
@@ -1675,6 +1756,7 @@ setMethod("toRadians",
 #' By default, it follows casting rules to a DateType if the format is omitted
 #' (equivalent to \code{cast(df$x, "date")}).
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases to_date to_date,Column,missing-method
 #' @examples
@@ -1696,6 +1778,7 @@ setMethod("to_date",
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases to_date,Column,character-method
 #' @note to_date(Column, character) since 2.2.0
@@ -1713,6 +1796,7 @@ setMethod("to_date",
 #' \code{mapType} or an \code{arrayType} into a Column of JSON string.
 #' Resolving the Column can fail if an unsupported type is encountered.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases to_json to_json,Column-method
 #' @examples
@@ -1750,6 +1834,7 @@ setMethod("to_json", signature(x = "Column"),
 #' Column of CSV string. Resolving the Column can fail if an unsupported type
 #' is encountered.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases to_csv to_csv,Column-method
 #' @examples
@@ -1777,6 +1862,7 @@ setMethod("to_csv", signature(x = "Column"),
 #' By default, it follows casting rules to a TimestampType if the format is omitted
 #' (equivalent to \code{cast(df$x, "timestamp")}).
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases to_timestamp to_timestamp,Column,missing-method
 #' @note to_timestamp(Column) since 2.2.0
@@ -1788,6 +1874,7 @@ setMethod("to_timestamp",
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases to_timestamp,Column,character-method
 #' @note to_timestamp(Column, character) since 2.2.0
@@ -1804,6 +1891,7 @@ setMethod("to_timestamp",
 #' \code{trim}: Trims the spaces from both ends for the specified string
 #' column. Optionally a \code{trimString} can be specified.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases trim trim,Column,missing-method
 #' @note trim since 1.5.0
@@ -1814,6 +1902,7 @@ setMethod("trim",
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_string_functions
 #' @aliases trim,Column,character-method
 #' @note trim(Column, character) since 2.3.0
@@ -1830,6 +1919,7 @@ setMethod("trim",
 #' \code{unbase64}: Decodes a BASE64 encoded string column and returns it as
 #' a binary column. This is the reverse of base64.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases unbase64 unbase64,Column-method
 #' @note unbase64 since 1.5.0
@@ -1846,6 +1936,7 @@ setMethod("unbase64",
 #' \code{unhex}: Inverse of hex. Interprets each pair of characters as a
 #' hexadecimal number and converts to the byte representation of number.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases unhex unhex,Column-method
 #' @note unhex since 1.5.0
@@ -1860,6 +1951,7 @@ setMethod("unhex",
 #' @details
 #' \code{upper}: Converts a string column to upper case.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases upper upper,Column-method
 #' @note upper since 1.4.0
@@ -1871,6 +1963,7 @@ setMethod("upper",
           })
 
 # variance ---------------------------------------------------------------------
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases variance variance,Column-method
 #' @note variance since 1.6.0
@@ -1886,6 +1979,7 @@ setMethod("variance",
 #' @details
 #' \code{var_pop}: Returns the population variance of the values in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases var_pop var_pop,Column-method
 #' @note var_pop since 1.5.0
@@ -1900,6 +1994,7 @@ setMethod("var_pop",
 #' @details
 #' \code{var_samp}: Returns the unbiased variance of the values in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases var_samp var_samp,Column-method
 #' @note var_samp since 1.6.0
@@ -1916,6 +2011,7 @@ setMethod("var_samp",
 #' \code{weekofyear}: Extracts the week number as an integer from a given
 #'                    date/timestamp/string.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases weekofyear weekofyear,Column-method
 #' @note weekofyear since 1.5.0
@@ -1932,6 +2028,7 @@ setMethod("weekofyear",
 #' \code{datediff}: Returns the number of days from \code{y} to \code{x}.
 #' If \code{y} is later than \code{x} then the result is positive.
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #' @aliases datediff datediff,Column-method
 #' @examples
@@ -1957,7 +2054,7 @@ setMethod("datediff", signature(y = "Column"),
 #' @details
 #' \code{hypot}: Computes "sqrt(a^2 + b^2)" without intermediate overflow or
 #'               underflow.
-#'
+#' @export
 #' @rdname column_math_functions
 #' @aliases hypot hypot,Column-method
 #' @note hypot since 1.4.0
@@ -1975,6 +2072,7 @@ setMethod("hypot", signature(y = "Column"),
 #' \code{levenshtein}: Computes the Levenshtein distance of the two given
 #'                     string columns.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases levenshtein levenshtein,Column-method
 #' @examples
@@ -2004,6 +2102,8 @@ setMethod("levenshtein", signature(y = "Column"),
 #'
 #' @param roundOff an optional parameter to specify if the result is rounded
 #'                 off to 8 digits
+#'
+#' @export
 #' @rdname column_datetime_diff_functions
 #' @aliases months_between months_between,Column-method
 #' @note months_between since 1.5.0
@@ -2029,6 +2129,7 @@ setMethod("months_between", signature(y = "Column"),
 #' second column (\code{x}) if the first column is NaN. Both inputs should be
 #' floating point columns (DoubleType or FloatType).
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases nanvl nanvl,Column-method
 #' @note nanvl since 1.5.0
@@ -2048,6 +2149,7 @@ setMethod("nanvl", signature(y = "Column"),
 #' Column \code{x} is divisor column, and column \code{y} is the dividend
 #' column.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases pmod pmod,Column-method
 #' @note pmod since 1.5.0
@@ -2064,6 +2166,7 @@ setMethod("pmod", signature(y = "Column"),
 #' @details
 #' \code{countDistinct}: Returns the number of distinct items in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases countDistinct countDistinct,Column-method
 #' @note countDistinct since 1.4.0
@@ -2084,6 +2187,7 @@ setMethod("countDistinct",
 #' \code{concat}: Concatenates multiple input columns together into a single column.
 #' The function works with strings, binary and compatible array columns.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases concat concat,Column-method
 #' @note concat since 1.5.0
@@ -2104,6 +2208,7 @@ setMethod("concat",
 #' skipping null values. This function takes at least 2 parameters. It will
 #' return null if all parameters are null.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases greatest greatest,Column-method
 #' @note greatest since 1.5.0
@@ -2125,6 +2230,7 @@ setMethod("greatest",
 #' null values. This function takes at least 2 parameters. It will return null
 #' if all parameters are null.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases least least,Column-method
 #' @note least since 1.5.0
@@ -2144,6 +2250,7 @@ setMethod("least",
 #' @details
 #' \code{n_distinct}: Returns the number of distinct items in a group.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases n_distinct n_distinct,Column-method
 #' @note n_distinct since 1.4.0
@@ -2163,6 +2270,7 @@ setMethod("n_distinct", signature(x = "Column"),
 #' ever possible specialized functions like \code{year}. These benefit from a
 #' specialized implementation.
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #'
 #' @aliases date_format date_format,Column,character-method
@@ -2181,6 +2289,7 @@ setMethod("date_format", signature(y = "Column", x = "character"),
 #' \code{StructType} if \code{as.json.array} is set to \code{TRUE}. If the
 #' string is unparseable, the Column will contain the value NA.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @param schema a Column or StructType object to use as the schema to use when
 #'               parsing the JSON string. Since Spark 2.3, the DDL-formatted
@@ -2223,6 +2332,7 @@ setMethod("from_json",
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_collection_functions
 #' @note from_json since 2.2.0
 setMethod("from_json",
@@ -2246,6 +2356,7 @@ setMethod("from_json",
 #' @details
 #' \code{schema_of_json}: Parses a JSON string and infers its schema in DDL format.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases schema_of_json schema_of_json,characterOrColumn-method
 #' @examples
@@ -2275,6 +2386,7 @@ setMethod("schema_of_json", signature(x = "characterOrColumn"),
 #' \code{StructType} with the specified \code{schema}.
 #' If the string is unparseable, the Column will contain the value NA.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases from_csv from_csv,Column,characterOrColumn-method
 #' @examples
@@ -2307,6 +2419,7 @@ setMethod("from_csv", signature(x = "Column",
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_collection_functions
 #' @note from_csv since 3.0.0
 setMethod("from_csv", signature(x = "Column",
@@ -2325,6 +2438,7 @@ setMethod("from_csv", signature(x = "Column",
 #' @details
 #' \code{schema_of_csv}: Parses a CSV string and infers its schema in DDL format.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases schema_of_csv schema_of_csv,characterOrColumn-method
 #' @examples
@@ -2363,6 +2477,7 @@ setMethod("schema_of_csv", signature(x = "characterOrColumn"),
 #' and finally display the result by converting the timestamp to string
 #' according to the session local timezone.
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #'
 #' @aliases from_utc_timestamp from_utc_timestamp,Column,character-method
@@ -2387,6 +2502,7 @@ setMethod("from_utc_timestamp", signature(y = "Column", x = "character"),
 #' the arguments are null. Note: The position is not zero based, but 1 based
 #' index. Returns 0 if the substring could not be found in the string column.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases instr instr,Column,character-method
 #' @examples
@@ -2414,6 +2530,7 @@ setMethod("instr", signature(y = "Column", x = "character"),
 #' is case insensitive, and accepts first three or two characters:
 #' "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun".
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #' @aliases next_day next_day,Column,character-method
 #' @note next_day since 1.5.0
@@ -2439,6 +2556,7 @@ setMethod("next_day", signature(y = "Column", x = "character"),
 #' and finally display the result by converting the timestamp to string
 #' according to the session local timezone.
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #' @aliases to_utc_timestamp to_utc_timestamp,Column,character-method
 #' @note to_utc_timestamp since 1.5.0
@@ -2454,6 +2572,7 @@ setMethod("to_utc_timestamp", signature(y = "Column", x = "character"),
 #' \code{add_months}: Returns the date that is numMonths (\code{x}) after
 #' startDate (\code{y}).
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #' @aliases add_months add_months,Column,numeric-method
 #' @examples
@@ -2476,6 +2595,7 @@ setMethod("add_months", signature(y = "Column", x = "numeric"),
 #' @details
 #' \code{date_add}: Returns the date that is \code{x} days after.
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #' @aliases date_add date_add,Column,numeric-method
 #' @note date_add since 1.5.0
@@ -2490,6 +2610,7 @@ setMethod("date_add", signature(y = "Column", x = "numeric"),
 #' @details
 #' \code{date_sub}: Returns the date that is \code{x} days before.
 #'
+#' @export
 #' @rdname column_datetime_diff_functions
 #'
 #' @aliases date_sub date_sub,Column,numeric-method
@@ -2509,6 +2630,7 @@ setMethod("date_sub", signature(y = "Column", x = "numeric"),
 #' If \code{x} is 0, the result has no decimal point or fractional part.
 #' If \code{x} < 0, the result will be null.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases format_number format_number,Column,numeric-method
 #' @examples
@@ -2532,6 +2654,7 @@ setMethod("format_number", signature(y = "Column", x = "numeric"),
 #' column and returns the value as a hex string. The second argument \code{x}
 #' specifies the number of bits, and is one of 224, 256, 384, or 512.
 #'
+#' @export
 #' @rdname column_misc_functions
 #' @aliases sha2 sha2,Column,numeric-method
 #' @note sha2 since 1.5.0
@@ -2548,6 +2671,7 @@ setMethod("sha2", signature(y = "Column", x = "numeric"),
 #' a long value. this function will return a long value else it will return an
 #' integer value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases shiftLeft shiftLeft,Column,numeric-method
 #' @note shiftLeft since 1.5.0
@@ -2565,6 +2689,7 @@ setMethod("shiftLeft", signature(y = "Column", x = "numeric"),
 #' given value is a long value, it will return a long value else it will return
 #' an integer value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases shiftRight shiftRight,Column,numeric-method
 #' @note shiftRight since 1.5.0
@@ -2582,6 +2707,7 @@ setMethod("shiftRight", signature(y = "Column", x = "numeric"),
 #' If the given value is a long value, it will return a long value else it will
 #' return an integer value.
 #'
+#' @export
 #' @rdname column_math_functions
 #' @aliases shiftRightUnsigned shiftRightUnsigned,Column,numeric-method
 #' @note shiftRightUnsigned since 1.5.0
@@ -2599,6 +2725,8 @@ setMethod("shiftRightUnsigned", signature(y = "Column", x = "numeric"),
 #' single string column, using the given separator.
 #'
 #' @param sep separator to use.
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases concat_ws concat_ws,character,Column-method
 #' @examples
@@ -2623,6 +2751,8 @@ setMethod("concat_ws", signature(sep = "character", x = "Column"),
 #'
 #' @param fromBase base to convert from.
 #' @param toBase base to convert to.
+#'
+#' @export
 #' @rdname column_math_functions
 #' @aliases conv conv,Column,numeric,numeric-method
 #' @note conv since 1.5.0
@@ -2642,6 +2772,7 @@ setMethod("conv", signature(x = "Column", fromBase = "numeric",
 #' \code{expr}: Parses the expression string into the column that it
 #' represents, similar to \code{SparkDataFrame.selectExpr}
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases expr expr,character-method
 #' @note expr since 1.5.0
@@ -2656,6 +2787,7 @@ setMethod("expr", signature(x = "character"),
 #' \code{format_string}: Formats the arguments in printf-style and returns the
 #' result as a string column.
 #'
+#' @export
 #' @param format a character object of format strings.
 #' @rdname column_string_functions
 #' @aliases format_string format_string,character,Column-method
@@ -2677,6 +2809,7 @@ setMethod("format_string", signature(format = "character", x = "Column"),
 #' See \href{http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html}{
 #' Customizing Formats} for available options.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #'
 #' @aliases from_unixtime from_unixtime,Column-method
@@ -2703,6 +2836,7 @@ setMethod("from_unixtime", signature(x = "Column"),
 #' \code{when}: Evaluates a list of conditions and returns one of multiple
 #' possible result expressions. For unmatched expressions null is returned.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @param condition the condition to test on. Must be a Column expression.
 #' @param value result expression.
@@ -2755,6 +2889,8 @@ setMethod("when", signature(condition = "Column", value = "ANY"),
 #'                  have hourly tumbling windows that start 15 minutes past the
 #'                  hour, e.g. 12:15-13:15, 13:15-14:15... provide
 #'                  \code{startTime} as \code{"15 minutes"}.
+#'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases window window,Column-method
 #' @examples
@@ -2809,6 +2945,8 @@ window.Column <- function(x, windowDuration,
 #' @param substr a character string to be matched.
 #' @param str a Column where matches are sought for each entry.
 #' @param pos start position of search.
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases locate locate,character,Column-method
 #' @note locate since 1.5.0
@@ -2826,6 +2964,8 @@ setMethod("locate", signature(substr = "character", str = "Column"),
 #'
 #' @param len maximum length of each output result.
 #' @param pad a character string to be padded with.
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases lpad lpad,Column,numeric,character-method
 #' @note lpad since 1.5.0
@@ -2843,6 +2983,7 @@ setMethod("lpad", signature(x = "Column", len = "numeric", pad = "character"),
 #' distributed (i.i.d.) samples from U[0.0, 1.0].
 #' Note: the function is non-deterministic in general case.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @param seed a random seed. Can be missing.
 #' @aliases rand rand,missing-method
@@ -2858,6 +2999,7 @@ setMethod("rand", signature(seed = "missing"),
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases rand,numeric-method
 #' @note rand(numeric) since 1.5.0
@@ -2874,6 +3016,7 @@ setMethod("rand", signature(seed = "numeric"),
 #' distributed (i.i.d.) samples from the standard normal distribution.
 #' Note: the function is non-deterministic in general case.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases randn randn,missing-method
 #' @note randn since 1.5.0
@@ -2883,6 +3026,7 @@ setMethod("randn", signature(seed = "missing"),
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases randn,numeric-method
 #' @note randn(numeric) since 1.5.0
@@ -2901,6 +3045,8 @@ setMethod("randn", signature(seed = "numeric"),
 #'
 #' @param pattern a regular expression.
 #' @param idx a group index.
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases regexp_extract regexp_extract,Column,character,numeric-method
 #' @examples
@@ -2931,6 +3077,8 @@ setMethod("regexp_extract",
 #'
 #' @param replacement a character string that a matched \code{pattern} is
 #'        replaced with.
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases regexp_replace regexp_replace,Column,character,character-method
 #' @note regexp_replace since 1.5.0
@@ -2947,6 +3095,7 @@ setMethod("regexp_replace",
 #' @details
 #' \code{rpad}: Right-padded with pad to a length of len.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases rpad rpad,Column,numeric,character-method
 #' @note rpad since 1.5.0
@@ -2971,6 +3120,8 @@ setMethod("rpad", signature(x = "Column", len = "numeric", pad = "character"),
 #' @param count number of occurrences of \code{delim} before the substring is
 #'              returned. A positive number means counting from the left, while
 #'              negative means counting from the right.
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases substring_index substring_index,Column,character,numeric-method
 #' @note substring_index since 1.5.0
@@ -2994,6 +3145,7 @@ setMethod("substring_index",
 #' @param replaceString a target string where each \code{matchingString}
 #'                      character will be replaced by the character in
 #'                      \code{replaceString} at the same location, if any.
+#' @export
 #' @rdname column_string_functions
 #' @aliases translate translate,Column,character,character-method
 #' @note translate since 1.5.0
@@ -3010,6 +3162,7 @@ setMethod("translate",
 #' @details
 #' \code{unix_timestamp}: Gets current Unix timestamp in seconds.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases unix_timestamp unix_timestamp,missing,missing-method
 #' @note unix_timestamp since 1.5.0
@@ -3019,6 +3172,7 @@ setMethod("unix_timestamp", signature(x = "missing", format = "missing"),
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases unix_timestamp,Column,missing-method
 #' @note unix_timestamp(Column) since 1.5.0
@@ -3028,6 +3182,7 @@ setMethod("unix_timestamp", signature(x = "Column", format = "missing"),
             new("Column", jc)
           })
 
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases unix_timestamp,Column,character-method
 #' @note unix_timestamp(Column, character) since 1.5.0
@@ -3048,6 +3203,7 @@ setMethod("unix_timestamp", signature(x = "Column", format = "character"),
 #'        if length(...) > 1 then argument is interpreted as a nested
 #'        Column, for example \code{unresolved_named_lambda_var("a", "b", "c")}
 #'        yields unresolved \code{a.b.c}
+#'
 #' @return Column object wrapping JVM UnresolvedNamedLambdaVariable
 unresolved_named_lambda_var <- function(...) {
   jc <- new_jobj(
@@ -3138,6 +3294,7 @@ invoke_higher_order_function <- function(name, cols, funs) {
 #' The final state is converted into the final result by applying
 #' a finish function.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_aggregate array_aggregate,characterOrColumn,Column,function-method
 #' @note array_aggregate since 3.1.0
@@ -3160,6 +3317,7 @@ setMethod("array_aggregate",
 #' \code{array_contains}: Returns null if the array is null, true if the array
 #' contains the value, and false otherwise.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_contains array_contains,Column-method
 #' @note array_contains since 1.6.0
@@ -3174,6 +3332,7 @@ setMethod("array_contains",
 #' @details
 #' \code{array_distinct}: Removes duplicate values from the array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_distinct array_distinct,Column-method
 #' @note array_distinct since 2.4.0
@@ -3190,6 +3349,7 @@ setMethod("array_distinct",
 #'  not in the second array, without duplicates. The order of elements in the
 #'  result is not determined.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_except array_except,Column-method
 #' @note array_except since 2.4.0
@@ -3204,6 +3364,7 @@ setMethod("array_except",
 #' @details
 #' \code{array_exists} Returns whether a predicate holds for one or more elements in the array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_exists array_exists,characterOrColumn,function-method
 #' @note array_exists since 3.1.0
@@ -3221,6 +3382,7 @@ setMethod("array_exists",
 #' \code{array_filter} Returns an array of elements for which a predicate holds
 #' in a given array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_filter array_filter,characterOrColumn,function-method
 #' @note array_filter since 3.1.0
@@ -3238,6 +3400,7 @@ setMethod("array_filter",
 #' \code{array_forall} Returns whether a predicate holds for every element in
 #' the array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_forall array_forall,characterOrColumn,function-method
 #' @note array_forall since 3.1.0
@@ -3255,6 +3418,7 @@ setMethod("array_forall",
 #' \code{array_intersect}: Returns an array of the elements in the intersection of the given two
 #'  arrays, without duplicates.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_intersect array_intersect,Column-method
 #' @note array_intersect since 2.4.0
@@ -3271,6 +3435,8 @@ setMethod("array_intersect",
 #'
 #' @param delimiter a character string that is used to concatenate the elements of column.
 #' @param nullReplacement an optional character string that is used to replace the Null values.
+#'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_join array_join,Column-method
 #' @note array_join since 2.4.0
@@ -3289,6 +3455,7 @@ setMethod("array_join",
 #' @details
 #' \code{array_max}: Returns the maximum value of the array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_max array_max,Column-method
 #' @note array_max since 2.4.0
@@ -3302,6 +3469,7 @@ setMethod("array_max",
 #' @details
 #' \code{array_min}: Returns the minimum value of the array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_min array_min,Column-method
 #' @note array_min since 2.4.0
@@ -3318,6 +3486,7 @@ setMethod("array_min",
 #' Note: The position is not zero based, but 1 based index. Returns 0 if the given
 #' value could not be found in the array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_position array_position,Column-method
 #' @note array_position since 2.4.0
@@ -3331,6 +3500,7 @@ setMethod("array_position",
 #' @details
 #' \code{array_remove}: Removes all elements that equal to element from the given array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_remove array_remove,Column-method
 #' @note array_remove since 2.4.0
@@ -3346,6 +3516,8 @@ setMethod("array_remove",
 #' given by \code{count}.
 #'
 #' @param count a Column or constant determining the number of repetitions.
+#'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_repeat array_repeat,Column,numericOrColumn-method
 #' @note array_repeat since 2.4.0
@@ -3365,6 +3537,7 @@ setMethod("array_repeat",
 #' \code{array_sort}: Sorts the input array in ascending order. The elements of the input array
 #' must be orderable. NA elements will be placed at the end of the returned array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_sort array_sort,Column-method
 #' @note array_sort since 2.4.0
@@ -3379,6 +3552,7 @@ setMethod("array_sort",
 #' \code{array_transform}  Returns an array of elements after applying
 #' a transformation to each element in the input array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_transform array_transform,characterOrColumn,characterOrColumn,function-method
 #' @note array_transform since 3.1.0
@@ -3397,6 +3571,7 @@ setMethod("array_transform",
 #' common. If not and both arrays are non-empty and any of them contains a null, it returns null.
 #' It returns false otherwise.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases arrays_overlap arrays_overlap,Column-method
 #' @note arrays_overlap since 2.4.0
@@ -3411,6 +3586,7 @@ setMethod("arrays_overlap",
 #' \code{array_union}: Returns an array of the elements in the union of the given two arrays,
 #'  without duplicates.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases array_union array_union,Column-method
 #' @note array_union since 2.4.0
@@ -3425,6 +3601,7 @@ setMethod("array_union",
 #' \code{arrays_zip}: Returns a merged array of structs in which the N-th struct contains all N-th
 #' values of input arrays.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases arrays_zip arrays_zip,Column-method
 #' @note arrays_zip since 2.4.0
@@ -3444,6 +3621,7 @@ setMethod("arrays_zip",
 #' using a function. If one array is shorter, nulls are appended at the end
 #' to match the length of the longer array, before applying the function.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases arrays_zip_with arrays_zip_with,characterOrColumn,characterOrColumn,function-method
 #' @note zip_with since 3.1.0
@@ -3460,6 +3638,7 @@ setMethod("arrays_zip_with",
 #' @details
 #' \code{shuffle}: Returns a random permutation of the given array.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases shuffle shuffle,Column-method
 #' @note shuffle since 2.4.0
@@ -3474,6 +3653,7 @@ setMethod("shuffle",
 #' \code{flatten}: Creates a single array from an array of arrays.
 #' If a structure of nested arrays is deeper than two levels, only one level of nesting is removed.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases flatten flatten,Column-method
 #' @note flatten since 2.4.0
@@ -3487,6 +3667,7 @@ setMethod("flatten",
 #' @details
 #' \code{map_concat}: Returns the union of all the given maps.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_concat map_concat,Column-method
 #' @note map_concat since 3.0.0
@@ -3504,6 +3685,7 @@ setMethod("map_concat",
 #' @details
 #' \code{map_entries}: Returns an unordered array of all entries in the given map.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_entries map_entries,Column-method
 #' @note map_entries since 3.0.0
@@ -3517,6 +3699,7 @@ setMethod("map_entries",
 #' @details
 #' \code{map_filter} Returns a map whose key-value pairs satisfy a predicate.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_filter map_filter,characterOrColumn,function-method
 #' @note map_filter since 3.1.0
@@ -3534,6 +3717,7 @@ setMethod("map_filter",
 #' keys. The array in the second column is used for values. All elements in the array for key
 #' should not be null.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_from_arrays map_from_arrays,Column-method
 #' @note map_from_arrays since 2.4.0
@@ -3548,6 +3732,7 @@ setMethod("map_from_arrays",
 #' @details
 #' \code{map_from_entries}: Returns a map created from the given array of entries.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_from_entries map_from_entries,Column-method
 #' @note map_from_entries since 3.0.0
@@ -3561,6 +3746,7 @@ setMethod("map_from_entries",
 #' @details
 #' \code{map_keys}: Returns an unordered array containing the keys of the map.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_keys map_keys,Column-method
 #' @note map_keys since 2.3.0
@@ -3575,6 +3761,7 @@ setMethod("map_keys",
 #' \code{transform_keys} Applies a function to every key-value pair in a map and returns
 #' a map with the results of those applications as the new keys for the pairs.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases transform_keys transform_keys,characterOrColumn,function-method
 #' @note transform_keys since 3.1.0
@@ -3592,6 +3779,7 @@ setMethod("transform_keys",
 #' \code{transform_values}    Applies a function to every key-value pair in a map and returns
 #' a map with the results of those applications as the new values for the pairs.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases transform_values transform_values,characterOrColumn,function-method
 #' @note transform_values since 3.1.0
@@ -3609,6 +3797,7 @@ setMethod("transform_values",
 #' @details
 #' \code{map_values}: Returns an unordered array containing the values of the map.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_values map_values,Column-method
 #' @note map_values since 2.3.0
@@ -3622,6 +3811,7 @@ setMethod("map_values",
 #' @details
 #' \code{map_zip} Merge two given maps, key-wise into a single map using a function.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases map_zip_with map_zip_with,characterOrColumn,characterOrColumn,function-method
 #'
@@ -3642,6 +3832,8 @@ setMethod("map_zip_with",
 #' Note: The position is not zero based, but 1 based index.
 #'
 #' @param extraction index to check for in array or key to check for in map
+#'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases element_at element_at,Column-method
 #' @note element_at since 2.4.0
@@ -3655,6 +3847,7 @@ setMethod("element_at",
 #' @details
 #' \code{explode}: Creates a new row for each element in the given array or map column.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases explode explode,Column-method
 #' @note explode since 1.5.0
@@ -3668,6 +3861,7 @@ setMethod("explode",
 #' @details
 #' \code{size}: Returns length of array or map.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases size size,Column-method
 #' @note size since 1.5.0
@@ -3682,6 +3876,7 @@ setMethod("size",
 #' \code{slice}: Returns an array containing all the elements in x from the index start
 #' (array indices start at 1, or from the end if start is negative) with the specified length.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @param start the starting index
 #' @param length the length of the slice
@@ -3699,6 +3894,7 @@ setMethod("slice",
 #' the natural ordering of the array elements. NA elements will be placed at the beginning of
 #' the returned array in ascending order or at the end of the returned array in descending order.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @param asc a logical flag indicating the sorting order.
 #'            TRUE, sorting is in ascending order.
@@ -3716,6 +3912,7 @@ setMethod("sort_array",
 #' \code{posexplode}: Creates a new row for each element with position in the given array
 #' or map column.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases posexplode posexplode,Column-method
 #' @note posexplode since 2.1.0
@@ -3730,6 +3927,7 @@ setMethod("posexplode",
 #' \code{create_array}: Creates a new array column. The input columns must all have the same data
 #' type.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases create_array create_array,Column-method
 #' @note create_array since 2.3.0
@@ -3750,6 +3948,7 @@ setMethod("create_array",
 #' The key columns must all have the same data type, and can't be null.
 #' The value columns must all have the same data type.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases create_map create_map,Column-method
 #' @note create_map since 2.3.0
@@ -3769,6 +3968,7 @@ setMethod("create_map",
 #' Note: the function is non-deterministic because the order of collected results depends
 #' on order of rows which may be non-deterministic after a shuffle.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases collect_list collect_list,Column-method
 #' @examples
@@ -3790,6 +3990,7 @@ setMethod("collect_list",
 #' Note: the function is non-deterministic because the order of collected results depends
 #' on order of rows which may be non-deterministic after a shuffle.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases collect_set collect_set,Column-method
 #' @note collect_set since 2.3.0
@@ -3804,6 +4005,7 @@ setMethod("collect_set",
 #' \code{split_string}: Splits string on regular expression.
 #' Equivalent to \code{split} SQL function.
 #'
+#' @export
 #' @rdname column_string_functions
 #' @aliases split_string split_string,Column-method
 #' @examples
@@ -3826,6 +4028,8 @@ setMethod("split_string",
 #' Equivalent to \code{repeat} SQL function.
 #'
 #' @param n number of repetitions.
+#'
+#' @export
 #' @rdname column_string_functions
 #' @aliases repeat_string repeat_string,Column-method
 #' @examples
@@ -3848,7 +4052,7 @@ setMethod("repeat_string",
 #' Unlike \code{explode}, if the array/map is \code{null} or empty
 #' then \code{null} is produced.
 #'
-#'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases explode_outer explode_outer,Column-method
 #' @examples
@@ -3873,6 +4077,7 @@ setMethod("explode_outer",
 #' array or map column. Unlike \code{posexplode}, if the array/map is \code{null} or empty
 #' then the row (\code{null}, \code{null}) is produced.
 #'
+#' @export
 #' @rdname column_collection_functions
 #' @aliases posexplode_outer posexplode_outer,Column-method
 #' @note posexplode_outer since 2.3.0
@@ -3891,6 +4096,8 @@ setMethod("posexplode_outer",
 #' To achieve R-like truthiness column has to be casted to \code{BooleanType}.
 #'
 #' @param x Column to compute on
+#'
+#' @export
 #' @rdname not
 #' @name not
 #' @aliases not,Column-method
@@ -3920,6 +4127,7 @@ setMethod("not",
 #' not, returns 1 for aggregated or 0 for not aggregated in the result set. Same as \code{GROUPING}
 #' in SQL and \code{grouping} function in Scala.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases grouping_bit grouping_bit,Column-method
 #' @examples
@@ -3952,6 +4160,7 @@ setMethod("grouping_bit",
 #' grouping_bit(c1) * 2^(n - 1) + grouping_bit(c2) * 2^(n - 2)  + ... + grouping_bit(cn)
 #' }.
 #'
+#' @export
 #' @rdname column_aggregate_functions
 #' @aliases grouping_id grouping_id,Column-method
 #' @examples
@@ -3987,6 +4196,7 @@ setMethod("grouping_id",
 #' \code{input_file_name}: Creates a string column with the input file name for a given row.
 #' The method should be used with no argument.
 #'
+#' @export
 #' @rdname column_nonaggregate_functions
 #' @aliases input_file_name input_file_name,missing-method
 #' @examples
@@ -4004,6 +4214,7 @@ setMethod("input_file_name", signature("missing"),
 #' @details
 #' \code{trunc}: Returns date truncated to the unit specified by the format.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases trunc trunc,Column-method
 #' @examples
@@ -4023,6 +4234,7 @@ setMethod("trunc",
 #' @details
 #' \code{date_trunc}: Returns timestamp truncated to the unit specified by the format.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases date_trunc date_trunc,character,Column-method
 #' @examples
@@ -4046,6 +4258,7 @@ setMethod("date_trunc",
 #' @details
 #' \code{current_date}: Returns the current date as a date column.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases current_date current_date,missing-method
 #' @examples
@@ -4062,6 +4275,7 @@ setMethod("current_date",
 #' @details
 #' \code{current_timestamp}: Returns the current timestamp as a timestamp column.
 #'
+#' @export
 #' @rdname column_datetime_functions
 #' @aliases current_timestamp current_timestamp,missing-method
 #' @note current_timestamp since 2.3.0

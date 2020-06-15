@@ -1,63 +1,74 @@
 
 # Date-Times #
 
+#' @export
 #' @importFrom lubridate as_date
 as_date.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
+#' @export
 #' @importFrom lubridate date
 date.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
+#' @export
 #' @importFrom lubridate year
 year.Column <- function(x, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "year", x@jc)
   return(new("Column", jc))
 }
 
+#' @export
 #' @importFrom lubridate month
 month.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "month", x@jc)
   new("Column", jc)
 }
 
+#' @export
 #' @importFrom lubridate day
 day.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "day", x@jc)
   new("Column", jc)
 }
 
+#' @export
 #' @importFrom lubridate wday
 wday.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "dayofweek", x@jc)
   new("Column", jc)
 }
 
+#' @export
 #' @importFrom lubridate hour
 hour.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "hour", x@jc)
   new("Column", jc)
 }
 
+#' @export
 #' @importFrom lubridate minute
 minute.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "minute", x@jc)
   new("Column", jc)
 }
 
+#' @export
 #' @importFrom lubridate second
 second.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "second", x@jc)
   new("Column", jc)
 }
 
+#' @export
 #' @importFrom lubridate year
 week.Column <- function(x, ...){
   date_trunc("week", x)
 }
 
+#' @export
 #' @importFrom lubridate quarter
 quarter.Column <- function(x, ...){
   date_trunc("quarter", x)
@@ -79,10 +90,12 @@ floor_date <- function(x, unit, ...) {
   UseMethod("floor_date")
 }
 
+#' @export
 floor_date.Column <- function(x, unit) {
   date_trunc(unit, x)
 }
 
+#' @export
 floor_date.default <- function(x, unit, ...) {
   lubridate::floor_date(x, unit, ...)
 }

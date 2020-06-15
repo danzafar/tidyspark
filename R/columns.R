@@ -6,6 +6,7 @@
 #' @name columnfunctions
 NULL
 
+#' @export
 #' @rdname column
 #' @name column
 #' @aliases column,jobj-method
@@ -15,12 +16,14 @@ setMethod("column",
             new("Column", x)
           })
 
+#' @export
 setMethod("asc",
           signature(x = "Column"),
           function(x) {
             column(call_method(x@jc, "asc"))
           })
 
+#' @export
 setMethod("like",
           signature(x = "Column"),
           function(x, data) {
@@ -31,6 +34,7 @@ setMethod("like",
             new("Column", jc)
           })
 
+#' @export
 setMethod("rlike",
           signature(x = "Column"),
           function(x, data) {
@@ -41,6 +45,7 @@ setMethod("rlike",
             new("Column", jc)
           })
 
+#' @export
 setMethod("getField",
           signature(x = "Column"),
           function(x, data) {
@@ -51,6 +56,7 @@ setMethod("getField",
             new("Column", jc)
           })
 
+#' @export
 setMethod("getItem",
           signature(x = "Column"),
           function(x, data) {
@@ -71,7 +77,7 @@ setMethod("getItem",
 #' @rdname Column-missing
 NULL
 
-
+#' @export
 #' @rdname Column-missing
 setMethod("is.na", signature(x = "Column"),
           function(x) {
@@ -245,6 +251,7 @@ get_schema <- function(env) {
   setNames(types, names)
 }
 
+#' @export
 is.numeric.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain
@@ -262,6 +269,7 @@ is.numeric.Column <- function(x) {
                              "ShortType")
 }
 
+#' @export
 is.logical.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain
@@ -277,6 +285,7 @@ is.logical.Column <- function(x) {
   df_schema[str_name] == c("BooleanType")
 }
 
+#' @export
 is.character.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain
@@ -292,6 +301,7 @@ is.character.Column <- function(x) {
   df_schema[str_name] == "StringType"
 }
 
+#' @export
 is.list.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain
@@ -324,12 +334,14 @@ is.list.Column <- function(x) {
 NULL
 
 # plus
+#' @export
 #' @rdname operations
 setMethod("+", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "plus", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("+", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -337,12 +349,14 @@ setMethod("+", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # minus
+#' @export
 #' @rdname operations
 setMethod("-", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "minus", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("-", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -350,12 +364,14 @@ setMethod("-", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # multiply
+#' @export
 #' @rdname operations
 setMethod("*", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "multiply", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("*", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -363,12 +379,14 @@ setMethod("*", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # divide
+#' @export
 #' @rdname operations
 setMethod("/", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "divide", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("/", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -376,12 +394,14 @@ setMethod("/", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # modulo
+#' @export
 #' @rdname operations
 setMethod("%%", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "mod", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("%%", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -389,12 +409,14 @@ setMethod("%%", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # equal (numeric)
+#' @export
 #' @rdname operations
 setMethod("==", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("==", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -402,12 +424,14 @@ setMethod("==", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # equal (string)
+#' @export
 #' @rdname operations
 setMethod("==", signature(e1 = "Column", e2 = "character"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("==", signature(e1 = "character", e2 = "Column"),
           function (e1, e2) {
@@ -415,12 +439,14 @@ setMethod("==", signature(e1 = "character", e2 = "Column"),
           })
 
 # equal (boolean)
+#' @export
 #' @rdname operations
 setMethod("==", signature(e1 = "Column", e2 = "logical"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "equalTo", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("==", signature(e1 = "logical", e2 = "Column"),
           function (e1, e2) {
@@ -428,12 +454,14 @@ setMethod("==", signature(e1 = "logical", e2 = "Column"),
           })
 
 # gt
+#' @export
 #' @rdname operations
 setMethod(">", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "gt", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod(">", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -441,12 +469,14 @@ setMethod(">", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # lt
+#' @export
 #' @rdname operations
 setMethod("<", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "lt", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("<", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -454,12 +484,14 @@ setMethod("<", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # notEqual (numeric)
+#' @export
 #' @rdname operations
 setMethod("!=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("!=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -467,12 +499,14 @@ setMethod("!=", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # notEqual (string)
+#' @export
 #' @rdname operations
 setMethod("!=", signature(e1 = "Column", e2 = "character"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("!=", signature(e1 = "character", e2 = "Column"),
           function (e1, e2) {
@@ -480,12 +514,14 @@ setMethod("!=", signature(e1 = "character", e2 = "Column"),
           })
 
 # notEqual (logical)
+#' @export
 #' @rdname operations
 setMethod("!=", signature(e1 = "Column", e2 = "logical"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "notEqual", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("!=", signature(e1 = "logical", e2 = "Column"),
           function (e1, e2) {
@@ -493,12 +529,14 @@ setMethod("!=", signature(e1 = "logical", e2 = "Column"),
           })
 
 # leq
+#' @export
 #' @rdname operations
 setMethod("<=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "leq", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod("<=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
@@ -506,12 +544,14 @@ setMethod("<=", signature(e1 = "numeric", e2 = "Column"),
           })
 
 # geq
+#' @export
 #' @rdname operations
 setMethod(">=", signature(e1 = "Column", e2 = "numeric"),
           function (e1, e2) {
             new("Column", call_method(e1@jc, "geq", e2))
           })
 
+#' @export
 #' @rdname operations
 setMethod(">=", signature(e1 = "numeric", e2 = "Column"),
           function (e1, e2) {
