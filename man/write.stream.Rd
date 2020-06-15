@@ -91,6 +91,6 @@ stopQuery(q)
 \link{read.stream}
 
 Other SparkDataFrame functions: 
-\code{\link{isStreaming}()}
+\code{\link{isStreaming}}
 }
 \concept{SparkDataFrame functions}
