@@ -6,12 +6,15 @@
 \alias{approxCountDistinct,Column-method}
 \alias{kurtosis,Column-method}
 \alias{kurtosis}
-\alias{max,Column-method}
+\alias{max.Column}
 \alias{max}
-\alias{mean,Column-method}
+\alias{max,Column-method}
+\alias{mean.Column}
 \alias{mean}
-\alias{min,Column-method}
+\alias{mean,Column-method}
+\alias{min.Column}
 \alias{min}
+\alias{min,Column-method}
 \alias{skewness,Column-method}
 \alias{skewness}
 \alias{stddev,Column-method}
@@ -80,11 +83,11 @@ var_samp(x)
 
 \S4method{kurtosis}{Column}(x)
 
-\S4method{max}{Column}(x)
+\method{max}{Column}(x)
 
-\S4method{mean}{Column}(x)
+\method{mean}{Column}(x)
 
-\S4method{min}{Column}(x)
+\method{min}{Column}(x)
 
 \S4method{skewness}{Column}(x)
 

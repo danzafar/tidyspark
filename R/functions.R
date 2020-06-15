@@ -1191,12 +1191,10 @@ setMethod("ltrim",
 #' @rdname column_aggregate_functions
 #' @aliases max max,Column-method
 #' @note max since 1.5.0
-setMethod("max",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "max", x@jc)
-            new("Column", jc)
-          })
+max.Column <- function(x) {
+  jc <- call_static("org.apache.spark.sql.functions", "max", x@jc)
+  new("Column", jc)
+}
 
 # md5 --------------------------------------------------------------------------
 #' @details
@@ -1234,12 +1232,10 @@ setMethod("md5",
 #' mpg_max <- as.numeric(collect(agg(df, max(df$mpg))))
 #' head(where(df, df$mpg == mpg_max))}
 #' @note mean since 1.5.0
-setMethod("mean",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
-            new("Column", jc)
-          })
+mean.Column <- function(x) {
+  jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
+  new("Column", jc)
+}
 
 # min --------------------------------------------------------------------------
 #' @details
@@ -1249,12 +1245,10 @@ setMethod("mean",
 #' @rdname column_aggregate_functions
 #' @aliases min min,Column-method
 #' @note min since 1.5.0
-setMethod("min",
-          signature(x = "Column"),
-          function(x) {
-            jc <- call_static("org.apache.spark.sql.functions", "min", x@jc)
-            new("Column", jc)
-          })
+min.Column <- function(x) {
+  jc <- call_static("org.apache.spark.sql.functions", "min", x@jc)
+  new("Column", jc)
+}
 
 # monotonically_increasing_id --------------------------------------------------
 #' @details
