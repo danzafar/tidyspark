@@ -19,7 +19,8 @@ Suggests:
     knitr,
     rmarkdown,
     nycflights13,
-    Lahman
+    Lahman,
+    statmod
 Imports:
     SparkR,
     digest,
@@ -35,33 +36,3 @@ Depends:
     tidyr
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
-Collate: 
-    'SparkSession.R'
-    'generics.R'
-    'WindowSpec.R'
-    'apply.R'
-    'client.R'
-    'columns.R'
-    'dplyr.R'
-    'dplyr_triple_colon.R'
-    'fix_dot.R'
-    'schema.R'
-    'functions.R'
-    'hidden_functions.R'
-    'if_else.R'
-    'jobj.R'
-    'joins.R'
-    'lubridate.R'
-    'package-related.R'
-    'rank.R'
-    'rdd.R'
-    'read-write.R'
-    'serde.R'
-    'spark.R'
-    'sparkContext.R'
-    'spark_new.R'
-    'spark_tbl.R'
-    'startup-utils.R'
-    'stats.R'
-    'streaming.R'
-    'utils.R'

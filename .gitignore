@@ -10,3 +10,4 @@ spark-warehouse
 del
 inst/doc
 .travis.yml
+.Rprofile
