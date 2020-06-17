@@ -16,6 +16,14 @@ invokeJava <- function (isStatic, objId, methodName, ...) {
   writeString(rc, objId)
   writeString(rc, methodName)
   args <- list(...)
+
+  lapply(args, function(x) {
+    if (inherits(x, "Column")) {
+      stop("Column object passed to a Java call, use the jobj instead 'x@jc'")
+      }
+    NULL
+    })
+
   writeInt(rc, length(args))
   writeArgs(rc, args)
   bytesToSend <- rawConnectionValue(rc)
