@@ -698,6 +698,17 @@ setMethod("crc32",
             new("Column", jc)
           })
 
+# cumsum -----------------------------------------------------------------------
+#' @export
+cumsum.Column <- function(x) {
+  wndw <- call_static("org.apache.spark.sql.expressions.Window",
+                      "orderBy", list(x@jc))
+  jc <- call_static("org.apache.spark.sql.functions", "sum", x@jc)
+  new("Column",
+      call_method(jc, "over",
+        call_method(wndw, "rowsBetween", -2147483647L, 0L)))
+}
+
 # hash -------------------------------------------------------------------------
 #' @details
 #' \code{hash}: Calculates the hash code of given columns, and returns the
