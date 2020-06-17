@@ -32,6 +32,8 @@ windowSpec <- function(sws) {
 #' @param col a column to partition on (desribed by the name or Column).
 #' @param ... additional column(s) to partition on.
 #' @return A WindowSpec.
+#'
+#' @export
 #' @rdname partitionBy
 #' @name partitionBy
 #' @aliases partitionBy,WindowSpec-method
@@ -64,6 +66,8 @@ setMethod("partitionBy",
 #' @param col a character or Column indicating an ordering column
 #' @param ... additional sorting fields
 #' @return A WindowSpec.
+#'
+#' @export
 #' @name orderBy
 #' @rdname orderBy
 #' @aliases orderBy,WindowSpec,character-method
@@ -81,6 +85,7 @@ setMethod("orderBy",
             windowSpec(call_method(x@sws, "orderBy", col, list(...)))
           })
 
+#' @export
 #' @rdname orderBy
 #' @name orderBy
 #' @aliases orderBy,WindowSpec,Column-method
@@ -103,10 +108,6 @@ setMethod("orderBy",
 #' row. For example, "0" means "current row", while "-1" means the row before
 #' the current row, and "5" means the fifth row after the current row.
 #'
-#' We recommend users use \code{Window.unboundedPreceding},
-#' \code{Window.unboundedFollowing}, and \code{Window.currentRow} to specify
-#' special boundary values, rather than using long values directly.
-#'
 #' A row based boundary is based on the position of the row within the
 #' partition. An offset indicates the number of rows above or below the current
 #' row, the frame for the current row starts or ends. For instance, given a row
@@ -118,7 +119,9 @@ setMethod("orderBy",
 #'              The frame is unbounded if this is the minimum long value.
 #' @param end boundary end, inclusive.
 #'            The frame is unbounded if this is the maximum long value.
+#'
 #' @return a WindowSpec
+#' @export
 #' @rdname rowsBetween
 #' @aliases rowsBetween,WindowSpec,numeric,numeric-method
 #' @name rowsBetween
@@ -172,6 +175,8 @@ setMethod("rowsBetween",
 #'              The frame is unbounded if this is the minimum long value.
 #' @param end boundary end, inclusive.
 #'            The frame is unbounded if this is the maximum long value.
+#'
+#' @export
 #' @return a WindowSpec
 #' @rdname rangeBetween
 #' @aliases rangeBetween,WindowSpec,numeric,numeric-method
@@ -208,6 +213,8 @@ setMethod("rangeBetween",
 #' @param x a Column, usually one returned by window function(s).
 #' @param window a WindowSpec object. Can be created by \code{windowPartitionBy}
 #'        or \code{windowOrderBy} and configured by other WindowSpec methods.
+#'
+#' @export
 #' @rdname over
 #' @name over
 #' @aliases over,Column,WindowSpec-method
@@ -241,6 +248,7 @@ setMethod("over",
 #' @param ... Optional column names or Columns in addition to col, by
 #'            which rows are partitioned to windows.
 #'
+#' @export
 #' @rdname windowPartitionBy
 #' @name windowPartitionBy
 #' @aliases windowPartitionBy,character-method
@@ -263,6 +271,7 @@ setMethod("windowPartitionBy",
                           list(...)))
           })
 
+#' @export
 #' @rdname windowPartitionBy
 #' @name windowPartitionBy
 #' @aliases windowPartitionBy,Column-method
@@ -288,6 +297,7 @@ setMethod("windowPartitionBy",
 #' @param ... Optional column names or Columns in addition to col, by
 #'            which rows are ordered within windows.
 #'
+#' @export
 #' @rdname windowOrderBy
 #' @name windowOrderBy
 #' @aliases windowOrderBy,character-method
@@ -310,6 +320,7 @@ setMethod("windowOrderBy",
                           list(...)))
           })
 
+#' @export
 #' @rdname windowOrderBy
 #' @name windowOrderBy
 #' @aliases windowOrderBy,Column-method
