@@ -223,6 +223,7 @@ print.StructField <- function (x, ...) {
 #' @return a string or if it's a nested type a \code{jobj}
 #' @rdname schema-types
 #'
+#' @export
 #' @examples
 #'\dontrun{
 #' StructType(

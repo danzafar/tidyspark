@@ -1513,23 +1513,6 @@ RDD <- R6::R6Class("RDD", list(
       lapply(part,
              function(item) {
 
-               updateOrCreatePair <- function (pair, keys, vals,
-                                               updateOrCreatePred,
-                                               updateFn, createFn) {
-                 hashVal <- pair$hash
-                 key <- pair[[1]]
-                 val <- pair[[2]]
-                 if (updateOrCreatePred(pair)) {
-                   assign(hashVal, do.call(updateFn,
-                                           list(get(hashVal, envir = vals),
-                                                val)), envir = vals)
-                 }
-                 else {
-                   assign(hashVal, do.call(createFn, list(val)), envir = vals)
-                   assign(hashVal, key, envir = keys)
-                 }
-               }
-
                item$hash <- as.character(hashCode(item[[1]]))
                updateOrCreatePair(item, keys, vals, pred,
                                            appendList, makeList)
