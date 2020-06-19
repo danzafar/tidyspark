@@ -3,11 +3,14 @@
 \name{as.timestamp}
 \alias{as.timestamp}
 \alias{as.timestamp.Column}
-\title{Timestamp Vectors}
+\alias{as.Date.Column}
+\title{Timestamp and Date Vectors}
 \usage{
 as.timestamp(x, ...)
 
 as.timestamp.Column(x, format = "yyyy-MM-dd HH:mm:ss", ...)
+
+\method{as.Date}{Column}(x, format = "yyyy-MM-dd", ...)
 }
 \arguments{
 \item{x}{object to be coerced or tested.}

@@ -4,6 +4,11 @@
 #' A set of operations working with SparkDataFrame columns
 #' @rdname columnfunctions
 #' @name columnfunctions
+#'
+#' @param x a \code{Column} object
+#' @param data c \code{Column} or other object type used for comparison
+#' @param ... additional arguments
+#'
 NULL
 
 #' @export
@@ -17,13 +22,15 @@ setMethod("column",
           })
 
 #' @export
+#' @rdname columnfunctions
 setMethod("asc",
           signature(x = "Column"),
           function(x) {
-            column(call_method(x@jc, "asc"))
+            new("Column", call_method(x@jc, "asc"))
           })
 
 #' @export
+#' @rdname columnfunctions
 setMethod("like",
           signature(x = "Column"),
           function(x, data) {
@@ -35,6 +42,7 @@ setMethod("like",
           })
 
 #' @export
+#' @rdname columnfunctions
 setMethod("rlike",
           signature(x = "Column"),
           function(x, data) {
@@ -46,6 +54,7 @@ setMethod("rlike",
           })
 
 #' @export
+#' @rdname columnfunctions
 setMethod("getField",
           signature(x = "Column"),
           function(x, data) {
@@ -57,6 +66,7 @@ setMethod("getField",
           })
 
 #' @export
+#' @rdname columnfunctions
 setMethod("getItem",
           signature(x = "Column"),
           function(x, data) {
@@ -114,12 +124,26 @@ sort.Column <- function(x, decreasing, ...) {
 
 ### type conversions
 
+#' @title Column Type Conversions
+#'
+#' @description these functions can be used to coerce \code{Column} objects
+#' to other types
+#'
+#' @param x a \code{Column} object
+#' @param ... addition arguments, currently unused
+#'
+#' @rdname Column-type
+#' @name Column-type
+NULL
+
 #' @export
+#' @rdname Column-type
 as.character.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "string"))
 }
 
 #' @export
+#' @rdname Column-type
 as.numeric.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "double"))
 }
@@ -142,37 +166,32 @@ as.float.Column <- function(x, ...) {
 }
 
 #' @export
+#' @rdname Column-type
 as.integer.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "integer"))
 }
 
 #' @export
+#' @rdname Column-type
 as.logical.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "boolean"))
 }
 
 # provide a few ways of converting to timestamp
 #' @export
+#' @rdname Column-type
 as.POSIXct.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
-#' Convert to datetime
-#'
-#' @description this function casts a Spark Column to timestamp type
-#'
-#' @param x a Column object
-#' @param ... other argument(s), currently unused.
-#'
-#' @return a Column object
-#'
-#' @importFrom lubridate as_datetime
 #' @export
+#' @rdname Column-type
+#' @importFrom lubridate as_datetime
 as_datetime.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "timestamp"))
 }
 
-#' Timestamp Vectors
+#' Timestamp and Date Vectors
 #'
 #' @description Coerces objects of type \code{timestamp}.
 #'
@@ -193,19 +212,20 @@ as.timestamp.Column <- function(x, format = "yyyy-MM-dd HH:mm:ss", ...) {
                             x@jc, format))
 }
 
-# dates
+#' @rdname ts-type
 #' @export
 as.Date.Column <- function(x, format = "yyyy-MM-dd", ...) {
   new("Column", call_static("org.apache.spark.sql.functions", "to_date",
                             x@jc, format))
 }
 
-# lists
+#' @rdname Column-type
 #' @export
 as.array.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "array"))
 }
 
+#' @rdname Column-type
 #' @export
 as.list.Column <- function(x, ...) {
   new("Column", call_method(x@jc, "cast", "array"))
@@ -252,6 +272,7 @@ get_schema <- function(env) {
 }
 
 #' @export
+#' @rdname Column-type
 is.numeric.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain
@@ -270,6 +291,7 @@ is.numeric.Column <- function(x) {
 }
 
 #' @export
+#' @rdname Column-type
 is.logical.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain
@@ -286,6 +308,7 @@ is.logical.Column <- function(x) {
 }
 
 #' @export
+#' @rdname Column-type
 is.character.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain
@@ -302,6 +325,7 @@ is.character.Column <- function(x) {
 }
 
 #' @export
+#' @rdname Column-type
 is.list.Column <- function(x) {
   if (is.null(parent.frame()$.tbl)) {
     stop("In Spark the individual columns of a data frame do not contain

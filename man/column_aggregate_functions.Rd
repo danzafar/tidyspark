@@ -127,6 +127,8 @@ var_samp(x)
 
 \item{...}{additional argument(s). For example, it could be used to pass
 additional Columns.}
+
+\item{na.rm}{currently unused}
 }
 \description{
 Aggregate functions defined for \code{Column}.

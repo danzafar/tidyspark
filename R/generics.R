@@ -16,19 +16,14 @@ setGeneric("firstItem", function(x, ...) { standardGeneric("firstItem") })
 
 ###################### Column Methods ##########################
 
+#' @rdname columnfunctions
 setGeneric("asc", function(x) { standardGeneric("asc") })
 
 setGeneric("between", function(x, bounds) { standardGeneric("between") })
 
 setGeneric("cast", function(x, dataType) { standardGeneric("cast") })
 
-#' A set of operations working with SparkDataFrame columns
-#'
-#' @description A set of operations working with Column objects
-#'
 #' @rdname columnfunctions
-#' @param x a Column object.
-#' @param ... additional argument(s).
 setGeneric("contains", function(x, ...) { standardGeneric("contains") })
 
 #' @rdname columnfunctions

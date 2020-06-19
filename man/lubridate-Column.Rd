@@ -3,7 +3,6 @@
 \name{lubridate-Column}
 \alias{lubridate-Column}
 \alias{as_date.Column}
-\alias{date.Column}
 \alias{year.Column}
 \alias{month.Column}
 \alias{day.Column}
@@ -16,8 +15,6 @@
 \title{Lubridate-style Column Functions}
 \usage{
 as_date.Column(x)
-
-\method{date}{Column}(x)
 
 \method{year}{Column}(x, ...)
 

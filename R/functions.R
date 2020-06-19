@@ -348,7 +348,7 @@ setMethod("acos",
 #' in a group.
 #'
 #' @param rsd maximum estimation error allowed (default = 0.05).
-
+#'
 #' @export
 #' @rdname column_aggregate_functions
 #' @aliases approxCountDistinct approxCountDistinct,Column-method
@@ -1198,6 +1198,8 @@ setMethod("ltrim",
 #' @details
 #' \code{max}: Returns the maximum value of the expression in a group.
 #'
+#' @param na.rm currently unused
+#'
 #' @export
 #' @rdname column_aggregate_functions
 #' @aliases max max,Column-method
@@ -1251,6 +1253,8 @@ mean.Column <- function(x, ...) {
 # min --------------------------------------------------------------------------
 #' @details
 #' \code{min}: Returns the minimum value of the expression in a group.
+#'
+#' @param na.rm currently unused
 #'
 #' @export
 #' @rdname column_aggregate_functions
@@ -3896,7 +3900,8 @@ setMethod("array_slice",
 setMethod("sort_array",
           signature(x = "Column"),
           function(x, asc = TRUE) {
-            jc <- call_static("org.apache.spark.sql.functions", "sort_array", x@jc, asc)
+            jc <- call_static("org.apache.spark.sql.functions",
+                              "sort_array", x@jc, asc)
             new("Column", jc)
           })
 

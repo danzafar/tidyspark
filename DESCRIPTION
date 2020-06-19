@@ -1,7 +1,7 @@
 Package: tidyspark
 Type: Package
 Title: A Tidy Interface to Spark
-Version: 0.0.0.9004
+Version: 0.0.0.9005
 Authors@R: c(
     person("S Daniel", "Zafar", email = "daniel.zafar@gmail.com", role = "cre"),
     person("Stern", "Eric", email = "eric.stern1@gmail.com", role = "aut"))
@@ -29,11 +29,11 @@ Imports:
     R6,
     rlang,
     tidyselect,
-    utils
+    utils,
+    tidyr
 Depends: 
     R (>= 3.1),
-    dplyr (>= 0.8.0),
-    tidyr
+    dplyr (>= 0.8.0)
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 Collate: 

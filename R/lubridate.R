@@ -19,13 +19,6 @@ as_date.Column <- function(x) {
 
 #' @export
 #' @rdname lubridate-Column
-#' @importFrom lubridate date
-date.Column <- function(x) {
-  new("Column", call_method(x@jc, "cast", "date"))
-}
-
-#' @export
-#' @rdname lubridate-Column
 #' @importFrom lubridate year
 year.Column <- function(x, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "year", x@jc)
