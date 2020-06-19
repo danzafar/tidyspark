@@ -303,6 +303,16 @@ mult31AndAdd <- function(val, addVal) {
 #'}
 #'
 hashCode <- function (key) {
+
+  mult31AndAdd <- function(val, addVal) {
+    vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
+    vec[is.na(vec)] <- 0
+    Reduce(function(a, b) {
+      wrapInt(as.numeric(a) + as.numeric(b))
+    },
+    vec)
+  }
+
   if (class(key) == "integer") {
     as.integer(key[[1]])
   }

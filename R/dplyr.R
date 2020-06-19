@@ -84,6 +84,8 @@ distinct.spark_tbl <- function(.data, ...) {
 }
 
 # check to see if a column expression is aggregating
+# TODO: make this function recursive so it digs up the children and checks
+#       if any are agg expressions
 is_agg_expr <- function(col) {
   if (inherits(col, c("character", "numeric", "logical", "integer"))) return(F)
   if (class(col) == "Column") col <- call_method(col@jc, "expr")
@@ -411,14 +413,23 @@ summarise.spark_tbl <- function(.data, ...) {
   sgd <- group_spark_data(.data)
 
   agg <- list()
-  orig_df_cols <- get_jc_cols(sdf)
+  df_cols <- get_jc_cols(sdf)
 
   for (i in seq_along(dots)) {
     name <- names(dots)[[i]]
+    if (name %in% tbl_groups) {
+      stop("Attempting to summarise a grouping column: '", name, "'")
+    }
     dot <- dots[[i]]
     check_ifelse(dot)
-    new_df_cols <- lapply(names(agg), function(x) agg[[x]])
-    updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
+    new_df_cols <- setNames(
+      lapply(names(agg), function(x) agg[[x]]),
+      names(agg)
+      )
+
+    for (x in names(agg)) {
+      df_cols[[x]] <- new_df_cols[[x]]
+    }
 
     .eval_env <- rlang::caller_env()
     rlang::env_bind(.eval_env,
@@ -429,7 +440,7 @@ summarise.spark_tbl <- function(.data, ...) {
                     cume_dist = .cume_dist, dense_rank = .dense_rank,
                     min_rank =  .min_rank, ntile = .ntile,
                     percent_rank = .percent_rank, n_distinct = .n_distinct)
-    agg[[name]] <- rlang::eval_tidy(dot, updated_cols, .eval_env)
+    agg[[name]] <- rlang::eval_tidy(dot, df_cols, .eval_env)
   }
 
   for (i in names(agg)) {
