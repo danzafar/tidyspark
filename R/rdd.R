@@ -1512,7 +1512,7 @@ RDD <- R6::R6Class("RDD", list(
       # Each item in the partition is list of (K, V)
       lapply(part,
              function(item) {
-               item$hash <- as.character(tidyspark::hashCode(item[[1]]))
+               item$hash <- as.character(hashCode(item[[1]]))
                updateOrCreatePair(item, keys, vals, pred,
                                            appendList, makeList)
              })
