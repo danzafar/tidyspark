@@ -1,6 +1,6 @@
 
-# spark_udf works --------------------------------------------------------------
-test_that("spark_udf works", {
+# spark_apply works --------------------------------------------------------------
+test_that("spark_apply works", {
 
   spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
@@ -10,7 +10,7 @@ test_that("spark_udf works", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df) {
+      spark_apply(function(.df) {
         utils::head(.df, 1)
         }, schema(iris_tbl)) %>%
       collect,
@@ -19,7 +19,7 @@ test_that("spark_udf works", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df) {
+      spark_apply(function(.df) {
         utils::head(.df, 1)
       },
       schema(iris_tbl)) %>%
@@ -31,8 +31,8 @@ test_that("spark_udf works", {
 
 })
 
-# spark_udf works with dplyr/purrr formulas-------------------------------------
-test_that("spark_udf works with dplyr/purrr formulas", {
+# spark_apply works with dplyr/purrr formulas-------------------------------------
+test_that("spark_apply works with dplyr/purrr formulas", {
 
   spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
@@ -42,7 +42,7 @@ test_that("spark_udf works with dplyr/purrr formulas", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(~ utils::head(., 1), schema(iris_tbl)) %>%
+      spark_apply(~ utils::head(., 1), schema(iris_tbl)) %>%
       collect,
     iris_fix %>% head(1)
   )
@@ -50,8 +50,8 @@ test_that("spark_udf works with dplyr/purrr formulas", {
   spark_session_stop()
 })
 
-### spark_udf broadcasts values ------------------------------------------------
-test_that("spark_udf broadcasts values", {
+### spark_apply broadcasts values ------------------------------------------------
+test_that("spark_apply broadcasts values", {
 
   spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
@@ -63,7 +63,7 @@ test_that("spark_udf broadcasts values", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df) {
+      spark_apply(function(.df) {
           utils::head(.df, .some_int)
         }, schema(iris_tbl)) %>%
       collect,
@@ -74,8 +74,8 @@ test_that("spark_udf broadcasts values", {
 
 })
 
-### spark_udf docs are sound ---------------------------------------------------
-test_that("spark_udf docs are sound", {
+### spark_apply docs are sound ---------------------------------------------------
+test_that("spark_apply docs are sound", {
 
   spark_session(master = "local[1]")
   iris_tbl <- spark_tbl(iris)
@@ -88,7 +88,7 @@ test_that("spark_udf docs are sound", {
 
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df) utils::head(.df, my_var),
+      spark_apply(function(.df) utils::head(.df, my_var),
       schema(iris_tbl)) %>%
       collect,
     head(iris_fix, my_var)
@@ -98,7 +98,7 @@ test_that("spark_udf docs are sound", {
   # but if you want to use a library, you need to load it in the UDF
   expect_equal(
     iris_tbl %>%
-      spark_udf(function(.df)  {
+      spark_apply(function(.df)  {
         utils::head(.df, my_var)
       }, schema(iris_tbl)) %>%
       collect,
@@ -123,7 +123,7 @@ test_that("spark_udf docs are sound", {
                        StructField("d", "integer"))
 
   expect_equal(df %>%
-                 spark_udf(function(x) {
+                 spark_apply(function(x) {
                    library(dplyr)
                    x %>%
                      dplyr::filter(a > 1) %>%
@@ -135,7 +135,7 @@ test_that("spark_udf docs are sound", {
   # The schema also can be specified in a DDL-formatted string.
   schema <- "a INT, b DOUBLE, c STRING, d INT"
   expect_equal(df %>%
-                 spark_udf(function(x) {
+                 spark_apply(function(x) {
                    library(dplyr)
                    x %>%
                      dplyr::filter(a > 1) %>%
@@ -148,8 +148,8 @@ test_that("spark_udf docs are sound", {
 })
 
 
-### spark_grouped_udf docs are sound -------------------------------------------
-test_that("spark_grouped_udf docs are sound", {
+### spark_grouped_apply docs are sound -------------------------------------------
+test_that("spark_grouped_apply docs are sound", {
 
   spark_session(master = "local[1]")
 
@@ -170,7 +170,7 @@ test_that("spark_grouped_udf docs are sound", {
 
   expect_equal(df %>%
                  group_by(a, c) %>%
-                 spark_grouped_udf(function(key, .df) {
+                 spark_grouped_apply(function(key, .df) {
                    data.frame(key, mean(.df$b), stringsAsFactors = FALSE)
                  }, schema) %>%
                  collect,
@@ -181,7 +181,7 @@ test_that("spark_grouped_udf docs are sound", {
   schema <- "a INT, c STRING, avg DOUBLE"
   expect_equal(df %>%
                  group_by(a, c) %>%
-                 spark_grouped_udf(~ data.frame(..1, mean(..2$b), stringsAsFactors = FALSE),
+                 spark_grouped_apply(~ data.frame(..1, mean(..2$b), stringsAsFactors = FALSE),
                                    schema) %>%
                  collect,
                result)
@@ -198,7 +198,7 @@ test_that("spark_grouped_udf docs are sound", {
                        StructField("Petal_Width", "double"))
   iris_tbl %>%
     group_by(Species) %>%
-    spark_grouped_udf(function(key, x) {
+    spark_grouped_apply(function(key, x) {
       m <- suppressWarnings(lm(Sepal_Length ~
                                  Sepal_Width + Petal_Length + Petal_Width, x))
       data.frame(t(coef(m)))

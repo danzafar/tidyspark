@@ -12,8 +12,8 @@
 #' is applied. It must match the output of func. Since Spark 2.3, the
 #' DDL-formatted string is also supported for the schema.
 #'
-#' @details \code{spark_udf} is a re-implementation of \code{SparkR::dapply}.
-#' Importantly, \code{spark_udf} (and \code{SparkR::dapply}) will scan the
+#' @details \code{spark_apply} is a re-implementation of \code{SparkR::dapply}.
+#' Importantly, \code{spark_apply} (and \code{SparkR::dapply}) will scan the
 #' function being passed and automatically broadcast any values from the
 #' \code{.GlobalEnv} that are being referenced. Functions from \code{dplyr} are
 #' always availiable by default.
@@ -30,14 +30,14 @@
 #' my_var <- 1
 #'
 #' iris_tbl %>%
-#'   spark_udf(function(.df) head(.df, my_var),
+#'   spark_apply(function(.df) head(.df, my_var),
 #'             schema(iris_tbl)) %>%
 #'   collect
 #'
 #' # but if you want to use a library (other than dplyr), you need to load it
 #' # in the UDF
 #' iris_tbl %>%
-#'   spark_udf(function(.df) {
+#'   spark_apply(function(.df) {
 #'     require(purrr)
 #'     .df %>%
 #'       map_df(first)
@@ -57,7 +57,7 @@
 #'                      StructField("add", "integer"))
 #'
 #' df %>%
-#'   spark_udf(function(x) {
+#'   spark_apply(function(x) {
 #'     x %>%
 #'       filter(a > 1) %>%
 #'       mutate(add = a + 1L)
@@ -68,7 +68,7 @@
 #' # The schema also can be specified in a DDL-formatted string.
 #' schema <- "a INT, d DOUBLE, c STRING, add INT"
 #' df %>%
-#'   spark_udf(function(x) {
+#'   spark_apply(function(x) {
 #'     x %>%
 #'       filter(a > 1) %>%
 #'       mutate(add = a + 1L)
@@ -76,7 +76,7 @@
 #'   schema) %>%
 #'   collect
 #'}
-spark_udf <- function (.data, .f, schema) {
+spark_apply <- function (.data, .f, schema) {
   if (is.character(schema)) {
     schema <- StructType(schema)
   }
@@ -138,7 +138,7 @@ spark_udf <- function (.data, .f, schema) {
 #'
 #' result <- df %>%
 #'   group_by(a, c) %>%
-#'   spark_grouped_udf(function(key, .df) {
+#'   spark_grouped_apply(function(key, .df) {
 #'     data.frame(key, mean(.df$b), stringsAsFactors = FALSE)
 #'   }, schema) %>%
 #'   collect
@@ -148,7 +148,7 @@ spark_udf <- function (.data, .f, schema) {
 #' schema <- "a INT, c STRING, avg DOUBLE"
 #' result <- df %>%
 #'   group_by(a, c) %>%
-#'   spark_grouped_udf(~ data.frame(..1, mean(..2$b), stringsAsFactors = FALSE),
+#'   spark_grouped_apply(~ data.frame(..1, mean(..2$b), stringsAsFactors = FALSE),
 #'                     schema) %>%
 #'   collect
 #'
@@ -170,7 +170,7 @@ spark_udf <- function (.data, .f, schema) {
 #'                      StructField("Petal_Width", "double"))
 #' iris_tbl %>%
 #'   group_by(Species) %>%
-#'   spark_grouped_udf(function(key, x) {
+#'   spark_grouped_apply(function(key, x) {
 #'     m <- suppressWarnings(lm(Sepal_Length ~
 #'                                Sepal_Width + Petal_Length + Petal_Width, x))
 #'     data.frame(t(coef(m)))
@@ -186,7 +186,7 @@ spark_udf <- function (.data, .f, schema) {
 #'
 #'
 #' ## End(Not run)
-spark_grouped_udf <- function (.data, .f, schema, cols = NULL) {
+spark_grouped_apply <- function (.data, .f, schema, cols = NULL) {
 
   if (is.character(schema)) {
     schema <- StructType(schema)

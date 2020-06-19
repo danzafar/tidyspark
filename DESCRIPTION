@@ -1,7 +1,7 @@
 Package: tidyspark
 Type: Package
 Title: A Tidy Interface to Spark
-Version: 0.0.0.9006
+Version: 0.0.0.9007
 Authors@R: c(
     person("S Daniel", "Zafar", email = "daniel.zafar@gmail.com", role = "cre"),
     person("Stern", "Eric", email = "eric.stern1@gmail.com", role = "aut"))

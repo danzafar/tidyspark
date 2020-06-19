@@ -259,29 +259,29 @@ prepare_func <- function(some_function) {
   some_function
 }
 
-# Helper function used to wrap a 'numeric' value to integer bounds.
-# Useful for implementing C-like integer arithmetic
-wrapInt <- function(value) {
-  if (value > .Machine$integer.max) {
-    value <- value - 2 * .Machine$integer.max - 2
-  } else if (value < -1 * .Machine$integer.max) {
-    value <- 2 * .Machine$integer.max + value + 2
-  }
-  value
-}
-
-# Multiply `val` by 31 and add `addVal` to the result. Ensures that
-# integer overflows are handled at every step.
+# # Helper function used to wrap a 'numeric' value to integer bounds.
+# # Useful for implementing C-like integer arithmetic
+# wrapInt <- function(value) {
+#   if (value > .Machine$integer.max) {
+#     value <- value - 2 * .Machine$integer.max - 2
+#   } else if (value < -1 * .Machine$integer.max) {
+#     value <- 2 * .Machine$integer.max + value + 2
+#   }
+#   value
+# }
 #
-# TODO: this function does not handle integer overflow well
-mult31AndAdd <- function(val, addVal) {
-  vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
-  vec[is.na(vec)] <- 0
-  Reduce(function(a, b) {
-    wrapInt(as.numeric(a) + as.numeric(b))
-  },
-  vec)
-}
+# # Multiply `val` by 31 and add `addVal` to the result. Ensures that
+# # integer overflows are handled at every step.
+# #
+# # TODO: this function does not handle integer overflow well
+# mult31AndAdd <- function(val, addVal) {
+#   vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
+#   vec[is.na(vec)] <- 0
+#   Reduce(function(a, b) {
+#     wrapInt(as.numeric(a) + as.numeric(b))
+#   },
+#   vec)
+# }
 
 #' Compute the hashCode of an object
 #'
