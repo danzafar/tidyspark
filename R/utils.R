@@ -292,6 +292,7 @@ mult31AndAdd <- function(val, addVal) {
 #'
 #' @details This only works for integer, numeric and character types.
 #'
+#' @export
 #' @examples
 #'
 #'\dontrun{
@@ -301,7 +302,6 @@ mult31AndAdd <- function(val, addVal) {
 #' hashCode("1") # 49
 #'
 #'}
-#'
 hashCode <- function (key) {
 
   wrapInt <- function(value) {
