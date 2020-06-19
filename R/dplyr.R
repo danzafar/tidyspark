@@ -1,3 +1,5 @@
+#' @include hidden_functions.R
+
 #' @export
 #' @importFrom dplyr tbl_vars
 tbl_vars.spark_tbl <- function(x) {
@@ -238,15 +240,17 @@ mutate.spark_tbl <- function(.data, ...) {
     check_ifelse(dot)
 
     df_cols <- get_jc_cols(sdf)
-
-    # add our .n() and others to the eval environment
-    eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env,
+    # for context on .eval_env see hidden_functions.R
+    .eval_env <- rlang::caller_env()
+    rlang::env_bind(.eval_env,
                     n = .n, if_else = .if_else, case_when = .case_when,
-                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    cov = .cov, startsWith = .startsWith, endsWith = .endsWith,
                     lag = .lag, lead = .lead, sd = .sd, var = .var,
-                    row_number = .row_number)
-    eval <- rlang::eval_tidy(dot, df_cols, eval_env)
+                    row_number = .row_number, rank = .rank,
+                    cume_dist = .cume_dist, dense_rank = .dense_rank,
+                    min_rank =  .min_rank, ntile = .ntile,
+                    percent_rank = .percent_rank, n_distinct = .n_distinct)
+    eval <- rlang::eval_tidy(dot, df_cols, .eval_env)
 
     if (is_agg_expr(eval)) {
 
@@ -319,23 +323,26 @@ filter.spark_tbl <- function(.data, ..., .preserve = FALSE) {
     # because we are working with a recursive function I'm going to create a
     # separate environemnt to keep all the counter vars in and just pass that
     # along every time the recursive function is called
+    .eval_env <- rlang::caller_env()
+    rlang::env_bind(.eval_env,
+                    n = .n, if_else = .if_else, case_when = .case_when,
+                    cov = .cov, startsWith = .startsWith, endsWith = .endsWith,
+                    lag = .lag, lead = .lead, sd = .sd, var = .var,
+                    row_number = .row_number, rank = .rank,
+                    cume_dist = .cume_dist, dense_rank = .dense_rank,
+                    min_rank =  .min_rank, ntile = .ntile,
+                    percent_rank = .percent_rank, n_distinct = .n_distinct)
+
     dot_env <- rlang::quo_get_env(dots[[i]])
     .counter_env$orig_env <- dot_env
     quo_sub <- rlang::parse_quo(
-      fix_dot(dots[[i]], .counter_env),
+      fix_dot(dots[[i]], .counter_env, .eval_env),
       env = dot_env
     )
     sdf <- .counter_env$sdf
-
     df_cols_update <- get_jc_cols(sdf)
 
-    eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env,
-                    n = .n, if_else = .if_else, case_when = .case_when,
-                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
-                    lag = .lag, lead = .lead, sd = .sd, var = .var,
-                    row_number = .row_number)
-    cond <- rlang::eval_tidy(quo_sub, df_cols_update, eval_env)
+    cond <- rlang::eval_tidy(quo_sub, df_cols_update, .eval_env)
     conds[[i]] <- cond
 
   }
@@ -413,13 +420,16 @@ summarise.spark_tbl <- function(.data, ...) {
     new_df_cols <- lapply(names(agg), function(x) agg[[x]])
     updated_cols <- c(orig_df_cols, setNames(new_df_cols, names(agg)))
 
-    eval_env <- rlang::caller_env()
-    rlang::env_bind(eval_env,
+    .eval_env <- rlang::caller_env()
+    rlang::env_bind(.eval_env,
                     n = .n, if_else = .if_else, case_when = .case_when,
-                    cov = .cov, .startsWith = startsWith, .endsWith = endsWith,
+                    cov = .cov, startsWith = .startsWith, endsWith = .endsWith,
                     lag = .lag, lead = .lead, sd = .sd, var = .var,
-                    row_number = .row_number)
-    agg[[name]] <- rlang::eval_tidy(dot, updated_cols, eval_env)
+                    row_number = .row_number, rank = .rank,
+                    cume_dist = .cume_dist, dense_rank = .dense_rank,
+                    min_rank =  .min_rank, ntile = .ntile,
+                    percent_rank = .percent_rank, n_distinct = .n_distinct)
+    agg[[name]] <- rlang::eval_tidy(dot, updated_cols, .eval_env)
   }
 
   for (i in names(agg)) {

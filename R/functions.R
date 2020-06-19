@@ -854,8 +854,8 @@ setMethod("expm1",
             new("Column", jc)
           })
 
-# first ------------------------------------------------------------------------
-#' first
+# firstItem ------------------------------------------------------------------------
+#' firstItem
 #'
 #' Aggregate function: returns the first value in a group.
 #'
@@ -871,16 +871,16 @@ setMethod("expm1",
 #'
 #' @export
 #' @rdname first
-#' @name first
-#' @aliases first,characterOrColumn-method
+#' @name firstItem
+#' @aliases firstItem,characterOrColumn-method
 #' @family aggregate functions
 #' @examples
 #' \dontrun{
-#' first(df$c)
-#' first(df$c, TRUE)
+#' firstItem(df$c)
+#' firstItem(df$c, TRUE)
 #' }
-#' @note first(characterOrColumn) since 1.4.0
-setMethod("first",
+#' @note firstItem(characterOrColumn) since 1.4.0
+setMethod("firstItem",
           signature(x = "characterOrColumn"),
           function(x, na.rm = FALSE) {
             col <- if (class(x) == "Column") {
@@ -996,8 +996,8 @@ setMethod("kurtosis",
             new("Column", jc)
           })
 
-# last -------------------------------------------------------------------------
-#' last
+# lastItem -------------------------------------------------------------------------
+#' lastItem
 #'
 #' Aggregate function: returns the last value in a group.
 #'
@@ -1014,16 +1014,16 @@ setMethod("kurtosis",
 #'
 #' @export
 #' @rdname last
-#' @name last
-#' @aliases last,characterOrColumn-method
+#' @name lastItem
+#' @aliases lastItem,characterOrColumn-method
 #' @family aggregate functions
 #' @examples
 #' \dontrun{
-#' last(df$c)
-#' last(df$c, TRUE)
+#' lastItem(df$c)
+#' lastItem(df$c, TRUE)
 #' }
-#' @note last since 1.4.0
-setMethod("last",
+#' @note lastItem since 1.4.0
+setMethod("lastItem",
           signature(x = "characterOrColumn"),
           function(x, na.rm = FALSE) {
             col <- if (class(x) == "Column") {
@@ -1202,7 +1202,7 @@ setMethod("ltrim",
 #' @rdname column_aggregate_functions
 #' @aliases max max,Column-method
 #' @note max since 1.5.0
-max.Column <- function(x) {
+max.Column <- function(x, na.rm = FALSE, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "max", x@jc)
   new("Column", jc)
 }
@@ -1243,7 +1243,7 @@ setMethod("md5",
 #' mpg_max <- as.numeric(collect(agg(df, max(df$mpg))))
 #' head(where(df, df$mpg == mpg_max))}
 #' @note mean since 1.5.0
-mean.Column <- function(x) {
+mean.Column <- function(x, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "mean", x@jc)
   new("Column", jc)
 }
@@ -1256,7 +1256,7 @@ mean.Column <- function(x) {
 #' @rdname column_aggregate_functions
 #' @aliases min min,Column-method
 #' @note min since 1.5.0
-min.Column <- function(x) {
+min.Column <- function(x, na.rm = FALSE, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "min", x@jc)
   new("Column", jc)
 }
@@ -2251,20 +2251,6 @@ setMethod("least",
             new("Column", jc)
           })
 
-# n_distinct -------------------------------------------------------------------
-#' @details
-#' \code{n_distinct}: Returns the number of distinct items in a group.
-#'
-#' @export
-#' @rdname column_aggregate_functions
-#' @aliases n_distinct n_distinct,Column-method
-#' @note n_distinct since 1.4.0
-setMethod("n_distinct", signature(x = "Column"),
-          function(x, ...) {
-            countDistinct(x, ...)
-          })
-
-
 # date_format ------------------------------------------------------------------
 #' @details
 #' \code{date_format}: Converts a date/timestamp/string to a value of string in
@@ -2779,9 +2765,9 @@ setMethod("conv", signature(x = "Column", fromBase = "numeric",
 #'
 #' @export
 #' @rdname column_nonaggregate_functions
-#' @aliases expr expr,character-method
+#' @aliases expr_col expr_col,character-method
 #' @note expr since 1.5.0
-setMethod("expr", signature(x = "character"),
+setMethod("expr_col", signature(x = "character"),
           function(x) {
             jc <- call_static("org.apache.spark.sql.functions", "expr", x)
             new("Column", jc)
@@ -2916,7 +2902,7 @@ setMethod("when", signature(condition = "Column", value = "ANY"),
 #' @importFrom stats window
 window.Column <- function(x, windowDuration,
                           slideDuration = NULL,
-                          startTime = NULL) {
+                          startTime = NULL, ...) {
             stopifnot(is.character(windowDuration))
             if (!is.null(slideDuration) && !is.null(startTime)) {
               stopifnot(is.character(slideDuration) && is.character(startTime))
@@ -3878,19 +3864,20 @@ setMethod("size",
           })
 
 #' @details
-#' \code{slice}: Returns an array containing all the elements in x from the index start
+#' \code{array_slice}: Returns an array containing all the elements in x from the index start
 #' (array indices start at 1, or from the end if start is negative) with the specified length.
 #'
 #' @export
 #' @rdname column_collection_functions
 #' @param start the starting index
 #' @param length the length of the slice
-#' @aliases slice slice,Column-method
-#' @note slice since 2.4.0
-setMethod("slice",
+#' @aliases array_slice array_slice,Column-method
+#' @note array_slice since 2.4.0
+setMethod("array_slice",
           signature(x = "Column"),
           function(x, start, length) {
-            jc <- call_static("org.apache.spark.sql.functions", "slice", x@jc, start, length)
+            jc <- call_static("org.apache.spark.sql.functions", "slice",
+                              x@jc, start, length)
             new("Column", jc)
           })
 

@@ -27,7 +27,7 @@ avg since 1.4.0
 Other aggregate functions: 
 \code{\link{approxCountDistinct}()},
 \code{\link{corr}()},
-\code{\link{first}()},
-\code{\link{last}()}
+\code{\link{firstItem}()},
+\code{\link{lastItem}()}
 }
 \concept{aggregate functions}

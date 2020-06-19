@@ -52,8 +52,8 @@ corr(df, "mpg", "hp", method = "pearson")}
 Other aggregate functions: 
 \code{\link{approxCountDistinct}()},
 \code{\link{avg}()},
-\code{\link{first}()},
-\code{\link{last}()}
+\code{\link{firstItem}()},
+\code{\link{lastItem}()}
 
 Other stat functions: 
 \code{\link{approxQuantile}()},

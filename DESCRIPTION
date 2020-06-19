@@ -1,7 +1,7 @@
 Package: tidyspark
 Type: Package
 Title: A Tidy Interface to Spark
-Version: 0.0.0.9003
+Version: 0.0.0.9004
 Authors@R: c(
     person("S Daniel", "Zafar", email = "daniel.zafar@gmail.com", role = "cre"),
     person("Stern", "Eric", email = "eric.stern1@gmail.com", role = "aut"))
@@ -44,13 +44,14 @@ Collate:
     'client.R'
     'columns.R'
     'data.R'
+    'rank.R'
+    'if_else.R'
+    'hidden_functions.R'
     'dplyr.R'
     'dplyr_triple_colon.R'
     'fix_dot.R'
     'schema.R'
     'functions.R'
-    'hidden_functions.R'
-    'if_else.R'
     'jobj.R'
     'joins.R'
     'lubridate.R'
@@ -60,7 +61,6 @@ Collate:
     'ml_helpers.R'
     'ml_regression.R'
     'ml_tree.R'
-    'rank.R'
     'rdd.R'
     'read-write.R'
     'serde.R'

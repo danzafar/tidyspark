@@ -1,19 +1,31 @@
 
-# Date-Times #
+#' @title Lubridate-style Column Functions
+#'
+#' @description Column functions in the style of the lubridate package
+#'
+#' @param x a \code{Column} object
+#' @param ... other arguments
+#'
+#' @rdname lubridate-Column
+#' @name lubridate-Column
+NULL
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate as_date
 as_date.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate date
 date.Column <- function(x) {
   new("Column", call_method(x@jc, "cast", "date"))
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate year
 year.Column <- function(x, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "year", x@jc)
@@ -21,6 +33,7 @@ year.Column <- function(x, ...) {
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate month
 month.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "month", x@jc)
@@ -28,6 +41,7 @@ month.Column <- function(x, ...){
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate day
 day.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "day", x@jc)
@@ -35,6 +49,7 @@ day.Column <- function(x, ...){
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate wday
 wday.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "dayofweek", x@jc)
@@ -42,6 +57,7 @@ wday.Column <- function(x, ...){
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate hour
 hour.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "hour", x@jc)
@@ -49,6 +65,7 @@ hour.Column <- function(x, ...){
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate minute
 minute.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "minute", x@jc)
@@ -56,6 +73,7 @@ minute.Column <- function(x, ...){
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate second
 second.Column <- function(x, ...){
   jc <- call_static("org.apache.spark.sql.functions", "second", x@jc)
@@ -63,12 +81,14 @@ second.Column <- function(x, ...){
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate year
 week.Column <- function(x, ...){
   date_trunc("week", x)
 }
 
 #' @export
+#' @rdname lubridate-Column
 #' @importFrom lubridate quarter
 quarter.Column <- function(x, ...){
   date_trunc("quarter", x)
@@ -91,7 +111,7 @@ floor_date <- function(x, unit, ...) {
 }
 
 #' @export
-floor_date.Column <- function(x, unit) {
+floor_date.Column <- function(x, unit, ...) {
   date_trunc(unit, x)
 }
 

@@ -12,7 +12,7 @@ setGeneric("covar_samp", function(col1, col2) {standardGeneric("covar_samp") })
 setGeneric("covar_pop", function(col1, col2) {standardGeneric("covar_pop") })
 
 #' @rdname first
-setGeneric("first", function(x, ...) { standardGeneric("first") })
+setGeneric("firstItem", function(x, ...) { standardGeneric("firstItem") })
 
 ###################### Column Methods ##########################
 
@@ -337,7 +337,7 @@ setGeneric("explode_outer", function(x) { standardGeneric("explode_outer") })
 
 #' @rdname column_nonaggregate_functions
 #' @name NULL
-setGeneric("expr", function(x) { standardGeneric("expr") })
+setGeneric("expr_col", function(x) { standardGeneric("expr_col") })
 
 #' @rdname column_collection_functions
 #' @name NULL
@@ -417,7 +417,7 @@ setGeneric("isnan", function(x) { standardGeneric("isnan") })
 setGeneric("kurtosis", function(x) { standardGeneric("kurtosis") })
 
 #' @rdname last
-setGeneric("last", function(x, ...) { standardGeneric("last") })
+setGeneric("lastItem", function(x, ...) { standardGeneric("lastItem") })
 
 #' @rdname column_datetime_functions
 #' @name NULL
@@ -622,7 +622,9 @@ setGeneric("skewness", function(x) { standardGeneric("skewness") })
 
 #' @rdname column_collection_functions
 #' @name NULL
-setGeneric("slice", function(x, start, length) { standardGeneric("slice") })
+setGeneric("array_slice", function(x, start, length) {
+  standardGeneric("array_slice")
+  })
 
 #' @rdname column_collection_functions
 #' @name NULL

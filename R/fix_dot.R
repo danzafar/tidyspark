@@ -11,7 +11,7 @@
 # setting rules on order of operations doesn't make sense, instead we
 # simply leverage the rlang::call_fn command to get the most outer funciton
 # then step into each arg of that outer function with rlang::call_args
-fix_dot <- function(dot, env) {
+fix_dot <- function(dot, env, eval_env) {
   # incoming env is expected to have namespace for
   # j, sdf, and to_drop
 
@@ -21,17 +21,20 @@ fix_dot <- function(dot, env) {
   op <- rlang::call_fn(dot)
   args <- rlang::call_args(dot)
   if (identical(op, `&`) | identical(op, `&&`)) {
-    paste(fix_dot(args[[1]], env), "&", fix_dot(args[[2]], env))
+    paste(fix_dot(args[[1]], env, eval_env), "&",
+          fix_dot(args[[2]], env, eval_env))
   } else if (identical(op, `|`) | identical(op, `||`)) {
-    paste(fix_dot(args[[1]], env), "|", fix_dot(args[[2]], env))
+    paste(fix_dot(args[[1]], env, eval_env), "|",
+          fix_dot(args[[2]], env, eval_env))
   } else if (identical(op, `(`)) {
-    paste("(", fix_dot(args[[1]], env), ")")
+    paste("(", fix_dot(args[[1]], env, eval_env), ")")
   } else if (identical(op, `==`)) {
-    paste(fix_dot(args[[1]], env), "==", fix_dot(args[[2]], env))
+    paste(fix_dot(args[[1]], env, eval_env), "==",
+          fix_dot(args[[2]], env, eval_env))
   } else if (identical(op, `any`) | identical(op, `all`)) {
     # `any` and `all` are aggregate functions and require special treatment
     quo <- rlang::as_quosure(dot, env = env$orig_env )
-    col <- rlang::eval_tidy(quo, env$df_cols)
+    col <- rlang::eval_tidy(quo, env$df_cols, eval_env)
 
     str <- call_method(
       call_method(
@@ -42,11 +45,11 @@ fix_dot <- function(dot, env) {
       "toString")
     parsed <- rlang::parse_quo(sub("(-)?(.*)#.*([)])", "\\2\\3", str),
                                rlang::quo_get_env(quo))
-    paste(fix_dot(parsed, env), "==", fix_dot(TRUE, env))
+    paste(fix_dot(parsed, env, eval_env), "==", fix_dot(TRUE, env, eval_env))
 
   } else if (length(rlang::call_args(dot)) == 1) {
     quo <- rlang::as_quosure(dot, env = env$orig_env)
-    col <- rlang::eval_tidy(quo, env$df_cols)
+    col <- rlang::eval_tidy(quo, env$df_cols, eval_env)
 
     is_agg <- is_agg_expr(col)
     is_wndw <- is_wndw_expr(col)
@@ -58,7 +61,7 @@ fix_dot <- function(dot, env) {
     } else rlang::quo_text(dot)
 
   } else {
-    cond <- rlang::eval_tidy(dot, env$df_cols)
+    cond <- rlang::eval_tidy(dot, env$df_cols, eval_env)
     and_expr <- call_method(cond@jc, "expr")
     if (spark_class(and_expr, trunc = T) == "Not") {
       and_expr <- call_method(
@@ -73,8 +76,8 @@ fix_dot <- function(dot, env) {
       pred_func <- rlang::call_fn(dot)
       args <- rlang::call_args(dot)
       quos <- rlang::as_quosures(args, env = env$orig_env)
-      left_col <- rlang::eval_tidy(quos[[1]], env$df_cols)
-      right_col <- rlang::eval_tidy(quos[[2]], env$df_cols)
+      left_col <- rlang::eval_tidy(quos[[1]], env$df_cols, eval_env)
+      right_col <- rlang::eval_tidy(quos[[2]], env$df_cols, eval_env)
 
       # Now we need to replace the agg quosure with a virtual column
       # consider putting this into a function
@@ -88,8 +91,8 @@ fix_dot <- function(dot, env) {
       pred_func <- rlang::call_fn(dot)
       args <- rlang::call_args(dot)
       quos <- rlang::as_quosures(args, env = env$orig_env)
-      left_col <- rlang::eval_tidy(quos[[1]], env$df_cols)
-      right_col <- rlang::eval_tidy(quos[[2]], env$df_cols)
+      left_col <- rlang::eval_tidy(quos[[1]], env$df_cols, eval_env)
+      right_col <- rlang::eval_tidy(quos[[2]], env$df_cols, eval_env)
 
       if (is_wndw_expr(left)) left_col <- sub_wndw_column(left_col, env)
       if (is_wndw_expr(right)) right_col <- sub_wndw_column(right_col, env)

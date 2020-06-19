@@ -59,7 +59,7 @@ test_that("spark_sql works as advertised", {
 
 test_that("window function", {
 
-  spark_session(master = "local[1]")
+  spark_session(master = "local")
   batting_tbl <- spark_tbl(Lahman::Batting)
 
   expect_equal(batting_tbl %>%

@@ -7,6 +7,8 @@
 # This approach was suggested by Hadley here:
 # https://github.com/tidyverse/dplyr/issues/5217
 
+#' @include if_else.R rank.R
+
 # this gets n() and thus tally() and count() working
 .n <- function() {
   if (!exists(".sparkRCon", SparkR:::.sparkREnv)) return(NULL)
@@ -24,6 +26,27 @@
 
 #var
 .var <- function(x) var_samp(x)
+
+
+#' @details
+#' \code{n_distinct}: Returns the number of distinct items in a group.
+#'
+#' @export
+#' @rdname column_aggregate_functions
+#' @aliases n_distinct n_distinct,Column-method
+#' @note n_distinct since 1.4.0
+.n_distinct <- function(...) {
+  UseMethod(".n_distinct")
+}
+
+.n_distinct.Column <- function(..., approx = F) {
+  if (approx) approxCountDistinct(...)
+  else countDistinct(...)
+}
+
+.n_distinct.default <- function(...) {
+  dplyr::n_distinct(...)
+}
 
 #startsWith
 .startsWith <- function(x, prefix) {
@@ -77,25 +100,4 @@
   new("Column", jc)
 }
 
-# row_number
-.row_number <- function(...) {
-  UseMethod(".row_number")
-}
-
-.row_number.default <- function(...) {
-  x = windowOrderBy(monotonically_increasing_id())
-  jc <- call_static("org.apache.spark.sql.functions", "row_number")
-  new("Column", call_method(jc, "over", x@sws))
-}
-
-.row_number.WindowSpec <-
-  function(x = windowOrderBy(monotonically_increasing_id())) {
-  jc <- call_static("org.apache.spark.sql.functions", "row_number")
-  new("Column", call_method(jc, "over", x@sws))
-}
-
-.row_number.Column <- function(x) {
-  x = windowOrderBy(x)
-  jc <- call_static("org.apache.spark.sql.functions", "row_number")
-  new("Column", call_method(jc, "over", x@sws))
-}
+# here we compose the eval environment used in mutate, filter, and summarise

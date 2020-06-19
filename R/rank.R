@@ -65,23 +65,20 @@ NULL
 #' This is equivalent to the \code{RANK} function in SQL.
 #' This can be used with either a \code{Column} or a \code{WindowSpec}.
 #'
-#' @export
 #' @rdname column_window_functions
 #' @aliases rank
 #' @note rank since 1.6.0
-rank <- function(x, ...) {
-  UseMethod("rank")
+.rank <- function(x, ...) {
+  UseMethod(".rank")
 }
 
-#' @export
-rank.WindowSpec <-
+.rank.WindowSpec <-
   function(x = windowOrderBy(monotonically_increasing_id())) {
   jc <- call_static("org.apache.spark.sql.functions", "rank")
   new("Column", call_method(jc, "over", x@sws))
 }
 
-#' @export
-rank.Column <- function(x, ...) {
+.rank.Column <- function(x, ...) {
   quos <- enquos(...)
   if (!(rlang::quo_name(quos$ties.method) %in% c("NULL", "min")) |
       !(rlang::quo_name(quos$na.last) %in% c("NULL", "keep"))) {
@@ -93,8 +90,7 @@ rank.Column <- function(x, ...) {
   new("Column", call_method(jc, "over", wndw))
 }
 
-#' @export
-rank.default <- function(x, ...) {
+.rank.default <- function(x, ...) {
   base::rank(x, ...)
 }
 
@@ -107,28 +103,24 @@ rank.default <- function(x, ...) {
 #' @rdname column_window_functions
 #' @aliases rank
 #' @note rank since 1.6.0
-#' @export
-min_rank <- function(x, ...) {
-  UseMethod("min_rank")
+.min_rank <- function(x, ...) {
+  UseMethod(".min_rank")
 }
 
-#' @export
-min_rank.WindowSpec <-
+.min_rank.WindowSpec <-
   function(x = windowOrderBy(monotonically_increasing_id())) {
   jc <- call_static("org.apache.spark.sql.functions", "rank")
   new("Column", call_method(jc, "over", x@sws))
 }
 
-#' @export
-min_rank.Column <- function(x, ...) {
+.min_rank.Column <- function(x, ...) {
   wndw <- call_static("org.apache.spark.sql.expressions.Window",
                                            "orderBy", list(x@jc))
   jc <- call_static("org.apache.spark.sql.functions", "rank")
   new("Column", call_method(jc, "over", wndw))
 }
 
-#' @export
-min_rank.default <- function(x, ...) {
+.min_rank.default <- function(x, ...) {
   dplyr::min_rank(x, ...)
 }
 
@@ -147,28 +139,24 @@ min_rank.default <- function(x, ...) {
 #' @rdname column_window_functions
 #' @aliases dense_rank
 #' @note dense_rank since 1.6.0
-#' @export
-dense_rank <- function(x, ...) {
-  UseMethod("dense_rank")
+.dense_rank <- function(x, ...) {
+  UseMethod(".dense_rank")
 }
 
-#' @export
-dense_rank.WindowSpec <-
+.dense_rank.WindowSpec <-
   function(x = windowOrderBy(monotonically_increasing_id())) {
   jc <- call_static("org.apache.spark.sql.functions", "dense_rank")
   new("Column", call_method(jc, "over", x@sws))
 }
 
-#' @export
-dense_rank.Column <- function(x, ...) {
+.dense_rank.Column <- function(x, ...) {
   wndw <- call_static("org.apache.spark.sql.expressions.Window",
                                            "orderBy", list(x@jc))
   jc <- call_static("org.apache.spark.sql.functions", "dense_rank")
   new("Column", call_method(jc, "over", wndw))
 }
 
-#' @export
-dense_rank.default <- function(x, ...) {
+.dense_rank.default <- function(x, ...) {
   dplyr::dense_rank(x, ...)
 }
 
@@ -183,28 +171,24 @@ dense_rank.default <- function(x, ...) {
 #' @rdname column_window_functions
 #' @aliases percent_rank
 #' @note percent_rank since 1.6.0
-#' @export
-percent_rank <- function(x, ...) {
-  UseMethod("percent_rank")
+.percent_rank <- function(x, ...) {
+  UseMethod(".percent_rank")
 }
 
-#' @export
-percent_rank.WindowSpec <-
+.percent_rank.WindowSpec <-
   function(x = windowOrderBy(monotonically_increasing_id())) {
   jc <- call_static("org.apache.spark.sql.functions", "percent_rank")
   new("Column", call_method(jc, "over", x@sws))
 }
 
-#' @export
-percent_rank.Column <- function(x, ...) {
+.percent_rank.Column <- function(x, ...) {
   wndw <- call_static("org.apache.spark.sql.expressions.Window",
                       "orderBy", list(x@jc))
   jc <- call_static("org.apache.spark.sql.functions", "percent_rank")
   new("Column", call_method(jc, "over", wndw))
 }
 
-#' @export
-percent_rank.default <- function(x, ...) {
+.percent_rank.default <- function(x, ...) {
   dplyr::percent_rank(x, ...)
 }
 
@@ -219,25 +203,21 @@ percent_rank.default <- function(x, ...) {
 #' @rdname column_window_functions
 #' @aliases cume_dist
 #' @note cume_dist since 1.6.0
-#' @export
-cume_dist <- function(x, ...) {
-  UseMethod("cume_dist")
+.cume_dist <- function(x, ...) {
+  UseMethod(".cume_dist")
 }
 
-#' @export
-cume_dist.default <- function(x, ...) {
+.cume_dist.default <- function(x, ...) {
   dplyr::cume_dist(x, ...)
 }
 
-#' @export
-cume_dist.WindowSpec <-
+.cume_dist.WindowSpec <-
   function(x = windowOrderBy(monotonically_increasing_id())) {
   jc <- call_static("org.apache.spark.sql.functions", "cume_dist")
   new("Column", call_method(jc, "over", x@sws))
 }
 
-#' @export
-cume_dist.Column <- function(x, ...) {
+.cume_dist.Column <- function(x, ...) {
   jc <- call_static("org.apache.spark.sql.functions", "cume_dist")
   wndw <- windowOrderBy(x)
   new("Column", call_method(jc, "over", wndw@sws))
@@ -250,21 +230,30 @@ cume_dist.Column <- function(x, ...) {
 #' This can be used with either a \code{Column}, \code{WindowSpec}, or without
 #' an argument, which will order by \code{monotonically_increasing_id()}.
 #'
-#' @export
 #' @rdname column_window_functions
 #' @aliases row_number
 #' @note row_number since 1.6.0
-row_number <- function(...) {
-  UseMethod("row_number")
+.row_number <- function(...) {
+  UseMethod(".row_number")
 }
 
-#' @export
-row_number.default <- function(...) {
-  dplyr::row_number(...)
+.row_number.default <- function(...) {
+  x = windowOrderBy(monotonically_increasing_id())
+  jc <- call_static("org.apache.spark.sql.functions", "row_number")
+  new("Column", call_method(jc, "over", x@sws))
 }
 
-# since this function is often used without an argument, I have included it as
-# one of the hidden functions, see hidden_functions.R
+.row_number.WindowSpec <-
+  function(x = windowOrderBy(monotonically_increasing_id())) {
+    jc <- call_static("org.apache.spark.sql.functions", "row_number")
+    new("Column", call_method(jc, "over", x@sws))
+  }
+
+.row_number.Column <- function(x) {
+  x = windowOrderBy(x)
+  jc <- call_static("org.apache.spark.sql.functions", "row_number")
+  new("Column", call_method(jc, "over", x@sws))
+}
 
 # ntile ------------------------------------------------------------------------
 #' @details
@@ -274,21 +263,18 @@ row_number.default <- function(...) {
 #' get 3, and the last quarter will get 4. This is equivalent to the
 #' \code{NTILE} function in SQL.
 #'
-#' @export
 #' @rdname column_window_functions
 #' @aliases ntile
 #' @note ntile since 1.6.0
-ntile <- function(x, n, ...) {
+.ntile <- function(x, n, ...) {
   UseMethod("ntile")
 }
 
-#' @export
-ntile.default <- function(x, n) {
+.ntile.default <- function(x, n) {
   dplyr::ntile(x, n)
 }
 
-#' @export
-ntile.WindowSpec <-
+.ntile.WindowSpec <-
   function(x = windowOrderBy(monotonically_increasing_id()), n) {
   stopifnot(inherits(n, "numeric"))
 
@@ -298,8 +284,7 @@ ntile.WindowSpec <-
   new("Column", call_method(jc, "over", x@sws))
 }
 
-#' @export
-ntile.Column <- function(x, n) {
+.ntile.Column <- function(x, n) {
   stopifnot(inherits(n, "numeric"))
 
   window = windowOrderBy(x)

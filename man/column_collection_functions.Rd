@@ -97,8 +97,8 @@
 \alias{explode}
 \alias{size,Column-method}
 \alias{size}
-\alias{slice,Column-method}
-\alias{slice}
+\alias{array_slice,Column-method}
+\alias{array_slice}
 \alias{sort_array,Column-method}
 \alias{sort_array}
 \alias{posexplode,Column-method}
@@ -193,7 +193,7 @@ shuffle(x)
 
 size(x)
 
-slice(x, start, length)
+array_slice(x, start, length)
 
 sort_array(x, asc = TRUE)
 
@@ -295,7 +295,7 @@ to_csv(x, ...)
 
 \S4method{size}{Column}(x)
 
-\S4method{slice}{Column}(x, start, length)
+\S4method{array_slice}{Column}(x, start, length)
 
 \S4method{sort_array}{Column}(x, asc = TRUE)
 
@@ -522,7 +522,7 @@ Note: The position is not zero based, but 1 based index.
 
 \code{size}: Returns length of array or map.
 
-\code{slice}: Returns an array containing all the elements in x from the index start
+\code{array_slice}: Returns an array containing all the elements in x from the index start
 (array indices start at 1, or from the end if start is negative) with the specified length.
 
 \code{sort_array}: Sorts the input array in ascending or descending order according to
@@ -631,7 +631,7 @@ explode since 1.5.0
 
 size since 1.5.0
 
-slice since 2.4.0
+array_slice since 2.4.0
 
 sort_array since 1.6.0
 

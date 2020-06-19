@@ -22,8 +22,8 @@
 \alias{greatest}
 \alias{least,Column-method}
 \alias{least}
-\alias{expr,character-method}
-\alias{expr}
+\alias{expr_col,character-method}
+\alias{expr_col}
 \alias{when,Column-method}
 \alias{when}
 \alias{rand,missing-method}
@@ -48,7 +48,7 @@ create_array(x, ...)
 
 create_map(x, ...)
 
-expr(x)
+expr_col(x)
 
 greatest(x, ...)
 
@@ -92,7 +92,7 @@ struct(x, ...)
 
 \S4method{least}{Column}(x, ...)
 
-\S4method{expr}{character}(x)
+\S4method{expr_col}{character}(x)
 
 \S4method{when}{Column}(condition, value)
 

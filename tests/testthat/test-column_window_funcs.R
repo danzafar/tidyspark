@@ -285,37 +285,41 @@ test_that("percent_rank", {
   expect_equal(
     iris_tbl %>%
       mutate(n = percent_rank(Petal_Width)) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
-      mutate(n = percent_rank(Petal_Width))
+      mutate(n = round(percent_rank(Petal_Width), 4))
   )
 
   expect_equal(
     iris_tbl %>%
       group_by(Species) %>%
       mutate(n = percent_rank(Petal_Width)) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
       group_by(Species) %>%
-      mutate(n = percent_rank(Petal_Width))
+      mutate(n = round(percent_rank(Petal_Width), 4))
   )
 
   expect_equal(
     iris_tbl %>%
       mutate(n = percent_rank(windowOrderBy(Petal_Width))) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
-      mutate(n = percent_rank(Petal_Width))
+      mutate(n = round(percent_rank(Petal_Width), 4))
   )
 
   expect_equal(
     iris_tbl %>%
       group_by(Species) %>%
       mutate(n = percent_rank(windowOrderBy(Petal_Width))) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
       group_by(Species) %>%
-      mutate(n = percent_rank(Petal_Width))
+      mutate(n = round(percent_rank(Petal_Width), 4))
   )
   spark_session_stop()
 
@@ -332,37 +336,41 @@ test_that("cume_dist", {
   expect_equal(
     iris_tbl %>%
       mutate(n = cume_dist(Petal_Width)) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
-      mutate(n = cume_dist(Petal_Width))
+      mutate(n = round(cume_dist(Petal_Width), 4))
   )
 
   expect_equal(
     iris_tbl %>%
       group_by(Species) %>%
       mutate(n = cume_dist(Petal_Width)) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
       group_by(Species) %>%
-      mutate(n = cume_dist(Petal_Width))
+      mutate(n = round(cume_dist(Petal_Width), 4))
   )
 
   expect_equal(
     iris_tbl %>%
       mutate(n = cume_dist(windowOrderBy(Petal_Width))) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
-      mutate(n = cume_dist(Petal_Width))
+      mutate(n = round(cume_dist(Petal_Width), 4))
   )
 
   expect_equal(
     iris_tbl %>%
       group_by(Species) %>%
       mutate(n = cume_dist(windowOrderBy(Petal_Width))) %>%
-      collect,
+      collect %>%
+      mutate(n = round(n, 4)),
     iris_fix %>%
       group_by(Species) %>%
-      mutate(n = cume_dist(Petal_Width))
+      mutate(n = round(cume_dist(Petal_Width), 4))
   )
   spark_session_stop()
 

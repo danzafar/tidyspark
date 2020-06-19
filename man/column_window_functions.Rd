@@ -2,28 +2,34 @@
 % Please edit documentation in R/rank.R
 \name{column_window_functions}
 \alias{column_window_functions}
+\alias{.rank}
 \alias{rank}
-\alias{min_rank}
+\alias{.min_rank}
+\alias{.dense_rank}
 \alias{dense_rank}
+\alias{.percent_rank}
 \alias{percent_rank}
+\alias{.cume_dist}
 \alias{cume_dist}
+\alias{.row_number}
 \alias{row_number}
+\alias{.ntile}
 \alias{ntile}
 \title{Window functions for Column operations}
 \usage{
-rank(x, ...)
+.rank(x, ...)
 
-min_rank(x, ...)
+.min_rank(x, ...)
 
-dense_rank(x, ...)
+.dense_rank(x, ...)
 
-percent_rank(x, ...)
+.percent_rank(x, ...)
 
-cume_dist(x, ...)
+.cume_dist(x, ...)
 
-row_number(...)
+.row_number(...)
 
-ntile(x, n, ...)
+.ntile(x, n, ...)
 }
 \arguments{
 \item{x}{the \code{Column} or \code{WindowSpec} to use for rank functions.

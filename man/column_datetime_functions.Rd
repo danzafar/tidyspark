@@ -81,7 +81,7 @@ weekofyear(x)
 
 \S4method{from_unixtime}{Column}(x, format = "yyyy-MM-dd HH:mm:ss")
 
-\method{window}{Column}(x, windowDuration, slideDuration = NULL, startTime = NULL)
+\method{window}{Column}(x, windowDuration, slideDuration = NULL, startTime = NULL, ...)
 
 \S4method{unix_timestamp}{missing,missing}(x, format)
 

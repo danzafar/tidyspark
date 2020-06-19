@@ -28,10 +28,6 @@ Both \code{start} and \code{end} are relative positions from the current
 row. For example, "0" means "current row", while "-1" means the row before
 the current row, and "5" means the fifth row after the current row.
 
-We recommend users use \code{Window.unboundedPreceding},
-\code{Window.unboundedFollowing}, and \code{Window.currentRow} to specify
-special boundary values, rather than using long values directly.
-
 A row based boundary is based on the position of the row within the
 partition. An offset indicates the number of rows above or below the current
 row, the frame for the current row starts or ends. For instance, given a row
