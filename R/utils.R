@@ -304,6 +304,15 @@ mult31AndAdd <- function(val, addVal) {
 #'
 hashCode <- function (key) {
 
+  wrapInt <- function(value) {
+    if (value > .Machine$integer.max) {
+      value <- value - 2 * .Machine$integer.max - 2
+    } else if (value < -1 * .Machine$integer.max) {
+      value <- 2 * .Machine$integer.max + value + 2
+    }
+    value
+  }
+
   mult31AndAdd <- function(val, addVal) {
     vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
     vec[is.na(vec)] <- 0
