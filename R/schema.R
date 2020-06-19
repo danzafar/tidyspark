@@ -156,7 +156,7 @@ StructField.jobj <- function (x, ...) {
     } else if (spark_class(obj$dataType(), T) == "ArrayType") {
       type <- spark_class(call_method(obj$dataType(), "elementType"), T)
       nullable <- call_method(obj$dataType(), "containsNull")
-      paste0("ArrayType(", type, ", ", nullable, ")")
+      paste0("ArrayType(", sub("[$]", "", type), ", ", nullable, ")")
     } else if (spark_class(obj$dataType(), T) == "MapType") {
       key <- spark_class(call_method(obj$dataType(), "keyType"), T)
       value <- spark_class(call_method(obj$dataType(), "valueType"), T)
