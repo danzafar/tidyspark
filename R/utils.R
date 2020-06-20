@@ -471,8 +471,9 @@ processClosure <- function(node, oldEnv, defVars, checkedFuncs, newEnv) {
 
           # Set parameter 'inherits' to FALSE since we do not need to search in
           # attached package environments.
-          if (tryCatch(obj <- get0(nodeChar, envir = func.env, inherits = FALSE),
-                       error = function(e) {FALSE})) {
+          if (tryCatch({
+            !is.null(obj <- get0(nodeChar, envir = func.env, inherits = FALSE))
+            }, error = function(e) {FALSE})) {
             # obj <- get(nodeChar, envir = func.env, inherits = FALSE)
             if (is.function(obj)) {
               # If the node is a function call.
