@@ -454,10 +454,10 @@ processClosure <- function(node, oldEnv, defVars, checkedFuncs, newEnv) {
       # SparkR below the global, as they are assumed to be loaded on workers.
       while (!identical(func.env, topEnv)) {
 
-        a_tidyspark_unexport <- (
+        a_tidyspark_func <- (
           isNamespace(func.env) &&
             getNamespaceName(func.env) == "tidyspark" &&
-            nodeChar %in% getNamespaceExports("tidyspark")
+            exists(nodeChar, envir = func.env, inherits = FALSE)
           )
 
         # Namespaces other than "SparkR" will not be searched.
@@ -466,14 +466,14 @@ processClosure <- function(node, oldEnv, defVars, checkedFuncs, newEnv) {
         if (!isNamespace(func.env) ||
             (getNamespaceName(func.env) == "SparkR" &&
              !(nodeChar %in% getNamespaceExports("SparkR"))) ||
-            a_tidyspark_unexport) {
+            a_tidyspark_func) {
           # Only include SparkRinternals.
 
           # Set parameter 'inherits' to FALSE since we do not need to search in
           # attached package environments.
-          if (tryCatch(exists(nodeChar, envir = func.env, inherits = FALSE),
-                       error = function(e) { FALSE })) {
-            obj <- get(nodeChar, envir = func.env, inherits = FALSE)
+          if (tryCatch(obj <- get0(nodeChar, envir = func.env, inherits = FALSE),
+                       error = function(e) {FALSE})) {
+            # obj <- get(nodeChar, envir = func.env, inherits = FALSE)
             if (is.function(obj)) {
               # If the node is a function call.
               funcList <- mget(nodeChar, envir = checkedFuncs, inherits = F,
