@@ -259,29 +259,29 @@ prepare_func <- function(some_function) {
   some_function
 }
 
-# # Helper function used to wrap a 'numeric' value to integer bounds.
-# # Useful for implementing C-like integer arithmetic
-# wrapInt <- function(value) {
-#   if (value > .Machine$integer.max) {
-#     value <- value - 2 * .Machine$integer.max - 2
-#   } else if (value < -1 * .Machine$integer.max) {
-#     value <- 2 * .Machine$integer.max + value + 2
-#   }
-#   value
-# }
+# Helper function used to wrap a 'numeric' value to integer bounds.
+# Useful for implementing C-like integer arithmetic
+wrapInt <- function(value) {
+  if (value > .Machine$integer.max) {
+    value <- value - 2 * .Machine$integer.max - 2
+  } else if (value < -1 * .Machine$integer.max) {
+    value <- 2 * .Machine$integer.max + value + 2
+  }
+  value
+}
+
+# Multiply `val` by 31 and add `addVal` to the result. Ensures that
+# integer overflows are handled at every step.
 #
-# # Multiply `val` by 31 and add `addVal` to the result. Ensures that
-# # integer overflows are handled at every step.
-# #
-# # TODO: this function does not handle integer overflow well
-# mult31AndAdd <- function(val, addVal) {
-#   vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
-#   vec[is.na(vec)] <- 0
-#   Reduce(function(a, b) {
-#     wrapInt(as.numeric(a) + as.numeric(b))
-#   },
-#   vec)
-# }
+# TODO: this function does not handle integer overflow well
+mult31AndAdd <- function(val, addVal) {
+  vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
+  vec[is.na(vec)] <- 0
+  Reduce(function(a, b) {
+    wrapInt(as.numeric(a) + as.numeric(b))
+  },
+  vec)
+}
 
 #' Compute the hashCode of an object
 #'
@@ -292,7 +292,6 @@ prepare_func <- function(some_function) {
 #'
 #' @details This only works for integer, numeric and character types.
 #'
-#' @export
 #' @examples
 #'
 #'\dontrun{
@@ -304,23 +303,23 @@ prepare_func <- function(some_function) {
 #'}
 hashCode <- function (key) {
 
-  wrapInt <- function(value) {
-    if (value > .Machine$integer.max) {
-      value <- value - 2 * .Machine$integer.max - 2
-    } else if (value < -1 * .Machine$integer.max) {
-      value <- 2 * .Machine$integer.max + value + 2
-    }
-    value
-  }
-
-  mult31AndAdd <- function(val, addVal) {
-    vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
-    vec[is.na(vec)] <- 0
-    Reduce(function(a, b) {
-      wrapInt(as.numeric(a) + as.numeric(b))
-    },
-    vec)
-  }
+  # wrapInt <- function(value) {
+  #   if (value > .Machine$integer.max) {
+  #     value <- value - 2 * .Machine$integer.max - 2
+  #   } else if (value < -1 * .Machine$integer.max) {
+  #     value <- 2 * .Machine$integer.max + value + 2
+  #   }
+  #   value
+  # }
+  #
+  # mult31AndAdd <- function(val, addVal) {
+  #   vec <- c(bitwShiftL(val, c(4, 3, 2, 1, 0)), addVal)
+  #   vec[is.na(vec)] <- 0
+  #   Reduce(function(a, b) {
+  #     wrapInt(as.numeric(a) + as.numeric(b))
+  #   },
+  #   vec)
+  # }
 
   if (class(key) == "integer") {
     as.integer(key[[1]])
@@ -575,6 +574,8 @@ convertEnvsToList <- function (keys, vals) {
   })
 }
 
+# Utility function to sort a list of key value pairs
+# Used in unit tests
 sortKeyValueList <- function(kv_list, decreasing = FALSE) {
   keys <- sapply(kv_list, function(x) x[[1]])
   kv_list[order(keys, decreasing = decreasing)]
@@ -598,6 +599,14 @@ writeToTempFile <- function(serializedSlices) {
   fileName
 }
 
+# Utility function to reduce a key-value list with predicate
+# Used in *ByKey functions
+# param
+#   pair key-value pair
+#   keys/vals env of key/value with hashes
+#   updateOrCreatePred predicate function
+#   updateFn update or merge function for existing pair, similar with `mergeVal` @combineByKey
+#   createFn create function for new pair, similar with `createCombiner` @combinebykey
 updateOrCreatePair <- function (pair, keys, vals, updateOrCreatePred,
                                 updateFn, createFn) {
   hashVal <- pair$hash
