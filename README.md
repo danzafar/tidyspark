@@ -45,7 +45,7 @@ Many R users seek refuge in RStudio's `sparklyr` package which is maintained by 
 For more information on the philosophy of `tidyspark` and technical information on how it works, please view the [Developer Guide](https://github.com/danzafar/tidyspark/blob/master/vignettes/dev_guide.Rmd)
 
 ## Status
-Since the first code written Jan 23, 2020 some significant progress has been made to prove out the `tidyspark` principles. At this time, all of the major `dplyr` verbs are supported in `tidyspark`. By far the most complex are the window-affected verbs and their usage with rank function. One of the goals of the project will be to provide explanatory documentation for how these verb methods work to foster collaboration. Here are the verbs that are currently supported, though some edge cases are still being worked out:
+Some significant progress has been made to prove out the `tidyspark` principles. At this time, all of the major `dplyr` verbs are supported in `tidyspark`. By far the most complex are the window-affected verbs and their usage with rank function. One of the goals of the project will be to provide explanatory documentation for how these verb methods work to foster collaboration. Here are the verbs that are currently supported, though some edge cases are still being worked out:
 - `select`
 - `rename`
 - `mutate`
@@ -77,6 +77,8 @@ Aspects that are waiting to be finalized:
 - Databricks integration
 
 At this time, the package should be considered as experimental. Contributions are welcome!
+
+Update: At this time, the project is finished as a MVP `SparkR` alternative. We are currently working to see where the project will live, either as part of OSS or as a third-party package.
 
 ## Installation
 
